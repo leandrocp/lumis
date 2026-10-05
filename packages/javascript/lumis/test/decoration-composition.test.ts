@@ -69,6 +69,10 @@ function notation(events: readonly HighlightEvent<string>[]): string {
   return events.map((event) => eventNotation(event, decorations)).join(" ");
 }
 
+function assertNever(value: never): never {
+  throw new Error(`Unhandled event: ${JSON.stringify(value)}`);
+}
+
 function eventNotation(
   event: HighlightEvent<string>,
   decorations: Array<Extract<HighlightEvent, { type: "decorationStart" }>["decoration"]>,
@@ -90,6 +94,8 @@ function eventNotation(
     case "decorationEnd":
       return decorationEndNotation(decorations.pop());
   }
+
+  return assertNever(event);
 }
 
 function decorationStartNotation(

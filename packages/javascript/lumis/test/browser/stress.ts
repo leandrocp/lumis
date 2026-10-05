@@ -129,4 +129,4 @@ const api: StressApi = {
   },
 };
 
-Object.assign(window, { __lumisStressApi: api, __lumisStressReady: true });
+Object.assign(window, { lumisStressApi: api, lumisStressReady: true });

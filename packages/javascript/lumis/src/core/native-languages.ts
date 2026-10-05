@@ -111,7 +111,7 @@ function isWasmRef(wasm: unknown): wasm is WasmRef {
   const record = wasm as Record<string, unknown>;
   return (
     WASM_REF_STRING_FIELDS.every((field) => typeof record[field] === "string") &&
-    /^[0-9a-f]{64}$/.test(record.sha256 as string)
+    /^[0-9a-f]{64}$/u.test(record.sha256 as string)
   );
 }
 
@@ -155,7 +155,7 @@ async function readWasmInput(wasm: RuntimeWasmInput, packaged: WasmRef): Promise
   if (wasm.startsWith("file://")) {
     return new Uint8Array(await readFile(fileURLToPath(new URL(wasm))));
   }
-  if (/^https?:\/\//.test(wasm)) return download(wasm);
+  if (/^https?:\/\//u.test(wasm)) return download(wasm);
   return new Uint8Array(await readFile(wasm));
 }
 
@@ -226,18 +226,22 @@ export function createNativeLanguagesModule(
    * native walk, without coming back to JavaScript.
    */
   function tellAddon(): Promise<Record<string, string> | undefined> {
-    installed ??= (async () => {
-      if (!resolveInstalledManifests) return;
-      const { fileURLToPath } = await import("node:url");
-      const manifests: Record<string, string> = {};
-      for (const [packageName, manifest] of await resolveInstalledManifests(
-        LANGUAGE_PACKAGE_NAMES,
-      )) {
-        manifests[packageName] = fileURLToPath(manifest);
-      }
-      binding.setInstalledPackages(manifests);
-      return manifests;
-    })();
+    if (installed) return installed;
+    if (resolveInstalledManifests) {
+      installed = (async () => {
+        const { fileURLToPath } = await import("node:url");
+        const manifests: Record<string, string> = {};
+        for (const [packageName, manifest] of await resolveInstalledManifests(
+          LANGUAGE_PACKAGE_NAMES,
+        )) {
+          manifests[packageName] = fileURLToPath(manifest);
+        }
+        binding.setInstalledPackages(manifests);
+        return manifests;
+      })();
+    } else {
+      installed = Promise.resolve(undefined);
+    }
     return installed;
   }
 
@@ -628,6 +632,7 @@ export function createNativeLanguagesModule(
             },
           };
       }
+      return undefined;
     }
 
     private canFormatNatively(language: LoadedLanguage, canCallResolver: boolean): boolean {

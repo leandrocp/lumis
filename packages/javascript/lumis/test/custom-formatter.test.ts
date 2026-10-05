@@ -18,6 +18,16 @@ import { configureLocalWasmResolver } from "./wasm.js";
 
 const theme: Theme = dracula;
 
+function collectScopes(source: string, language: Formatter["language"]): string[] {
+  const scopes: string[] = [];
+
+  highlightIter(source, language, undefined, (text, tokenLanguage, _range, scope) => {
+    scopes.push(`${tokenLanguage}:${scope}:${text}`);
+  });
+
+  return scopes;
+}
+
 describe("custom formatter", () => {
   beforeAll(() => {
     configureLocalWasmResolver(["diff", "json"]);
@@ -153,16 +163,6 @@ describe("custom formatter", () => {
   it("restores the outer runtime after nested formatter calls", async () => {
     const outerHighlighter = await createHighlighter({ languages: [json] });
     const innerHighlighter = await createHighlighter({ languages: [diff] });
-
-    const collectScopes = (source: string, language: Formatter["language"]): string[] => {
-      const scopes: string[] = [];
-
-      highlightIter(source, language, undefined, (text, tokenLanguage, _range, scope) => {
-        scopes.push(`${tokenLanguage}:${scope}:${text}`);
-      });
-
-      return scopes;
-    };
 
     const innerFormatter: Formatter = {
       language: diff,

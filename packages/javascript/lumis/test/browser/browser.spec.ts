@@ -59,12 +59,12 @@ test.describe("browser runtime", () => {
 
     await page.goto("/");
     await page.waitForFunction(
-      () => window.__lumisBrowserResult !== undefined || window.__lumisBrowserError !== undefined,
+      () => window.lumisBrowserResult !== undefined || window.lumisBrowserError !== undefined,
     );
 
     const outcome = await page.evaluate(() => ({
-      error: window.__lumisBrowserError,
-      result: window.__lumisBrowserResult,
+      error: window.lumisBrowserError,
+      result: window.lumisBrowserResult,
     }));
 
     expect(outcome.error).toBeUndefined();
@@ -72,11 +72,11 @@ test.describe("browser runtime", () => {
 
     await page.reload();
     await page.waitForFunction(
-      () => window.__lumisBrowserResult !== undefined || window.__lumisBrowserError !== undefined,
+      () => window.lumisBrowserResult !== undefined || window.lumisBrowserError !== undefined,
     );
     const reloadedOutcome = await page.evaluate(() => ({
-      error: window.__lumisBrowserError,
-      result: window.__lumisBrowserResult,
+      error: window.lumisBrowserError,
+      result: window.lumisBrowserResult,
     }));
     expect(reloadedOutcome.error).toBeUndefined();
     reloadedResult = reloadedOutcome.result as BrowserTestResult;

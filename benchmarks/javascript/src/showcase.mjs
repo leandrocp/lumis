@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { implementationById } from "../../scripts/implementations.mjs";
 import { loadLibraries } from "./libraries.mjs";
 import { createHighlighter, runtimeKind, withWasm } from "@lumis-sh/lumis";
@@ -34,7 +34,7 @@ import javaWasm from "@lumis-sh/wasm-java";
 import rustWasm from "@lumis-sh/wasm-rust";
 import tsxWasm from "@lumis-sh/wasm-tsx";
 
-const benchmarksDir = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const benchmarksDir = resolve(import.meta.dirname, "../..");
 const generatedDir = resolve(benchmarksDir, "showcase/generated");
 const assetsDir = resolve(generatedDir, "assets");
 const documents = JSON.parse(await readFile(resolve(assetsDir, "documents.json"), "utf8"));

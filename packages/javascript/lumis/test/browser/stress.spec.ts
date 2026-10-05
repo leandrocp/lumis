@@ -49,8 +49,8 @@ interface BrowserStressApi {
 }
 
 interface StressWindow extends Window {
-  __lumisStressApi: BrowserStressApi;
-  __lumisStressReady: boolean;
+  lumisStressApi: BrowserStressApi;
+  lumisStressReady: boolean;
 }
 
 interface StressOptions {
@@ -200,7 +200,7 @@ async function renderCase(
   let measured: BrowserCaseResult;
   try {
     measured = await page.evaluate(
-      (input) => (window as unknown as StressWindow).__lumisStressApi.render(input),
+      (input) => (window as unknown as StressWindow).lumisStressApi.render(input),
       { iterations, language: testCase.language, source },
     );
   } catch (error) {
@@ -228,11 +228,11 @@ test("runs the generated stress corpus in a browser", async ({ page }) => {
   await writeJson(outputPath, report);
 
   await page.goto("/stress.html");
-  await page.waitForFunction(() => (window as unknown as StressWindow).__lumisStressReady);
+  await page.waitForFunction(() => (window as unknown as StressWindow).lumisStressReady);
 
   const assets = await loadRuntimeAssets(manifest);
   report.preload = await page.evaluate(
-    (input) => (window as unknown as StressWindow).__lumisStressApi.init(input),
+    (input) => (window as unknown as StressWindow).lumisStressApi.init(input),
     assets,
   );
   expect((report.preload as { runtimeKind: string }).runtimeKind).toBe("wasm");

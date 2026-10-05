@@ -41,7 +41,7 @@ function renderDefaultFence(
 }
 
 function getLanguageName(info: string): string | undefined {
-  const language = info.trim().split(/\s+/, 1)[0];
+  const language = info.trim().split(/\s+/u, 1)[0];
   return language && language.length > 0 ? language : undefined;
 }
 

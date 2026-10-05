@@ -28,6 +28,6 @@ describe("expandBundles", () => {
   });
 
   it("rejects a name that looks like a bundle but is not one", () => {
-    expect(() => expandBundles(["bundle-nope"])).toThrow(/Unknown bundle "bundle-nope"/);
+    expect(() => expandBundles(["bundle-nope"])).toThrow(/Unknown bundle "bundle-nope"/u);
   });
 });

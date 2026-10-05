@@ -26,7 +26,7 @@ const dynamicImport = new Function("specifier", "return import(specifier)");
 /** Resolve the root directory of an installed npm package. */
 function packageRoot(name) {
   const entry = require.resolve(name);
-  return entry.replace(/[/\\]dist[/\\].*$/, "");
+  return entry.replace(/[/\\]dist[/\\].*$/u, "");
 }
 
 /** Aliases for common markdown language identifiers. */
@@ -123,7 +123,7 @@ function remarkLumis() {
         // Render through <LumisCodeBlock>, which adds the title bar from
         // title="..." meta and the copy button.
         const attributes = [{ type: "mdxJsxAttribute", name: "html", value: highlighted }];
-        const title = node.meta?.match(/title="([^"]*)"/)?.[1];
+        const title = node.meta?.match(/title="([^"]*)"/u)?.[1];
         if (title) attributes.push({ type: "mdxJsxAttribute", name: "title", value: title });
 
         parent.children[index] = {

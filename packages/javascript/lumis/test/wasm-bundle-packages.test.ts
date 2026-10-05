@@ -37,7 +37,7 @@ describe("generated WASM bundle packages", () => {
       const dependencies = Object.fromEntries(
         ids.map((id) => {
           const parser = config.parsers[id]?.wasm_name ?? `tree-sitter-${id}`;
-          return [`@lumis-sh/wasm-${parser.replace(/^tree-sitter-/, "")}`, expect.any(String)];
+          return [`@lumis-sh/wasm-${parser.replace(/^tree-sitter-/u, "")}`, expect.any(String)];
         }),
       );
       const dir = join(out, `wasm-bundle-${name}`);

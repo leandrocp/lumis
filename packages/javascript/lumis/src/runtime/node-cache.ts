@@ -7,7 +7,7 @@ const nodeOs = "node:os";
 
 /** @internal */
 export function isUrlString(source: string): boolean {
-  if (/^[a-zA-Z]:/.test(source)) return false;
+  if (/^[a-zA-Z]:/u.test(source)) return false;
   try {
     // oxlint-disable-next-line no-new -- constructing it is the validity test.
     new URL(source);

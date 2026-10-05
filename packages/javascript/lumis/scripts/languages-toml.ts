@@ -26,7 +26,7 @@ function invalid(path: string): never {
 }
 
 function requireSafeName(value: string, path: string): void {
-  if (value.length === 0 || value === "." || value === ".." || /[/\\]/.test(value)) {
+  if (value.length === 0 || value === "." || value === ".." || /[/\\]/u.test(value)) {
     invalid(path);
   }
 }

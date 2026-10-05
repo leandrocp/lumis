@@ -1,6 +1,10 @@
 import { measure } from "mitata";
 
+// Keep parsing the numeric prefix: `parseInt("10samples", 10)` historically
+// accepts it, while `Number("10samples")` would reject the value.
+// oxlint-disable-next-line unicorn/prefer-number-coercion -- preserve partial numeric parsing.
 const minimumSamples = Number.parseInt(process.env.BENCH_SAMPLES ?? "10", 10);
+// oxlint-disable-next-line unicorn/prefer-number-coercion -- preserve partial numeric parsing.
 const measurementSeconds = Number.parseFloat(process.env.BENCH_TIME_SECONDS ?? "1");
 
 if (!Number.isSafeInteger(minimumSamples) || minimumSamples < 2) {

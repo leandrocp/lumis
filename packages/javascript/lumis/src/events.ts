@@ -1207,8 +1207,10 @@ function colorizeBracketPairs(pairs: BracketPair[]): RainbowRange[] {
       lastOpen.endByte === pair.open.endByte
     ) {
       const depth = openStack.length - 1;
-      ranges.push({ startByte: pair.open.startByte, endByte: pair.open.endByte, depth });
-      ranges.push({ startByte: pair.close.startByte, endByte: pair.close.endByte, depth });
+      ranges.push(
+        { startByte: pair.open.startByte, endByte: pair.open.endByte, depth },
+        { startByte: pair.close.startByte, endByte: pair.close.endByte, depth },
+      );
       openStack.pop();
     }
   }

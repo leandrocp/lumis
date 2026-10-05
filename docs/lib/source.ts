@@ -10,21 +10,21 @@ const lumisPageSchema = pageSchema.extend({
 });
 
 function agentMarkdown(raw: string): string {
-  const body = raw.replace(/^---\n[\s\S]*?\n---\n/, "");
+  const body = raw.replace(/^---\n[\s\S]*?\n---\n/u, "");
   let fence: string | undefined;
   return body
     .split("\n")
     .flatMap((line) => {
-      const delimiter = line.match(/^\s*(`{3,}|~{3,})/);
+      const delimiter = line.match(/^\s*(`{3,}|~{3,})/u);
       if (delimiter) {
         if (!fence) fence = delimiter[1][0];
         else if (fence === delimiter[1][0]) fence = undefined;
         return [line];
       }
       if (fence) return [line];
-      if (/^import \{ Tabs, Tab \} from 'fumadocs-ui\/components\/tabs';$/.test(line)) return [];
-      if (/^\s*<Tabs\b.*>\s*$/.test(line) || /^\s*<\/(?:Tab|Tabs)>\s*$/.test(line)) return [];
-      const tab = line.match(/^\s*<Tab value="([^"]+)">\s*$/);
+      if (/^import \{ Tabs, Tab \} from 'fumadocs-ui\/components\/tabs';$/u.test(line)) return [];
+      if (/^\s*<Tabs\b.*>\s*$/u.test(line) || /^\s*<\/(?:Tab|Tabs)>\s*$/u.test(line)) return [];
+      const tab = line.match(/^\s*<Tab value="([^"]+)">\s*$/u);
       if (tab) return [`### ${tab[1]}`];
       return [line];
     })

@@ -72,7 +72,7 @@ describe("language name conformance", () => {
   it("rejects an unknown bundle rather than treating it as a language", () => {
     for (const name of cases.unknownBundles.names) {
       expect(() => expandBundles([name]), `${name} should be rejected`).toThrow(
-        new RegExp(`Unknown bundle "${name}"`),
+        new RegExp(`Unknown bundle "${name}"`, "u"),
       );
     }
   });

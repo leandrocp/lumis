@@ -282,7 +282,7 @@ This replaced a per-package `fmt:check` that named `src/` only. Every `test/`, `
 
 **Every linter runs at its strict setting.** clippy at `clippy::pedantic`, oxlint with `correctness`, `suspicious`, `perf` and `pedantic` as errors, credo with `--strict`, selene with warnings fatal. `CONTRIBUTING.md` has the table and where each configuration lives.
 
-Every runtime implemented here also caps cyclomatic complexity at 20: oxlint's classic `eslint/complexity` rule for JavaScript, Credo's `CyclomaticComplexity` check for Elixir, and pinned Lizard for every Rust source file. The sole Rust whitelist entry is the exact upstream-vendored Tree-sitter iterator; do not broaden it or add authored code to it.
+Every runtime implemented here also caps cyclomatic complexity: 9 through oxlint's classic `eslint/complexity` rule for JavaScript and Credo's `CyclomaticComplexity` check for Elixir, and 20 through pinned Lizard for every Rust source file. The sole Rust whitelist entry is the exact upstream-vendored Tree-sitter iterator; do not broaden it or add authored code to it.
 
 A lint the repository has decided against is a waiver, not a line-level silence: it goes in `[workspace.lints.clippy]` or the `rules` block of `.oxlintrc.json`, with the reason and the number of sites it fired on. Those lists shrink; an addition needs the same justification the existing entries carry. Prefer configuring a rule over disabling it — `eqeqeq` keeps `== null`, `max-depth` is set to the deepest block the tree actually has, `prefer-nullish-coalescing` skips `if` statements whose guard is truthiness rather than nullishness.
 

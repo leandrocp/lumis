@@ -38,6 +38,15 @@ interface Manifest {
   documents: ComparisonDocument[];
 }
 
+function paint(container: HTMLElement, selected: string) {
+  for (const button of Array.from(container.children) as HTMLButtonElement[]) {
+    const isSelected = button.dataset.id === selected;
+    button.setAttribute("aria-selected", String(isSelected));
+    button.classList.remove(...ACTIVE_TAB_CLASSES, ...INACTIVE_TAB_CLASSES);
+    button.classList.add(...(isSelected ? ACTIVE_TAB_CLASSES : INACTIVE_TAB_CLASSES));
+  }
+}
+
 export function renderComparison() {
   return `
     <section id="comparison" class="pt-32 pb-24 sm:pt-40 sm:pb-36">
@@ -207,15 +216,6 @@ export async function setupComparison(root: HTMLElement) {
       `${currentImplementation.label} highlighting ${currentDocument.label} ` +
       `in ${currentTheme.name}`;
     describe();
-  }
-
-  function paint(container: HTMLElement, selected: string) {
-    for (const button of Array.from(container.children) as HTMLButtonElement[]) {
-      const isSelected = button.dataset.id === selected;
-      button.setAttribute("aria-selected", String(isSelected));
-      button.classList.remove(...ACTIVE_TAB_CLASSES, ...INACTIVE_TAB_CLASSES);
-      button.classList.add(...(isSelected ? ACTIVE_TAB_CLASSES : INACTIVE_TAB_CLASSES));
-    }
   }
 
   const selectDocument = (entry: ComparisonDocument) => () => {

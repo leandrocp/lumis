@@ -135,8 +135,8 @@ test("a missing platform package fails with an actionable message", () => {
 
     const result = spawnSync(process.execPath, [join(bin, "lumis")], { encoding: "utf8" });
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /is not installed/);
-    assert.match(result.stderr, /Reinstall @lumis-sh\/cli/);
+    assert.match(result.stderr, /is not installed/u);
+    assert.match(result.stderr, /Reinstall @lumis-sh\/cli/u);
   } finally {
     rmSync(isolated, { force: true, recursive: true });
   }

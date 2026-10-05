@@ -3,11 +3,10 @@
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { basename, dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { basename, resolve } from "node:path";
 import { showcaseImplementations } from "./implementations.mjs";
 
-const benchmarksDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const benchmarksDir = resolve(import.meta.dirname, "..");
 const repoDir = resolve(benchmarksDir, "..");
 const generatedDir = resolve(benchmarksDir, "showcase/generated");
 const assetsDir = resolve(generatedDir, "assets");
@@ -137,7 +136,7 @@ const installedVersion = async (name) => {
 };
 const benchmarkCargo = await readFile(resolve(benchmarksDir, "rust/Cargo.toml"), "utf8");
 const crateVersion = (name) =>
-  benchmarkCargo.match(new RegExp(`^${name} = "([^"]+)"`, "m"))?.[1] ?? "unknown";
+  benchmarkCargo.match(new RegExp(`^${name} = "([^"]+)"`, "mu"))?.[1] ?? "unknown";
 const lumisVersion = JSON.parse(
   await readFile(resolve(repoDir, "packages/javascript/lumis/package.json"), "utf8"),
 ).version;
@@ -334,17 +333,22 @@ function run(command, args) {
 // whitespace in, which hold nothing a colour could show.
 function countTokens(fragment, implementation) {
   let tokens = 0;
-  for (const tag of fragment.match(/<span\b[^>]*>/gi) ?? []) {
-    if (/class=(?:"[^"]*|'[^']*)\bsh__token--(?:space|break)\b/i.test(tag)) continue;
+  for (const tag of asciiLowercase(fragment).match(/<span\b[^>]*>/gu) ?? []) {
+    if (/class=(?:"[^"]*|'[^']*)\bsh__token--(?:space|break)\b/u.test(tag)) continue;
     if (
-      /style=(?:"[^"]*|'[^']*)\bcolor\s*:/i.test(tag) ||
-      /class=(?:"[^"]*|'[^']*)\b(?:hljs-|th-token\b|token\b|shj-syn-|pl-)/i.test(tag)
+      /style=(?:"[^"]*|'[^']*)\bcolor\s*:/u.test(tag) ||
+      /class=(?:"[^"]*|'[^']*)\b(?:hljs-|th-token\b|token\b|shj-syn-|pl-)/u.test(tag)
     ) {
       tokens += 1;
     }
   }
   if (tokens === 0) throw new Error(`${implementation} produced no coloured tokens`);
   return tokens;
+}
+
+function asciiLowercase(value) {
+  // Keep the old ASCII-only /i matching behavior; /iu also folds letters such as long s.
+  return value.replaceAll(/[A-Z]/gu, (letter) => letter.toLowerCase());
 }
 
 function validateHtml(output, sourceBytes, implementation) {
@@ -384,8 +388,10 @@ function validateLumisScopes(output, implementation, document, expectations, the
 function spanColours(output, text) {
   const found = new Set();
 
-  for (const [, style, span] of output.matchAll(/<span style="([^"]*)">([^<]*)<\/span>/g)) {
-    if (span === text) found.add(style.match(/color:\s*(#[0-9a-f]{6})/i)?.[1]?.toLowerCase());
+  for (const [, style, span] of output.matchAll(/<span style="([^"]*)">([^<]*)<\/span>/gu)) {
+    if (span === text) {
+      found.add(asciiLowercase(style).match(/color:\s*(#[0-9a-fA-F]{6})/u)?.[1]);
+    }
   }
 
   return found;

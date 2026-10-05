@@ -44,7 +44,7 @@ describe("with markdown-it-attrs", () => {
   it("renders a fence's attributes on pre, as markdown-it-attrs would have", async () => {
     const html = await render();
 
-    expect(html).toMatch(/^<pre class="lumis code-card"/);
+    expect(html).toMatch(/^<pre class="lumis code-card"/u);
     expect(html).toContain('id="example"');
     expect(html).toContain('data-panel="install"');
     expect(html).toContain('<code class="language-javascript"');
@@ -53,8 +53,8 @@ describe("with markdown-it-attrs", () => {
   it("renders them on code when asked, as markdown-it core would have", async () => {
     const html = await render({ fenceAttrsOnPre: false });
 
-    expect(html).toMatch(/^<pre class="lumis" style=/);
-    expect(html).toMatch(/<code class="language-javascript code-card"[^>]*id="example"/);
+    expect(html).toMatch(/^<pre class="lumis" style=/u);
+    expect(html).toMatch(/<code class="language-javascript code-card"[^>]*id="example"/u);
     expect(html).toContain('data-panel="install"');
   });
 
@@ -73,16 +73,16 @@ describe("with markdown-it-attrs", () => {
    */
   it("places them where markdown-it-attrs documents, not where ESM leaves them", async () => {
     const attrsOnly = new MarkdownIt().use(markdownItAttrs).render(SOURCE);
-    expect(attrsOnly).toMatch(/<code[^>]*id="example"/);
-    expect(attrsOnly).not.toMatch(/<pre[^>]*id="example"/);
+    expect(attrsOnly).toMatch(/<code[^>]*id="example"/u);
+    expect(attrsOnly).not.toMatch(/<pre[^>]*id="example"/u);
 
     const highlighted = await render();
-    expect(highlighted).toMatch(/<pre[^>]*id="example"/);
-    expect(highlighted).not.toMatch(/<code[^>]*id="example"/);
+    expect(highlighted).toMatch(/<pre[^>]*id="example"/u);
+    expect(highlighted).not.toMatch(/<code[^>]*id="example"/u);
 
     const onCode = await render({ fenceAttrsOnPre: false });
-    expect(onCode).toMatch(/<code[^>]*id="example"/);
-    expect(onCode).not.toMatch(/<pre[^>]*id="example"/);
+    expect(onCode).toMatch(/<code[^>]*id="example"/u);
+    expect(onCode).not.toMatch(/<pre[^>]*id="example"/u);
   });
 
   it("leaves a fence carrying no attributes alone", async () => {
@@ -94,7 +94,7 @@ describe("with markdown-it-attrs", () => {
 
     const html = md.render("```javascript\nconst x = 1\n```");
 
-    expect(html).toMatch(/^<pre class="lumis" style="color: #[0-9a-f]+/);
+    expect(html).toMatch(/^<pre class="lumis" style="color: #[0-9a-f]+/u);
     expect(html).not.toContain("id=");
   });
 });

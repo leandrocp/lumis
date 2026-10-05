@@ -353,7 +353,7 @@ const server = await createServer({
 });
 try {
   await server.listen();
-  const url = server.resolvedUrls.local[0].replace(/\/$/, "");
+  const url = server.resolvedUrls.local[0].replace(/\/$/u, "");
   for (const [name, engine] of Object.entries({ chromium, firefox, webkit })) {
     await captureBrowser(name, engine, url, generated);
   }

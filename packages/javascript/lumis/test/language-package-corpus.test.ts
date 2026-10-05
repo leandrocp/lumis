@@ -27,7 +27,7 @@ function fixtures(kind: "valid" | "invalid"): [string, Uint8Array][] {
     .filter((name) => name.endsWith(".json"))
     .sort()
     .map((name) => [
-      name.replace(/\.json$/, ""),
+      name.replace(/\.json$/u, ""),
       new Uint8Array(readFileSync(join(CORPUS, kind, name))),
     ]);
 }

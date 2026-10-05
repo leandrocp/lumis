@@ -44,7 +44,7 @@ describe("withAttrs", () => {
     const html = render(derived);
 
     expect(html).toContain('class="lumis card wide"');
-    expect(html).toMatch(/style="color: #f8f8f2; background-color: #282a36; padding: 1rem;"/);
+    expect(html).toMatch(/style="color: #f8f8f2; background-color: #282a36; padding: 1rem;"/u);
     expect(html).toContain('id="example"');
     expect(html).toContain('translate="yes"');
     expect(html).not.toContain('translate="no"');

@@ -30,7 +30,7 @@ function getPropertyString(value: unknown): string | undefined {
 
 function propertyClassNames(value: unknown): string[] {
   if (typeof value === "string") {
-    return value.split(/\s+/).filter(Boolean);
+    return value.split(/\s+/u).filter(Boolean);
   }
 
   if (!Array.isArray(value)) {
@@ -124,6 +124,8 @@ function restoreTrailingChildren(replacement: RootContent[], parsed: ParsedCodeB
       pre = node;
       return "skip";
     }
+    // oxlint-disable-next-line unicorn/no-useless-undefined -- return type distinguishes a skipped node from normal traversal.
+    return undefined;
   });
   if (!pre) return;
 
@@ -183,12 +185,14 @@ const rehypeLumis: Plugin<[RehypeLumisOptions], Root> = function rehypeLumis(opt
 
     visit(tree, "element", (node, index, parent) => {
       if (!parent || index == null || node.tagName !== "pre") {
-        return;
+        // oxlint-disable-next-line unicorn/no-useless-undefined -- explicit no-op result keeps visitor returns consistent.
+        return undefined;
       }
 
       const parsed = parseCodeBlock(node);
       if (!parsed) {
-        return;
+        // oxlint-disable-next-line unicorn/no-useless-undefined -- explicit no-op result keeps visitor returns consistent.
+        return undefined;
       }
 
       targets.push({ parent, index, parsed });
@@ -200,7 +204,8 @@ const rehypeLumis: Plugin<[RehypeLumisOptions], Root> = function rehypeLumis(opt
         try {
           return await renderBlock(highlighter, parsed, options.formatter);
         } catch {
-          return;
+          // oxlint-disable-next-line unicorn/no-useless-undefined -- failed blocks are intentionally skipped.
+          return undefined;
         }
       }),
     );

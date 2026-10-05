@@ -416,7 +416,7 @@ function isValidPackageManifest(fields: {
     isSafePackagePathSegment(fields.version) &&
     isSafePackagePathSegment(fields.parserName) &&
     fields.grammarName.length > 0 &&
-    /^[0-9a-f]{64}$/.test(fields.parserSha256)
+    /^[0-9a-f]{64}$/u.test(fields.parserSha256)
   );
 }
 
@@ -433,13 +433,13 @@ function isValidPackageName(value: string): boolean {
     if (value.includes("/")) return false;
     segments = [value];
   }
-  return segments.every((segment) => /^[a-z0-9][a-z0-9._-]*$/.test(segment));
+  return segments.every((segment) => /^[a-z0-9][a-z0-9._-]*$/u.test(segment));
 }
 
 export { normalizeLanguageName };
 
 function isSafePackagePathSegment(value: string): boolean {
-  const stem = value.split(".", 1)[0]!.replace(/[ .]+$/, "");
+  const stem = value.split(".", 1)[0]!.replace(/[ .]+$/u, "");
   let hasForbiddenCharacter = false;
   for (let index = 0; index < value.length; index += 1) {
     if (value.charCodeAt(index) <= 0x1f || '<>:"/\\|?*'.includes(value[index]!)) {
@@ -451,9 +451,11 @@ function isSafePackagePathSegment(value: string): boolean {
     value !== "" &&
     value !== "." &&
     value !== ".." &&
-    !/[ .]$/.test(value) &&
+    !/[ .]$/u.test(value) &&
     !hasForbiddenCharacter &&
-    !/^(?:con|prn|aux|nul|clock\$|conin\$|conout\$|com[1-9¹²³]|lpt[1-9¹²³])$/i.test(stem)
+    !/^(?:con|prn|aux|nul|clock\$|conin\$|conout\$|com[1-9¹²³]|lpt[1-9¹²³])$/u.test(
+      normalizeLanguageName(stem),
+    )
   );
 }
 
@@ -681,7 +683,7 @@ function parserDownloadError(message: string, source: string, packageName: strin
 function underViteDeps(source: string): boolean {
   try {
     // Relative when a bundler hands one out, as Next.js does.
-    return /\/deps\/[^/]+\.wasm$/.test(new URL(source, globalThis.location?.href).pathname);
+    return /\/deps\/[^/]+\.wasm$/u.test(new URL(source, globalThis.location?.href).pathname);
   } catch {
     return false;
   }
@@ -771,14 +773,15 @@ function resolveHighlightName(captureName: string): string | undefined {
   return best;
 }
 
-const DECIMAL_OFFSET = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE]([+-]?\d+))?$/;
-const BINARY_OFFSET = /^([+-]?)0[bB]([01]+)$/;
-const HEX_OFFSET = /^([+-]?)0[xX]([\da-fA-F]+(?:\.[\da-fA-F]*)?|\.[\da-fA-F]+)(?:[pP]([+-]?\d+))?$/;
+const DECIMAL_OFFSET = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE]([+-]?\d+))?$/u;
+const BINARY_OFFSET = /^([+-]?)0[bB]([01]+)$/u;
+const HEX_OFFSET =
+  /^([+-]?)0[xX]([\da-fA-F]+(?:\.[\da-fA-F]*)?|\.[\da-fA-F]+)(?:[pP]([+-]?\d+))?$/u;
 const MAX_LUA_EXPONENT = "1048575";
 
 function isLuaExponent(value: string | undefined): boolean {
   if (value === undefined) return true;
-  const magnitude = value.replace(/^[+-]/, "").replace(/^0+/, "");
+  const magnitude = value.replace(/^[+-]/u, "").replace(/^0+/u, "");
   return (
     magnitude.length < MAX_LUA_EXPONENT.length ||
     (magnitude.length === MAX_LUA_EXPONENT.length && magnitude <= MAX_LUA_EXPONENT)
@@ -885,7 +888,7 @@ function hexBitsToFloat(
 }
 
 function parseOffsetDelta(input: string): number | undefined {
-  const value = input.replace(/^[\t\n\v\f\r ]+/, "").replace(/[\t\n\v\f\r ]+$/, "");
+  const value = input.replace(/^[\t\n\v\f\r ]+/u, "").replace(/[\t\n\v\f\r ]+$/u, "");
   if (value.length === 0) return undefined;
 
   const binary = BINARY_OFFSET.exec(value);

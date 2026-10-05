@@ -20,7 +20,7 @@ interface Block {
 
 // Most entry points hold no code at all, and parsing one costs ~75x what
 // looking for the tag does. Nothing here can match a document without a `pre`.
-const PRE_TAG = /<pre[\s/>]/i;
+const PRE_TAG = /<pre[\s/>]/iu;
 
 function createProcessor(options: VitePluginLumisOptions) {
   return unified().use(rehypeLumis, options).freeze();
@@ -85,12 +85,14 @@ export default function lumis(options: VitePluginLumisOptions): Plugin {
     configureServer: warmHighlighter,
     async transformIndexHtml(html) {
       if (!PRE_TAG.test(html)) {
-        return;
+        // oxlint-disable-next-line unicorn/no-useless-undefined -- the Vite hook returns no transform result for unrelated HTML.
+        return undefined;
       }
 
       const blocks = findBlocks(fromHtml(html));
       if (blocks.length === 0) {
-        return;
+        // oxlint-disable-next-line unicorn/no-useless-undefined -- the Vite hook returns no transform result when no blocks match.
+        return undefined;
       }
 
       await warmHighlighter();
@@ -113,7 +115,7 @@ export default function lumis(options: VitePluginLumisOptions): Plugin {
           continue;
         }
 
-        out += html.slice(cursor, block.start) + toHtml(result as Parameters<typeof toHtml>[0]);
+        out += html.slice(cursor, block.start) + toHtml(result);
         cursor = block.end;
       }
 

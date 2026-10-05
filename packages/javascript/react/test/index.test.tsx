@@ -118,10 +118,10 @@ describe("@lumis-sh/react", () => {
     const html = renderToStaticMarkup(node);
 
     expect(html).toMatch(
-      /<pre class="lumis" style="color:#[0-9a-f]+;background-color:#[0-9a-f]+">/,
+      /<pre class="lumis" style="color:#[0-9a-f]+;background-color:#[0-9a-f]+">/u,
     );
-    expect(html).toMatch(/<code class="language-javascript"/);
-    expect(html).toMatch(/<span style="color:#[0-9a-f]+">const<\/span>/);
+    expect(html).toMatch(/<code class="language-javascript"/u);
+    expect(html).toMatch(/<span style="color:#[0-9a-f]+">const<\/span>/u);
   });
 
   it("supports string formatter languages through renderCodeBlock", async () => {

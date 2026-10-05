@@ -1,11 +1,10 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { implementationById } from "../../scripts/implementations.mjs";
 import { loadLibraries } from "./libraries.mjs";
 import { measureCall } from "./measure.mjs";
 
-const benchmarksDir = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const benchmarksDir = resolve(import.meta.dirname, "../..");
 const assetsDir = resolve(benchmarksDir, "showcase/generated/assets");
 const outputPath = process.env.BENCH_OUTPUT;
 const fragmentsDir = process.env.BENCH_FRAGMENTS_DIR;

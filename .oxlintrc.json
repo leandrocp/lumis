@@ -57,9 +57,11 @@
     // a document needs, in one pass" in AGENTS.md.
     "eslint/no-await-in-loop": "off",
     "eslint/no-inline-comments": "off",
-    // 5 sites, every one an explicit `return;` from a `T | undefined` function,
+    // 3 sites, every one an explicit `return;` from a `T | undefined` function,
     // where saying nothing is returned is the point.
     "eslint/no-useless-return": "off",
+    // Unicode-aware expressions must also work on the supported Node 18 runtime.
+    "eslint/require-unicode-regexp": ["error", { "requireFlag": "u" }],
     // 58 sites. `async` is how a method satisfies a Promise-returning interface
     // such as `RuntimeEnvironment` without awaiting, and how the mocks match it.
     // `no-floating-promises` and `await-thenable` catch the real mistake.
@@ -69,16 +71,16 @@
     "import/no-unassigned-import": "off",
     // 87 sites. Runtime-matrix and conformance tests branch because each arm
     // pins a different supported behavior; splitting them would hide the parity.
-    "jest/no-conditional-expect": "off",
-    "jest/no-conditional-in-test": "off",
+    "vitest/no-conditional-expect": "off",
+    "vitest/no-conditional-in-test": "off",
     // The native test suite chooses the Vitest test function from platform and
     // runtime support before registering each test.
-    "jest/no-standalone-expect": [
+    "vitest/no-standalone-expect": [
       "error",
       { "additionalTestBlockFunctions": ["itWithAddon", "itForCacheCompilation"] }
     ],
     // Vitest accepts a second argument as the assertion failure message.
-    "jest/valid-expect": ["error", { "maxArgs": 2 }],
+    "vitest/valid-expect": ["error", { "maxArgs": 2 }],
     // TypeScript already carries parameter and return types. Repeating them in
     // JSDoc would add 102 `@param` and 118 `@returns` tags with no new contract.
     "jsdoc/require-param": "off",
@@ -104,6 +106,10 @@
     // `if (!x) { x = y }` guards on truthiness; `??=` would stop treating `""`
     // as absent.
     "typescript/prefer-nullish-coalescing": ["error", { "ignoreIfStatements": true }],
+    // 1,171 sites, including intentionally mutable parser state, DOM nodes, and
+    // public API types. Deep-readonly parameter contracts need a separate API
+    // migration; a tooling upgrade must not change those mutation contracts.
+    "typescript/prefer-readonly-parameter-types": "off",
     "typescript/require-await": "off",
     // 146 sites.
     "typescript/strict-boolean-expressions": "off",
@@ -145,16 +151,53 @@
     {
       // 1 site. The test verifies normalization of a rejection value that is not an Error.
       "files": ["**/react/test/index.test.tsx"],
-      "rules": { "typescript/prefer-promise-reject-errors": "off" }
+      "rules": {
+        "eslint/prefer-promise-reject-errors": "off",
+        "typescript/prefer-promise-reject-errors": "off"
+      }
+    },
+    {
+      // 1 test delegates its assertions to the complete-target corpus helper.
+      "files": ["**/test/native-targets.test.ts"],
+      "rules": {
+        "vitest/expect-expect": [
+          "error",
+          {
+            "assertFunctionNames": [
+              "expect",
+              "expectTypeOf",
+              "assert",
+              "assertType",
+              "expectCompleteTargetCorpus"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      // 5 tests delegate their assertions to these HTML-tree helpers.
+      "files": ["**/rehype-lumis/test/index.test.ts"],
+      "rules": {
+        "vitest/expect-expect": [
+          "error",
+          {
+            "assertFunctionNames": [
+              "expect",
+              "expectTypeOf",
+              "assert",
+              "assertType",
+              "assertLumisPreElement",
+              "assertSpansExist"
+            ]
+          }
+        ]
+      }
     },
     {
       // 8 sites. These heterogeneous invalid corpora assert rejection itself;
       // there is intentionally no one error message shared by every table row.
-      "files": [
-        "**/test/language-package-corpus.test.ts",
-        "**/test/native-targets.test.ts"
-      ],
-      "rules": { "jest/require-to-throw-message": "off" }
+      "files": ["**/test/language-package-corpus.test.ts", "**/test/native-targets.test.ts"],
+      "rules": { "vitest/require-to-throw-message": "off" }
     }
   ]
 }

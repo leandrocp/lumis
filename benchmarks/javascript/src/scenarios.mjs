@@ -1,10 +1,10 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import { benchmarkImplementations } from "../../scripts/implementations.mjs";
 import { measureCall } from "./measure.mjs";
 
-const benchmarksDir = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const benchmarksDir = resolve(import.meta.dirname, "../..");
 const repoDir = resolve(benchmarksDir, "..");
 const implementation = process.env.BENCH_IMPLEMENTATION;
 const scenarioId = process.env.BENCH_SCENARIO;

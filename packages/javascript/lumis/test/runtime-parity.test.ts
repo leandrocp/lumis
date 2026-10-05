@@ -38,6 +38,14 @@ beforeEach(() => {
   index.configureLanguagePackageResolver(localLanguagePackageResolver);
 });
 
+function createPackageBackedHighlighter(language: Language, query: string) {
+  return index.createHighlighter({
+    languages: [language],
+    languagePackageResolver: (packageName) => packageDataUrl(packageName, query),
+    wasmResolver: () => ensureLocalWasm("json"),
+  });
+}
+
 function packageDataUrl(
   packageName: string,
   highlights: string,
@@ -87,7 +95,7 @@ async function rejectedError(promise: Promise<unknown>): Promise<Error> {
 function encodeBase64Octet(dataUrl: string): string {
   const comma = dataUrl.indexOf(",");
   const body = dataUrl.slice(comma + 1);
-  const octetIndex = body.search(/[+/=]/);
+  const octetIndex = body.search(/[+/=]/u);
   if (comma < 0 || octetIndex < 0) throw new Error("test data URL has no encodable base64 octet");
   const octet = body[octetIndex];
   return `${dataUrl.slice(0, comma + 1)}${body.slice(0, octetIndex)}%${octet.charCodeAt(0).toString(16)}${body.slice(octetIndex + 1)}`;
@@ -170,7 +178,7 @@ describe("runtime parity", () => {
     async (_name, language) => {
       await expect(
         index.createHighlighter({ languages: [language as unknown as Language] }),
-      ).rejects.toThrow(/incomplete or conflicting load definition/);
+      ).rejects.toThrow(/incomplete or conflicting load definition/u);
     },
     30_000,
   );
@@ -178,15 +186,8 @@ describe("runtime parity", () => {
   it("keeps package-backed definitions with the same public id isolated", async () => {
     const strings: Language = { id: "dup", aliases: [], packageName: "@test/strings" };
     const numbers: Language = { id: "dup", aliases: [], packageName: "@test/numbers" };
-    const create = (language: Language, query: string) =>
-      index.createHighlighter({
-        languages: [language],
-        languagePackageResolver: (packageName) => packageDataUrl(packageName, query),
-        wasmResolver: () => ensureLocalWasm("json"),
-      });
-
-    const first = await create(strings, "(string) @string");
-    const second = await create(numbers, "(number) @number");
+    const first = await createPackageBackedHighlighter(strings, "(string) @string");
+    const second = await createPackageBackedHighlighter(numbers, "(number) @number");
     const firstHtml = first.highlight('{"a": 1}', htmlLinked({ language: strings }));
     const secondHtml = second.highlight('{"a": 1}', htmlLinked({ language: numbers }));
 
@@ -226,7 +227,7 @@ describe("runtime parity", () => {
       );
 
       for (const error of [firstError, secondError]) {
-        expect(error.message).toMatch(/parser grammar/);
+        expect(error.message).toMatch(/parser grammar/u);
         expect(error.message).toContain("not_comment");
         expect(error.message).toContain("comment");
       }
@@ -275,7 +276,7 @@ describe("runtime parity", () => {
         }),
       );
 
-      expect(error.message).toMatch(/parser grammar/);
+      expect(error.message).toMatch(/parser grammar/u);
       if (index.runtimeKind() === "wasm") {
         expect(load.mock.calls.length - loadsBefore).toBe(0);
       }
@@ -433,8 +434,8 @@ describe("runtime parity", () => {
   it("accepts forgiving-base64 data resolver URLs without padding", async () => {
     const { default: markdown } = await import("../langs/markdown.ts");
     const { default: json } = await import("../langs/json.ts");
-    const packageUrl = localLanguagePackageResolver("@lumis-sh/wasm-json").replace(/=+$/, "");
-    const parserUrl = ensureLocalParserWasmDataUrl("json", "tree-sitter-json").replace(/=+$/, "");
+    const packageUrl = localLanguagePackageResolver("@lumis-sh/wasm-json").replace(/=+$/u, "");
+    const parserUrl = ensureLocalParserWasmDataUrl("json", "tree-sitter-json").replace(/=+$/u, "");
 
     const hl = await index.createHighlighter({
       languages: injectedLanguages(markdown, json),
@@ -508,7 +509,7 @@ describe("runtime parity", () => {
       index.createHighlighter({
         languages: [{ ...json, wasm: ensureLocalWasm("markdown") }],
       }),
-    ).rejects.toThrow(/parser grammar/);
+    ).rejects.toThrow(/parser grammar/u);
   }, 30_000);
 
   /** An unavailable injection costs one block and is reported to the caller. */
@@ -516,7 +517,9 @@ describe("runtime parity", () => {
     const { default: markdown } = await import("../langs/markdown.ts");
     const warnings: string[] = [];
     const warn = console.warn;
-    console.warn = (message: unknown) => warnings.push(String(message));
+    console.warn = (message: unknown) => {
+      warnings.push(String(message));
+    };
 
     try {
       const hl = await index.createHighlighter({

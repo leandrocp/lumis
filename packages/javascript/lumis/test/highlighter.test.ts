@@ -74,6 +74,44 @@ beforeAll(async () => {
   });
 }, 120_000);
 
+function renderLightDarkHighlightedLine(
+  lightBackground: string | undefined,
+  darkBackground: string | undefined,
+): string {
+  const light = {
+    ...theme,
+    highlights: {
+      ...theme.highlights,
+      highlighted: {
+        ...theme.highlights.highlighted,
+        fg: "#111111",
+        bg: lightBackground,
+      },
+    },
+  };
+  const dark = {
+    ...draculaTheme,
+    highlights: {
+      ...draculaTheme.highlights,
+      highlighted: {
+        ...draculaTheme.highlights.highlighted,
+        fg: "#eeeeee",
+        bg: darkBackground,
+      },
+    },
+  };
+
+  return hl.highlight(
+    '{"a": 1}',
+    htmlMultiThemes({
+      language: json,
+      themes: { light, dark },
+      defaultTheme: "light-dark()",
+      highlightLines: { lines: [1], style: "theme" },
+    }),
+  );
+}
+
 describe("createHighlighter", () => {
   it("loads languages passed in init", () => {
     expect(hl.languages).toContain("json");
@@ -336,7 +374,7 @@ describe("hl.highlight", () => {
 
   it("accepts Language as language", () => {
     const html = hl.highlight('{"a": 1}', htmlInline({ language: json, theme }));
-    expect(html).toMatch(/<span(?! class="l-line")/);
+    expect(html).toMatch(/<span(?! class="l-line")/u);
     expect(html).toContain('class="language-json"');
   });
 
@@ -351,7 +389,7 @@ describe("hl.highlight", () => {
     );
 
     expect(html).toContain('class="language-javascript"');
-    expect(html).toMatch(/<span(?! class="l-line")/);
+    expect(html).toMatch(/<span(?! class="l-line")/u);
   });
 
   it("highlights Python class scopes when captures omit match metadata", async () => {
@@ -368,7 +406,7 @@ class User:
 
     expect(html).toContain('class="language-python"');
     expect(html).toContain("User");
-    expect(html).toMatch(/<span(?! class="l-line")/);
+    expect(html).toMatch(/<span(?! class="l-line")/u);
   });
 
   it("adds custom class to pre element", () => {
@@ -404,13 +442,13 @@ class User:
     ];
 
     for (const html of outputs) {
-      const pre = html.match(/^<pre[^>]*>/)?.[0] ?? "";
-      const code = html.match(/<code[^>]*>/)?.[0] ?? "";
+      const pre = html.match(/^<pre[^>]*>/u)?.[0] ?? "";
+      const code = html.match(/<code[^>]*>/u)?.[0] ?? "";
 
       expect(pre).toContain('id="pre&quot;&amp;"');
       expect(pre).toContain("outline: 1px solid red");
-      expect(pre.match(/\bshorthand\b/g)).toHaveLength(1);
-      expect(pre.match(/\bauthored\b/g)).toHaveLength(1);
+      expect(pre.match(/\bshorthand\b/gu)).toHaveLength(1);
+      expect(pre.match(/\bauthored\b/gu)).toHaveLength(1);
       expect(code).toContain('class="language-json copyable"');
       expect(code).toContain('translate="yes"');
       expect(code).toContain('tabindex="-1"');
@@ -433,8 +471,8 @@ class User:
     ];
 
     for (const html of outputs) {
-      const pre = html.match(/^<pre[^>]*>/)?.[0] ?? "";
-      const code = html.match(/<code[^>]*>/)?.[0] ?? "";
+      const pre = html.match(/^<pre[^>]*>/u)?.[0] ?? "";
+      const code = html.match(/<code[^>]*>/u)?.[0] ?? "";
 
       expect(pre).toContain(" inert>");
       expect(code).not.toContain("translate");
@@ -448,7 +486,7 @@ class User:
         '{"a": 1}',
         htmlLinked({ language: json, preAttrs: { "x onclick=alert(1)": "y" } }),
       ),
-    ).toThrow(/invalid HTML attribute name/);
+    ).toThrow(/invalid HTML attribute name/u);
   });
 
   it("does not repeat a preClass that names one of the themes", () => {
@@ -480,7 +518,7 @@ class User:
       '<span class="l-punctuation-bracket">[</span><span class="l-number">1</span><span class="l-punctuation-delimiter">,</span>\n<span class="l-number">2</span><span class="l-punctuation-bracket">]</span>',
     );
     for (const html of outputs) {
-      expect(html).not.toMatch(/<pre|<code|l-line/);
+      expect(html).not.toMatch(/<pre|<code|l-line/u);
       expect(html.split("\n")).toHaveLength(2);
     }
   });
@@ -560,15 +598,15 @@ class User:
         },
       }),
     );
-    expect(html).toMatch(/^<div class="wrapper">/);
-    expect(html).toMatch(/<\/div>$/);
+    expect(html).toMatch(/^<div class="wrapper">/u);
+    expect(html).toMatch(/<\/div>$/u);
   });
 
   it("produces CSS-class HTML for htmlLinked", () => {
     const html = hl.highlight('{"a": 1}', htmlLinked({ language: json }));
     expect(html).toContain('<pre class="lumis">');
     expect(html).toContain('class="language-json"');
-    expect(html).toMatch(/class="l-(string|number|punctuation)/);
+    expect(html).toMatch(/class="l-(string|number|punctuation)/u);
   });
 
   it("produces nested bbcodeScoped tags and escapes raw brackets", async () => {
@@ -595,14 +633,14 @@ class User:
         },
       }),
     );
-    expect(html).toMatch(/^<div class="linked-wrapper">/);
-    expect(html).toMatch(/<\/div>$/);
+    expect(html).toMatch(/^<div class="linked-wrapper">/u);
+    expect(html).toMatch(/<\/div>$/u);
   });
 
   it("throws for unloaded language", () => {
     expect(() =>
       hl.highlight("code", htmlInline({ language: { id: "python", aliases: [] }, theme })),
-    ).toThrow(/not loaded/);
+    ).toThrow(/not loaded/u);
   });
 
   it("uses plaintext when language is omitted", () => {
@@ -699,7 +737,7 @@ describe("budget", () => {
     });
 
     expect(html).toContain('data-lumis-budget="time"');
-    expect(html).not.toMatch(/<span(?! class="l-line")/);
+    expect(html).not.toMatch(/<span(?! class="l-line")/u);
     expect(html).toContain(pathological);
   });
 
@@ -717,7 +755,7 @@ describe("budget", () => {
   it("leaves a render inside its budget unmarked", () => {
     const html = budgetHl.highlight(ordinary, htmlLinked({ language: json }));
 
-    expect(html).toMatch(/<span(?! class="l-line")/);
+    expect(html).toMatch(/<span(?! class="l-line")/u);
     expect(html).not.toContain("data-lumis-budget");
   });
 
@@ -733,7 +771,7 @@ describe("budget", () => {
       });
 
       expect(html).toContain('data-lumis-budget="matches"');
-      expect(html).toMatch(/<span(?! class="l-line")/);
+      expect(html).toMatch(/<span(?! class="l-line")/u);
     },
   );
 
@@ -764,7 +802,7 @@ describe("budget", () => {
 
         expect(captures).not.toHaveBeenCalled();
         expect(html).toContain('data-lumis-budget="time"');
-        expect(html).not.toMatch(/<span(?! class="l-line")/);
+        expect(html).not.toMatch(/<span(?! class="l-line")/u);
       } finally {
         captures.mockRestore();
         matches.mockRestore();
@@ -797,7 +835,7 @@ describe("budget", () => {
 
         expect(captures).toHaveBeenCalledOnce();
         expect(html).toContain('data-lumis-budget="time"');
-        expect(html).not.toMatch(/<span(?! class="l-line")/);
+        expect(html).not.toMatch(/<span(?! class="l-line")/u);
       } finally {
         captures.mockRestore();
         vi.useRealTimers();
@@ -819,7 +857,7 @@ describe("budget", () => {
       budget: { timeLimit: 1000 },
     });
 
-    expect(html).toMatch(/<span(?! class="l-line")/);
+    expect(html).toMatch(/<span(?! class="l-line")/u);
     expect(html).not.toContain("data-lumis-budget");
   });
 
@@ -828,7 +866,7 @@ describe("budget", () => {
       budget: { timeLimit: 0 },
     });
 
-    expect(html).toMatch(/<span(?! class="l-line")/);
+    expect(html).toMatch(/<span(?! class="l-line")/u);
     expect(html).not.toContain("data-lumis-budget");
   });
 
@@ -886,7 +924,7 @@ describe("plaintext", () => {
     expect(html).toContain("&amp;");
     expect(html).toContain('data-line="1"');
     expect(html).toContain('data-line="2"');
-    expect(html).not.toMatch(/<span(?! class="l-line")/);
+    expect(html).not.toMatch(/<span(?! class="l-line")/u);
   });
 
   it("renders when language is omitted (html_linked)", () => {
@@ -898,13 +936,13 @@ describe("plaintext", () => {
   it("renders with language: plaintext", () => {
     const html = plaintextHl.highlight("hello world", htmlInline({ language: plaintext, theme }));
     expect(html).toContain('class="language-plaintext"');
-    expect(html).not.toMatch(/<span(?! class="l-line")/);
+    expect(html).not.toMatch(/<span(?! class="l-line")/u);
   });
 
   it("renders with plaintext Language", () => {
     const html = plaintextHl.highlight("hello world", htmlInline({ language: plaintext, theme }));
     expect(html).toContain('class="language-plaintext"');
-    expect(html).not.toMatch(/<span(?! class="l-line")/);
+    expect(html).not.toMatch(/<span(?! class="l-line")/u);
   });
 
   it("works with stateless highlight()", async () => {
@@ -929,8 +967,8 @@ describe("plaintext", () => {
         header: { openTag: "<div>", closeTag: "</div>" },
       }),
     );
-    expect(html).toMatch(/^<div>/);
-    expect(html).toMatch(/<\/div>$/);
+    expect(html).toMatch(/^<div>/u);
+    expect(html).toMatch(/<\/div>$/u);
   });
 
   it("renders when createHighlighter() is created without explicit languages", async () => {
@@ -943,7 +981,7 @@ describe("plaintext", () => {
 describe("highlight() async", () => {
   it("auto-loads Language", async () => {
     const html = await highlight('{"a": 1}', htmlInline({ language: json, theme }));
-    expect(html).toMatch(/<span(?! class="l-line")/);
+    expect(html).toMatch(/<span(?! class="l-line")/u);
     expect(html).toContain('class="language-json"');
   });
 
@@ -1062,44 +1100,6 @@ describe("htmlMultiThemes", () => {
     );
   });
 
-  function renderLightDarkHighlightedLine(
-    lightBackground: string | undefined,
-    darkBackground: string | undefined,
-  ): string {
-    const light = {
-      ...theme,
-      highlights: {
-        ...theme.highlights,
-        highlighted: {
-          ...theme.highlights.highlighted,
-          fg: "#111111",
-          bg: lightBackground,
-        },
-      },
-    };
-    const dark = {
-      ...draculaTheme,
-      highlights: {
-        ...draculaTheme.highlights,
-        highlighted: {
-          ...draculaTheme.highlights.highlighted,
-          fg: "#eeeeee",
-          bg: darkBackground,
-        },
-      },
-    };
-
-    return hl.highlight(
-      '{"a": 1}',
-      htmlMultiThemes({
-        language: json,
-        themes: { light, dark },
-        defaultTheme: "light-dark()",
-        highlightLines: { lines: [1], style: "theme" },
-      }),
-    );
-  }
-
   it("highlights lines in both colour schemes", () => {
     const html = renderLightDarkHighlightedLine("#2f334d", "#44475a");
 
@@ -1131,8 +1131,8 @@ describe("htmlMultiThemes", () => {
         },
       }),
     );
-    expect(html).toMatch(/^<div class="multi-wrapper">/);
-    expect(html).toMatch(/<\/div>$/);
+    expect(html).toMatch(/^<div class="multi-wrapper">/u);
+    expect(html).toMatch(/<\/div>$/u);
   });
 
   it("works with stateless highlight()", async () => {
@@ -1190,7 +1190,7 @@ describe("highlightLines", () => {
         highlightLines: { lines: [[2, 2]] },
       }),
     );
-    expect(html).toMatch(/style="[^"]*"[^>]*data-line="2"|data-line="2"[^>]*style="/);
+    expect(html).toMatch(/style="[^"]*"[^>]*data-line="2"|data-line="2"[^>]*style="/u);
   });
 
   it("htmlInline: highlighted lines with custom class", () => {

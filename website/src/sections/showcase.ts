@@ -13,17 +13,17 @@ import dracula from "@lumis-sh/themes/dracula";
 import githubLight from "@lumis-sh/themes/github_light";
 import nord from "@lumis-sh/themes/nord";
 import tokyonightMoon from "@lumis-sh/themes/tokyonight_moon";
-import css from "@lumis-sh/wasm-css";
-import elixir from "@lumis-sh/wasm-elixir";
+import cssLanguage from "@lumis-sh/wasm-css";
+import elixirLanguage from "@lumis-sh/wasm-elixir";
 import { erb } from "@lumis-sh/wasm-embedded-template";
-import heex from "@lumis-sh/wasm-heex";
-import html from "@lumis-sh/wasm-html";
-import javascript from "@lumis-sh/wasm-javascript";
-import json from "@lumis-sh/wasm-json";
-import markdown from "@lumis-sh/wasm-markdown";
-import ruby from "@lumis-sh/wasm-ruby";
-import rust from "@lumis-sh/wasm-rust";
-import typescript from "@lumis-sh/wasm-typescript";
+import heexLanguage from "@lumis-sh/wasm-heex";
+import htmlLanguage from "@lumis-sh/wasm-html";
+import javascriptLanguage from "@lumis-sh/wasm-javascript";
+import jsonLanguage from "@lumis-sh/wasm-json";
+import markdownLanguage from "@lumis-sh/wasm-markdown";
+import rubyLanguage from "@lumis-sh/wasm-ruby";
+import rustLanguage from "@lumis-sh/wasm-rust";
+import typescriptLanguage from "@lumis-sh/wasm-typescript";
 import { highlighterFor } from "../lib/published-highlighter";
 import { CHECK_SVG, COPY_SVG, escapeHtml } from "../lib/utils";
 
@@ -162,8 +162,8 @@ const html = hl.highlight(source, htmlMultiThemes({
   defaultTheme: 'light-dark()',
 }))`,
     async run() {
-      const hl = await highlighterFor(typescript);
-      return hl.highlight(TYPESCRIPT_SOURCE, themed(typescript));
+      const hl = await highlighterFor(typescriptLanguage);
+      return hl.highlight(TYPESCRIPT_SOURCE, themed(typescriptLanguage));
     },
   },
   {
@@ -187,8 +187,8 @@ const html = hl.highlight(source, htmlMultiThemes({
   defaultTheme: 'light-dark()',
 }))`,
     async run() {
-      const hl = await highlighterFor(elixir, heex, markdown);
-      return hl.highlight(ELIXIR_SOURCE, themed(elixir));
+      const hl = await highlighterFor(elixirLanguage, heexLanguage, markdownLanguage);
+      return hl.highlight(ELIXIR_SOURCE, themed(elixirLanguage));
     },
   },
   {
@@ -207,8 +207,8 @@ const html = hl.highlight(readme, htmlMultiThemes({
   defaultTheme: 'light-dark()',
 }))`,
     async run() {
-      const hl = await highlighterFor(markdown, rust, javascript);
-      return hl.highlight(MARKDOWN_SOURCE, themed(markdown));
+      const hl = await highlighterFor(markdownLanguage, rustLanguage, javascriptLanguage);
+      return hl.highlight(MARKDOWN_SOURCE, themed(markdownLanguage));
     },
   },
   {
@@ -229,7 +229,7 @@ const output = hl.highlight(template, htmlMultiThemes({
   defaultTheme: 'light-dark()',
 }))`,
     async run() {
-      const hl = await highlighterFor(erb, html, ruby);
+      const hl = await highlighterFor(erb, htmlLanguage, rubyLanguage);
       return hl.highlight(ERB_SOURCE, themed(erb));
     },
   },
@@ -250,10 +250,10 @@ const output = hl.highlight(template, htmlMultiThemes({
   },
 }))`,
     async run() {
-      const hl = await highlighterFor(rust);
+      const hl = await highlighterFor(rustLanguage);
       return hl.highlight(
         RUST_SOURCE,
-        themed(rust, {
+        themed(rustLanguage, {
           // `style: "theme"` is dropped when `defaultTheme` is `light-dark()`,
           // so the two highlight colours are named here instead.
           highlightLines: {
@@ -277,8 +277,8 @@ const output = hl.highlight(template, htmlMultiThemes({
   defaultTheme: 'light-dark()',
 }), { rainbowBrackets: true })`,
     async run() {
-      const hl = await highlighterFor(javascript);
-      return hl.highlight(BRACKETS_SOURCE, themed(javascript), { rainbowBrackets: true });
+      const hl = await highlighterFor(javascriptLanguage);
+      return hl.highlight(BRACKETS_SOURCE, themed(javascriptLanguage), { rainbowBrackets: true });
     },
   },
   {
@@ -297,7 +297,7 @@ for (const theme of [dracula, nord, githubLight, tokyonightMoon]) {
   render(hl.highlight(source, htmlInline({ language: elixir, theme })))
 }`,
     async run() {
-      const hl = await highlighterFor(elixir);
+      const hl = await highlighterFor(elixirLanguage);
       const themes = [
         { label: "dracula", theme: dracula },
         { label: "nord", theme: nord },
@@ -310,7 +310,7 @@ for (const theme of [dracula, nord, githubLight, tokyonightMoon]) {
           const output = hl.highlight(
             THEME_SOURCE,
             htmlInline({
-              language: elixir,
+              language: elixirLanguage,
               theme,
               preClass: `${PRE_CLASS} text-xs`,
               italic: false,
@@ -341,9 +341,12 @@ for (const theme of [dracula, nord, githubLight, tokyonightMoon]) {
   const html = hl.highlight(source, htmlLinked({ language: css }))
 </script>`,
     async run() {
-      const hl = await highlighterFor(css);
+      const hl = await highlighterFor(cssLanguage);
       linkStylesheets();
-      const output = hl.highlight(CSS_SOURCE, htmlLinked({ language: css, preClass: PRE_CLASS }));
+      const output = hl.highlight(
+        CSS_SOURCE,
+        htmlLinked({ language: cssLanguage, preClass: PRE_CLASS }),
+      );
       return `<div class="grid gap-px bg-zinc-200 dark:bg-zinc-800">
         ${output}
         ${outputPanel("the markup it produced", `${output.slice(0, 240)}…`)}
@@ -367,10 +370,10 @@ for (const theme of [dracula, nord, githubLight, tokyonightMoon]) {
   },
 }))`,
     async run() {
-      const hl = await highlighterFor(typescript);
+      const hl = await highlighterFor(typescriptLanguage);
       return hl.highlight(
         HEADER_SOURCE,
-        themed(typescript, {
+        themed(typescriptLanguage, {
           header: {
             openTag:
               '<figure class="m-0">' +
@@ -423,9 +426,9 @@ for (const theme of [dracula, nord, githubLight, tokyonightMoon]) {
 
 const table = hl.highlight(source, tokenTable)`,
     async run() {
-      const hl = await highlighterFor(javascript);
+      const hl = await highlighterFor(javascriptLanguage);
       const tokenTable: Formatter = {
-        language: javascript,
+        language: javascriptLanguage,
         render(source, events) {
           const bytes = new TextEncoder().encode(source);
           const scopes: string[] = [];
@@ -455,8 +458,11 @@ const table = hl.highlight(source, tokenTable)`,
 const ansi = hl.highlight(source, terminal({ language: json, theme: frappe }))
 process.stdout.write(ansi)`,
     async run() {
-      const hl = await highlighterFor(json);
-      const ansi = hl.highlight(ANSI_SOURCE, terminal({ language: json, theme: catppuccinFrappe }));
+      const hl = await highlighterFor(jsonLanguage);
+      const ansi = hl.highlight(
+        ANSI_SOURCE,
+        terminal({ language: jsonLanguage, theme: catppuccinFrappe }),
+      );
       // A terminal reads U+001B; a reader has to be able to see that it is there.
       return outputPanel("the bytes it returns", ansi.replaceAll(ESCAPE, "\\e"));
     },
@@ -471,10 +477,10 @@ process.stdout.write(ansi)`,
 
 const bbcode = hl.highlight(source, bbcodeScoped({ language: json }))`,
     async run() {
-      const hl = await highlighterFor(json);
+      const hl = await highlighterFor(jsonLanguage);
       return outputPanel(
         "the bytes it returns",
-        hl.highlight(ANSI_SOURCE, bbcodeScoped({ language: json })),
+        hl.highlight(ANSI_SOURCE, bbcodeScoped({ language: jsonLanguage })),
       );
     },
   },
@@ -676,7 +682,7 @@ async function mount(demo: Demo, output: HTMLElement, code: HTMLElement) {
   }
 
   try {
-    const language = demo.codeLanguage === "html" ? html : javascript;
+    const language = demo.codeLanguage === "html" ? htmlLanguage : javascriptLanguage;
     const hl = await highlighterFor(language);
     code.outerHTML = hl.highlight(demo.code, themed(language));
   } catch {

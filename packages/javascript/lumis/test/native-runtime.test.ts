@@ -125,7 +125,7 @@ describe("native runtime", () => {
 
     expect(() =>
       runtime.loadLanguagePackage("json", "@test/not-json", JSON.stringify(metadata), wasm),
-    ).toThrow(/resolver returned @lumis-sh\/wasm-json for @test\/not-json/);
+    ).toThrow(/resolver returned @lumis-sh\/wasm-json for @test\/not-json/u);
   });
 
   itWithAddon("replays an installed language when resolver use isolates it", () => {

@@ -14,11 +14,11 @@ function normalize(value: string): string {
 }
 
 function escapeRegex(value: string): string {
-  return value.replaceAll(/[|\\{}()[\]^$+?.]/g, "\\$&");
+  return value.replaceAll(/[|\\{}()[\]^$+?.]/gu, "\\$&");
 }
 
 function globToRegExp(glob: string): RegExp {
-  return new RegExp(`^${escapeRegex(glob).replaceAll("*", ".*")}$`);
+  return new RegExp(`^${escapeRegex(glob).replaceAll("*", ".*")}$`, "u");
 }
 
 function idMatchingGlob(candidate: string): string | undefined {
@@ -61,13 +61,13 @@ function parseLanguageHint(language?: string): string | undefined {
 }
 
 function fromEmacsModeHeader(source: string): string | undefined {
-  const lines = source.split(/\r?\n/).slice(0, 2);
+  const lines = source.split(/\r?\n/u).slice(0, 2);
 
   for (const line of lines) {
     // Ports `from_emacs_mode_header`: Emacs only needs a `;` between file
     // variables, so `; -*- mode: Lisp -*-` has none.
-    const modeMatch = line.match(/-\*-.*?mode: *([a-zA-Z0-9_+-]+).*-\*-/);
-    const shorthandMatch = line.match(/-\*-(.+)-\*-/);
+    const modeMatch = line.match(/-\*-.*?mode: *([a-zA-Z0-9_+-]+).*-\*-/u);
+    const shorthandMatch = line.match(/-\*-(.+)-\*-/u);
     const rawMode = modeMatch?.[1] ?? shorthandMatch?.[1];
     if (rawMode == null) {
       continue;
@@ -85,16 +85,16 @@ function fromEmacsModeHeader(source: string): string | undefined {
 
 function normalizeShebangCommand(command: string): string {
   const normalized = basename(command).toLowerCase();
-  return normalized.replace(/\d+(?:\.\d+)*$/, "");
+  return normalized.replace(/\d+(?:\.\d+)*$/u, "");
 }
 
 // Ports `from_shebang`: nothing may precede `#!`, not even whitespace, and
 // spaces and tabs separate it, `env` (plus an optional `-S` / `--split-string`
 // flag) and the interpreter, as the kernel reads them.
 function fromShebang(source: string): string | undefined {
-  const firstLine = (source.split("\n", 1)[0] ?? "").replace(/\r$/, "");
+  const firstLine = (source.split("\n", 1)[0] ?? "").replace(/\r$/u, "");
   const command = firstLine.match(
-    /^#![ \t]*(?:\/usr\/bin\/env[ \t]+(?:(?:-S|--split-string)[ \t]+)?)?([^ \t]+)/,
+    /^#![ \t]*(?:\/usr\/bin\/env[ \t]+(?:(?:-S|--split-string)[ \t]+)?)?([^ \t]+)/u,
   )?.[1];
 
   if (!command) return undefined;
@@ -121,7 +121,7 @@ function looksLikeObjc(language: string | undefined, source: string): boolean {
   }
 
   return source
-    .split(/\r?\n/)
+    .split(/\r?\n/u)
     .slice(0, 100)
     .some((line) =>
       ["#import", "@interface", "@protocol"].some((keyword) => line.startsWith(keyword)),

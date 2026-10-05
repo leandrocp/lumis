@@ -42,7 +42,7 @@ function findPackage(
   try {
     return { root: dirname(resolve(name)) };
   } catch {
-    return;
+    return undefined;
   }
 }
 
@@ -146,34 +146,29 @@ export const nodeRuntime: RuntimeEnvironment = {
 
   async readResolvedWasmFromDisk(source) {
     const { isAbsolute } = await import(nodePath);
+    let data: Uint8Array | undefined;
 
     if (source instanceof URL) {
-      if (source.protocol !== "file:") {
-        return;
+      if (source.protocol === "file:") {
+        const { fileURLToPath } = await import(nodeUrl);
+        data = new Uint8Array(await (await import(nodeFsPromises)).readFile(fileURLToPath(source)));
       }
-
+    } else if (source.startsWith("file://")) {
       const { fileURLToPath } = await import(nodeUrl);
-      return new Uint8Array(await (await import(nodeFsPromises)).readFile(fileURLToPath(source)));
-    }
-
-    if (source.startsWith("file://")) {
-      const { fileURLToPath } = await import(nodeUrl);
-      return new Uint8Array(
+      data = new Uint8Array(
         await (await import(nodeFsPromises)).readFile(fileURLToPath(new URL(source))),
       );
+    } else if (!isUrlString(source)) {
+      const { readFile } = await import(nodeFsPromises);
+      try {
+        data = new Uint8Array(await readFile(source));
+      } catch {
+        if (isAbsolute(source)) {
+          throw new Error(`Failed to read parser WASM from ${source}`);
+        }
+      }
     }
-
-    if (isUrlString(source)) {
-      return;
-    }
-
-    const { readFile } = await import(nodeFsPromises);
-    try {
-      return new Uint8Array(await readFile(source));
-    } catch {
-      if (!isAbsolute(source)) return;
-      throw new Error(`Failed to read parser WASM from ${source}`);
-    }
+    return data;
   },
 
   async parserInitOptions() {

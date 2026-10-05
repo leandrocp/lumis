@@ -57,6 +57,8 @@ function resolveSamplePath(language: LanguageModule): string | undefined {
     const samplePath = sampleFiles.get(candidate);
     if (samplePath) return samplePath;
   }
+
+  return undefined;
 }
 
 const sourceLanguageIds = listSourceLanguageIds();

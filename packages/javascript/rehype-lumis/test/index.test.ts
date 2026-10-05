@@ -128,8 +128,8 @@ describe("rehype-lumis", () => {
       await transform(tree);
 
       const pre = assertLumisPreElement(tree);
-      expect(style(pre)).toMatch(/color: #[0-9a-f]+/);
-      expect(style(pre)).toMatch(/background-color: #[0-9a-f]+/);
+      expect(style(pre)).toMatch(/color: #[0-9a-f]+/u);
+      expect(style(pre)).toMatch(/background-color: #[0-9a-f]+/u);
 
       const spans = assertSpansExist(tree);
       const spanWithStyle = spans.find((span) => typeof span.properties.style === "string");
@@ -391,7 +391,7 @@ describe("rehype-lumis", () => {
 
       // terminal output is plain text with ANSI codes, parsed into text nodes
       const text = JSON.stringify(tree);
-      expect(text).toMatch(/\\u001b\[38;2;\d+;\d+;\d+m/);
+      expect(text).toMatch(/\\u001b\[38;2;\d+;\d+;\d+m/u);
       expect(text).toContain("\\u001b[0m");
       // Should not have lumis class since it's not HTML
       expect(findElements(tree, "span").length).toBe(0);

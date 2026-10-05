@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const distDir = fileURLToPath(new URL("../dist/", import.meta.url));
 
 const files = await readdir(distDir);
-const targets = files.filter((file) => /^web-tree-sitter-.*\.(cjs|js)$/.test(file));
+const targets = files.filter((file) => /^web-tree-sitter-.*\.(cjs|js)$/u.test(file));
 
 for (const file of targets) {
   const filePath = path.join(distDir, file);

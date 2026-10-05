@@ -3,7 +3,7 @@ export async function GET(request) {
   const version = url.searchParams.get("version");
   const format = url.searchParams.get("format");
 
-  if (!version || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
+  if (!version || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u.test(version)) {
     return new Response("Invalid Lumis version\n", { status: 400 });
   }
 
@@ -19,7 +19,7 @@ export async function GET(request) {
   const installer = await installerResponse.text();
   const body =
     format === "sh"
-      ? installer.replace(/^(#![^\n]*\n)/, `$1LUMIS_VERSION='${version}'\nexport LUMIS_VERSION\n`)
+      ? installer.replace(/^(#![^\n]*\n)/u, `$1LUMIS_VERSION='${version}'\nexport LUMIS_VERSION\n`)
       : `$env:LUMIS_VERSION = '${version}'\n${installer}`;
 
   return new Response(body, {

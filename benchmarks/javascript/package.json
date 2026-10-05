@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "oxfmt": "^0.71.0",
-    "oxlint": "1.58.0"
+    "oxlint": "1.86.0"
   },
   "engines": {
     "node": ">=24"

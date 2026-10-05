@@ -9,8 +9,6 @@ import type {
   HtmlLinkedFormatter,
   HtmlMultiThemesOptions,
   HtmlMultiThemesFormatter,
-  TerminalOptions,
-  TerminalFormatter,
 } from "./types.js";
 import { builtinFormatterKind, markBuiltinFormatter } from "./core/builtin-formatter.js";
 import { layerAttrs } from "./core/attr-merge.js";

@@ -4,7 +4,7 @@ import type { HighlightStyle } from "../types.js";
 export const ANSI_RESET = "\u001B[0m";
 
 /** Exactly six hex digits, which is what `hex_to_rgb` accepts in Rust. */
-const HEX_COLOR = /^[0-9a-fA-F]{6}$/;
+const HEX_COLOR = /^[0-9a-fA-F]{6}$/u;
 
 /**
  * Parse a hex color string to RGB components.
@@ -22,7 +22,7 @@ const HEX_COLOR = /^[0-9a-fA-F]{6}$/;
  */
 export function hexToRgb(hex: string): [number, number, number] | undefined {
   // Rust trims with `trim_start_matches('#')`, which drops every leading `#`.
-  const normalized = hex.replace(/^#+/, "");
+  const normalized = hex.replace(/^#+/u, "");
   if (!HEX_COLOR.test(normalized)) return undefined;
 
   return [

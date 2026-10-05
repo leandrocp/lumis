@@ -53,7 +53,7 @@ describe("a project that installed no parser", () => {
     // project does not depend on, the addon one says it loads only what was
     // installed. Which runs depends on whether the addon is built here.
     expect(reasons(error).join(" | ")).toMatch(
-      /this project (depends on|loads only the parsers it installed)/,
+      /this project (depends on|loads only the parsers it installed)/u,
     );
   });
 });

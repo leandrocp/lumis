@@ -162,7 +162,7 @@ describe("@lumis-sh/vite", () => {
 
     expect(result).toContain("<p>kept &amp; intact</p>");
     expect(result).toContain("<pre>no code child</pre>");
-    expect(result.match(/<pre class="lumis"/g)).toHaveLength(2);
+    expect(result.match(/<pre class="lumis"/gu)).toHaveLength(2);
     expect(result).toContain("first");
     expect(result).toContain("second");
   });

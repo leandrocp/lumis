@@ -26,7 +26,7 @@ function prefersIndexedDb(): boolean {
   if (indexedDbPreferred !== undefined) return indexedDbPreferred;
   const userAgent = globalThis.navigator?.userAgent ?? "";
   indexedDbPreferred =
-    /\bSafari\//.test(userAgent) && !/\b(?:Chrome|Chromium|CriOS|Edg|OPR)\//.test(userAgent);
+    /\bSafari\//u.test(userAgent) && !/\b(?:Chrome|Chromium|CriOS|Edg|OPR)\//u.test(userAgent);
   return indexedDbPreferred;
 }
 

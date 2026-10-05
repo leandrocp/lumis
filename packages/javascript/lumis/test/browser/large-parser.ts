@@ -15,7 +15,7 @@ export interface LargeParserOutcome {
 
 declare global {
   interface Window {
-    __lumisLargeParser?: LargeParserOutcome;
+    lumisLargeParser?: LargeParserOutcome;
   }
 }
 
@@ -75,10 +75,10 @@ try {
       },
     ],
   });
-  window.__lumisLargeParser = {
+  window.lumisLargeParser = {
     bytes: wasm.byteLength,
     html: highlighter.highlight('{"answer": 42}', htmlLinked({ language: "json" })),
   };
 } catch (error) {
-  window.__lumisLargeParser = { error: String(error) };
+  window.lumisLargeParser = { error: String(error) };
 }
