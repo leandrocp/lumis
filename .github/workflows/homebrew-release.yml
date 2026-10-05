@@ -1,6 +1,11 @@
 name: Homebrew Release
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/cli-binary-release.yml"
+      - ".github/workflows/homebrew-release.yml"
+      - "mise.toml"
   workflow_call:
     inputs:
       tag:
@@ -20,10 +25,32 @@ permissions:
   contents: read
 
 concurrency:
-  group: homebrew-release
+  group: homebrew-release-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'publish' }}
   cancel-in-progress: false
 
 jobs:
+  check-access:
+    name: Check Homebrew tap write access
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: leandrocp/homebrew-lumis
+          ref: main
+          token: ${{ secrets.CI_TOKEN }}
+
+      - name: Verify push authentication without changing the tap
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "ci: verify Homebrew tap write access"
+          git push --dry-run origin HEAD:main
+
   update:
     if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/cargo-lumis-cli/v')
     runs-on: macos-latest

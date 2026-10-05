@@ -308,6 +308,11 @@ missing assets, checksum mismatches, and failed formula tests fail the workflow.
 Updates are serialized and must match the CLI version on `main`, so rerunning an
 older release cannot downgrade the tap. Only stable releases are accepted.
 
+Pull requests from branches in this repository that change the Homebrew workflows
+or `mise.toml` check `CI_TOKEN` with a dry-run push to the tap. The check creates
+only a local commit; it does not change the tap. Fork and Dependabot pull requests
+skip this credential check.
+
 To retry a tap update without rebuilding the binaries, run **Homebrew Release**
 from the Actions tab on `main` with the published `cargo-lumis-cli/v*` tag.
 To generate the formula locally without committing or pushing:
