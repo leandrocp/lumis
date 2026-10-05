@@ -270,6 +270,7 @@ fn render_conformance(
             themes,
             default_theme,
             rainbow_brackets,
+            lumis::Budget::new(),
             structure,
             vec![],
         )?
@@ -322,6 +323,31 @@ struct FixtureMetadata {
     annotations: Vec<FixtureAnnotation>,
     structure: FixtureStructure,
     html_multi_themes: Option<HtmlMultiThemesFixture>,
+    budget: Option<FixtureBudget>,
+    skip: BTreeMap<String, String>,
+}
+
+/// The limits a fixture renders under. An absent limit keeps its default.
+#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+struct FixtureBudget {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    time_limit: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    match_limit: Option<u32>,
+}
+
+impl From<FixtureBudget> for lumis::Budget {
+    fn from(fixture: FixtureBudget) -> Self {
+        let mut budget = Self::new();
+        if let Some(time_limit) = fixture.time_limit {
+            budget = budget.time_limit(Some(time_limit));
+        }
+        if let Some(match_limit) = fixture.match_limit {
+            budget = budget.match_limit(match_limit);
+        }
+        budget
+    }
 }
 
 /// What the three HTML outputs of a fixture write around the tokens.
@@ -382,6 +408,12 @@ struct FixtureFile {
     html_multi_themes: Option<HtmlMultiThemesFixture>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     annotations: Vec<FixtureAnnotation>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    budget: Option<FixtureBudget>,
+    /// Runtimes that cannot run this fixture yet, each with the reason. Rust
+    /// renders every fixture, since it generates them.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    skip: BTreeMap<String, String>,
     #[serde(default)]
     events: Vec<SerializableHighlightEvent>,
 }
@@ -481,6 +513,7 @@ fn render_html_multi_themes_fixture(
     themes: Vec<String>,
     default_theme: Option<String>,
     rainbow_brackets: bool,
+    budget: lumis::Budget,
     structure: FixtureStructure,
     highlight_lines: Vec<usize>,
     output: &mut Vec<u8>,
@@ -522,7 +555,9 @@ fn render_html_multi_themes_fixture(
         output,
         source,
         formatter,
-        lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+        lumis::HighlightOptions::new()
+            .rainbow_brackets(rainbow_brackets)
+            .budget(budget),
     )?;
     Ok(())
 }
@@ -536,6 +571,7 @@ fn render_formatter_output(
     themes: Vec<String>,
     default_theme: Option<String>,
     rainbow_brackets: bool,
+    budget: lumis::Budget,
     structure: FixtureStructure,
     highlight_lines: Vec<usize>,
 ) -> Result<String> {
@@ -555,7 +591,9 @@ fn render_formatter_output(
                 &mut output,
                 source,
                 formatter,
-                lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+                lumis::HighlightOptions::new()
+                    .rainbow_brackets(rainbow_brackets)
+                    .budget(budget),
             )?;
         }
         "html-linked" => {
@@ -568,7 +606,9 @@ fn render_formatter_output(
                 &mut output,
                 source,
                 formatter,
-                lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+                lumis::HighlightOptions::new()
+                    .rainbow_brackets(rainbow_brackets)
+                    .budget(budget),
             )?;
         }
         "html-multi-themes" => {
@@ -578,6 +618,7 @@ fn render_formatter_output(
                 themes,
                 default_theme,
                 rainbow_brackets,
+                budget,
                 structure,
                 highlight_lines,
                 &mut output,
@@ -595,7 +636,9 @@ fn render_formatter_output(
                 &mut output,
                 source,
                 formatter,
-                lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+                lumis::HighlightOptions::new()
+                    .rainbow_brackets(rainbow_brackets)
+                    .budget(budget),
             )?;
         }
         "bbcode-scoped" => {
@@ -607,7 +650,9 @@ fn render_formatter_output(
                 &mut output,
                 source,
                 formatter,
-                lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+                lumis::HighlightOptions::new()
+                    .rainbow_brackets(rainbow_brackets)
+                    .budget(budget),
             )?;
         }
         other => bail!("unsupported formatter '{other}'"),
@@ -622,6 +667,7 @@ fn fixture_outputs(source: &str, stored: &FixtureFile) -> Result<FixtureOutputs>
     let rainbow_brackets = stored.rainbow_brackets;
     let structure = stored.structure;
     let html_multi_themes = stored.html_multi_themes.clone();
+    let budget = stored.budget.map_or_else(lumis::Budget::new, Into::into);
     let annotations = stored
         .annotations
         .iter()
@@ -634,7 +680,8 @@ fn fixture_outputs(source: &str, stored: &FixtureFile) -> Result<FixtureOutputs>
         language,
         HighlightOptions::new()
             .annotations(&annotations)
-            .rainbow_brackets(rainbow_brackets),
+            .rainbow_brackets(rainbow_brackets)
+            .budget(budget),
     )?;
     let (multi_themes, multi_default_theme, multi_highlight_lines) =
         html_multi_themes.as_ref().map_or_else(
@@ -665,6 +712,8 @@ fn fixture_outputs(source: &str, stored: &FixtureFile) -> Result<FixtureOutputs>
         annotations: stored.annotations.clone(),
         structure,
         html_multi_themes,
+        budget: stored.budget,
+        skip: stored.skip.clone(),
     };
 
     Ok(FixtureOutputs {
@@ -678,6 +727,7 @@ fn fixture_outputs(source: &str, stored: &FixtureFile) -> Result<FixtureOutputs>
             vec![],
             None,
             rainbow_brackets,
+            budget,
             structure,
             vec![],
         )?,
@@ -689,6 +739,7 @@ fn fixture_outputs(source: &str, stored: &FixtureFile) -> Result<FixtureOutputs>
             vec![],
             None,
             rainbow_brackets,
+            budget,
             structure,
             vec![],
         )?,
@@ -700,6 +751,7 @@ fn fixture_outputs(source: &str, stored: &FixtureFile) -> Result<FixtureOutputs>
             multi_themes,
             multi_default_theme,
             rainbow_brackets,
+            budget,
             structure,
             multi_highlight_lines,
         )?,
@@ -711,6 +763,7 @@ fn fixture_outputs(source: &str, stored: &FixtureFile) -> Result<FixtureOutputs>
             vec![],
             None,
             rainbow_brackets,
+            budget,
             FixtureStructure::Block,
             vec![],
         )?,
@@ -722,6 +775,7 @@ fn fixture_outputs(source: &str, stored: &FixtureFile) -> Result<FixtureOutputs>
             vec![],
             None,
             rainbow_brackets,
+            budget,
             FixtureStructure::Block,
             vec![],
         )?,
@@ -764,6 +818,8 @@ fn verify_conformance(name: &str) -> Result<()> {
                 structure: generated.metadata.structure,
                 html_multi_themes: generated.metadata.html_multi_themes.clone(),
                 annotations: generated.metadata.annotations.clone(),
+                budget: generated.metadata.budget,
+                skip: generated.metadata.skip.clone(),
                 events: generated.events.clone(),
             },
         )?;
@@ -819,6 +875,8 @@ fn regen_conformance(name: &str) -> Result<()> {
                 structure: generated.metadata.structure,
                 html_multi_themes: generated.metadata.html_multi_themes,
                 annotations: generated.metadata.annotations,
+                budget: generated.metadata.budget,
+                skip: generated.metadata.skip,
                 events: generated.events,
             })? + "\n",
         )?;

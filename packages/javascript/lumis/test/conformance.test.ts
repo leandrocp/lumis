@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import dracula from "../../themes/dist/json/dracula.json";
 import dark from "../../../../fixtures/conformance-themes/dark.json";
@@ -107,22 +107,37 @@ beforeAll(async () => {
   });
 }, 120_000);
 
+// Browsers run web-tree-sitter too, so a fixture skipped for it is skipped
+// there as well.
+const runtime = process.env.LUMIS_TEST_RUNTIME === "wasm" ? "web-tree-sitter" : undefined;
+
 describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture) => {
+  const options = { rainbowBrackets: fixture.rainbowBrackets, budget: fixture.budget };
+  const skipped = runtime && fixture.skip?.[runtime];
+
+  beforeEach((context) => {
+    if (skipped) context.skip(skipped);
+  });
+
   it("events", () => {
     let events: HighlightEvent[] = [];
-    highlighter.highlight(fixture.source, {
-      language: getLanguage(fixture.language),
-      render(source) {
-        events = highlightEvents(source, this.language, {
-          rainbowBrackets: fixture.rainbowBrackets,
-          annotations: fixture.annotations?.map(({ range, data }) => ({
-            range: { type: "offset", ...range },
-            data,
-          })),
-        });
-        return "";
+    highlighter.highlight(
+      fixture.source,
+      {
+        language: getLanguage(fixture.language),
+        render(source) {
+          events = highlightEvents(source, this.language, {
+            ...options,
+            annotations: fixture.annotations?.map(({ range, data }) => ({
+              range: { type: "offset", ...range },
+              data,
+            })),
+          });
+          return "";
+        },
       },
-    });
+      options,
+    );
     expect(events).toEqual(fixture.events);
   });
 
@@ -134,7 +149,7 @@ describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture
         structure: fixture.structure,
         theme: getTheme(fixture.theme),
       }),
-      { rainbowBrackets: fixture.rainbowBrackets },
+      options,
     );
     expect(output).toBe(fixture.htmlInline);
   });
@@ -146,7 +161,7 @@ describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture
         language: getLanguage(fixture.language),
         structure: fixture.structure,
       }),
-      { rainbowBrackets: fixture.rainbowBrackets },
+      options,
     );
     expect(output).toBe(fixture.htmlLinked);
   });
@@ -174,7 +189,7 @@ describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture
           ? { lines: config.highlightLines, style: "theme" }
           : undefined,
       }),
-      { rainbowBrackets: fixture.rainbowBrackets },
+      options,
     );
     expect(output).toBe(fixture.htmlMultiThemes);
   });
@@ -185,7 +200,7 @@ describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture
       bbcodeScoped({
         language: getLanguage(fixture.language),
       }),
-      { rainbowBrackets: fixture.rainbowBrackets },
+      options,
     );
     expect(output).toBe(fixture.bbcode);
   });
@@ -197,7 +212,7 @@ describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture
         language: getLanguage(fixture.language),
         theme: getTheme(fixture.theme),
       }),
-      { rainbowBrackets: fixture.rainbowBrackets },
+      options,
     );
     expect(output).toBe(fixture.terminal);
   });

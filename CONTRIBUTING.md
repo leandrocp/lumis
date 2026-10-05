@@ -77,6 +77,15 @@ UTF-8 byte ranges and arbitrary JSON data to the event checks. Rust, JavaScript
 options and do not consume these event annotations. `conformance-regen`
 preserves the annotations and regenerates their expected events.
 
+The optional `budget` field (`timeLimit` in milliseconds, `matchLimit`) applies
+to the event checks and to every formatter, in every runtime. A time-limit
+fixture needs a source that takes far longer than its limit on the fastest
+runtime: `json-budget-time-limit` is 10,000 unclosed brackets, which take about
+90 ms on a release build, against a 1 ms limit. The optional `skip` field maps a
+runtime that cannot run the fixture yet to the reason. Only `web-tree-sitter`,
+which covers the JavaScript Wasm and browser suites, reads it.
+`conformance-regen` preserves both fields.
+
 ### Generated HTML and CSS
 
 After changing HTML formatters or theme layout, refresh the shared outputs:

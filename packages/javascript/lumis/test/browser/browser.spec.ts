@@ -26,6 +26,16 @@ const fixtureNames = readdirSync(conformanceDir, { withFileTypes: true })
   .map((entry) => entry.name)
   .sort();
 
+/** Browsers run web-tree-sitter, so the fixtures it cannot run yet are not compared. */
+const skippedFixtures = new Set(
+  fixtureNames.filter((fixture) => {
+    const metadata: Pick<ConformanceFixture, "skip"> = JSON.parse(
+      readFixture(fixture, "fixture.json"),
+    );
+    return metadata.skip?.["web-tree-sitter"] !== undefined;
+  }),
+);
+
 const fixtureSource = readFixture(CUSTOM_FORMATTER_FIXTURE, "source.txt");
 const customSource = `const nested = foo(bar([1, 2], { a: "3" }));\nconst view = ${fixtureSource.trim()};\n`;
 
@@ -97,6 +107,7 @@ test.describe("browser runtime", () => {
     expect(Object.keys(result.fixtures).sort()).toEqual(fixtureNames);
 
     for (const fixture of fixtureNames) {
+      if (skippedFixtures.has(fixture)) continue;
       expect(result.fixtures[fixture], fixture).toEqual(expectedOutput(fixture));
     }
   });
@@ -130,6 +141,7 @@ test.describe("browser runtime", () => {
     expect(fixtureNames.length).toBeGreaterThan(20);
     expect(Object.keys(result.events).sort()).toEqual(fixtureNames);
     for (const fixture of fixtureNames) {
+      if (skippedFixtures.has(fixture)) continue;
       const metadata: Pick<ConformanceFixture, "events"> = JSON.parse(
         readFixture(fixture, "fixture.json"),
       );

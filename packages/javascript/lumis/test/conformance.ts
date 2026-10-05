@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from "node:fs";
-import type { HighlightRange, HtmlStructure } from "../src/types.js";
+import type { Budget, HighlightRange, HtmlStructure } from "../src/types.js";
 
 export type SerializableHighlightEvent =
   | { type: "start"; scope: string; language: string }
@@ -27,6 +27,10 @@ export interface ConformanceFixture {
   annotations?: FixtureAnnotation[];
   /** What the three HTML outputs write around the tokens. */
   structure: HtmlStructure;
+  /** The limits the fixture renders under. An absent limit keeps its default. */
+  budget?: Budget;
+  /** Runtimes that cannot run the fixture yet, each with the reason. */
+  skip?: Record<string, string>;
   events: SerializableHighlightEvent[];
   source: string;
   htmlInline: string;
@@ -51,6 +55,8 @@ interface FixtureMetadata {
   rainbowBrackets?: boolean;
   annotations?: FixtureAnnotation[];
   structure?: HtmlStructure;
+  budget?: Budget;
+  skip?: Record<string, string>;
   events: SerializableHighlightEvent[];
 }
 

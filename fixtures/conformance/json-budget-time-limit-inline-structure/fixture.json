@@ -1,0 +1,16 @@
+{
+  "name": "json-budget-time-limit-inline-structure",
+  "language": "json",
+  "theme": "dracula",
+  "structure": "inline",
+  "budget": {
+    "timeLimit": 1
+  },
+  "events": [
+    {
+      "type": "source",
+      "start": 0,
+      "end": 10001
+    }
+  ]
+}

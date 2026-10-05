@@ -1,0 +1,240 @@
+{
+  "name": "javascript-budget-match-limit",
+  "language": "javascript",
+  "theme": "dracula",
+  "budget": {
+    "matchLimit": 1
+  },
+  "skip": {
+    "web-tree-sitter": "tree-sitter applies the match limit only when it allocates a new capture list, not when it reuses a freed one, and web-tree-sitter runs every query on one shared cursor. Once an earlier render has grown that cursor's pool past the limit, the limit never binds and this fixture comes back fully highlighted and unmarked. The native runtimes start a fresh cursor when the limit goes down."
+  },
+  "events": [
+    {
+      "type": "start",
+      "scope": "keyword",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 0,
+      "end": 5
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 5,
+      "end": 12
+    },
+    {
+      "type": "start",
+      "scope": "operator",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 12,
+      "end": 13
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 13,
+      "end": 14
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.bracket",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 14,
+      "end": 15
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "number",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 15,
+      "end": 16
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 16,
+      "end": 17
+    },
+    {
+      "type": "start",
+      "scope": "operator",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 17,
+      "end": 18
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 18,
+      "end": 19
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.bracket",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 19,
+      "end": 20
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "number",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 20,
+      "end": 21
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 21,
+      "end": 22
+    },
+    {
+      "type": "start",
+      "scope": "operator",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 22,
+      "end": 23
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 23,
+      "end": 24
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.bracket",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 24,
+      "end": 25
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "number",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 25,
+      "end": 26
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 26,
+      "end": 27
+    },
+    {
+      "type": "start",
+      "scope": "operator",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 27,
+      "end": 28
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 28,
+      "end": 29
+    },
+    {
+      "type": "start",
+      "scope": "number",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 29,
+      "end": 30
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.bracket",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 30,
+      "end": 33
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.delimiter",
+      "language": "javascript"
+    },
+    {
+      "type": "source",
+      "start": 33,
+      "end": 34
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 34,
+      "end": 35
+    }
+  ]
+}

@@ -43,6 +43,12 @@ defmodule Lumis.ConformanceTest do
 
   defp structure(fixture), do: String.to_existing_atom(fixture["structure"] || "block")
 
+  # An absent limit is `nil`, which keeps that limit's default.
+  defp budget(fixture) do
+    budget = fixture["budget"] || %{}
+    [time_limit: budget["timeLimit"], match_limit: budget["matchLimit"]]
+  end
+
   defp serialize_event({:start, %{scope: scope, language: language}}),
     do: %{"type" => "start", "scope" => scope, "language" => language}
 
@@ -129,7 +135,8 @@ defmodule Lumis.ConformanceTest do
         events =
           Lumis.highlight_events!(fixture["source"], fixture["language"],
             annotations: annotations(fixture),
-            rainbow_brackets: rainbow_brackets(fixture)
+            rainbow_brackets: rainbow_brackets(fixture),
+            budget: budget(fixture)
           )
 
         assert Enum.map(events, &serialize_event/1) == fixture["events"]
@@ -146,7 +153,8 @@ defmodule Lumis.ConformanceTest do
                    structure: structure(fixture),
                    theme: fixture["theme"]
                  },
-                 rainbow_brackets: rainbow_brackets(fixture)
+                 rainbow_brackets: rainbow_brackets(fixture),
+                 budget: budget(fixture)
                ) == fixture["htmlInline"]
       end
 
@@ -157,7 +165,8 @@ defmodule Lumis.ConformanceTest do
         assert Lumis.highlight!(fixture["source"],
                  formatter:
                    {:html_linked, language: fixture["language"], structure: structure(fixture)},
-                 rainbow_brackets: rainbow_brackets(fixture)
+                 rainbow_brackets: rainbow_brackets(fixture),
+                 budget: budget(fixture)
                ) == fixture["htmlLinked"]
       end
 
@@ -170,7 +179,8 @@ defmodule Lumis.ConformanceTest do
                    :html_multi_themes,
                    html_multi_themes_options(fixture)
                  },
-                 rainbow_brackets: rainbow_brackets(fixture)
+                 rainbow_brackets: rainbow_brackets(fixture),
+                 budget: budget(fixture)
                ) == fixture["htmlMultiThemes"]
       end
 
@@ -183,7 +193,8 @@ defmodule Lumis.ConformanceTest do
                    :terminal,
                    language: fixture["language"], theme: fixture["theme"]
                  },
-                 rainbow_brackets: rainbow_brackets(fixture)
+                 rainbow_brackets: rainbow_brackets(fixture),
+                 budget: budget(fixture)
                ) == fixture["terminal"]
       end
 
@@ -193,7 +204,8 @@ defmodule Lumis.ConformanceTest do
 
         assert Lumis.highlight!(fixture["source"],
                  formatter: {:bbcode_scoped, language: fixture["language"]},
-                 rainbow_brackets: rainbow_brackets(fixture)
+                 rainbow_brackets: rainbow_brackets(fixture),
+                 budget: budget(fixture)
                ) == fixture["bbcode"]
       end
     end

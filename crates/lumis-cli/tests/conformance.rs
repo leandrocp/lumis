@@ -38,6 +38,16 @@ struct FixtureMetadata {
     structure: Option<String>,
     #[serde(default, rename = "htmlMultiThemes")]
     html_multi_themes: Option<HtmlMultiThemesFixture>,
+    #[serde(default)]
+    budget: FixtureBudget,
+}
+
+/// The limits a fixture renders under. An absent limit keeps its default.
+#[derive(Debug, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct FixtureBudget {
+    time_limit: Option<u64>,
+    match_limit: Option<u32>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -95,6 +105,16 @@ fn run_highlight_source(fixture: &Fixture, formatter: &str, extra_args: &[&str])
 
     if fixture.metadata.rainbow_brackets {
         command.arg("--rainbow-brackets");
+    }
+    if let Some(time_limit) = fixture.metadata.budget.time_limit {
+        command
+            .arg("--budget-time-limit")
+            .arg(time_limit.to_string());
+    }
+    if let Some(match_limit) = fixture.metadata.budget.match_limit {
+        command
+            .arg("--budget-match-limit")
+            .arg(match_limit.to_string());
     }
 
     let output = command

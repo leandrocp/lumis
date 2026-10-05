@@ -9,6 +9,7 @@ import {
 } from "../../src/formatters.ts";
 import { lowestCompatibleLanguagePackageVersion } from "../../src/core/languages.ts";
 import type {
+  Budget,
   HighlightEvent,
   HtmlStructure,
   LanguageDefinition,
@@ -71,6 +72,8 @@ interface CorpusFixture {
   annotations?: FixtureAnnotation[];
   /** What the three HTML outputs write around the tokens. */
   structure: HtmlStructure;
+  /** The limits the fixture renders under. An absent limit keeps its default. */
+  budget?: Budget;
   source: string;
   theme: string;
   htmlMultiThemes?: {
@@ -102,6 +105,7 @@ function loadCorpus(): CorpusFixture[] {
         rainbowBrackets?: boolean;
         annotations?: FixtureAnnotation[];
         structure?: HtmlStructure;
+        budget?: Budget;
         htmlMultiThemes?: CorpusFixture["htmlMultiThemes"];
         events: { type: string; language?: string }[];
       };
@@ -118,6 +122,7 @@ function loadCorpus(): CorpusFixture[] {
         rainbowBrackets: parsed.rainbowBrackets ?? false,
         annotations: parsed.annotations,
         structure: parsed.structure ?? "block",
+        budget: parsed.budget,
         source,
         theme: parsed.theme,
         htmlMultiThemes: parsed.htmlMultiThemes,
@@ -334,7 +339,7 @@ async function run(): Promise<void> {
   }
 
   const render = (fixture: CorpusFixture): FixtureOutput => {
-    const { source, language, rainbowBrackets, structure } = fixture;
+    const { source, language, rainbowBrackets, structure, budget } = fixture;
     const theme = getTheme(fixture.theme);
     const config = fixture.htmlMultiThemes;
     // Reversed on purpose. Rust holds themes in a `HashMap` and sorts before
@@ -348,7 +353,7 @@ async function run(): Promise<void> {
         )
       : { main: theme };
 
-    const options = { rainbowBrackets };
+    const options = { rainbowBrackets, budget };
 
     return {
       htmlInline: highlighter.highlight(
@@ -379,19 +384,24 @@ async function run(): Promise<void> {
   const fixtureEvents: Record<string, HighlightEvent[]> = {};
   for (const fixture of corpus) {
     fixtures[fixture.name] = render(fixture);
-    highlighter.highlight(fixture.source, {
-      language: fixture.language,
-      render(source) {
-        fixtureEvents[fixture.name] = highlightEvents(source, this.language, {
-          rainbowBrackets: fixture.rainbowBrackets,
-          annotations: fixture.annotations?.map(({ range, data }) => ({
-            range: { type: "offset", ...range },
-            data,
-          })),
-        });
-        return "";
+    const options = { rainbowBrackets: fixture.rainbowBrackets, budget: fixture.budget };
+    highlighter.highlight(
+      fixture.source,
+      {
+        language: fixture.language,
+        render(source) {
+          fixtureEvents[fixture.name] = highlightEvents(source, this.language, {
+            ...options,
+            annotations: fixture.annotations?.map(({ range, data }) => ({
+              range: { type: "offset", ...range },
+              data,
+            })),
+          });
+          return "";
+        },
       },
-    });
+      options,
+    );
   }
 
   const fixtureSource = corpus.find(
