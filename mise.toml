@@ -456,7 +456,7 @@ run = "stylua themes/ crates/lumis-cli/themes/"
 
 [tasks.'fmt-js']
 description = "Format every JavaScript and TypeScript file"
-run = 'packages/javascript/lumis/node_modules/.bin/oxfmt "**/*.{ts,tsx,mjs,cjs,js,jsx}"'
+run = 'packages/javascript/lumis/node_modules/.bin/oxfmt -c .oxfmtrc.json "**/*.{ts,tsx,mjs,cjs,js,jsx}"'
 
 [tasks.'lint-js']
 description = "Lint every JavaScript and TypeScript file"

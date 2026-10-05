@@ -47,13 +47,11 @@ function compose(testCase: Case): HighlightEvent<string>[] {
   const sourceIndex = buildSourceIndex(testCase.source);
   const decorated = composeRainbowDecorations(
     testCase.events,
-    (testCase.rainbowRanges ?? []).map(
-      (range): RainbowRange => ({
-        startByte: range.start,
-        endByte: range.end,
-        depth: range.depth,
-      }),
-    ),
+    (testCase.rainbowRanges ?? []).map((range): RainbowRange => ({
+      startByte: range.start,
+      endByte: range.end,
+      depth: range.depth,
+    })),
     sourceIndex,
   );
   const composed = composeAnnotations(decorated, annotations, sourceIndex);

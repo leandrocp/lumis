@@ -52,10 +52,10 @@
     "@microsoft/api-extractor": "^7.58.0",
     "@types/hast": "^3.0.4",
     "oxfmt": "^0.71.0",
-    "oxlint": "1.86.0",
-    "oxlint-tsgolint": "7.0.2003",
+    "oxlint": "1.58.0",
+    "oxlint-tsgolint": "0.19.0",
     "tsup": "^8.5.0",
-    "typescript": "^7.0.2",
+    "typescript": "^6.0.2",
     "vitest": "^5.0.2"
   }
 }
