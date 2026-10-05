@@ -3232,6 +3232,10 @@ fn build_repo_wasm_with(
     print!("{tail}");
 
     if !output.status.success() {
+        // `tree-sitter build --wasm` writes the output before it checks the
+        // scanner's imports, so a parser it rejects is still on disk, and
+        // `test:queries` would load it as if it had built.
+        let _ = fs::remove_file(wasm_file);
         bail!("tree-sitter build failed in {repo_dir}");
     }
 
@@ -6863,8 +6867,10 @@ mod tests {
         assert!(definition_matches(&published("abc"), "abc", "0.26"));
     }
 
-    /// A stub compiler that exits with `code`, so the test decides the status
-    /// `build_repo_wasm_with` has to react to.
+    /// A stub compiler that writes its `-o` path and exits with `code`, so the
+    /// test decides the status `build_repo_wasm_with` has to react to. It
+    /// writes the output either way, as `tree-sitter build --wasm` does when
+    /// it rejects a scanner's imports.
     #[cfg(unix)]
     fn stub_tree_sitter(dir: &Path, code: i32) -> PathBuf {
         use std::os::unix::fs::PermissionsExt as _;
@@ -6872,7 +6878,7 @@ mod tests {
         let path = dir.join(format!("tree-sitter-stub-{code}"));
         fs::write(
             &path,
-            format!("#!/bin/sh\necho 'stub compiler' >&2\nexit {code}\n"),
+            format!("#!/bin/sh\necho 'stub compiler' >&2\nprintf wasm > \"$4\"\nexit {code}\n"),
         )
         .unwrap();
         fs::set_permissions(&path, fs::Permissions::from_mode(0o755)).unwrap();
@@ -6930,14 +6936,21 @@ mod tests {
             fs::read_to_string(&log).unwrap().contains("stub compiler"),
             "a failed build still has to leave its output in the log"
         );
+        let rejected_left = dir.join("out.wasm").exists();
 
         let succeeded = build_with_stub(&succeeded_stub, &dir, &log);
+        let built = dir.join("out.wasm").exists();
 
         let _ = fs::remove_dir_all(&dir);
+        assert!(
+            !rejected_left,
+            "a failed build must not leave a wasm for test:queries to load"
+        );
         assert!(
             succeeded.is_ok(),
             "a zero exit status must succeed: {succeeded:?}"
         );
+        assert!(built, "a successful build keeps its wasm");
     }
 
     #[test]
