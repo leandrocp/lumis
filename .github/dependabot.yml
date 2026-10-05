@@ -1,8 +1,31 @@
 version: 2
 
+# Dependabot is the only thing that proposes updates to these lockfiles, so a
+# directory absent from this file is a dependency set that silently ages. Every
+# committed lockfile in the repository appears below, bar the deliberate
+# omissions noted at the bottom.
+
 updates:
+  # One entry across every Cargo.lock rather than one entry per workspace, so a
+  # bump lands as a single pull request touching all of them. Two tests assert
+  # these lockfiles agree: `lockfile_parity` that they resolve the same
+  # tree-sitter, and `elixir-nif-lock-check` that the workspace and the packaged
+  # NIF hold the same wasmtime, because compiled parser caches are keyed by the
+  # wasmtime version. An update that reaches one lockfile and not another is a
+  # red build, not a partial improvement.
+  #
+  # `crates/dev` and `benchmarks/rust` declare their own `[workspace]` and were
+  # missing here, so nothing updated them: `benchmarks/rust` had never received
+  # a single Dependabot commit. They drifted to tree-sitter 0.26.11 while the
+  # library shipped 0.26.13, and `crates/dev` generates `fixtures/conformance`
+  # and runs `stress-test/`, so it was measuring the corpus against a parser the
+  # library does not use — 15x apart on one stress case (#1447).
   - package-ecosystem: "cargo"
-    directory: "/"
+    directories:
+      - "/"
+      - "/crates/dev"
+      - "/benchmarks/rust"
+      - "/packages/elixir/lumis/native/lumis_nif"
     schedule:
       interval: "weekly"
     cooldown:
@@ -12,7 +35,13 @@ updates:
         patterns:
           - "*"
     ignore:
+      # Grammar crates move through `mise run upgrade-langs`, which regenerates
+      # the queries and fixtures that go with them.
       - dependency-name: "tree-sitter-*"
+      # tree-sitter and wasmtime move together and set the MSRV between them:
+      # tree-sitter's `wasm` feature pins `wasmtime-c-api-impl`, and 0.27 pins
+      # the 48 series, which requires rustc 1.95. Picking that up is a release
+      # decision rather than a weekly one.
       - dependency-name: "tree-sitter"
         update-types:
           - "version-update:semver-minor"
@@ -32,8 +61,12 @@ updates:
         patterns:
           - "*"
 
+  # `benchmarks/elixir` is here for the same reason as `benchmarks/rust`: it is
+  # run from CI, so its dependencies are real.
   - package-ecosystem: "mix"
-    directory: "/packages/elixir/lumis"
+    directories:
+      - "/packages/elixir/lumis"
+      - "/benchmarks/elixir"
     schedule:
       interval: "weekly"
     cooldown:
@@ -42,29 +75,9 @@ updates:
       dependencies:
         patterns:
           - "*"
-    ignore:
-      - dependency-name: "tree-sitter-*"
 
-  - package-ecosystem: "cargo"
-    directory: "/packages/elixir/lumis/native/lumis_nif"
-    schedule:
-      interval: "weekly"
-    cooldown:
-      default-days: 7
-    groups:
-      dependencies:
-        patterns:
-          - "*"
-    ignore:
-      - dependency-name: "tree-sitter-*"
-      - dependency-name: "tree-sitter"
-        update-types:
-          - "version-update:semver-minor"
-          - "version-update:semver-major"
-      - dependency-name: "wasmtime"
-        update-types:
-          - "version-update:semver-major"
-
+  # The library workspace. Its lockfile is the one at the repository root,
+  # which Dependabot resolves from this directory.
   - package-ecosystem: "npm"
     directory: "/packages/javascript"
     schedule:
@@ -77,8 +90,42 @@ updates:
           - "*"
     ignore:
       - dependency-name: "tree-sitter-*"
+      # web-tree-sitter has to match the tree-sitter the Rust side links, or the
+      # two runtimes disagree about what they can parse.
       - dependency-name: "web-tree-sitter"
         update-types:
           - "version-update:semver-minor"
           - "version-update:semver-major"
+      # Published from this repository. A bump here would be proposing a version
+      # of ourselves.
       - dependency-name: "@lumis-sh/wasm-*"
+
+  # Both deployed sites, in one entry so a bump produces one commit and so one
+  # pair of Vercel previews rather than two.
+  - package-ecosystem: "npm"
+    directories:
+      - "/docs"
+      - "/website"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+    ignore:
+      # Published from this repository, and the sites exist to show a released
+      # Lumis. They move when a release moves them, not weekly.
+      - dependency-name: "@lumis-sh/*"
+
+# Deliberately absent:
+#
+# - The example apps under `packages/*/*/examples/`. They are illustrations to
+#   be copied, pinned to the versions their prose describes, and nothing builds
+#   them, so a bump there is churn without a signal.
+# - `packages/javascript/lumis/pnpm-lock.yaml`, a 31-line lockfile inside the
+#   root workspace rather than a project of its own.
+# - The generated per-platform stubs under `*/npm/<target>/`. Release tooling
+#   writes them, and they carry no dependencies to update.
+# - `crates/autumnus`, a deprecated shim that commits no lockfile.
