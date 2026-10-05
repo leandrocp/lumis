@@ -76,10 +76,37 @@ updates:
         patterns:
           - "*"
 
-  # The library workspace. Its lockfile is the one at the repository root,
-  # which Dependabot resolves from this directory.
+  # Every member of the pnpm workspace, not just its root. `packages/javascript`
+  # holds four devDependencies and the tooling scripts; the 118 dependencies
+  # that ship live in the members below, and this entry named only the root, so
+  # Dependabot had never seen one of them. `web-tree-sitter` sat pinned two
+  # patches behind in `lumis/package.json` the whole time, with patch updates
+  # allowed.
+  #
+  # One entry rather than one per member because they share a single
+  # `pnpm-lock.yaml` at the repository root. Separate entries would each rewrite
+  # that one file and conflict with each other.
+  #
+  # Not `/`, which is where that lockfile and `pnpm-workspace.yaml` live: there
+  # is no `package.json` there, so Dependabot would find no manifest to read.
+  # It resolves the root lockfile from a member instead.
+  #
+  # Listed one by one rather than globbed with `packages/javascript/*`, which
+  # also matches `scripts/`, a directory with no `package.json`. A configuration
+  # Dependabot rejects produces no updates and says so nowhere this repository
+  # looks, which is the failure this entry is fixing — so adding a package here
+  # is worth the manual step. `pnpm-workspace.yaml` lists the same set.
   - package-ecosystem: "npm"
-    directory: "/packages/javascript"
+    directories:
+      - "/packages/javascript"
+      - "/packages/javascript/cli"
+      - "/packages/javascript/lumis"
+      - "/packages/javascript/markdown-it-lumis"
+      - "/packages/javascript/react"
+      - "/packages/javascript/rehype-lumis"
+      - "/packages/javascript/themes"
+      - "/packages/javascript/vite"
+      - "/benchmarks/javascript"
     schedule:
       interval: "weekly"
     cooldown:
@@ -123,9 +150,13 @@ updates:
 #
 # - The example apps under `packages/*/*/examples/`. They are illustrations to
 #   be copied, pinned to the versions their prose describes, and nothing builds
-#   them, so a bump there is churn without a signal.
-# - `packages/javascript/lumis/pnpm-lock.yaml`, a 31-line lockfile inside the
-#   root workspace rather than a project of its own.
-# - The generated per-platform stubs under `*/npm/<target>/`. Release tooling
-#   writes them, and they carry no dependencies to update.
+#   them, so a bump there is churn without a signal. The lists above stop
+#   one directory short of them.
+# - The generated per-platform stubs under `*/npm/<target>/`, which the pnpm
+#   workspace includes but release tooling writes. They carry no dependencies.
 # - `crates/autumnus`, a deprecated shim that commits no lockfile.
+#
+# One thing to watch: `packages/javascript/lumis` carries its own
+# `pnpm-lock.yaml` alongside the root one, and it is where `web-tree-sitter` is
+# pinned. Now that the globs reach that directory, check the first pull request
+# touching it updates whichever of the two lockfiles the build actually reads.
