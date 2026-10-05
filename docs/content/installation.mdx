@@ -12,9 +12,6 @@ keywords:
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-
-Choose one of Lumis's 7 runtimes below. [Lumis4J](/usage/java) for Java and [fastpylight](/usage/python) for Python are community-maintained packages with their own APIs and releases.
-
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'Python', 'CLI', 'Browsers / CDN']}>
   <Tab value="JavaScript / TypeScript">
 
@@ -34,6 +31,8 @@ import javascript from '@lumis-sh/wasm-javascript';
 Node.js, Bun, Deno, and browsers use the same imports. The packages include
 TypeScript declarations; JavaScript and TypeScript apps use the same imports.
 The [language catalog](/reference/languages) has every npm package name.
+See [Declaring parsers](/advanced/lock) for package selection and
+[Preloading languages](/languages) to load them before highlighting.
 
   </Tab>
   <Tab value="Rust">
@@ -59,6 +58,9 @@ you highlight, or a bundle such as `{:lumis_wasm_bundle_web, "~> 0.1"}`. Nothing
 is fetched at runtime: a document's own language missing is an error, and a
 language injected inside it missing costs that block its highlighting. The
 [language catalog](/reference/languages) has every Hex package name.
+
+Lumis loads installed parsers as needed and reuses them across requests.
+You can also [preload languages](/languages) at application startup.
 
   </Tab>
   <Tab value="Java">
@@ -95,7 +97,15 @@ The shell installer needs no Node.js or Rust toolchain: it downloads the archive
 for your platform from GitHub Releases, verifies its published SHA-256 checksum,
 and unpacks it into `~/.local/bin`. Windows PowerShell has its own installer, and
 [Install the CLI](/cli/install) covers version pinning, `LUMIS_INSTALL_DIR`,
-Homebrew, `cargo binstall`, and mise.
+`cargo binstall`, and mise.
+
+With Homebrew:
+
+```bash
+brew trust --tap leandrocp/lumis
+brew tap leandrocp/lumis
+brew install lumis
+```
 
 Through npm instead:
 
@@ -110,6 +120,9 @@ npm install -g @lumis-sh/cli
 ```
 
 The installed binary is `lumis`. npm resolves it from a platform package, so the install runs no scripts and downloads nothing beyond the registry. Alpine and other musl hosts are covered, and the binary there is statically linked. Rust users can also install from crates.io with `cargo install lumis-cli`.
+
+The CLI downloads parsers as needed and caches them in its local data directory,
+which also holds custom themes. No parser packages need to be installed separately.
 
   </Tab>
   <Tab value="Browsers / CDN">
@@ -136,9 +149,4 @@ The installed binary is `lumis`. npm resolves it from a platform package, so the
   </Tab>
 </Tabs>
 
-## First-party runtime notes
-
-- Highlighting loads the parsers a document needs, including languages injected inside it, from the ones the project installed, and keeps them loaded for later requests. See [Declaring parsers](/advanced/lock).
-- That happens on demand, or you can [preload the languages you need](/languages) at startup or from a build step.
-- Install per-language packages such as `@lumis-sh/wasm-rust` or `{:lumis_wasm_rust, "~> 0.26.0"}`, or bundle packages such as `@lumis-sh/wasm-bundle-web` or `{:lumis_wasm_bundle_web, "~> 0.1"}`.
-- The CLI stores verified, content-addressed parsers and custom themes in a local data directory.
+Choose one of Lumis's 7 runtimes above. [Lumis4J](/usage/java) for Java and [fastpylight](/usage/python) for Python are community-maintained packages with their own APIs and releases.
