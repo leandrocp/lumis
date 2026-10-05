@@ -30,22 +30,18 @@ concurrency:
 
 jobs:
   check-access:
-    name: Check Homebrew tap write access (${{ matrix.token }})
+    name: Check Homebrew tap write access
     if: >-
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        token: [CI_TOKEN, RELEASE_TOKEN]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: leandrocp/homebrew-lumis
           ref: main
-          token: ${{ secrets[matrix.token] }}
+          token: ${{ secrets.CI_TOKEN }}
 
       - name: Verify push authentication without changing the tap
         run: |
