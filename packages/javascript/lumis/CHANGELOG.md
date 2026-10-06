@@ -1,3 +1,28 @@
+## [0.10.0](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.9.2...npm-lumis/v0.10.0) (2026-10-06)
+
+### Features
+
+- Update lang haskell in [\#1688](https://github.com/leandrocp/lumis/pull/1688)
+
+### Bug Fixes
+
+- **ci:** Check queries only against parsers built from languages.toml in [\#1690](https://github.com/leandrocp/lumis/pull/1690)
+- Treat a zero time_limit budget in Rust as no limit in [\#1694](https://github.com/leandrocp/lumis/pull/1694)
+- Return plain events when a Rust render runs out of time in [\#1696](https://github.com/leandrocp/lumis/pull/1696)
+- **javascript:** Stop Wasm query work once the time limit passes in [\#1697](https://github.com/leandrocp/lumis/pull/1697)
+- **elixir:** Match defmodule do highlighting in [\#1707](https://github.com/leandrocp/lumis/pull/1707)
+- **ci:** Update every committed lockfile from Dependabot in [\#1703](https://github.com/leandrocp/lumis/pull/1703)
+- **javascript:** Discover parsers from imported packages in [\#1716](https://github.com/leandrocp/lumis/pull/1716)
+- **elixir:** Highlight escaped sigils in linear time in [\#1718](https://github.com/leandrocp/lumis/pull/1718)
+
+### Testing
+
+- Pin time and match limits in the shared conformance fixtures in [\#1698](https://github.com/leandrocp/lumis/pull/1698)
+
+### chore
+
+- **Breaking:** Bump tree-sitter 0.27, wasmtime 48, and raise the MSRV to 1.95 in [\#1702](https://github.com/leandrocp/lumis/pull/1702)
+
 ## [0.9.2](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.9.1...npm-lumis/v0.9.2) (2026-10-04)
 
 ### Bug Fixes
