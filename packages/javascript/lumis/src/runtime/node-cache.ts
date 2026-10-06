@@ -1,13 +1,10 @@
 import { LOCK_RETRY_MS, LOCK_STALE_AFTER_MS, LOCK_TIMEOUT_MS } from "../cache-timing.js";
 
-// oxlint-disable-next-line no-useless-concat -- keeps a bundler from resolving the specifier statically.
-const nodeFsPromises = "node:fs" + "/promises";
-const nodePath = "node:path";
-const nodeOs = "node:os";
+import { importNodeBuiltin } from "./node-builtins.js";
 
 /** @internal */
 export function isUrlString(source: string): boolean {
-  if (/^[a-zA-Z]:/.test(source)) return false;
+  if (/^[a-zA-Z]:/u.test(source)) return false;
   try {
     // oxlint-disable-next-line no-new -- constructing it is the validity test.
     new URL(source);
@@ -47,8 +44,8 @@ export async function dataDir(): Promise<string> {
  * Exported so `test/data-dir-parity.test.ts` can pin it against the addon.
  */
 export async function platformDataDir(): Promise<string> {
-  const { isAbsolute, join } = await import(nodePath);
-  const { homedir } = await import(nodeOs);
+  const { isAbsolute, join } = await importNodeBuiltin("node:path");
+  const { homedir } = await importNodeBuiltin("node:os");
 
   if (process.platform === "win32") {
     const appData = process.env.APPDATA ?? join(homedir(), "AppData", "Roaming");
@@ -68,13 +65,13 @@ export async function platformDataDir(): Promise<string> {
  * thing `LUMIS_DATA_DIR` names, so writers and readers cannot disagree.
  */
 export async function wasmCacheDir(directory?: string): Promise<string> {
-  const { join } = await import(nodePath);
+  const { join } = await importNodeBuiltin("node:path");
   return join(directory ?? (await dataDir()), "parsers");
 }
 
 /** @internal */
 export async function wasmCachePath(key: string, directory?: string): Promise<string> {
-  const { join } = await import(nodePath);
+  const { join } = await importNodeBuiltin("node:path");
   return join(await wasmCacheDir(directory), wasmCacheFilename(key));
 }
 
@@ -84,7 +81,7 @@ export async function readCachedWasm(
   directory?: string,
 ): Promise<Uint8Array | undefined> {
   try {
-    const { readFile } = await import(nodeFsPromises);
+    const { readFile } = await importNodeBuiltin("node:fs/promises");
     return new Uint8Array(await readFile(await wasmCachePath(key, directory)));
   } catch {
     return undefined;
@@ -97,12 +94,12 @@ export async function writeCachedWasm(
   data: Uint8Array,
   directory?: string,
 ): Promise<string> {
-  const { join } = await import(nodePath);
+  const { join } = await importNodeBuiltin("node:path");
   const resolvedDirectory = await wasmCacheDir(directory);
   const filePath = join(resolvedDirectory, wasmCacheFilename(key));
   const temporary = `${filePath}.${process.pid}.${Date.now()}.tmp`;
   try {
-    const { writeFile, mkdir, rename, rm } = await import(nodeFsPromises);
+    const { writeFile, mkdir, rename, rm } = await importNodeBuiltin("node:fs/promises");
     await mkdir(resolvedDirectory, { recursive: true });
     await writeFile(temporary, data, { flag: "wx" });
     try {
@@ -115,7 +112,7 @@ export async function writeCachedWasm(
     return filePath;
   } finally {
     try {
-      const { rm } = await import(nodeFsPromises);
+      const { rm } = await importNodeBuiltin("node:fs/promises");
       await rm(temporary, { force: true });
     } catch {
       // best-effort temporary cleanup
@@ -147,7 +144,7 @@ export function lockOwnerIsGone(owner: LockOwner | undefined, host: string): boo
 }
 
 async function readLockOwner(lockPath: string): Promise<LockOwner | undefined> {
-  const { readFile } = await import(nodeFsPromises);
+  const { readFile } = await importNodeBuiltin("node:fs/promises");
   try {
     const owner: unknown = JSON.parse(await readFile(lockPath, "utf8"));
     return isLockOwner(owner) ? { host: owner.host, pid: owner.pid } : undefined;
@@ -159,12 +156,13 @@ async function readLockOwner(lockPath: string): Promise<LockOwner | undefined> {
 function isLockOwner(owner: unknown): owner is LockOwner {
   if (typeof owner !== "object" || owner === null) return false;
 
-  const record = owner as Record<string, unknown>;
   return (
-    typeof record.host === "string" &&
-    typeof record.pid === "number" &&
-    Number.isInteger(record.pid) &&
-    record.pid > 0
+    "host" in owner &&
+    typeof owner.host === "string" &&
+    "pid" in owner &&
+    typeof owner.pid === "number" &&
+    Number.isInteger(owner.pid) &&
+    owner.pid > 0
   );
 }
 
@@ -175,9 +173,9 @@ export async function withWasmCacheLock<T>(
   directory?: string,
 ): Promise<T> {
   const resolvedDirectory = await wasmCacheDir(directory);
-  const { mkdir, open, rm, stat } = await import(nodeFsPromises);
-  const { join } = await import(nodePath);
-  const { hostname } = await import(nodeOs);
+  const { mkdir, open, rm, stat } = await importNodeBuiltin("node:fs/promises");
+  const { join } = await importNodeBuiltin("node:path");
+  const { hostname } = await importNodeBuiltin("node:os");
   await mkdir(resolvedDirectory, { recursive: true });
   const lockPath = join(resolvedDirectory, `${wasmCacheFilename(key)}.lock`);
   const host = hostname();

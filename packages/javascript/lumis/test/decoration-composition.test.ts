@@ -47,13 +47,11 @@ function compose(testCase: Case): HighlightEvent<string>[] {
   const sourceIndex = buildSourceIndex(testCase.source);
   const decorated = composeRainbowDecorations(
     testCase.events,
-    (testCase.rainbowRanges ?? []).map(
-      (range): RainbowRange => ({
-        startByte: range.start,
-        endByte: range.end,
-        depth: range.depth,
-      }),
-    ),
+    (testCase.rainbowRanges ?? []).map((range): RainbowRange => ({
+      startByte: range.start,
+      endByte: range.end,
+      depth: range.depth,
+    })),
     sourceIndex,
   );
   const composed = composeAnnotations(decorated, annotations, sourceIndex);
@@ -69,6 +67,10 @@ function notation(events: readonly HighlightEvent<string>[]): string {
   const decorations: Array<Extract<HighlightEvent, { type: "decorationStart" }>["decoration"]> = [];
 
   return events.map((event) => eventNotation(event, decorations)).join(" ");
+}
+
+function assertNever(value: never): never {
+  throw new Error(`Unhandled event: ${JSON.stringify(value)}`);
 }
 
 function eventNotation(
@@ -92,6 +94,8 @@ function eventNotation(
     case "decorationEnd":
       return decorationEndNotation(decorations.pop());
   }
+
+  return assertNever(event);
 }
 
 function decorationStartNotation(

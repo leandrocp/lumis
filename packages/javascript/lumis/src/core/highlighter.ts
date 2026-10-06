@@ -466,7 +466,7 @@ function validateLanguageBoundary(value: unknown): void {
     }
   }
 
-  if (hasLanguageLoadFields(value) && !hasLoadableLanguageShape(value as Language)) {
+  if (hasLanguageLoadFields(value) && !hasLoadableLanguageShape(value)) {
     throw incompleteLanguageDefinition(value.id);
   }
 }
@@ -478,7 +478,7 @@ function isLanguage(value: unknown): value is LoadableLanguage {
     typeof value === "object" &&
     value !== null &&
     isLanguageDefinition(value) &&
-    hasLoadableLanguageShape(value as Language)
+    hasLoadableLanguageShape(value)
   );
 }
 

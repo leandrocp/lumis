@@ -2,10 +2,9 @@
 
 import { spawnSync } from "node:child_process";
 import { copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { basename, dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { basename, resolve } from "node:path";
 
-const benchmarksDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const benchmarksDir = resolve(import.meta.dirname, "..");
 const repoDir = resolve(benchmarksDir, "..");
 const cacheRoot = resolve(repoDir, "target/benchmarks/cli");
 const commandsDir = resolve(cacheRoot, "commands");

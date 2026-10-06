@@ -26,7 +26,7 @@ function prefersIndexedDb(): boolean {
   if (indexedDbPreferred !== undefined) return indexedDbPreferred;
   const userAgent = globalThis.navigator?.userAgent ?? "";
   indexedDbPreferred =
-    /\bSafari\//.test(userAgent) && !/\b(?:Chrome|Chromium|CriOS|Edg|OPR)\//.test(userAgent);
+    /\bSafari\//u.test(userAgent) && !/\b(?:Chrome|Chromium|CriOS|Edg|OPR)\//u.test(userAgent);
   return indexedDbPreferred;
 }
 
@@ -102,7 +102,7 @@ async function readIndexedDb(key: string): Promise<Uint8Array | undefined> {
       .objectStore(WASM_DATABASE_STORE)
       .get(key);
     request.onsuccess = () => {
-      const result = request.result;
+      const result: unknown = request.result;
       resolve(result instanceof ArrayBuffer ? new Uint8Array(result) : undefined);
     };
     request.onerror = () => resolve(undefined);

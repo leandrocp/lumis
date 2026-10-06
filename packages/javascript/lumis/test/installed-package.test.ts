@@ -157,7 +157,7 @@ describe("a parser installed in the project", () => {
     const hl = await createHighlighter({ languages: [] });
 
     await expect(hl.loadLanguage("lua")).rejects.toThrow(
-      /@lumis-sh\/wasm-lua@0\.27\.0 does not satisfy the supported range/,
+      /@lumis-sh\/wasm-lua@0\.27\.0 does not satisfy the supported range/u,
     );
   });
 
@@ -312,7 +312,7 @@ describe("a parser installed in the project", () => {
     const { createHighlighter } = await import("../src/index.js");
 
     await expect(createHighlighter({ languages: [localPackageLanguage("lua")] })).rejects.toThrow(
-      /@lumis-sh\/wasm-lua@0\.27\.0 does not satisfy the supported range/,
+      /@lumis-sh\/wasm-lua@0\.27\.0 does not satisfy the supported range/u,
     );
   });
 

@@ -75,12 +75,16 @@ describe("unavailable injected languages", () => {
       const warning = String(warn.mock.calls[0][0]);
       expect(warning).toContain(`Lumis could not load "${language}"`);
       if (index.runtimeKind() === "native") {
+        // oxlint-disable-next-line vitest/no-conditional-expect -- both runtimes assert their distinct installation/loading guidance.
         expect(warning).toContain(
           `add ${packageName} to its dependencies, or update it if it is there`,
         );
+        // oxlint-disable-next-line vitest/no-conditional-expect -- both runtimes assert their distinct installation/loading guidance.
         expect(warning).not.toContain("Load it up front");
       } else {
+        // oxlint-disable-next-line vitest/no-conditional-expect -- both runtimes assert their distinct installation/loading guidance.
         expect(warning).toContain("Load it up front");
+        // oxlint-disable-next-line vitest/no-conditional-expect -- both runtimes assert their distinct installation/loading guidance.
         expect(warning).not.toContain("add @lumis-sh/wasm-");
       }
 

@@ -100,7 +100,10 @@ function generateSource(testCase, scale) {
 
 function metrics(source, language) {
   const [open, close] = delimiters(language);
+  // These delimiters and the depth scan are intentionally UTF-16 code units.
+  // oxlint-disable-next-line unicorn/prefer-code-point -- the scanner compares one code unit at a time.
   const openCode = open.charCodeAt(0);
+  // oxlint-disable-next-line unicorn/prefer-code-point -- match the code-unit scan below.
   const closeCode = close.charCodeAt(0);
   let lines = 1;
   let lineBytes = 0;
@@ -109,6 +112,7 @@ function metrics(source, language) {
   let structuralDepth = 0;
 
   for (let index = 0; index < source.length; index += 1) {
+    // oxlint-disable-next-line unicorn/prefer-code-point -- iterate the source's UTF-16 units.
     const code = source.charCodeAt(index);
     if (code === 10) {
       lines += 1;

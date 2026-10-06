@@ -7,37 +7,29 @@ import type {
   TerminalFormatter,
 } from "../types.js";
 
-export const BUILTIN_FORMATTER = Symbol("lumis.builtin-formatter");
+type BuiltinFormatter = Readonly<
+  | { kind: "html-inline"; formatter: HtmlInlineFormatter }
+  | { kind: "html-linked"; formatter: HtmlLinkedFormatter }
+  | { kind: "html-multi-themes"; formatter: HtmlMultiThemesFormatter }
+  | { kind: "bbcode-scoped"; formatter: BBCodeScopedFormatter }
+  | { kind: "terminal"; formatter: TerminalFormatter }
+>;
 
-export type BuiltinFormatterKind =
-  | "html-inline"
-  | "html-linked"
-  | "html-multi-themes"
-  | "bbcode-scoped"
-  | "terminal";
+export type BuiltinFormatterKind = BuiltinFormatter["kind"];
 
-type BuiltinFormatter =
-  | (HtmlInlineFormatter & { [BUILTIN_FORMATTER]: "html-inline" })
-  | (HtmlLinkedFormatter & { [BUILTIN_FORMATTER]: "html-linked" })
-  | (HtmlMultiThemesFormatter & { [BUILTIN_FORMATTER]: "html-multi-themes" })
-  | (BBCodeScopedFormatter & { [BUILTIN_FORMATTER]: "bbcode-scoped" })
-  | (TerminalFormatter & { [BUILTIN_FORMATTER]: "terminal" });
+// Only the factories register built-ins. Retaining the typed entry avoids
+// asserting a formatter's options from a marker attached to an arbitrary object.
+const builtins = new WeakMap<Formatter, BuiltinFormatter>();
 
-export function markBuiltinFormatter<T extends Formatter>(
-  formatter: T,
-  kind: BuiltinFormatterKind,
-): T {
-  Object.defineProperty(formatter, BUILTIN_FORMATTER, { value: kind });
-  return formatter;
+export function markBuiltinFormatter<T extends BuiltinFormatter>(entry: T): T["formatter"] {
+  builtins.set(entry.formatter, entry);
+  return entry.formatter;
 }
 
 export function getBuiltinFormatter(formatter: Formatter): BuiltinFormatter | undefined {
-  const candidate = formatter as Formatter & {
-    [BUILTIN_FORMATTER]?: BuiltinFormatterKind;
-  };
-  return candidate[BUILTIN_FORMATTER] === undefined ? undefined : (candidate as BuiltinFormatter);
+  return builtins.get(formatter);
 }
 
 export function builtinFormatterKind(formatter: Formatter): BuiltinFormatterKind | undefined {
-  return getBuiltinFormatter(formatter)?.[BUILTIN_FORMATTER];
+  return getBuiltinFormatter(formatter)?.kind;
 }

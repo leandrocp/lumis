@@ -4,9 +4,8 @@ import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
-const benchmarksDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const benchmarksDir = resolve(import.meta.dirname, "..");
 const repoDir = resolve(benchmarksDir, "..");
 const manifestPath = resolve(benchmarksDir, "fixtures/manifest.json");
 const outputDir = resolve(repoDir, "target/benchmarks/fixtures");

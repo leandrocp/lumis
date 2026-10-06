@@ -63,7 +63,7 @@ export async function loadLibraries({ assetsDir, documents, themes }) {
             fileURLToPath(import.meta.resolve("@speed-highlight/core/themes/default.css")),
             "utf8",
           )
-        ).matchAll(/\.shj-syn-([a-z]+)/g),
+        ).matchAll(/\.shj-syn-([a-z]+)/gu),
         ([, token]) => token,
       ),
     ),
@@ -177,9 +177,9 @@ export async function loadLibraries({ assetsDir, documents, themes }) {
 function highlightJsPalette(theme, stylesheet) {
   const declaration = (selector, property) => {
     const rule = stylesheet.match(
-      new RegExp(`(?:^|\\})${selector.replaceAll(".", "\\.")}\\{([^}]*)\\}`),
+      new RegExp(`(?:^|\\})${selector.replaceAll(".", "\\.")}\\{([^}]*)\\}`, "u"),
     )?.[1];
-    const value = rule?.match(new RegExp(`(?:^|;)${property}:([^;]+)`, "i"))?.[1];
+    const value = rule?.match(new RegExp(`(?:^|;)${property}:([^;]+)`, "iu"))?.[1];
     if (!value) throw new Error(`${theme.highlightJs} has no ${property} for ${selector}`);
     return value;
   };
@@ -353,7 +353,7 @@ function starryNightCss(palette, starryNightStylesheet) {
   const variables = [
     ...new Set(
       Array.from(
-        starryNightStylesheet.matchAll(/var\(--color-prettylights-syntax-([a-z-]+)\)/g),
+        starryNightStylesheet.matchAll(/var\(--color-prettylights-syntax-([a-z-]+)\)/gu),
         ([, variable]) => variable,
       ),
     ),

@@ -43,11 +43,15 @@ function render(testCase: Case): string {
             return `T:${event.start}-${event.end}`;
           case "end":
             return "E";
+          case "decorationStart":
+          case "decorationEnd":
+            throw new TypeError(`unexpected ${event.type} in annotation composition output`);
+          case "annotationStart":
+            return `A+${event.data}@${event.range.start}-${event.range.end}`;
           case "annotationEnd":
             return "A-";
-          default:
-            return `A+${event.data}@${event.range.start}-${event.range.end}`;
         }
+        throw new TypeError("unhandled composed annotation event");
       })
       .join(" ");
   } catch (error) {

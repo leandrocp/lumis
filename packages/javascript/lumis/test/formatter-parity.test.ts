@@ -81,7 +81,7 @@ describe("D3 terminal background and width", () => {
       sourceEvents(source),
       terminalFormatter({ theme, background: "#010203", width: 10 }),
     );
-    const spaces = padded.match(/ {2,}/g) ?? [];
+    const spaces = padded.match(/ {2,}/gu) ?? [];
 
     expect(spaces.at(-1)).toHaveLength(10 - 5);
   });
@@ -134,19 +134,19 @@ describe("D4 highlightLines style", () => {
 
 describe("D5 htmlMultiThemes validation", () => {
   it("rejects an empty themes map", () => {
-    expect(() => htmlMultiThemes({ themes: {} })).toThrow(/at least one theme/);
+    expect(() => htmlMultiThemes({ themes: {} })).toThrow(/at least one theme/u);
   });
 
   it("rejects a defaultTheme that is not one of the themes", () => {
     expect(() => htmlMultiThemes({ themes: { light: theme }, defaultTheme: "dark" })).toThrow(
-      /not one of the themes/,
+      /not one of the themes/u,
     );
   });
 
   it("rejects light-dark() without both light and dark themes", () => {
     expect(() =>
       htmlMultiThemes({ themes: { light: theme }, defaultTheme: "light-dark()" }),
-    ).toThrow(/missing dark/);
+    ).toThrow(/missing dark/u);
   });
 
   it("accepts light-dark() when both are present", () => {
@@ -163,6 +163,6 @@ describe("D5 htmlMultiThemes validation", () => {
     const formatter = htmlMultiThemes({ themes: { light: theme }, defaultTheme: "light" });
     formatter.themes = {};
 
-    expect(() => formatter.render("const x = 1", [])).toThrow(/at least one theme/);
+    expect(() => formatter.render("const x = 1", [])).toThrow(/at least one theme/u);
   });
 });

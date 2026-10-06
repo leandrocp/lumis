@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { EffectCallback, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import type { LumisOptions } from "./clientShared.js";
 import {
@@ -88,11 +88,11 @@ export function useLumis(options: UseLumisOptions): UseLumisResult {
     }
   }, [highlighter, options.children, options.formatter]);
 
-  useEffect(() => {
+  useEffect((): ReturnType<EffectCallback> => {
     if (!syncState.needsLoad) {
       setAsyncContent(undefined);
       setAsyncError(undefined);
-      return;
+      return undefined;
     }
 
     let active = true;
@@ -106,7 +106,7 @@ export function useLumis(options: UseLumisOptions): UseLumisResult {
           setAsyncContent(content);
         }
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         if (active) {
           setAsyncError(normalizeError(error));
         }

@@ -18,11 +18,13 @@ import {
 const CACHE_DIR = ".tmp/wasm-resolver-cache";
 process.env.LUMIS_DATA_DIR = CACHE_DIR;
 
+function localParserResolver(language: string, wasm: { name: string }): URL {
+  return ensureLocalParserWasm(language, wasm.name);
+}
+
 beforeEach(async () => {
   // Clear FS cache so the resolver is always called
-  try {
-    rmSync(CACHE_DIR, { recursive: true });
-  } catch {}
+  rmSync(CACHE_DIR, { recursive: true, force: true });
   const { configureLanguagePackageResolver } = await import("../src/index.js");
   configureLanguagePackageResolver(localLanguagePackageResolver);
 });
@@ -79,7 +81,7 @@ describe("Wasm resolver", () => {
     expect(packageMetadata.parser).toEqual({
       name: "tree-sitter-diff",
       grammarName: "diff",
-      sha256: expect.stringMatching(/^[0-9a-f]{64}$/),
+      sha256: expect.stringMatching(/^[0-9a-f]{64}$/u),
     });
   });
 
@@ -147,12 +149,9 @@ describe("Wasm resolver", () => {
     const { htmlLinked } = await import("../src/formatters.js");
     const { default: diff } = await import("../langs/diff.ts");
 
-    const resolver = (_language: string, wasm: { name: string }) =>
-      ensureLocalParserWasm(_language, wasm.name);
-
     const hl = await createHighlighter({
       languages: [diff],
-      wasmResolver: resolver,
+      wasmResolver: localParserResolver,
     });
 
     const html = hl.highlight("- old\n+ new", htmlLinked({ language: diff }));
@@ -205,7 +204,7 @@ describe("Wasm resolver", () => {
         languages: [diff],
         wasmResolver: (language) => ensureLocalParserWasm(language, "tree-sitter-html"),
       }),
-    ).rejects.toThrow(/Invalid WASM integrity/);
+    ).rejects.toThrow(/Invalid WASM integrity/u);
   }, 30_000);
 
   // Bytes handed over directly are the caller's to vouch for, so another build
@@ -240,7 +239,9 @@ describe("Wasm resolver", () => {
     const { createHighlighter } = await import("../src/index.js");
     const { default: json } = await import("../langs/json.ts");
     const bytes = anotherBuild(new Uint8Array(readFileSync(ensureLocalWasm("json"))));
-    const server = createServer((_request, response) => response.end(bytes));
+    const server = createServer((_request, response) => {
+      response.end(bytes);
+    });
     server.listen(0, "127.0.0.1");
     await once(server, "listening");
 
@@ -250,7 +251,7 @@ describe("Wasm resolver", () => {
         createHighlighter({
           languages: [{ ...json, wasm: `http://127.0.0.1:${port}/tree-sitter-json.wasm` }],
         }),
-      ).rejects.toThrow(/Invalid WASM integrity/);
+      ).rejects.toThrow(/Invalid WASM integrity/u);
     } finally {
       server.close();
     }

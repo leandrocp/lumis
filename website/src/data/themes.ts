@@ -13,7 +13,7 @@ function labelizeTheme(id: string): string {
 
 function stripPrefix(path: string): string {
   const filename = path.split("/").pop();
-  return filename?.replace(/\.json$/, "") ?? path;
+  return filename?.replace(/\.json$/u, "") ?? path;
 }
 
 export const THEMES = Object.keys(themeModules)
@@ -26,7 +26,7 @@ export const THEMES = Object.keys(themeModules)
     return {
       id,
       label: labelizeTheme(id),
-      _path: path,
+      path,
     };
   })
   .sort((a, b) => a.label.localeCompare(b.label));
@@ -46,7 +46,7 @@ export function loadTheme(id: string): Promise<Theme> {
     throw new Error(`Unknown theme: ${id}`);
   }
 
-  const loader = themeModules[entry._path];
+  const loader = themeModules[entry.path];
   if (!loader) {
     throw new Error(`No loader for theme: ${id}`);
   }

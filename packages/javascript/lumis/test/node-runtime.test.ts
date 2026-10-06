@@ -8,7 +8,7 @@ describe("Node runtime", () => {
   it("keeps custom WASM cache keys inside the cache directory", () => {
     const filename = wasmCacheFilename("../../outside\\parser");
 
-    expect(filename).not.toMatch(/[\\/]/);
+    expect(filename).not.toMatch(/[\\/]/u);
     expect(filename).toBe("..%2F..%2Foutside%5Cparser.wasm");
   });
 

@@ -65,6 +65,6 @@ describe("default data directory", () => {
 
   it("ends at a lumis directory", async () => {
     setXdg(undefined);
-    expect(await platformDataDir()).toMatch(/[/\\]lumis$/);
+    expect(await platformDataDir()).toMatch(/[/\\]lumis$/u);
   });
 });

@@ -3,11 +3,10 @@
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { cpus, platform, release } from "node:os";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 import { implementationById, lumisReference } from "./implementations.mjs";
 
-const benchmarksDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const benchmarksDir = resolve(import.meta.dirname, "..");
 const repoDir = resolve(benchmarksDir, "..");
 const runDir = resolve(
   process.env.BENCH_RUN_DIR ?? resolve(repoDir, "target/benchmarks/runs/current"),

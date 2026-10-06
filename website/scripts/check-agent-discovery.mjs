@@ -69,7 +69,7 @@ function sourceFile({ pathname }) {
 }
 
 const contentSignal = "Content-Signal: ai-train=yes, search=yes, ai-input=yes";
-const robotsGroups = robots.trim().split(/\n\n+/);
+const robotsGroups = robots.trim().split(/\n\n+/u);
 const userAgentGroups = robotsGroups.filter((group) => group.startsWith("User-agent:"));
 assert(userAgentGroups.length > 0, "robots.txt has no user-agent groups");
 for (const group of userAgentGroups) {
@@ -100,10 +100,10 @@ assert(
   `${indexPath} has a stale Lumis skill digest; expected sha256:${skillDigest}`,
 );
 
-const frontmatter = skill.match(/^---\n(?<fields>[\s\S]*?)\n---\n/);
+const frontmatter = skill.match(/^---\n(?<fields>[\s\S]*?)\n---\n/u);
 assert(frontmatter?.groups, `${skillPath} has no YAML frontmatter`);
-const name = frontmatter.groups.fields.match(/^name: (?<value>.+)$/m)?.groups?.value;
-const description = frontmatter.groups.fields.match(/^description: (?<value>.+)$/m)?.groups?.value;
+const name = frontmatter.groups.fields.match(/^name: (?<value>.+)$/mu)?.groups?.value;
+const description = frontmatter.groups.fields.match(/^description: (?<value>.+)$/mu)?.groups?.value;
 assert(name === skillEntry.name, `${skillPath} name does not match ${indexPath}`);
 assert(
   description === skillEntry.description,
@@ -209,13 +209,16 @@ const described = openapi.paths?.["/api/versioned-installer"]?.get;
 assert(described, `${openapiPath} does not describe GET /api/versioned-installer`);
 
 // The published version pattern has to stay in step with the one the function enforces.
-const enforced = installer.match(/\/(?<pattern>\^[^/]+\$)\/\.test\(version\)/)?.groups?.pattern;
+const enforced = installer.match(
+  /\/(?<pattern>\^[^/]+\$)\/(?<flags>[a-z]*)\.test\(version\)/u,
+)?.groups;
 assert(enforced, "api/versioned-installer.js no longer validates version with a literal pattern");
+assert(enforced.flags === "u", "api/versioned-installer.js must validate versions with the u flag");
 const documented = described.parameters?.find((parameter) => parameter.name === "version")?.schema
   ?.pattern;
 assert(
-  documented === enforced,
-  `${openapiPath} documents version as ${documented}; the API enforces ${enforced}`,
+  documented === enforced.pattern,
+  `${openapiPath} documents version as ${documented}; the API enforces ${enforced.pattern}`,
 );
 
 // RFC 9728 Protected Resource Metadata, RFC 8414 Authorization Server Metadata, and Auth.md.
@@ -283,7 +286,7 @@ assert(
 );
 
 // Auth.md detection keys off an H1 that names the standard.
-assert(/^# .*auth\.md/im.test(authMd), `${authMdPath} needs an H1 heading that contains auth.md`);
+assert(/^# .*auth\.md/imu.test(authMd), `${authMdPath} needs an H1 heading that contains auth.md`);
 
 assert(
   homepage.includes('rel="ai-catalog"') &&

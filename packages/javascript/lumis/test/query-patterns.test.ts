@@ -122,7 +122,7 @@ describe("processed query predicates", () => {
   it("compiles every predicate regex with RegExp", () => {
     const failures = predicates.flatMap(({ file, line, operator, regex }) => {
       try {
-        // oxlint-disable-next-line no-new -- constructing it is the validity test.
+        // oxlint-disable-next-line eslint/require-unicode-regexp, no-new -- mirror runtime semantics without flags; construction tests validity.
         new RegExp(regex);
         return [];
       } catch (error) {
@@ -171,6 +171,7 @@ describe("documented defects stay fixed", () => {
     );
     expect(clojure).toBeDefined();
     expect(clojure?.regex).toBe("^->[^>][\\s\\S]*");
+    // oxlint-disable-next-line eslint/require-unicode-regexp -- match runtime RegExp semantics without flags.
     expect(new RegExp(clojure!.regex).test("->foo")).toBe(true);
   });
 
@@ -180,6 +181,7 @@ describe("documented defects stay fixed", () => {
       ({ file, regex }) => file === "javascript/highlights.scm" && regex.includes("[*][*]"),
     );
     expect(documentation?.regex).toBe("^/[*][*][^*][\\s\\S]*[*]/$");
+    // oxlint-disable-next-line eslint/require-unicode-regexp -- match runtime RegExp semantics without flags.
     const compiled = new RegExp(documentation!.regex);
     expect(compiled.test("/** hi */")).toBe(true);
     expect(compiled.test("/*** hi */")).toBe(false);
@@ -193,6 +195,7 @@ describe("documented defects stay fixed", () => {
       ({ file, regex }) => file === "cpp/highlights.scm" && regex === "^[A-Z]",
     );
     expect(cpp).toBeDefined();
+    // oxlint-disable-next-line eslint/require-unicode-regexp -- match runtime RegExp semantics without flags.
     expect(new RegExp(cpp!.regex).test("Foo")).toBe(true);
   });
 
@@ -202,6 +205,7 @@ describe("documented defects stay fixed", () => {
       ({ file, regex }) => file === "powershell/highlights.scm" && regex.includes("env:"),
     );
     expect(powershell?.regex).toBe("^\\$env:");
+    // oxlint-disable-next-line eslint/require-unicode-regexp -- match runtime RegExp semantics without flags.
     expect(new RegExp(powershell!.regex).test("$env:PATH")).toBe(true);
   });
 });

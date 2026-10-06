@@ -7,11 +7,10 @@ import { mkdir, mkdtemp, readFile, realpath, rm, stat, writeFile } from "node:fs
 import { cpus, platform, release, tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { promisify } from "node:util";
-import { fileURLToPath } from "node:url";
 import { implementationById } from "./implementations.mjs";
 
 const execFile = promisify(execFileCallback);
-const benchmarksDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const benchmarksDir = resolve(import.meta.dirname, "..");
 const repoDir = resolve(benchmarksDir, "..");
 const runDir = resolve(
   process.env.BENCH_RUN_DIR ?? resolve(repoDir, "target/benchmarks/runs/current"),
@@ -329,7 +328,7 @@ async function packPackageWithPnpm(directory, key, packRoot) {
   const files = [];
   const fileListParser = npmTarLibrary.list({
     onReadEntry(entry) {
-      files.push(entry.path.replace(/^package\//, ""));
+      files.push(entry.path.replace(/^package\//u, ""));
     },
   });
   fileListParser.end(await readFile(packed.filename));
@@ -347,7 +346,7 @@ async function packPackageWithPnpm(directory, key, packRoot) {
         gzip: { level: 9 },
         mtime: new Date("1985-10-26T08:15:00.000Z"),
         filter(path, details) {
-          if (bins.has(path.replace(/^[^\\/]*[\\/]/, ""))) details.mode |= 0o111;
+          if (bins.has(path.replace(/^[^\\/]*[\\/]/u, ""))) details.mode |= 0o111;
           return true;
         },
       },

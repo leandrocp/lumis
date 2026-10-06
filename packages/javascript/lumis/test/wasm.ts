@@ -87,7 +87,7 @@ export function localLanguagePackageMetadata(packageName: string): LanguagePacka
 
   const packageLanguages = Object.entries(parserDefinitions).filter(([language, definition]) => {
     const wasmName = definition.wasm_name ?? `tree-sitter-${language}`;
-    const suffix = wasmName.replace(/^tree-sitter-/, "");
+    const suffix = wasmName.replace(/^tree-sitter-/u, "");
     return `@lumis-sh/wasm-${suffix}` === packageName;
   });
   if (packageLanguages.length === 0) {

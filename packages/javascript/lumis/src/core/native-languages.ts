@@ -22,10 +22,12 @@ import type {
   LanguageDefinition,
   LanguageInfo,
   LoadedLanguage,
+  NativeLoadedLanguage,
+  PlaintextLoadedLanguage,
   LumisHighlightEvent,
   WasmRef,
 } from "../types.js";
-import { BUILTIN_FORMATTER, getBuiltinFormatter } from "./builtin-formatter.js";
+import { getBuiltinFormatter } from "./builtin-formatter.js";
 import { isInlineStructure } from "../formatter/html-structure.js";
 import { assertBudget, warnUnresolvedInjection } from "../events.js";
 import { decodeNativeEvents } from "./native-event-codec.js";
@@ -103,16 +105,16 @@ function nativeHtmlLinkedFormatter(
   };
 }
 
-const WASM_REF_STRING_FIELDS = ["packageName", "name", "version", "sha256"] as const;
+function hasStringProperties(value: object, names: readonly string[]): boolean {
+  return names.every((name) => typeof Reflect.get(value, name) === "string");
+}
 
 function isWasmRef(wasm: unknown): wasm is WasmRef {
   if (typeof wasm !== "object" || wasm === null) return false;
+  if (!hasStringProperties(wasm, ["packageName", "name", "version", "sha256"])) return false;
 
-  const record = wasm as Record<string, unknown>;
-  return (
-    WASM_REF_STRING_FIELDS.every((field) => typeof record[field] === "string") &&
-    /^[0-9a-f]{64}$/.test(record.sha256 as string)
-  );
+  const sha256: unknown = Reflect.get(wasm, "sha256");
+  return typeof sha256 === "string" && /^[0-9a-f]{64}$/u.test(sha256);
 }
 
 function parseWasmRef(json: string): WasmRef {
@@ -155,7 +157,7 @@ async function readWasmInput(wasm: RuntimeWasmInput, packaged: WasmRef): Promise
   if (wasm.startsWith("file://")) {
     return new Uint8Array(await readFile(fileURLToPath(new URL(wasm))));
   }
-  if (/^https?:\/\//.test(wasm)) return download(wasm);
+  if (/^https?:\/\//u.test(wasm)) return download(wasm);
   return new Uint8Array(await readFile(wasm));
 }
 
@@ -226,18 +228,22 @@ export function createNativeLanguagesModule(
    * native walk, without coming back to JavaScript.
    */
   function tellAddon(): Promise<Record<string, string> | undefined> {
-    installed ??= (async () => {
-      if (!resolveInstalledManifests) return;
-      const { fileURLToPath } = await import("node:url");
-      const manifests: Record<string, string> = {};
-      for (const [packageName, manifest] of await resolveInstalledManifests(
-        LANGUAGE_PACKAGE_NAMES,
-      )) {
-        manifests[packageName] = fileURLToPath(manifest);
-      }
-      binding.setInstalledPackages(manifests);
-      return manifests;
-    })();
+    if (installed) return installed;
+    if (resolveInstalledManifests) {
+      installed = (async () => {
+        const { fileURLToPath } = await import("node:url");
+        const manifests: Record<string, string> = {};
+        for (const [packageName, manifest] of await resolveInstalledManifests(
+          LANGUAGE_PACKAGE_NAMES,
+        )) {
+          manifests[packageName] = fileURLToPath(manifest);
+        }
+        binding.setInstalledPackages(manifests);
+        return manifests;
+      })();
+    } else {
+      installed = Promise.resolve(undefined);
+    }
     return installed;
   }
 
@@ -384,7 +390,7 @@ export function createNativeLanguagesModule(
           normalizeLanguageName(definition.id),
         );
       }
-      const loaded = { definition } as LoadedLanguage;
+      const loaded: NativeLoadedLanguage = { kind: "native", definition };
       this.loadedLanguages.set(normalizeLanguageName(definition.id), loaded);
       this.registerLanguage(definition);
       return loaded;
@@ -493,7 +499,7 @@ export function createNativeLanguagesModule(
       const existing = this.getLoadedLanguage(PLAINTEXT_LANG_ID);
       if (existing) return existing;
 
-      const loaded = { definition } as LoadedLanguage;
+      const loaded: PlaintextLoadedLanguage = { kind: "plaintext", definition };
       this.loadedLanguages.set(PLAINTEXT_LANG_ID, loaded);
       this.registerLanguage(definition);
       return loaded;
@@ -588,46 +594,46 @@ export function createNativeLanguagesModule(
       canCallResolver: boolean,
     ): NativeFormatter | undefined {
       const builtin = getBuiltinFormatter(formatter);
-      const kind = builtin?.[BUILTIN_FORMATTER];
       // Rust names the `language-*` class from `lumis_core::Language`, which has
       // no variant for a language the caller defined. Highlighting still runs
       // natively; only the string assembly falls back to JavaScript, exactly as
       // it already does for `html-multi-themes`. A Node worker cannot call the
       // JavaScript resolver needed by a language first discovered mid-walk, so
       // the async path also stays on the main thread when one is configured.
-      if (!kind || kind === "html-multi-themes") return undefined;
+      if (!builtin || builtin.kind === "html-multi-themes") return undefined;
       if (!this.canFormatNatively(language, canCallResolver)) return undefined;
 
       const rainbowBrackets = highlightOptions.rainbowBrackets;
       const budget = highlightOptions.budget;
       assertBudget(budget);
 
-      switch (kind) {
+      switch (builtin.kind) {
         case "html-inline":
-          return { ...nativeHtmlInlineFormatter(builtin, rainbowBrackets), budget };
+          return { ...nativeHtmlInlineFormatter(builtin.formatter, rainbowBrackets), budget };
         case "html-linked":
-          return { ...nativeHtmlLinkedFormatter(builtin, rainbowBrackets), budget };
+          return { ...nativeHtmlLinkedFormatter(builtin.formatter, rainbowBrackets), budget };
         case "bbcode-scoped":
           return {
             rainbowBrackets,
             budget,
-            kind,
-            options: { highlightLines: builtin.highlightLines },
+            kind: builtin.kind,
+            options: { highlightLines: builtin.formatter.highlightLines },
           };
         case "terminal":
           return {
             rainbowBrackets,
             budget,
-            kind,
+            kind: builtin.kind,
             options: {
-              theme: builtin.theme,
-              background: builtin.background,
-              width: builtin.width,
-              highlightLines: builtin.highlightLines,
-              lineNumbers: builtin.lineNumbers,
+              theme: builtin.formatter.theme,
+              background: builtin.formatter.background,
+              width: builtin.formatter.width,
+              highlightLines: builtin.formatter.highlightLines,
+              lineNumbers: builtin.formatter.lineNumbers,
             },
           };
       }
+      return undefined;
     }
 
     private canFormatNatively(language: LoadedLanguage, canCallResolver: boolean): boolean {

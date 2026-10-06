@@ -19,11 +19,8 @@ import {
 } from "./html.js";
 import { formatHtmlSpans, isInlineStructure } from "./html-structure.js";
 
-function spanAttrs(
-  span: HighlightSpan,
-  formatter: HtmlInlineFormatter,
-): Record<string, string | undefined> {
-  const attrs: Record<string, string | undefined> = {};
+function spanAttrs(span: HighlightSpan, formatter: HtmlInlineFormatter): Record<string, string> {
+  const attrs: Record<string, string> = {};
 
   if (formatter.includeHighlights) {
     attrs["data-highlight"] = span.scope;

@@ -456,7 +456,7 @@ run = "stylua themes/ crates/lumis-cli/themes/"
 
 [tasks.'fmt-js']
 description = "Format every JavaScript and TypeScript file"
-run = 'packages/javascript/lumis/node_modules/.bin/oxfmt "**/*.{ts,tsx,mjs,cjs,js,jsx}"'
+run = 'packages/javascript/lumis/node_modules/.bin/oxfmt -c .oxfmtrc.json "**/*.{ts,tsx,mjs,cjs,js,jsx}"'
 
 [tasks.'lint-js']
 description = "Lint every JavaScript and TypeScript file"
@@ -1345,6 +1345,22 @@ fi
 printf '%s\n' "$template"
 '''
 
+[tasks.'comparison-sync-version']
+description = "Update the comparison's Lumis version label during release preparation"
+run = '''
+python3 - <<'PYTHON'
+import json
+from pathlib import Path
+
+package = json.loads(Path("packages/javascript/lumis/package.json").read_text())
+path = Path("website/public/comparison-data/manifest.json")
+manifest = json.loads(path.read_text())
+[implementation] = [entry for entry in manifest["implementations"] if entry["id"] == "lumis"]
+implementation["version"] = f"Lumis {package['version']}"
+path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")
+PYTHON
+'''
+
 [tasks.'release-prepare']
 description = "Update package version files and regenerate the package changelog locally"
 usage = '''
@@ -1393,6 +1409,7 @@ if [ "$(mise run release-version "$package")" != "$version" ]; then
 fi
 
 if [ "$package" = "npm-lumis" ]; then
+    mise run comparison-sync-version
     cargo set-version --manifest-path packages/javascript/lumis/native/Cargo.toml -p lumis-js-native "$version"
     for native_manifest in packages/javascript/lumis/native/npm/*/package.json; do
         npm --prefix "$(dirname "$native_manifest")" version --no-git-tag-version "$version"

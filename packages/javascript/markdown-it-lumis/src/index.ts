@@ -1,4 +1,4 @@
-import type MarkdownIt from "markdown-it";
+import type { MarkdownIt, Token } from "markdown-it";
 import type {
   Highlighter,
   Language,
@@ -41,7 +41,7 @@ function renderDefaultFence(
 }
 
 function getLanguageName(info: string): string | undefined {
-  const language = info.trim().split(/\s+/, 1)[0];
+  const language = info.trim().split(/\s+/u, 1)[0];
   return language && language.length > 0 ? language : undefined;
 }
 
@@ -54,7 +54,7 @@ function getLanguageName(info: string): string | undefined {
  * would place them, stands down as soon as it sees a custom `fence` rule, which
  * is why nothing else has put them anywhere by the time this runs.
  */
-function fenceAttrs(attrs: Array<[string, string]> | null): HtmlAttrs | undefined {
+function fenceAttrs(attrs: Token["attrs"]): HtmlAttrs | undefined {
   if (!attrs || attrs.length === 0) return undefined;
   return Object.fromEntries(attrs);
 }

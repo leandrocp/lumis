@@ -149,10 +149,10 @@ function lineInterval(line: LineSpec): [number, number] | undefined {
 }
 
 /** One layer held open across a line boundary. */
-type OpenLayer =
-  | { type: "syntax"; event: HighlightEvent }
-  | { type: "annotation"; event: HighlightEvent }
-  | { type: "decoration"; event: HighlightEvent };
+type OpenLayer<T> =
+  | { type: "syntax"; event: Extract<HighlightEvent<T>, { type: "start" }> }
+  | { type: "annotation"; event: Extract<HighlightEvent<T>, { type: "annotationStart" }> }
+  | { type: "decoration"; event: Extract<HighlightEvent<T>, { type: "decorationStart" }> };
 
 interface LineState {
   number: number;
@@ -182,7 +182,7 @@ export function composeLineDecorations<T>(
   selection: LineSelection,
 ): HighlightEvent<T>[] {
   const output: HighlightEvent<T>[] = [];
-  const layers: OpenLayer[] = [];
+  const layers: OpenLayer<T>[] = [];
   const line: LineState = { number: 1, pending: false };
 
   output.push(lineStart(line.number, selection));
@@ -204,7 +204,7 @@ function applyEvent<T>(
   output: HighlightEvent<T>[],
   sourceBytes: Uint8Array,
   event: HighlightEvent<T>,
-  layers: OpenLayer[],
+  layers: OpenLayer<T>[],
   line: LineState,
   selection: LineSelection,
 ): void {
@@ -244,8 +244,8 @@ function applyEvent<T>(
 /** Close the innermost layer, when it is the kind `event` closes. */
 function closeLayer<T>(
   output: HighlightEvent<T>[],
-  layers: OpenLayer[],
-  kind: OpenLayer["type"],
+  layers: OpenLayer<T>[],
+  kind: OpenLayer<T>["type"],
   event: HighlightEvent<T>,
   pending: boolean,
 ): void {
@@ -264,7 +264,7 @@ function lineStart<T>(line: number, selection: LineSelection): HighlightEvent<T>
   return { type: "decorationStart", decoration };
 }
 
-function closeLayers<T>(output: HighlightEvent<T>[], layers: readonly OpenLayer[]): void {
+function closeLayers<T>(output: HighlightEvent<T>[], layers: readonly OpenLayer<T>[]): void {
   for (let index = layers.length - 1; index >= 0; index -= 1) {
     const layer = layers[index]!;
     output.push(
@@ -277,15 +277,15 @@ function closeLayers<T>(output: HighlightEvent<T>[], layers: readonly OpenLayer[
   }
 }
 
-function reopenLayers<T>(output: HighlightEvent<T>[], layers: readonly OpenLayer[]): void {
+function reopenLayers<T>(output: HighlightEvent<T>[], layers: readonly OpenLayer<T>[]): void {
   for (const layer of layers) {
-    output.push(layer.event as HighlightEvent<T>);
+    output.push(layer.event);
   }
 }
 
 function reopenPendingLayers<T>(
   output: HighlightEvent<T>[],
-  layers: readonly OpenLayer[],
+  layers: readonly OpenLayer<T>[],
   line: LineState,
 ): void {
   if (line.pending) {
@@ -306,7 +306,7 @@ function splitSource<T>(
   output: HighlightEvent<T>[],
   sourceBytes: Uint8Array,
   event: { start: number; end: number },
-  layers: readonly OpenLayer[],
+  layers: readonly OpenLayer<T>[],
   line: LineState,
   selection: LineSelection,
 ): void {

@@ -21,12 +21,12 @@ import { mergeAttrs, mergeClasses } from "../core/attr-merge.js";
 export { sanitizeThemeName } from "../themes.js";
 export type { HtmlAttrs, HtmlStructure } from "../types.js";
 
-const _encoder = new TextEncoder();
-const _decoder = new TextDecoder();
+const utf8Encoder = new TextEncoder();
+const utf8Decoder = new TextDecoder();
 
 /** @internal */
 export function encodeSource(source: string): Uint8Array {
-  return _encoder.encode(source);
+  return utf8Encoder.encode(source);
 }
 
 /** @internal */
@@ -41,7 +41,7 @@ export function decodeSourceSlice(
   let end = Math.min(Math.max(endByte, 0), sourceBytes.length);
   while (end > 0 && isUtf8Continuation(sourceBytes[end])) end -= 1;
 
-  return _decoder.decode(sourceBytes.subarray(start, Math.max(start, end)));
+  return utf8Decoder.decode(sourceBytes.subarray(start, Math.max(start, end)));
 }
 
 function isUtf8Continuation(byte: number | undefined): boolean {
@@ -290,8 +290,8 @@ function classList(...classes: Array<string | undefined | false | null>): string
  * ```
  */
 export function isValidAttrName(name: string): boolean {
-  // eslint-disable-next-line no-control-regex
-  return name.length > 0 && !/[\s"'>/=\u0000-\u001F\u007F-\u009F]/.test(name);
+  // oxlint-disable-next-line no-control-regex -- HTML attribute names reject ASCII C0/C1 control bytes.
+  return name.length > 0 && !/[\s"'>/=\u0000-\u001F\u007F-\u009F]/u.test(name);
 }
 
 function renderAttrs(attrs: HtmlAttrs): string {
@@ -760,9 +760,11 @@ function appendDefaultThemeCssVars(
   style: HighlightStyle,
 ): void {
   const sanitized = sanitizeThemeName(themeName);
-  cssVars.push(`${prefix}-${sanitized}-font-style:${style.italic ? "italic" : "normal"};`);
-  cssVars.push(`${prefix}-${sanitized}-font-weight:${style.bold ? "bold" : "normal"};`);
-  cssVars.push(`${prefix}-${sanitized}-text-decoration:${textDecoration(style)};`);
+  cssVars.push(
+    `${prefix}-${sanitized}-font-style:${style.italic ? "italic" : "normal"};`,
+    `${prefix}-${sanitized}-font-weight:${style.bold ? "bold" : "normal"};`,
+    `${prefix}-${sanitized}-text-decoration:${textDecoration(style)};`,
+  );
 }
 
 /**
@@ -920,9 +922,11 @@ function pushThemeCssVars(
   const sanitized = sanitizeThemeName(themeName);
   if (style.fg) cssVars.push(`${prefix}-${sanitized}:${style.fg};`);
   if (style.bg) cssVars.push(`${prefix}-${sanitized}-bg:${style.bg};`);
-  cssVars.push(`${prefix}-${sanitized}-font-style:${style.italic ? "italic" : "normal"};`);
-  cssVars.push(`${prefix}-${sanitized}-font-weight:${style.bold ? "bold" : "normal"};`);
-  cssVars.push(`${prefix}-${sanitized}-text-decoration:${textDecoration(style)};`);
+  cssVars.push(
+    `${prefix}-${sanitized}-font-style:${style.italic ? "italic" : "normal"};`,
+    `${prefix}-${sanitized}-font-weight:${style.bold ? "bold" : "normal"};`,
+    `${prefix}-${sanitized}-text-decoration:${textDecoration(style)};`,
+  );
 }
 
 /**
@@ -939,7 +943,7 @@ function pushThemeCssVars(
  * keeps its counterpart private.
  * @internal
  */
-export function sortedThemeNames(themes: Record<string, unknown>): string[] {
+export function sortedThemeNames(themes: Readonly<Record<string, Theme | undefined>>): string[] {
   const encoder = new TextEncoder();
 
   return Object.keys(themes).sort((left, right) => {
@@ -1317,11 +1321,19 @@ function endLineDecoration(state: LineRenderState, context: LineRenderContext): 
   }
 }
 
+function isCallerAnnotation(
+  event: HighlightEvent,
+): event is Extract<HighlightEvent, { type: "annotationStart" | "annotationEnd" }> {
+  return event.type === "annotationStart" || event.type === "annotationEnd";
+}
+
 function applyLineEvent(
   state: LineRenderState,
   context: LineRenderContext,
   event: HighlightEvent,
 ): void {
+  if (isCallerAnnotation(event)) return;
+
   switch (event.type) {
     case "decorationStart":
       startLineDecoration(state, context, event.decoration);
@@ -1337,9 +1349,6 @@ function applyLineEvent(
       break;
     case "source":
       sourceEvent(state, context, event);
-      break;
-    // Caller annotations carry data a built-in formatter has never seen.
-    default:
       break;
   }
 }
@@ -1408,7 +1417,9 @@ export function formatHighlightIterLines(
     theme,
     languageRef ? languageId(languageRef) : streamLanguage(events),
     { ...options, inferLanguage: true },
-    (content, _decoration, ending) => lines.push(`${content}${ending}`),
+    (content, _decoration, ending) => {
+      lines.push(`${content}${ending}`);
+    },
   );
 
   return { lines, language };
@@ -1445,7 +1456,7 @@ export function formatHtmlLines(
   const wrapped = formatter.structure !== "inline";
   const numbered = formatter.lineNumbers === true;
   const composed = composeLineDecorations(sourceBytes, events, new LineSelection(formatter.lines));
-  const sourceLines = source.split(/\r?\n/);
+  const sourceLines = source.split(/\r?\n/u);
   const lineCount = sourceLines.length - Number(source.endsWith("\n"));
   const parts: string[] = [];
 
@@ -1514,7 +1525,9 @@ export function renderLinesFromEvents(
     undefined,
     streamLanguage(events),
     { openSpan: (span) => openSpan(spanAttrs(span.scope, span.language)) },
-    (content) => lines.push(content),
+    (content) => {
+      lines.push(content);
+    },
   );
   if (source.endsWith("\n")) lines.pop();
   return lines;
@@ -1588,7 +1601,7 @@ export function renderEvents(
  * {@link renderLinesFromEvents}. Removed in the next major.
  */
 export function linesFromOffsets(html: Uint8Array, lineOffsets: number[]): string[] {
-  const rendered = _decoder.decode(html);
+  const rendered = utf8Decoder.decode(html);
   const lines: string[] = [];
 
   for (let i = 0; i < lineOffsets.length; i += 1) {

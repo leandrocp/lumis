@@ -62,7 +62,6 @@ function runProcess(binary, args, environment) {
       if (settled) return;
       settled = true;
       clearInterval(sampler);
-      // oxlint-disable-next-line promise/no-multiple-resolved -- `settled` makes this the only resolve.
       resolveRun({
         wallMs: Number((process.hrtime.bigint() - started) / 1_000_000n),
         outputBytes,

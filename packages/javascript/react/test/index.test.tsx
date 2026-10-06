@@ -118,10 +118,10 @@ describe("@lumis-sh/react", () => {
     const html = renderToStaticMarkup(node);
 
     expect(html).toMatch(
-      /<pre class="lumis" style="color:#[0-9a-f]+;background-color:#[0-9a-f]+">/,
+      /<pre class="lumis" style="color:#[0-9a-f]+;background-color:#[0-9a-f]+">/u,
     );
-    expect(html).toMatch(/<code class="language-javascript"/);
-    expect(html).toMatch(/<span style="color:#[0-9a-f]+">const<\/span>/);
+    expect(html).toMatch(/<code class="language-javascript"/u);
+    expect(html).toMatch(/<span style="color:#[0-9a-f]+">const<\/span>/u);
   });
 
   it("supports string formatter languages through renderCodeBlock", async () => {
@@ -301,6 +301,8 @@ describe("@lumis-sh/react", () => {
   });
 
   it("normalizes non-Error failures returned by useLumis", async () => {
+    // This test's input is deliberately not an Error; useLumis normalizes it.
+    // oxlint-disable-next-line eslint/prefer-promise-reject-errors, typescript/prefer-promise-reject-errors -- non-Error rejection is the regression case
     const highlighter = Promise.reject<Awaited<ReturnType<typeof createHighlighter>>>("boom");
     const container = document.createElement("div");
     document.body.append(container);

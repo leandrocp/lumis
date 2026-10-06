@@ -14,7 +14,7 @@ const defaults: Required<BuildCssOptions> = {
 };
 
 function camel(name: string): string {
-  return name.replaceAll(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
+  return name.replaceAll(/_([a-z])/gu, (_, letter: string) => letter.toUpperCase());
 }
 
 const theme: Parameters<typeof buildCss>[0] = { ...manifest.theme, appearance: "dark" };

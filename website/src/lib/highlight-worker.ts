@@ -94,12 +94,15 @@ async function handleMessage(req: WorkerRequest): Promise<WorkerResponse> {
 self.onmessage = async (e: MessageEvent<WorkerRequest>) => {
   try {
     const response = await handleMessage(e.data);
+    // oxlint-disable-next-line unicorn/require-post-message-target-origin -- Worker.postMessage has a transfer-list/options argument, not a Window target origin.
     self.postMessage(response);
   } catch (err) {
-    self.postMessage({
+    const response = {
       id: e.data.id,
       type: "error",
       message: String(err),
-    } satisfies WorkerResponse);
+    } satisfies WorkerResponse;
+    // oxlint-disable-next-line unicorn/require-post-message-target-origin -- Worker.postMessage has a transfer-list/options argument, not a Window target origin.
+    self.postMessage(response);
   }
 };

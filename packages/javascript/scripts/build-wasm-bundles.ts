@@ -46,7 +46,7 @@ function treeSitterCompatRange(): string {
   );
   // A dev dependency: tsup inlines it into `dist`.
   const spec = packageJson.devDependencies?.["web-tree-sitter"];
-  const match = spec?.match(/(\d+\.\d+)/);
+  const match = spec?.match(/(\d+\.\d+)/u);
 
   if (!match) {
     throw new Error("Could not determine web-tree-sitter compatibility from package.json");
@@ -193,9 +193,9 @@ The package exports the bundle, in Node and in a browser. Each language loads fr
 
 \`\`\`ts
 import { createHighlighter } from '@lumis-sh/lumis'
-import ${bundleName.replaceAll(/-(.)/g, (_m, c: string) => c.toUpperCase())} from '@lumis-sh/wasm-bundle-${bundleName}'
+import ${bundleName.replaceAll(/-(.)/gu, (_m, c: string) => c.toUpperCase())} from '@lumis-sh/wasm-bundle-${bundleName}'
 
-const highlighter = await createHighlighter({ languages: [${bundleName.replaceAll(/-(.)/g, (_m, c: string) => c.toUpperCase())}] })
+const highlighter = await createHighlighter({ languages: [${bundleName.replaceAll(/-(.)/gu, (_m, c: string) => c.toUpperCase())}] })
 \`\`\`
 `;
 

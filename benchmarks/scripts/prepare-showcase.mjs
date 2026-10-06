@@ -2,10 +2,9 @@
 
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 
-const benchmarksDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const benchmarksDir = resolve(import.meta.dirname, "..");
 const generatedDir = resolve(benchmarksDir, "showcase/generated");
 const assetsDir = resolve(generatedDir, "assets");
 

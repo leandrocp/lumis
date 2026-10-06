@@ -466,7 +466,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "defmodule Test do\n  @lang :elixir\nend",
         ~s"""
-        <pre class="lumis" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #8be9fd;">defmodule</span> <span style="color: #ffb86c;">Test</span> <span style="color: #ff79c6;">do</span></span>
+        <pre class="lumis" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #8be9fd;">defmodule</span> <span style="color: #ffb86c;">Test</span> <span style="color: #8be9fd;">do</span></span>
         <span class="l-line" data-line="2">  <span style="color: #ff79c6;"><span style="color: #bd93f9;">@<span style="color: #50fa7b;"><span style="color: #bd93f9;">lang <span style="color: #bd93f9;">:elixir</span></span></span></span></span></span>
         <span class="l-line" data-line="3"><span style="color: #ff79c6;">end</span></span></code></pre>
         """,
@@ -478,7 +478,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "defmodule Test do\n  @lang :elixir\nend",
         ~s"""
-        <pre class="lumis" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #8be9fd;">defmodule</span> <span style="color: #ffb86c;">Test</span> <span style="color: #ff79c6;">do</span></span>
+        <pre class="lumis" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #8be9fd;">defmodule</span> <span style="color: #ffb86c;">Test</span> <span style="color: #8be9fd;">do</span></span>
         <span class="l-line" data-line="2">  <span style="color: #ff79c6;"><span style="color: #bd93f9;">@<span style="color: #50fa7b;"><span style="color: #bd93f9;">lang <span style="color: #bd93f9;">:elixir</span></span></span></span></span></span>
         <span class="l-line" data-line="3"><span style="color: #ff79c6;">end</span></span></code></pre>
         """,
@@ -498,7 +498,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "defmodule Test do\n  @lang :elixir\nend",
         ~s"""
-        <pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span data-highlight="keyword.function" style="color: #c678dd;">defmodule</span> <span data-highlight="module" style="color: #e5c07b;">Test</span> <span data-highlight="keyword" style="color: #c678dd;">do</span></span>
+        <pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span data-highlight="keyword.function" style="color: #c678dd;">defmodule</span> <span data-highlight="module" style="color: #e5c07b;">Test</span> <span data-highlight="keyword.function" style="color: #c678dd;">do</span></span>
         <span class="l-line" data-line="2">  <span data-highlight="operator" style="color: #56b6c2;"><span data-highlight="constant" style="color: #d19a66;">@<span data-highlight="function.call" style="color: #61afef;"><span data-highlight="constant" style="color: #d19a66;">lang <span data-highlight="string.special.symbol" style="color: #e06c75;">:elixir</span></span></span></span></span></span>
         <span class="l-line" data-line="3"><span data-highlight="keyword" style="color: #c678dd;">end</span></span></code></pre>
         """,
@@ -512,7 +512,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "defmodule Test do\n  @lang :elixir\nend",
         ~s"""
-        <pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span class="l-keyword-function">defmodule</span> <span class="l-module">Test</span> <span class="l-keyword">do</span></span>
+        <pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span class="l-keyword-function">defmodule</span> <span class="l-module">Test</span> <span class="l-keyword-function">do</span></span>
         <span class="l-line" data-line="2">  <span class="l-operator"><span class="l-constant">@<span class="l-function-call"><span class="l-constant">lang <span class="l-string-special-symbol">:elixir</span></span></span></span></span></span>
         <span class="l-line" data-line="3"><span class="l-keyword">end</span></span></code></pre>
         """,
@@ -689,7 +689,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "defmodule Test do\n  value = \"[url=x]\"\nend",
         ~s"""
-        [keyword-function-elixir]defmodule[/keyword-function-elixir] [module-elixir]Test[/module-elixir] [keyword-elixir]do[/keyword-elixir]
+        [keyword-function-elixir]defmodule[/keyword-function-elixir] [module-elixir]Test[/module-elixir] [keyword-function-elixir]do[/keyword-function-elixir]
           [variable-elixir]value[/variable-elixir] [operator-elixir]=[/operator-elixir] [string-elixir]\"&#91;url=x&#93;\"[/string-elixir]
         [keyword-elixir]end[/keyword-elixir]
         """,

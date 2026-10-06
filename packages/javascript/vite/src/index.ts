@@ -10,7 +10,6 @@ export type VitePluginLumisOptions = RehypeLumisOptions;
 
 type Tree = ReturnType<typeof fromHtml>;
 type Pre = Extract<Tree["children"][number], { tagName: string }>;
-type Template = Pre & { content?: Tree };
 
 interface Block {
   start: number;
@@ -20,7 +19,7 @@ interface Block {
 
 // Most entry points hold no code at all, and parsing one costs ~75x what
 // looking for the tag does. Nothing here can match a document without a `pre`.
-const PRE_TAG = /<pre[\s/>]/i;
+const PRE_TAG = /<pre[\s/>]/iu;
 
 function createProcessor(options: VitePluginLumisOptions) {
   return unified().use(rehypeLumis, options).freeze();
@@ -38,7 +37,7 @@ function findBlocks(tree: Tree): Block[] {
   function collect(root: Tree) {
     visit(root, "element", (node) => {
       if (node.tagName === "template") {
-        const content = (node as Template).content;
+        const content = node.content;
         if (content?.type === "root") collect(content);
       }
 
@@ -85,12 +84,14 @@ export default function lumis(options: VitePluginLumisOptions): Plugin {
     configureServer: warmHighlighter,
     async transformIndexHtml(html) {
       if (!PRE_TAG.test(html)) {
-        return;
+        // oxlint-disable-next-line unicorn/no-useless-undefined -- the Vite hook returns no transform result for unrelated HTML.
+        return undefined;
       }
 
       const blocks = findBlocks(fromHtml(html));
       if (blocks.length === 0) {
-        return;
+        // oxlint-disable-next-line unicorn/no-useless-undefined -- the Vite hook returns no transform result when no blocks match.
+        return undefined;
       }
 
       await warmHighlighter();
@@ -113,7 +114,7 @@ export default function lumis(options: VitePluginLumisOptions): Plugin {
           continue;
         }
 
-        out += html.slice(cursor, block.start) + toHtml(result as Parameters<typeof toHtml>[0]);
+        out += html.slice(cursor, block.start) + toHtml(result);
         cursor = block.end;
       }
 

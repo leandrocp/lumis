@@ -259,13 +259,13 @@ Rationale that is about the change rather than the code belongs in the commit me
 
 ### Formatting and linting are enforced everywhere
 
-Every file the repo authors is formatted and linted, including generated ones. `mise run fmt` formats every language, `mise run lint` checks them. Run those before pushing; CI only checks.
+Authored files are formatted and linted by default, with explicit exclusions for generated output, vendored sources and byte-exact corpora. `mise run fmt` formats every language, and `mise run lint` checks them. Run the gates relevant to the change before pushing; CI only checks.
 
 There is no per-package path list. `fmt-js` is `oxfmt "**/*.{ts,tsx,mjs,cjs,js,jsx}"` from the repo root and `lint-js` is `oxlint --deny-warnings --report-unused-disable-directives .` beside it, so a new package, script, example or test directory is covered the day it is added, whether or not the file has been staged yet.
 
-**Generated files are not an exception.** A generator writes its output and then formats it, so regenerating and format-checking agree. If you add a generator, format what it emits.
+For generated files included in the checks, the generator formats its output so regeneration and format-checking agree. Ignored build output is not checked by the root sweep; validate it through the owning generator/build instead.
 
-`.oxfmtrc.json` holds the only exclusions, and each needs a reason to be there:
+`.oxfmtrc.json` and `.oxlintrc.json` hold the exclusions for their respective checks, and each needs a reason to be there:
 
 - vendored parsers and vendored site assets — not ours to restyle
 - `dist/` — bundler output, which the next build would rewrite anyway
@@ -278,13 +278,17 @@ There is no per-package path list. `fmt-js` is `oxfmt "**/*.{ts,tsx,mjs,cjs,js,j
 
 This replaced a per-package `fmt:check` that named `src/` only. Every `test/`, `scripts/` and `examples/` directory in the repo had therefore never been formatted, and nobody could tell, because the check was green. When adding a formatter or a linter, make the default "everything" and subtract; never name a directory and hope the list is maintained.
 
-`oxlint` runs with `--deny-warnings`, so a warning fails the build. Silence a genuinely intentional one at the line with `// oxlint-disable-next-line <rule> -- <why>`; do not let it sit in the output. `--report-unused-disable-directives` runs too, so a silence that stops being needed fails rather than lingering.
+Oxlint's shared config makes warnings and unused disable directives errors, including when an agent invokes the binary directly. Silence a genuinely intentional operation at the line with `// oxlint-disable-next-line <rule> -- <why>`. Blanket disables are errors. A suppression must explain the behavior being preserved, not just repeat the rule name.
 
-**Every linter runs at its strict setting.** clippy at `clippy::pedantic`, oxlint with `correctness`, `suspicious`, `perf` and `pedantic` as errors, credo with `--strict`, selene with warnings fatal. `CONTRIBUTING.md` has the table and where each configuration lives.
+**Lint rules must prevent mistakes or improve code quality.** Oxlint uses an explicit reviewed rule list: each rule must protect correctness, an API contract, accessibility, performance, or maintainability. Oxfmt owns formatting. Alphabetical declarations, naming punctuation, arbitrary class counts, and deleting TODO comments do not establish quality. Review newly available rules on upgrades; category membership alone is not a reason to enable one. Other runtimes retain clippy at `clippy::pedantic`, credo with `--strict`, and selene with warnings fatal. `CONTRIBUTING.md` has the table and configuration locations.
 
-Every runtime implemented here also caps cyclomatic complexity at 20: oxlint's classic `eslint/complexity` rule for JavaScript, Credo's `CyclomaticComplexity` check for Elixir, and pinned Lizard for every Rust source file. The sole Rust whitelist entry is the exact upstream-vendored Tree-sitter iterator; do not broaden it or add authored code to it.
+Every runtime implemented here also caps cyclomatic complexity: 9 through oxlint's classic `eslint/complexity` rule for JavaScript and Credo's `CyclomaticComplexity` check for Elixir, and 20 through pinned Lizard for every Rust source file. The sole Rust whitelist entry is the exact upstream-vendored Tree-sitter iterator; do not broaden it or add authored code to it.
 
-A lint the repository has decided against is a waiver, not a line-level silence: it goes in `[workspace.lints.clippy]` or the `rules` block of `.oxlintrc.json`, with the reason and the number of sites it fired on. Those lists shrink; an addition needs the same justification the existing entries carry. Prefer configuring a rule over disabling it — `eqeqeq` keeps `== null`, `max-depth` is set to the deepest block the tree actually has, `prefer-nullish-coalescing` skips `if` statements whose guard is truthiness rather than nullishness.
+Distinguish an unsuitable rule from an unfinished safety migration. Record repository-wide exceptions and migration gaps in the central config with their reason. Violation counts describe migration work; they do not justify permanently disabling a useful guard. The remaining TypeScript boundary, non-null assertion, truthiness and readonly migrations must validate real contracts, not replace errors with casts, `any`, generic property bags or broad suppressions. Ordinary inputs should be readonly; parser state, DOM nodes and output buffers need narrowly identified mutable contracts.
+
+Production JavaScript package sources enforce all six unsafe-operation checks. Use precise domain types internally and discriminated unions for distinct runtime states. Reserve `unknown` for inputs and errors that need validation, and preserve annotation payload generics. `undefined` should represent meaningful absence; replacing it with `null` or fabricated objects does not strengthen a contract. Keep test and tooling migrations separate from production fixes.
+
+Prefer configuring a rule over disabling it: `eqeqeq` keeps `== null`, `prefer-nullish-coalescing` preserves intentional truthiness guards, and empty public interfaces may extend a real contract. A switch default must not hide a new union variant; list known no-op variants explicitly. Test control flow is allowed, but conditional assertions need either an unconditional expectation or a specific explanation of why only that runtime or fixture has the asserted behavior.
 
 **An autofix is a proposed edit, not a result.** Read what `--fix` wrote before keeping it. In this repository `unicorn/prefer-code-point` rewrote surrogate-pair validation that has to work in UTF-16 code units, `unicorn/no-useless-undefined` dropped arguments that were required, `oxc/no-map-spread` proposed an in-place `Object.assign`, and `prefer-nullish-coalescing` turned an `if (!x)` guard into `??=`, which stops treating `""` as absent. Build and test after a sweep; two of those four only surfaced as a `tsc` error, and the other two would not have surfaced at all.
 

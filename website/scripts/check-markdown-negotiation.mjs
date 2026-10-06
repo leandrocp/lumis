@@ -58,7 +58,7 @@ for (const page of pages) {
   }
 
   const html = await readFile(new URL(`../${page.html}`, import.meta.url), "utf8");
-  const publicPath = page.markdown.replace(/^public/, "");
+  const publicPath = page.markdown.replace(/^public/u, "");
   if (!html.includes(`rel="alternate"`) || !html.includes(`href="${publicPath}"`)) {
     throw new Error(`${page.html} does not advertise ${publicPath}`);
   }

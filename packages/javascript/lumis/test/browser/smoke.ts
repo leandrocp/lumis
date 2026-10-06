@@ -246,8 +246,8 @@ export interface BrowserTestResult {
 
 declare global {
   interface Window {
-    __lumisBrowserError?: string;
-    __lumisBrowserResult?: BrowserTestResult;
+    lumisBrowserError?: string;
+    lumisBrowserResult?: BrowserTestResult;
   }
 }
 
@@ -466,7 +466,7 @@ async function run(): Promise<void> {
     highlighter.highlight(customSource, customFormatter),
   ) as Omit<CustomFormatterResult, "restoredLanguage">;
 
-  window.__lumisBrowserResult = {
+  window.lumisBrowserResult = {
     customFormatter: {
       ...customFormatterResult,
       restoredLanguage: customFormatter.language,
@@ -519,5 +519,5 @@ async function languagePackageDataUrl(
 try {
   await run();
 } catch (error: unknown) {
-  window.__lumisBrowserError = error instanceof Error ? error.stack : String(error);
+  window.lumisBrowserError = error instanceof Error ? error.stack : String(error);
 }

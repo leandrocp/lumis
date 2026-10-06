@@ -321,13 +321,29 @@ export interface CompiledBracketConfig {
   rainbowExcludePatterns: boolean[];
 }
 
-export interface LoadedLanguage {
+/** A parser-backed language, with all Wasm state initialized. */
+export interface WasmLoadedLanguage {
+  readonly kind: "wasm";
   definition: LanguageDefinition;
   parser: Parser;
   language: TSLanguage;
   config: CompiledHighlightConfig;
   brackets?: CompiledBracketConfig;
 }
+
+/** Native parser state is owned by Rust, not by JavaScript. */
+export interface NativeLoadedLanguage {
+  readonly kind: "native";
+  definition: LanguageDefinition;
+}
+
+/** Plaintext does not allocate a parser in either runtime. */
+export interface PlaintextLoadedLanguage {
+  readonly kind: "plaintext";
+  definition: LanguageDefinition;
+}
+
+export type LoadedLanguage = WasmLoadedLanguage | NativeLoadedLanguage | PlaintextLoadedLanguage;
 
 export const PLAINTEXT_LANG_ID = "plaintext";
 

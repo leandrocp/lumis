@@ -10,7 +10,7 @@ export function mergeClasses(generated: HtmlAttrs[string], authored: HtmlAttrs[s
     .flatMap((value) =>
       typeof value === "string" || typeof value === "number"
         ? String(value)
-            .split(/[\t\n\f\r ]+/)
+            .split(/[\t\n\f\r ]+/u)
             .filter(Boolean)
         : [],
     )
@@ -27,7 +27,7 @@ function appendStyles(generated: HtmlAttrs[string], authored: HtmlAttrs[string])
 
   if (generatedStyle.length === 0) return authoredStyle;
   if (authoredStyle.length === 0) return generatedStyle;
-  return `${generatedStyle.replace(/;?$/, ";")} ${authoredStyle}`;
+  return `${generatedStyle.replace(/;?$/u, ";")} ${authoredStyle}`;
 }
 
 function matchingAttrName(attrs: HtmlAttrs, name: string): string | undefined {

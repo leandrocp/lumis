@@ -83,7 +83,7 @@ describe("annotations", () => {
     expect(output).toContain("<rainbow:0>");
     expect(output).toContain("<annotation:7>");
     expect(output).toContain("</annotation>");
-    expect(output.replaceAll(/<[^>]+>/g, "")).toBe(source);
+    expect(output.replaceAll(/<[^>]+>/gu, "")).toBe(source);
   }, 30_000);
 
   it("rejects annotation offsets that are not UTF-8 boundaries", async () => {
@@ -255,6 +255,6 @@ describe("annotations", () => {
     // A point renders as an empty element.
     expect(output).toContain('<i data-note="why the gap?"></i>');
     // The overlapping annotation is closed and reopened, so it starts twice.
-    expect(output.match(/<mark class="right">/g)).toHaveLength(2);
+    expect(output.match(/<mark class="right">/gu)).toHaveLength(2);
   }, 30_000);
 });

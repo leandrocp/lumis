@@ -143,9 +143,8 @@ async function selectorNativeTargetFor(): Promise<typeof nativeTargetFor> {
     const rule = rules.find(
       (candidate) => candidate.platform === platform && candidate.arch === arch,
     );
-    if (!rule) return;
     const variables: Record<SelectorVariable, string> = { platform, arch, libc };
-    return rule.target
+    return rule?.target
       .map((part) => (part.kind === "literal" ? part.value : variables[part.name]))
       .join("");
   };

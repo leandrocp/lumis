@@ -3,9 +3,9 @@ import type { LargeParserOutcome } from "./large-parser.js";
 
 test("loads a parser over 8 MB on the main thread", async ({ page }) => {
   await page.goto("/large-parser.html");
-  await page.waitForFunction(() => window.__lumisLargeParser !== undefined);
+  await page.waitForFunction(() => window.lumisLargeParser !== undefined);
   const outcome: LargeParserOutcome | undefined = await page.evaluate(
-    () => window.__lumisLargeParser,
+    () => window.lumisLargeParser,
   );
 
   expect(outcome?.error).toBeUndefined();

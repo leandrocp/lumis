@@ -24,13 +24,13 @@ interface ParsedCodeBlock {
   trailingChildren: ElementContent[];
 }
 
-function getPropertyString(value: unknown): string | undefined {
+function getPropertyString(value: Properties[keyof Properties]): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
-function propertyClassNames(value: unknown): string[] {
+function propertyClassNames(value: Properties[keyof Properties]): string[] {
   if (typeof value === "string") {
-    return value.split(/\s+/).filter(Boolean);
+    return value.split(/\s+/u).filter(Boolean);
   }
 
   if (!Array.isArray(value)) {
@@ -90,7 +90,10 @@ function parseFragment(html: string): RootContent[] {
  * owns that mapping, including how a list-valued property is joined, so this
  * does not have a table of its own.
  */
-function propertyToAttr(name: string, value: Properties[string]): [string, HtmlAttrs[string]] {
+function propertyToAttr(
+  name: string,
+  value: Properties[keyof Properties],
+): [string, HtmlAttrs[string]] {
   const info = find(htmlSchema, name);
 
   if (Array.isArray(value)) {
@@ -124,6 +127,8 @@ function restoreTrailingChildren(replacement: RootContent[], parsed: ParsedCodeB
       pre = node;
       return "skip";
     }
+    // oxlint-disable-next-line unicorn/no-useless-undefined -- return type distinguishes a skipped node from normal traversal.
+    return undefined;
   });
   if (!pre) return;
 
@@ -183,12 +188,14 @@ const rehypeLumis: Plugin<[RehypeLumisOptions], Root> = function rehypeLumis(opt
 
     visit(tree, "element", (node, index, parent) => {
       if (!parent || index == null || node.tagName !== "pre") {
-        return;
+        // oxlint-disable-next-line unicorn/no-useless-undefined -- explicit no-op result keeps visitor returns consistent.
+        return undefined;
       }
 
       const parsed = parseCodeBlock(node);
       if (!parsed) {
-        return;
+        // oxlint-disable-next-line unicorn/no-useless-undefined -- explicit no-op result keeps visitor returns consistent.
+        return undefined;
       }
 
       targets.push({ parent, index, parsed });
@@ -200,7 +207,8 @@ const rehypeLumis: Plugin<[RehypeLumisOptions], Root> = function rehypeLumis(opt
         try {
           return await renderBlock(highlighter, parsed, options.formatter);
         } catch {
-          return;
+          // oxlint-disable-next-line unicorn/no-useless-undefined -- failed blocks are intentionally skipped.
+          return undefined;
         }
       }),
     );

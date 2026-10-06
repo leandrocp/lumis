@@ -37,7 +37,6 @@ async function renderWithFenceAttrs(
     const fence = state.tokens.find((token) => token.type === "fence");
     if (!fence) throw new Error("expected a fence token");
     for (const [name, value] of Object.entries(attrs)) fence.attrSet(name, value);
-    return true;
   });
   md.use(plugin);
 
@@ -57,11 +56,11 @@ describe("markdown-it-lumis", () => {
       const html = md.render(JS_SOURCE);
 
       expect(html).toMatch(
-        /<pre class="lumis" style="color: #[0-9a-f]+; background-color: #[0-9a-f]+;">/,
+        /<pre class="lumis" style="color: #[0-9a-f]+; background-color: #[0-9a-f]+;">/u,
       );
-      expect(html).toMatch(/<code class="language-javascript"/);
-      expect(html).toMatch(/<span style="color: #[0-9a-f]+;">const<\/span>/);
-      expect(html).toMatch(/<span style="color: #[0-9a-f]+;">1<\/span>/);
+      expect(html).toMatch(/<code class="language-javascript"/u);
+      expect(html).toMatch(/<span style="color: #[0-9a-f]+;">const<\/span>/u);
+      expect(html).toMatch(/<span style="color: #[0-9a-f]+;">1<\/span>/u);
       expect(html).toContain('translate="no"');
       expect(html).toContain('tabindex="0"');
       expect(html).toContain('<span class="l-line" data-line="1">');
@@ -78,7 +77,7 @@ describe("markdown-it-lumis", () => {
 
       const html = md.render(JS_SOURCE);
 
-      expect(html).toMatch(/<pre class="lumis my-pre"/);
+      expect(html).toMatch(/<pre class="lumis my-pre"/u);
     });
 
     it("loads an identifier-only reference from a registered bundle", async () => {
@@ -92,7 +91,7 @@ describe("markdown-it-lumis", () => {
       const html = md.render(JS_SOURCE);
 
       expect(html).toContain('class="language-javascript"');
-      expect(html).toMatch(/<span style="color: #[0-9a-f]+;">const<\/span>/);
+      expect(html).toMatch(/<span style="color: #[0-9a-f]+;">const<\/span>/u);
     });
 
     it("puts a fence's attributes on pre, where markdown-it-attrs puts them", async () => {
@@ -106,11 +105,11 @@ describe("markdown-it-lumis", () => {
         title: "Example",
       });
 
-      expect(html).toMatch(/<pre class="lumis authored-pre"/);
-      expect(html.match(/lumis/g)).toHaveLength(1);
+      expect(html).toMatch(/<pre class="lumis authored-pre"/u);
+      expect(html.match(/lumis/gu)).toHaveLength(1);
       expect(html).toContain('id="example"');
       expect(html).toMatch(
-        /style="color: #[0-9a-f]+; background-color: #[0-9a-f]+; padding: 1rem;"/,
+        /style="color: #[0-9a-f]+; background-color: #[0-9a-f]+; padding: 1rem;"/u,
       );
       expect(html).toContain('data-panel="javascript"');
       expect(html).toContain('role="tabpanel"');
@@ -135,10 +134,10 @@ describe("markdown-it-lumis", () => {
       expect(html).toContain(
         '<code class="language-javascript authored-code" translate="yes" tabindex="-1"',
       );
-      expect(html.match(/language-javascript/g)).toHaveLength(1);
+      expect(html.match(/language-javascript/gu)).toHaveLength(1);
       expect(html).toContain('id="example-code"');
       expect(html).toContain('style="font-variant-ligatures: none;"');
-      expect(html).toMatch(/<pre class="lumis" style="color: #[0-9a-f]+; background-color/);
+      expect(html).toMatch(/<pre class="lumis" style="color: #[0-9a-f]+; background-color/u);
     });
 
     it("removes an attribute Lumis generates when the fence asks for it", async () => {
@@ -151,7 +150,7 @@ describe("markdown-it-lumis", () => {
     it("leaves a fence without attributes exactly as the formatter wrote it", async () => {
       const plain = await renderWithFenceAttrs({});
 
-      expect(plain).toMatch(/^<pre class="lumis" style="color: #[0-9a-f]+/);
+      expect(plain).toMatch(/^<pre class="lumis" style="color: #[0-9a-f]+/u);
       expect(plain).not.toContain("id=");
     });
   });
@@ -167,9 +166,9 @@ describe("markdown-it-lumis", () => {
 
       const html = md.render(JSON_SOURCE);
 
-      expect(html).toMatch(/<pre class="lumis"><code class="language-json"/);
-      expect(html).toMatch(/<span class="[a-z-]+">/);
-      expect(html).not.toMatch(/style="/);
+      expect(html).toMatch(/<pre class="lumis"><code class="language-json"/u);
+      expect(html).toMatch(/<span class="[a-z-]+">/u);
+      expect(html).not.toMatch(/style="/u);
       expect(html).toContain("</code></pre>");
     });
   });
@@ -190,9 +189,9 @@ describe("markdown-it-lumis", () => {
 
       const html = md.render(JS_SOURCE);
 
-      expect(html).toMatch(/<pre class="lumis lumis-themes/);
-      expect(html).toMatch(/--lumis-dark/);
-      expect(html).toMatch(/<code class="language-javascript"/);
+      expect(html).toMatch(/<pre class="lumis lumis-themes/u);
+      expect(html).toMatch(/--lumis-dark/u);
+      expect(html).toMatch(/<code class="language-javascript"/u);
       expect(html).toContain("</code></pre>");
     });
   });
@@ -210,7 +209,7 @@ describe("markdown-it-lumis", () => {
 
       // terminal output has ANSI codes, no HTML tags
       // oxlint-disable-next-line no-control-regex -- matching ANSI escapes is the point
-      expect(html).toMatch(/\u001B\[38;2;\d+;\d+;\d+m/);
+      expect(html).toMatch(/\u001B\[38;2;\d+;\d+;\d+m/u);
       expect(html).toContain("\u001B[0m");
       expect(html).not.toContain("<pre");
       expect(html).not.toContain("<span");
@@ -257,7 +256,7 @@ describe("markdown-it-lumis", () => {
 
       const html = md.render('```javascript title="example"\nconst x = 1\n```');
 
-      expect(html).toMatch(/<code class="language-javascript"/);
+      expect(html).toMatch(/<code class="language-javascript"/u);
     });
 
     it("falls back to markdown-it default when language is not available", async () => {
@@ -269,7 +268,7 @@ describe("markdown-it-lumis", () => {
 
       const html = md.render(JS_SOURCE);
 
-      expect(html).toMatch(/<pre><code class="language-javascript">/);
+      expect(html).toMatch(/<pre><code class="language-javascript">/u);
     });
 
     it("renders different languages in the same document", async () => {
@@ -282,8 +281,8 @@ describe("markdown-it-lumis", () => {
 
       const html = md.render(`${JS_SOURCE}\n\n${JSON_SOURCE}`);
 
-      expect(html).toMatch(/<code class="language-javascript"/);
-      expect(html).toMatch(/<code class="language-json"/);
+      expect(html).toMatch(/<code class="language-javascript"/u);
+      expect(html).toMatch(/<code class="language-json"/u);
     });
 
     it("accepts a bundle and loads languages by name", async () => {
@@ -296,8 +295,8 @@ describe("markdown-it-lumis", () => {
 
       const html = md.render(JS_SOURCE);
 
-      expect(html).toMatch(/<pre class="lumis"/);
-      expect(html).toMatch(/<span style="color: #[0-9a-f]+;">/);
+      expect(html).toMatch(/<pre class="lumis"/u);
+      expect(html).toMatch(/<span style="color: #[0-9a-f]+;">/u);
     });
   });
 
@@ -314,7 +313,7 @@ describe("markdown-it-lumis", () => {
         "```javascript\nconst a = 1\n```\n\nSome text\n\n```javascript\nconst b = 2\n```",
       );
 
-      expect((html.match(/<pre class="lumis"/g) ?? []).length).toBe(2);
+      expect((html.match(/<pre class="lumis"/gu) ?? []).length).toBe(2);
       expect(html).toContain("<p>Some text</p>");
     });
 
@@ -331,7 +330,7 @@ describe("markdown-it-lumis", () => {
       expect(html).toContain("<h1>Title</h1>");
       expect(html).toContain("<p>Paragraph</p>");
       expect(html).toContain("<li>list item</li>");
-      expect(html).toMatch(/<pre class="lumis"/);
+      expect(html).toMatch(/<pre class="lumis"/u);
     });
 
     it("handles empty code blocks", async () => {
@@ -344,7 +343,7 @@ describe("markdown-it-lumis", () => {
 
       const html = md.render("```javascript\n\n```");
 
-      expect(html).toMatch(/<pre class="lumis"/);
+      expect(html).toMatch(/<pre class="lumis"/u);
       expect(html).toContain("</code></pre>");
     });
   });
@@ -360,8 +359,8 @@ describe("markdown-it-lumis", () => {
 
       const html = md.render(JS_SOURCE);
 
-      expect(html).toMatch(/<pre class="lumis"/);
-      expect(html).toMatch(/<span style="color: #[0-9a-f]+;">const<\/span>/);
+      expect(html).toMatch(/<pre class="lumis"/u);
+      expect(html).toMatch(/<span style="color: #[0-9a-f]+;">const<\/span>/u);
     });
   });
 });

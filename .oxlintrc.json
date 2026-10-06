@@ -1,12 +1,9 @@
 {
-  // Every JavaScript and TypeScript file the repo authors, at oxlint's strict
-  // categories. `mise run lint-js` runs it from the repo root; the per-package
-  // `pnpm run lint` scripts point `-c` here and add `--type-aware`, which needs
-  // each package's tsconfig and built dependencies.
-  //
-  // Rules below are either configured (the rule stays on, with the option that
-  // matches how this repository writes) or waived, with the reason and the
-  // number of sites it fired on when it was written down. The waivers shrink.
+  // Review each rule for a concrete correctness, contract, accessibility, performance
+  // or maintainability benefit. The explicit list is reviewed against Oxlint 1.86;
+  // upgrades must not silently add rules through category membership.
+  // Oxfmt owns formatting; spelling/order preferences do not establish quality.
+  // Root lint covers every authored JS/TS file. Package lint adds type information.
   "plugins": [
     "import",
     "jsdoc",
@@ -15,19 +12,26 @@
     "oxc",
     "promise",
     "react",
-    "react-perf",
     "typescript",
     "unicorn",
     "vitest"
   ],
+  // Disable implicit presets, then enable the reviewed rules below.
   "categories": {
-    "correctness": "error",
-    "pedantic": "error",
-    "perf": "error",
-    "suspicious": "error"
+    "correctness": "off",
+    "suspicious": "off",
+    "perf": "off",
+    "pedantic": "off",
+    "style": "off",
+    "restriction": "off",
+    "nursery": "off"
   },
-  // The same list `.oxfmtrc.json` carries, for the same reasons: vendored code,
-  // build output, and corpora whose exact bytes are the test.
+  // Direct lint invocations follow the same failure policy as CI.
+  "options": {
+    "denyWarnings": true,
+    "reportUnusedDisableDirectives": "error"
+  },
+  // Generated output, vendored sources and byte-exact fixture corpora.
   "ignorePatterns": [
     "**/dist/**",
     "**/vendored_parsers/**",
@@ -41,120 +45,548 @@
     "samples/**"
   ],
   "rules": {
-    // Classic McCabe complexity, at the ceiling shared by every project in this
-    // family, in JavaScript and in Elixir alike. Rust enforces the same idea
-    // through clippy's cognitive complexity, which `?` does not inflate.
-    "eslint/complexity": ["error", { "max": 9, "variant": "classic" }],
-    // `x == null` is how this code asks "null or undefined", 33 times.
-    "eslint/eqeqeq": ["error", "always", { "null": "ignore" }],
-    // Set to the deepest block the tree actually has, so it catches a regression
-    // rather than describing one.
-    "eslint/max-depth": ["error", 6],
-    // A line count is not a complexity measure.
-    "eslint/max-lines": "off",
-    "eslint/max-lines-per-function": "off",
-    // Parsers are loaded one at a time on purpose; see "Highlighting loads what
-    // a document needs, in one pass" in AGENTS.md.
-    "eslint/no-await-in-loop": "off",
-    "eslint/no-inline-comments": "off",
-    // 5 sites, every one an explicit `return;` from a `T | undefined` function,
-    // where saying nothing is returned is the point.
-    "eslint/no-useless-return": "off",
-    // 58 sites. `async` is how a method satisfies a Promise-returning interface
-    // such as `RuntimeEnvironment` without awaiting, and how the mocks match it.
-    // `no-floating-promises` and `await-thenable` catch the real mistake.
-    "eslint/require-await": "off",
+    // Control flow, error handling, stable bindings and suspicious JavaScript operations.
+    "accessor-pairs": "error",
+    "array-callback-return": "error",
+    "block-scoped-var": "error",
+    // Bound control-flow complexity; file length and class counts do not measure it.
+    "complexity": ["error", { "max": 9, "variant": "classic" }],
+    "constructor-super": "error",
+    // `x == null` intentionally means null or undefined.
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
+    "for-direction": "error",
+    "getter-return": "error",
+    "guard-for-in": "error",
+    // Bound nested control flow; existing maximum is six blocks.
+    "max-depth": ["error", 6],
+    "max-lines": "off",
+    "max-lines-per-function": "off",
+    "max-nested-callbacks": "error",
+    "no-array-constructor": "error",
+    "no-async-promise-executor": "error",
+    // Sequential lazy parser loading preserves discovery order and bounded resource use.
+    "no-await-in-loop": "off",
+    "no-caller": "error",
+    "no-case-declarations": "error",
+    "no-class-assign": "error",
+    "no-compare-neg-zero": "error",
+    "no-cond-assign": "error",
+    "no-const-assign": "error",
+    "no-constant-binary-expression": "error",
+    "no-constant-condition": "error",
+    "no-constructor-return": "error",
+    "no-control-regex": "error",
+    "no-debugger": "error",
+    "no-delete-var": "error",
+    "no-dupe-class-members": "error",
+    "no-dupe-else-if": "error",
+    "no-dupe-keys": "error",
+    "no-duplicate-case": "error",
+    "no-else-return": "error",
+    "no-empty": "error",
+    "no-empty-character-class": "error",
+    "no-empty-pattern": "error",
+    "no-empty-static-block": "error",
+    "no-eval": "error",
+    "no-ex-assign": "error",
+    "no-extend-native": "error",
+    "no-extra-bind": "error",
+    "no-extra-boolean-cast": "error",
+    "no-fallthrough": "error",
+    "no-func-assign": "error",
+    "no-global-assign": "error",
+    "no-implied-eval": "error",
+    "no-import-assign": "error",
+    "no-inline-comments": "off",
+    "no-inner-declarations": "error",
+    "no-invalid-regexp": "error",
+    "no-irregular-whitespace": "error",
+    "no-iterator": "error",
+    "no-lonely-if": "error",
+    "no-loop-func": "error",
+    "no-loss-of-precision": "error",
+    "no-misleading-character-class": "error",
+    "no-new": "error",
+    "no-new-func": "error",
+    "no-new-native-nonconstructor": "error",
+    "no-new-wrappers": "error",
+    "no-nonoctal-decimal-escape": "error",
+    "no-obj-calls": "error",
+    "no-object-constructor": "error",
+    // Keep parameter bindings stable. Intentional mutation of referenced state remains allowed.
+    "no-param-reassign": ["error", { "props": false }],
+    "no-promise-executor-return": "error",
+    "no-prototype-builtins": "error",
+    "no-redeclare": "error",
+    "no-return-assign": "error",
+    "no-script-url": "error",
+    "no-self-assign": "error",
+    "no-self-compare": "error",
+    "no-setter-return": "error",
+    "no-shadow": "error",
+    "no-shadow-restricted-names": "error",
+    "no-sparse-arrays": "error",
+    "no-template-curly-in-string": "error",
+    "no-this-before-super": "error",
+    "no-throw-literal": "error",
+    "no-unassigned-vars": "error",
+    "no-unexpected-multiline": "error",
+    "no-unmodified-loop-condition": "error",
+    "no-unneeded-ternary": "error",
+    "no-unreachable": "error",
+    "no-unreachable-loop": "error",
+    "no-unsafe-finally": "error",
+    "no-unsafe-negation": "error",
+    "no-unsafe-optional-chaining": "error",
+    "no-unused-expressions": "error",
+    "no-unused-labels": "error",
+    "no-unused-private-class-members": "error",
+    "no-unused-vars": "error",
+    "no-useless-assignment": "error",
+    "no-useless-backreference": "error",
+    "no-useless-call": "error",
+    "no-useless-catch": "error",
+    "no-useless-concat": "error",
+    "no-useless-constructor": "error",
+    "no-useless-escape": "error",
+    "no-useless-rename": "error",
+    "no-useless-return": "off",
+    "no-var": "error",
+    "no-with": "error",
+    // Use stable bindings; a callback that reads before initialization needs a local exception.
+    "prefer-const": "error",
+    "prefer-promise-reject-errors": "error",
+    "preserve-caught-error": "error",
+    "radix": "error",
+    // Promise-returning interfaces and mocks can intentionally be async without awaiting.
+    "require-await": "off",
+    // Unicode-aware regexes must remain compatible with the Node 18 minimum.
+    "require-unicode-regexp": ["error", { "requireFlag": "u" }],
+    "require-yield": "error",
+    "symbol-description": "error",
+    "use-isnan": "error",
+    "valid-typeof": "error",
+
+    // Module boundaries and imports that must resolve to actual exports.
+    "import/default": "error",
+    // An import count is not a measure of coupling.
     "import/max-dependencies": "off",
-    // Side-effect imports are how CSS and polyfills are pulled in.
+    "import/namespace": "error",
+    "import/no-absolute-path": "error",
+    "import/no-empty-named-blocks": "error",
+    "import/no-named-as-default": "error",
+    "import/no-named-as-default-member": "error",
+    "import/no-self-import": "error",
+    // CSS and polyfill imports intentionally run for their side effects.
     "import/no-unassigned-import": "off",
-    // 87 sites. Runtime-matrix and conformance tests branch because each arm
-    // pins a different supported behavior; splitting them would hide the parity.
-    "jest/no-conditional-expect": "off",
-    "jest/no-conditional-in-test": "off",
-    // The native test suite chooses the Vitest test function from platform and
-    // runtime support before registering each test.
-    "jest/no-standalone-expect": [
-      "error",
-      { "additionalTestBlockFunctions": ["itWithAddon", "itForCacheCompilation"] }
-    ],
-    // Vitest accepts a second argument as the assertion failure message.
-    "jest/valid-expect": ["error", { "maxArgs": 2 }],
-    // TypeScript already carries parameter and return types. Repeating them in
-    // JSDoc would add 102 `@param` and 118 `@returns` tags with no new contract.
+
+    // Keep written documentation accurate; presence alone is not a useful documentation contract.
+    "jsdoc/check-property-names": "error",
+    "jsdoc/check-tag-names": "error",
+    "jsdoc/implements-on-classes": "error",
+    "jsdoc/no-defaults": "error",
+    // Do not require tags for every typed function. Review public API parameter contracts in prose.
     "jsdoc/require-param": "off",
+    "jsdoc/require-param-description": "error",
+    "jsdoc/require-param-name": "error",
+    "jsdoc/require-param-type": "error",
+    "jsdoc/require-property": "error",
+    "jsdoc/require-property-description": "error",
+    "jsdoc/require-property-name": "error",
+    "jsdoc/require-property-type": "error",
+    // Do not require tags for every typed return. Review public API return contracts in prose.
     "jsdoc/require-returns": "off",
-    // The chains it flags end in a side effect, not a value.
+    "jsdoc/require-returns-description": "error",
+    "jsdoc/require-returns-type": "error",
+    "jsdoc/require-throws-type": "error",
+    "jsdoc/require-yields": "error",
+    "jsdoc/require-yields-type": "error",
+
+    // Accessible names, keyboard access and valid ARIA/HTML semantics.
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/anchor-has-content": "error",
+    "jsx-a11y/anchor-is-valid": "error",
+    "jsx-a11y/aria-activedescendant-has-tabindex": "error",
+    "jsx-a11y/aria-props": "error",
+    "jsx-a11y/aria-proptypes": "error",
+    "jsx-a11y/aria-role": "error",
+    "jsx-a11y/aria-unsupported-elements": "error",
+    "jsx-a11y/autocomplete-valid": "error",
+    "jsx-a11y/click-events-have-key-events": "error",
+    "jsx-a11y/control-has-associated-label": "error",
+    "jsx-a11y/heading-has-content": "error",
+    "jsx-a11y/html-has-lang": "error",
+    "jsx-a11y/iframe-has-title": "error",
+    "jsx-a11y/img-redundant-alt": "error",
+    "jsx-a11y/interactive-supports-focus": "error",
+    "jsx-a11y/label-has-associated-control": "error",
+    "jsx-a11y/lang": "error",
+    "jsx-a11y/media-has-caption": "error",
+    "jsx-a11y/mouse-events-have-key-events": "error",
+    "jsx-a11y/no-access-key": "error",
+    "jsx-a11y/no-aria-hidden-on-focusable": "error",
+    "jsx-a11y/no-autofocus": "error",
+    "jsx-a11y/no-distracting-elements": "error",
+    "jsx-a11y/no-interactive-element-to-noninteractive-role": "error",
+    "jsx-a11y/no-noninteractive-element-interactions": "error",
+    "jsx-a11y/no-noninteractive-element-to-interactive-role": "error",
+    "jsx-a11y/no-noninteractive-tabindex": "error",
+    "jsx-a11y/no-redundant-roles": "error",
+    "jsx-a11y/no-static-element-interactions": "error",
+    "jsx-a11y/prefer-tag-over-role": "error",
+    "jsx-a11y/role-has-required-aria-props": "error",
+    "jsx-a11y/role-supports-aria-props": "error",
+    "jsx-a11y/scope": "error",
+    "jsx-a11y/tabindex-no-positive": "error",
+
+    // Error-first callbacks and portable filesystem paths.
+    "node/handle-callback-err": "error",
+    "node/no-exports-assign": "error",
+    "node/no-path-concat": "error",
+
+    // Suspicious operations, lost errors and avoidable algorithmic costs.
+    "oxc/approx-constant": "error",
+    "oxc/bad-array-method-on-arguments": "error",
+    "oxc/bad-char-at-comparison": "error",
+    "oxc/bad-comparison-sequence": "error",
+    "oxc/bad-match-all-arg": "error",
+    "oxc/bad-min-max-func": "error",
+    "oxc/bad-object-literal-comparison": "error",
+    "oxc/bad-replace-all-arg": "error",
+    "oxc/branches-sharing-code": "error",
+    "oxc/const-comparisons": "error",
+    "oxc/double-comparisons": "error",
+    "oxc/erasing-op": "error",
+    "oxc/misrefactored-assign-op": "error",
+    "oxc/missing-throw": "error",
+    "oxc/no-accumulating-spread": "error",
+    "oxc/no-async-endpoint-handlers": "error",
+    "oxc/no-map-spread": "error",
+    "oxc/no-this-in-exported-function": "error",
+    "oxc/number-arg-out-of-range": "error",
+    "oxc/only-used-in-recursion": "error",
+    "oxc/uninvoked-array-callback": "error",
+
+    // Promise settlement, callback contracts and async error propagation.
+    // A terminal callback can intentionally perform a side effect without returning a value.
     "promise/always-return": ["error", { "ignoreLastCallback": true }],
+    "promise/no-callback-in-promise": "error",
+    "promise/no-multiple-resolved": "error",
+    "promise/no-new-statics": "error",
+    "promise/no-promise-in-callback": "error",
+    "promise/no-return-in-finally": "error",
+    "promise/valid-params": "error",
+
+    // Valid components, hooks, DOM properties and stable state/effect behavior.
+    "react/button-has-type": "error",
+    "react/capitalized-calls": "error",
+    "react/checked-requires-onchange-or-readonly": "error",
+    "react/display-name": "error",
+    "react/error-boundaries": "error",
+    "react/exhaustive-deps": "error",
+    "react/exhaustive-effect-dependencies": "error",
+    "react/forward-ref-uses-ref": "error",
+    "react/globals": "error",
+    "react/hooks": "error",
+    "react/iframe-missing-sandbox": "error",
+    "react/immutability": "error",
+    "react/incompatible-library": "error",
+    "react/jsx-key": "error",
+    "react/jsx-no-comment-textnodes": "error",
+    "react/jsx-no-constructed-context-values": "error",
+    "react/jsx-no-duplicate-props": "error",
+    "react/jsx-no-script-url": "error",
+    "react/jsx-no-target-blank": "error",
+    "react/jsx-no-undef": "error",
+    "react/jsx-no-useless-fragment": "error",
+    "react/jsx-props-no-spread-multi": "error",
+    "react/memo-dependencies": "error",
+    "react/no-array-index-key": "error",
+    "react/no-children-prop": "error",
+    "react/no-danger-with-children": "error",
+    "react/no-deriving-state-in-effects": "error",
+    "react/no-did-mount-set-state": "error",
+    "react/no-did-update-set-state": "error",
+    "react/no-direct-mutation-state": "error",
+    "react/no-find-dom-node": "error",
+    "react/no-is-mounted": "error",
+    "react/no-namespace": "error",
+    "react/no-object-type-as-default-prop": "error",
+    "react/no-render-return-value": "error",
+    "react/no-string-refs": "error",
+    "react/no-this-in-sfc": "error",
+    "react/no-unescaped-entities": "error",
+    "react/no-unknown-property": "error",
+    "react/no-unsafe": "error",
+    "react/no-unstable-nested-components": "error",
+    "react/no-will-update-set-state": "error",
+    "react/preserve-manual-memoization": "error",
+    "react/purity": "error",
+    // The automatic JSX transform does not require a React import.
     "react/react-in-jsx-scope": "off",
+    "react/refs": "error",
+    "react/rules-of-hooks": "error",
+    "react/set-state-in-effect": "error",
+    "react/set-state-in-render": "error",
+    "react/static-components": "error",
+    "react/style-prop-object": "error",
+    "react/use-memo": "error",
+    "react/void-dom-elements-no-children": "error",
+    "react/void-use-memo": "error",
+
+    // Type safety, useful narrowing and exhaustive domain variants.
+    "typescript/await-thenable": "error",
+    "typescript/ban-ts-comment": "error",
+    "typescript/ban-types": "error",
+    "typescript/consistent-return": "error",
+    "typescript/no-array-delete": "error",
+    "typescript/no-base-to-string": "error",
+    "typescript/no-confusing-non-null-assertion": "error",
+    // Void-returning callbacks and arrow shorthands are intentional.
     "typescript/no-confusing-void-expression": [
       "error",
       { "ignoreArrowShorthand": true, "ignoreVoidReturningFunctions": true }
     ],
+    "typescript/no-deprecated": "error",
+    "typescript/no-duplicate-enum-values": "error",
+    "typescript/no-duplicate-type-constituents": "error",
+    // Reject {} as a misleading object type; retain public interfaces extending a real contract.
+    "typescript/no-empty-object-type": ["error", { "allowInterfaces": "with-single-extends" }],
     "typescript/no-explicit-any": "error",
-    // 608 sites between them, from `any` reaching in at untyped boundaries.
-    // Closing them is the work "Parse TypeScript boundaries into domain types"
-    // in AGENTS.md describes, and it is a change of its own, not a lint switch.
+    "typescript/no-extra-non-null-assertion": "error",
+    "typescript/no-extraneous-class": "error",
+    "typescript/no-floating-promises": "error",
+    "typescript/no-for-in-array": "error",
+    "typescript/no-generated-empty-object-type": "error",
+    "typescript/no-implied-eval": "error",
+    "typescript/no-import-type-side-effects": "error",
+    "typescript/no-meaningless-void-operator": "error",
+    "typescript/no-misused-new": "error",
+    "typescript/no-misused-promises": "error",
+    "typescript/no-misused-spread": "error",
+    "typescript/no-mixed-enums": "error",
+    "typescript/no-non-null-asserted-optional-chain": "error",
+    // Migration backlog: 115 assertions need real guards or narrowly documented proven invariants.
+    "typescript/no-non-null-assertion": "off",
+    "typescript/no-redundant-type-constituents": "error",
+    "typescript/no-this-alias": "error",
+    "typescript/no-unnecessary-boolean-literal-compare": "error",
+    "typescript/no-unnecessary-parameter-property-assignment": "error",
+    "typescript/no-unnecessary-template-expression": "error",
+    "typescript/no-unnecessary-type-arguments": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/no-unnecessary-type-constraint": "error",
+    "typescript/no-unnecessary-type-conversion": "error",
+    "typescript/no-unnecessary-type-parameters": "error",
+    // Enabled for production package sources below. Tests, tooling and site code
+    // need a separate boundary migration; do not weaken production types to match them.
     "typescript/no-unsafe-argument": "off",
     "typescript/no-unsafe-assignment": "off",
     "typescript/no-unsafe-call": "off",
+    "typescript/no-unsafe-declaration-merging": "error",
+    "typescript/no-unsafe-enum-comparison": "error",
+    "typescript/no-unsafe-function-type": "error",
     "typescript/no-unsafe-member-access": "off",
     "typescript/no-unsafe-return": "off",
     "typescript/no-unsafe-type-assertion": "off",
+    "typescript/no-unsafe-unary-minus": "error",
+    "typescript/no-useless-default-assignment": "error",
+    "typescript/no-useless-empty-export": "error",
+    "typescript/no-wrapper-object-types": "error",
     "typescript/only-throw-error": "error",
-    // `if (!x) { x = y }` guards on truthiness; `??=` would stop treating `""`
-    // as absent.
+    "typescript/prefer-as-const": "error",
+    "typescript/prefer-enum-initializers": "error",
+    "typescript/prefer-includes": "error",
+    "typescript/prefer-namespace-keyword": "error",
+    // Truthiness guards can intentionally treat an empty string as absent.
     "typescript/prefer-nullish-coalescing": ["error", { "ignoreIfStatements": true }],
+    "typescript/prefer-promise-reject-errors": "error",
+    // Migration backlog: readonly ordinary input contracts, with narrow mutable-type allowances.
+    // The 1,171 diagnostics include parser/DOM state and public types; preserve intended mutation.
+    "typescript/prefer-readonly-parameter-types": "off",
+    "typescript/prefer-ts-expect-error": "error",
+    "typescript/related-getter-setter-pairs": "error",
+    "typescript/require-array-sort-compare": "error",
+    // Promise-returning interfaces and mocks need no artificial await.
     "typescript/require-await": "off",
-    // 146 sites.
+    "typescript/restrict-plus-operands": "error",
+    "typescript/restrict-template-expressions": "error",
+    "typescript/return-await": "error",
+    // Migration backlog: 165 truthiness diagnostics need explicit empty/zero/null behavior review.
     "typescript/strict-boolean-expressions": "off",
+    "typescript/strict-void-return": "error",
+    // A default branch must not conceal a newly added union variant.
     "typescript/switch-exhaustiveness-check": [
       "error",
-      { "considerDefaultExhaustiveForUnions": true }
+      { "considerDefaultExhaustiveForUnions": false }
     ],
-    // Wants `toSorted`, which needs Node 20; the package supports Node 18.
+    "typescript/triple-slash-reference": "error",
+    "typescript/unbound-method": "error",
+    "typescript/use-unknown-in-catch-callback-variable": "error",
+
+    // Runtime correctness, semantic clarity and measurable complexity; cosmetic API preferences omitted.
+    "unicorn/consistent-function-scoping": "error",
+    "unicorn/explicit-length-check": "error",
+    "unicorn/new-for-builtins": "error",
+    "unicorn/no-abusive-eslint-disable": "error",
+    "unicorn/no-accessor-recursion": "error",
+    "unicorn/no-array-callback-reference": "error",
+    "unicorn/no-array-fill-with-reference-type": "error",
+    "unicorn/no-array-reverse": "error",
+    // toSorted requires Node 20; packages support Node 18 and sometimes intentionally sort in place.
     "unicorn/no-array-sort": "off",
-    // Both options drop arguments TypeScript requires and turn `Promise<T |
-    // undefined>` into `Promise<T | void>`.
+    "unicorn/no-await-in-promise-methods": "error",
+    "unicorn/no-confusing-array-with": "error",
+    "unicorn/no-empty-file": "error",
+    "unicorn/no-instanceof-array": "error",
+    "unicorn/no-instanceof-builtins": "error",
+    "unicorn/no-invalid-fetch-options": "error",
+    "unicorn/no-invalid-remove-event-listener": "error",
+    "unicorn/no-new-array": "error",
+    "unicorn/no-new-buffer": "error",
+    "unicorn/no-object-as-default-parameter": "error",
+    "unicorn/no-single-promise-in-promise-methods": "error",
+    "unicorn/no-thenable": "error",
+    "unicorn/no-typeof-undefined": "error",
+    "unicorn/no-unnecessary-array-flat-depth": "error",
+    "unicorn/no-unnecessary-array-splice-count": "error",
+    "unicorn/no-unnecessary-await": "error",
+    "unicorn/no-unnecessary-slice-end": "error",
+    "unicorn/no-useless-fallback-in-spread": "error",
+    "unicorn/no-useless-length-check": "error",
+    "unicorn/no-useless-promise-resolve-reject": "error",
+    "unicorn/no-useless-spread": "error",
+    // Required arguments and Promise<T | undefined> contracts must not become void.
     "unicorn/no-useless-undefined": [
       "error",
       { "checkArguments": false, "checkArrowFunctionBody": false }
     ],
-    // The handlers it flags are set once, on a fresh one-shot `IDBRequest` or
-    // `IDBTransaction`, or on a worker's own global, where assignment is the API.
+    // One-shot IndexedDB objects intentionally assign their single request/transaction handlers.
     "unicorn/prefer-add-event-listener": "off",
-    // The code it flags validates surrogate pairs, so it needs UTF-16 code
-    // units. `codePointAt` returns the combined code point and would silently
-    // stop rejecting lone surrogates.
-    "unicorn/prefer-code-point": "off",
-    // Fires on `Worker.postMessage`, which takes no `targetOrigin`.
-    "unicorn/require-post-message-target-origin": "off"
+    "unicorn/prefer-array-find": "error",
+    "unicorn/prefer-array-flat": "error",
+    "unicorn/prefer-array-flat-map": "error",
+    "unicorn/prefer-array-some": "error",
+    "unicorn/prefer-at": "error",
+    // Semantic text uses code points; byte/UTF-16 operations carry narrow, documented exceptions.
+    "unicorn/prefer-code-point": "error",
+    "unicorn/prefer-date-now": "error",
+    "unicorn/prefer-import-meta-properties": "error",
+    "unicorn/prefer-math-min-max": "error",
+    "unicorn/prefer-math-trunc": "error",
+    "unicorn/prefer-native-coercion-functions": "error",
+    "unicorn/prefer-number-coercion": "error",
+    "unicorn/prefer-regexp-test": "error",
+    "unicorn/prefer-set-has": "error",
+    "unicorn/prefer-set-size": "error",
+    "unicorn/prefer-string-replace-all": "error",
+    "unicorn/prefer-string-slice": "error",
+    "unicorn/prefer-string-starts-ends-with": "error",
+    "unicorn/prefer-type-error": "error",
+    "unicorn/require-module-specifiers": "error",
+    "unicorn/require-number-to-fixed-digits-argument": "error",
+    // Window messages need an origin; Worker calls carry a local API-specific exception.
+    "unicorn/require-post-message-target-origin": "error",
+
+    // Tests that register, execute assertions and report failures reliably.
+    // Check real assertion APIs; verified assertion helpers are added only in their own test files.
+    "vitest/expect-expect": ["error", { "assertFunctionNames": ["expect", "expectTypeOf"] }],
+    "vitest/hoisted-apis-on-top": "error",
+    "vitest/no-commented-out-tests": "error",
+    // Assertions must run; genuine runtime-specific cases explain their exception at the assertion.
+    "vitest/no-conditional-expect": "error",
+    // Data-driven tests may branch; the assertion rule above guards conditional expectations.
+    "vitest/no-conditional-in-test": "off",
+    "vitest/no-conditional-tests": "error",
+    "vitest/no-disabled-tests": "error",
+    "vitest/no-focused-tests": "error",
+    "vitest/no-identical-title": "error",
+    "vitest/no-interpolation-in-snapshots": "error",
+    // itWithAddon registers a real Vitest test or explicit skip.
+    "vitest/no-standalone-expect": ["error", { "additionalTestBlockFunctions": ["itWithAddon"] }],
+    "vitest/prefer-snapshot-hint": "error",
+    "vitest/require-awaited-expect-poll": "error",
+    "vitest/require-local-test-context-for-concurrent-snapshots": "error",
+    "vitest/require-mock-type-parameters": "error",
+    "vitest/require-to-throw-message": "error",
+    "vitest/valid-describe-callback": "error",
+    // Vitest accepts a second argument as the assertion failure message.
+    "vitest/valid-expect": ["error", { "maxArgs": 2 }],
+    "vitest/valid-expect-in-promise": "error",
+    "vitest/valid-title": "error",
+    "vitest/warn-todo": "error"
   },
   "overrides": [
     {
-      // 14 sites. These tests and the public re-export intentionally exercise
-      // deprecated compatibility names; all other deprecations remain errors.
-      // `fixtures/formatter-helpers.json` is what keeps the list from growing
-      // quietly: every name deprecated there is checked to be deprecated here.
+      // Published package code must validate unknown inputs and reject implicit
+      // any flows or narrowing assertions that bypass the compiler.
+      "files": ["**/packages/javascript/*/src/**/*.{ts,tsx}"],
+      "rules": {
+        "typescript/no-unsafe-argument": "error",
+        "typescript/no-unsafe-assignment": "error",
+        "typescript/no-unsafe-call": "error",
+        "typescript/no-unsafe-member-access": "error",
+        "typescript/no-unsafe-return": "error",
+        "typescript/no-unsafe-type-assertion": "error"
+      }
+    },
+    {
+      // TypeScript gives import(variable) an any result. This module accepts
+      // only four fixed Node built-ins and returns their upstream module types;
+      // the variable keeps browser bundlers from resolving Node imports.
+      // A line suppression is reported unused by the non-type-aware root pass.
+      "files": ["**/packages/javascript/lumis/src/runtime/node-builtins.ts"],
+      "rules": {
+        "typescript/no-unsafe-assignment": "off"
+      }
+    },
+    {
+      // Compatibility exports/tests intentionally exercise deprecated names.
+      // The shared formatter-helper corpus checks that these exports remain deprecated.
       "files": [
         "**/src/formatter/ansi.ts",
         "**/test/formatter-ansi.test.ts",
         "**/test/formatter-shared.test.ts"
       ],
-      "rules": { "typescript/no-deprecated": "off" }
+      "rules": {
+        "typescript/no-deprecated": "off"
+      }
     },
     {
-      // 1 site. The test verifies normalization of a rejection value that is not an Error.
-      "files": ["**/react/test/index.test.tsx"],
-      "rules": { "typescript/prefer-promise-reject-errors": "off" }
+      // This helper asserts every native target in the shared corpus.
+      "files": ["**/test/native-targets.test.ts"],
+      "rules": {
+        "vitest/expect-expect": [
+          "error",
+          {
+            "assertFunctionNames": ["expect", "expectTypeOf", "expectCompleteTargetCorpus"]
+          }
+        ]
+      }
     },
     {
-      // 8 sites. These heterogeneous invalid corpora assert rejection itself;
-      // there is intentionally no one error message shared by every table row.
-      "files": [
-        "**/test/language-package-corpus.test.ts",
-        "**/test/native-targets.test.ts"
-      ],
-      "rules": { "jest/require-to-throw-message": "off" }
+      // These helpers assert HTML-tree structure; they are not general assertion aliases.
+      "files": ["**/rehype-lumis/test/index.test.ts"],
+      "rules": {
+        "vitest/expect-expect": [
+          "error",
+          {
+            "assertFunctionNames": [
+              "expect",
+              "expectTypeOf",
+              "assertLumisPreElement",
+              "assertSpansExist"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      // Heterogeneous invalid corpora require rejection, without one shared error message.
+      "files": ["**/test/language-package-corpus.test.ts", "**/test/native-targets.test.ts"],
+      "rules": {
+        "vitest/require-to-throw-message": "off"
+      }
     }
   ]
 }

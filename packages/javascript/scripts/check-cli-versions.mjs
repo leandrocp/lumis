@@ -12,6 +12,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+// oxlint-disable-next-line unicorn/prefer-import-meta-properties -- this shared script supports Node 18, before import.meta.dirname exists.
 const javascriptDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const repoDir = dirname(dirname(javascriptDir));
 const cliDir = join(javascriptDir, "cli");
@@ -40,7 +41,7 @@ const mainPackage = readJson(join(cliDir, "package.json"));
 const expected = mainPackage.version;
 const problems = [];
 const cargoManifest = readFileSync(join(repoDir, "crates/lumis-cli/Cargo.toml"), "utf8");
-const cargoVersion = cargoManifest.match(/^version = "([^"]+)"$/m)?.[1];
+const cargoVersion = cargoManifest.match(/^version = "([^"]+)"$/mu)?.[1];
 
 if (mainPackage.binaryVersion !== cargoVersion) {
   problems.push(

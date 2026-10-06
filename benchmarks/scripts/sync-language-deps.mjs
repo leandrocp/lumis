@@ -14,16 +14,15 @@
  */
 
 import { readFile, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const root = resolve(import.meta.dirname, "../..");
 const manifestPath = resolve(root, "benchmarks/javascript/package.json");
 const catalogPath = resolve(root, "crates/lumis-wasm-runtime/src/catalog.rs");
 
 const catalog = await readFile(catalogPath, "utf8");
 const pinned = new Map(
-  [...catalog.matchAll(/package_name:\s*"([^"]+)",\s*\n\s*version:\s*"([^"]+)"/g)].map((match) => [
+  [...catalog.matchAll(/package_name:\s*"([^"]+)",\s*\n\s*version:\s*"([^"]+)"/gu)].map((match) => [
     match[1],
     match[2],
   ]),

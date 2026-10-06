@@ -143,10 +143,47 @@ export interface NativeBinding {
 let cachedBinding: NativeBinding | null | undefined;
 
 function linuxLibc(): "gnu" | "musl" {
-  const report = process.report?.getReport?.() as
-    | { header?: { glibcVersionRuntime?: string } }
-    | undefined;
-  return report?.header?.glibcVersionRuntime ? "gnu" : "musl";
+  const report: unknown = process.report?.getReport?.();
+  if (!isObject(report) || !("header" in report)) return "musl";
+
+  const header: unknown = report.header;
+  if (!isObject(header) || !("glibcVersionRuntime" in header)) return "musl";
+  return typeof header.glibcVersionRuntime === "string" ? "gnu" : "musl";
+}
+
+function isObject(value: unknown): value is object {
+  return typeof value === "object" && value !== null;
+}
+
+function hasFunctions(value: object, names: readonly string[]): boolean {
+  return names.every((name) => typeof Reflect.get(value, name) === "function");
+}
+
+function isNativeBinding(value: unknown): value is NativeBinding {
+  if (!isObject(value)) return false;
+
+  const nativeRuntime: unknown = Reflect.get(value, "NativeRuntime");
+  if (typeof nativeRuntime !== "function") return false;
+
+  const prototype: unknown = Reflect.get(nativeRuntime, "prototype");
+  return (
+    isObject(prototype) &&
+    hasFunctions(value, [
+      "runtimeKind",
+      "configureStore",
+      "setInstalledPackages",
+      "defaultDataDir",
+    ]) &&
+    hasFunctions(prototype, [
+      "loadLanguage",
+      "loadLanguagePackage",
+      "loadLanguageDefinition",
+      "hasLanguage",
+      "highlightEvents",
+      "format",
+      "formatAsync",
+    ])
+  );
 }
 
 /**
@@ -200,7 +237,8 @@ export function loadAddon(): NativeBinding | undefined {
   ];
   for (const candidate of candidates) {
     try {
-      const binding = require(candidate) as NativeBinding;
+      const binding: unknown = require(candidate);
+      if (!isNativeBinding(binding)) continue;
       if (binding.runtimeKind?.() === "native") return binding;
     } catch {
       // Missing or unloadable platform packages transparently use the Wasm runtime.

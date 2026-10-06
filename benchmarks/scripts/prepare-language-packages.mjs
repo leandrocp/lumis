@@ -4,9 +4,8 @@ import { createHash } from "node:crypto";
 import { copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
-const benchmarksDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const benchmarksDir = resolve(import.meta.dirname, "..");
 const repoDir = resolve(benchmarksDir, "..");
 const outputDir = resolve(repoDir, "target/benchmarks/language-packages");
 const benchmarkRequire = createRequire(resolve(benchmarksDir, "javascript/package.json"));

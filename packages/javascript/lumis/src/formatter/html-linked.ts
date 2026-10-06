@@ -16,14 +16,16 @@ import {
 } from "./html.js";
 import { formatHtmlSpans, isInlineStructure } from "./html-structure.js";
 
+function openSpan(span: HighlightSpan): string {
+  return openSpanTag({ class: scopeToClass(span.scope) });
+}
+
 export function formatHtmlLinked(
   source: string,
   events: readonly HighlightEvent[],
   formatter: HtmlLinkedFormatter,
   budget?: BudgetExhausted,
 ): string {
-  const openSpan = (span: HighlightSpan): string =>
-    openSpanTag({ class: scopeToClass(span.scope) });
   if (isInlineStructure(formatter.structure)) {
     return formatHtmlSpans(source, events, {
       language: formatter.language,

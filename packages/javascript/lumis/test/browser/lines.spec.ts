@@ -160,7 +160,7 @@ for (const [name, source] of Object.entries(cases)) {
         // Chromium ends a selection at the last selectable text when the final
         // rows contain only unselectable gutters. Source-backed copy avoids this.
         const copied =
-          browserName === "chromium" && numbered ? expected.replace(/\n+$/, "") : expected;
+          browserName === "chromium" && numbered ? expected.replace(/\n+$/u, "") : expected;
         expect(actual.copy).toBe(copied);
         if (source !== "") expect(actual.height).toBeCloseTo(lines.length * 20, 0);
         if (name === "empty") expect(actual.lineHeights[1]).toBeGreaterThanOrEqual(20);

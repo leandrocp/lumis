@@ -2,16 +2,12 @@ import type { Node, Point, QueryCapture, QueryMatch, Range } from "web-tree-sitt
 import { composeRainbowDecorations, type RainbowRange } from "./decorations.js";
 import { LANGUAGES } from "./generated/languages-meta.js";
 import { languageIdForFilename } from "./guess-language.js";
-import {
-  DEFAULT_MATCH_LIMIT,
-  DEFAULT_TIME_LIMIT,
-  MAX_MATCH_LIMIT,
-  PLAINTEXT_LANG_ID,
-} from "./types.js";
+import { DEFAULT_MATCH_LIMIT, DEFAULT_TIME_LIMIT, MAX_MATCH_LIMIT } from "./types.js";
 import type {
   Budget,
   BudgetExhausted,
   LoadedLanguage,
+  WasmLoadedLanguage,
   LumisHighlightEvent,
   QueryCaptureOffset,
 } from "./types.js";
@@ -29,7 +25,7 @@ interface HighlightCapture {
 
 interface HighlightLayer {
   depth: number;
-  language: LoadedLanguage;
+  language: WasmLoadedLanguage;
   captures: LayerQueryCapture[];
   localDefinitionValueEnds: Uint32Array;
 }
@@ -372,7 +368,7 @@ function snapshotCapture(
 function resolveInjection(
   source: string,
   match: QueryMatch,
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   maps: SourceMaps,
   parentLanguageName?: string,
 ): { languageName?: string; ranges: Range[]; combined: boolean } {
@@ -395,7 +391,7 @@ function resolveInjection(
 function readInjectionCaptures(
   source: string,
   match: QueryMatch,
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   maps: SourceMaps,
   offsets: Record<string, QueryCaptureOffset> | undefined,
 ): { languageName?: string; filenameLanguage?: string; contentCaptures: QueryCapture[] } {
@@ -440,7 +436,7 @@ function filenameCaptureLanguage(
 function injectionLanguageName(
   captured: { languageName?: string; filenameLanguage?: string },
   setProperties: NonNullable<QueryMatch["setProperties"]>,
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   parentLanguageName?: string,
 ): string | undefined {
   let languageName = captured.languageName ?? captured.filenameLanguage;
@@ -467,7 +463,7 @@ function injectionLanguageName(
 /// render after a stopped one continues the stopped document instead of
 /// parsing its own — under a fresh clock, so it is not bounded either.
 function parseWithin(
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   source: string,
   budget: BudgetState,
   includedRanges: Range[] | undefined,
@@ -505,7 +501,7 @@ function parseWithin(
 // even when `matches()` did not. Reading the flag only after `matches()` would
 // report a complete highlight for a document that lost scopes here.
 function snapshotCaptures(
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   rootNode: Node,
   queryOptions: { matchLimit: number; progressCallback?: () => boolean },
   queryMatches: QueryMatch[],
@@ -543,7 +539,7 @@ function snapshotCaptures(
 // time can finish past it. Like the Rust highlighter, the deadline is checked
 // after each pass, and a pass that ran out is discarded.
 function queryWithin(
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   rootNode: Node,
   queryOptions: { matchLimit: number; progressCallback?: () => boolean },
   maps: SourceMaps,
@@ -565,7 +561,7 @@ function collectHighlightLayers(
   source: string,
   maps: SourceMaps,
   runtime: RuntimeLookup,
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   depth: number,
   matchLimit: number,
   budget: BudgetState,
@@ -631,7 +627,7 @@ function collectInjectedLayers(
   source: string,
   maps: SourceMaps,
   runtime: RuntimeLookup,
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   depth: number,
   matchLimit: number,
   budget: BudgetState,
@@ -686,7 +682,7 @@ function injectedLayers(
   source: string,
   maps: SourceMaps,
   runtime: RuntimeLookup,
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   depth: number,
   matchLimit: number,
   budget: BudgetState,
@@ -696,7 +692,7 @@ function injectedLayers(
     warnUnresolvedInjection(languageName);
     return [];
   }
-  if (injectedLanguage.definition.id === PLAINTEXT_LANG_ID) return [];
+  if (injectedLanguage.kind !== "wasm") return [];
 
   return collectHighlightLayers(
     source,
@@ -715,7 +711,7 @@ function injectedLayers(
 // match, or 0 where the match has none.
 function collectLocalDefinitionValueEnds(
   queryMatches: QueryMatch[],
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   maps: SourceMaps,
   matchCount: number,
 ): Uint32Array {
@@ -1019,7 +1015,7 @@ export function assertBudget(budget: Budget | undefined): void {
 /** @internal */
 export function buildHighlightEventsWithSourceIndex(
   source: string,
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   runtime: RuntimeLookup,
   options: { rainbowBrackets?: boolean; budget?: Budget } = {},
 ): {
@@ -1052,7 +1048,7 @@ export function buildHighlightEventsWithSourceIndex(
 // document a second time, and that pass can be the one that runs out.
 function finishHighlight(
   source: string,
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   maps: SourceMaps,
   matchLimit: number,
   budget: BudgetState,
@@ -1087,7 +1083,7 @@ function finishHighlight(
 
 export function buildHighlightEvents(
   source: string,
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   runtime: RuntimeLookup,
   options: { rainbowBrackets?: boolean; budget?: Budget } = {},
 ): LumisHighlightEvent[] {
@@ -1104,7 +1100,7 @@ interface BracketPair {
 // unbounded second pass is not bounded at all.
 function queryRainbowBracketRanges(
   source: string,
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   maps: SourceMaps,
   matchLimit: number,
   budget: BudgetState,
@@ -1207,8 +1203,10 @@ function colorizeBracketPairs(pairs: BracketPair[]): RainbowRange[] {
       lastOpen.endByte === pair.open.endByte
     ) {
       const depth = openStack.length - 1;
-      ranges.push({ startByte: pair.open.startByte, endByte: pair.open.endByte, depth });
-      ranges.push({ startByte: pair.close.startByte, endByte: pair.close.endByte, depth });
+      ranges.push(
+        { startByte: pair.open.startByte, endByte: pair.open.endByte, depth },
+        { startByte: pair.close.startByte, endByte: pair.close.endByte, depth },
+      );
       openStack.pop();
     }
   }
@@ -1219,7 +1217,7 @@ function colorizeBracketPairs(pairs: BracketPair[]): RainbowRange[] {
 function applyRainbowBrackets(
   source: string,
   events: HighlightEvent[],
-  language: LoadedLanguage,
+  language: WasmLoadedLanguage,
   maps: SourceMaps,
   matchLimit: number,
   budget: BudgetState,

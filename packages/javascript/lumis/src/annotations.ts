@@ -305,8 +305,10 @@ function emitPoints<T>(
   if (!pending.delete(offset)) return;
   for (const index of boundaries.byOffset.get(offset)!.points) {
     const annotation = annotations[index]!;
-    output.push({ type: "annotationStart", range: annotation.range, data: annotation.data });
-    output.push({ type: "annotationEnd" });
+    output.push(
+      { type: "annotationStart", range: annotation.range, data: annotation.data },
+      { type: "annotationEnd" },
+    );
   }
 }
 
@@ -455,4 +457,5 @@ function applyInputEvent(
       if (layers.at(-1)?.type === "decoration") layers.pop();
       return nextId;
   }
+  throw new Error("Unhandled highlight event type");
 }

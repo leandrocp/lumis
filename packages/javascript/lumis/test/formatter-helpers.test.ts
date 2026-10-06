@@ -118,7 +118,7 @@ const sources: Record<string, string[]> = {
 };
 
 function toCamel(name: string): string {
-  return name.replaceAll(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
+  return name.replaceAll(/_([a-z])/gu, (_, letter: string) => letter.toUpperCase());
 }
 
 function jsName(helper: ManifestHelper): string {
@@ -232,7 +232,7 @@ function contractOutputs(): Record<string, Record<string, string>> {
 function deprecatedInSource(module: string): Set<string> {
   const marked = new Set<string>();
   const pattern =
-    /\/\*\*(?:(?!\*\/)[\s\S])*?@deprecated[\s\S]*?\*\/\s*export\s+(?:async\s+)?function\s+(\w+)/g;
+    /\/\*\*(?:(?!\*\/)[\s\S])*?@deprecated[\s\S]*?\*\/\s*export\s+(?:async\s+)?function\s+(\w+)/gu;
 
   for (const source of sources[module] ?? []) {
     const text = readFileSync(new URL(source, import.meta.url), "utf8");

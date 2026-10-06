@@ -55,7 +55,7 @@ function cssDeclarations(style: string): Array<[string, string]> {
 }
 
 function isColor(value: string): boolean {
-  return /^#[0-9a-f]+$/i.test(value);
+  return /^#[0-9a-f]+$/iu.test(value);
 }
 
 const DECORATION_KEYWORDS = new Set([
@@ -82,7 +82,7 @@ const VALID_VALUE: Record<string, (value: string) => boolean> = {
 };
 
 function isLightDarkColor(value: string): boolean {
-  const colors = /^light-dark\((.*)\)$/.exec(value)?.[1];
+  const colors = /^light-dark\((.*)\)$/u.exec(value)?.[1];
   if (colors === undefined) return isColor(value);
   return colors.split(", ").every((color) => isColor(color));
 }

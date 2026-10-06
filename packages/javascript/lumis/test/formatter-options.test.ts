@@ -104,7 +104,7 @@ const exercised: Record<string, string[]> = {
 };
 
 function toCamel(name: string): string {
-  return name.replaceAll(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
+  return name.replaceAll(/_([a-z])/gu, (_, letter: string) => letter.toUpperCase());
 }
 
 describe("formatter option manifest", () => {

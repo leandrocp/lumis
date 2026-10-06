@@ -1,7 +1,7 @@
 name: Comparison assets
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -26,6 +26,31 @@ on:
       - "crates/lumis-wasm-runtime/**"
       - "crates/lumis/**"
       - "languages.toml"
+      - "mise.toml"
+      - "packages/elixir/lumis/lib/**"
+      - "packages/elixir/lumis/mix.exs"
+      - "packages/elixir/lumis/native/**"
+      - "packages/javascript/lumis/**"
+      - "packages/javascript/themes/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "queries/processed/**"
+      - "themes/*.json"
+      - "website/public/comparison-data/**"
+  pull_request:
+    paths:
+      - ".cargo/**"
+      - ".github/workflows/comparison-assets.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "benchmarks/**"
+      - "crates/lumis-build/**"
+      - "crates/lumis-cli/**"
+      - "crates/lumis-core/**"
+      - "crates/lumis-wasm-runtime/**"
+      - "crates/lumis/**"
+      - "languages.toml"
+      - "mise.toml"
       - "packages/elixir/lumis/lib/**"
       - "packages/elixir/lumis/mix.exs"
       - "packages/elixir/lumis/native/**"
@@ -42,14 +67,16 @@ jobs:
   comparison:
     name: Comparison assets are current
     if: >-
-      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') }}
+      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
+          !(github.event.pull_request.head.repo.full_name == github.repository &&
+            startsWith(github.event.pull_request.head.ref, 'release/')) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      - uses: jdx/mise-action@9149ea85001c7435d5a66bb127d6a1b6227cb0a5 # v5.0.0
         with:
           # Pinned: mise 2026.7.18 cannot install core:erlang/core:elixir on the
           # runner, and benchmarks/mise.lock was produced by this version.
@@ -59,9 +86,13 @@ jobs:
           cache: true
       - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32
         with:
-          workspaces: |
-            .
-            benchmarks/rust
+          # mise puts the CLI, addon and NIF builds in this shared target.
+          # Cache it once: rust-cache prunes each target to its workspace's
+          # dependencies, so mapping both workspaces here would prune it twice.
+          prefix-key: comparison-rust-v1
+          workspaces: . -> target/benchmarks/rust-target
+          # A stale gallery must not discard a successful dependency build.
+          cache-on-failure: true
       - name: Regenerate the published comparison
         run: mise run -C benchmarks showcase-publish
       - name: Fail if the committed assets are stale
@@ -73,5 +104,6 @@ jobs:
             echo "and commit the result."
             git status --porcelain -- website/public/comparison-data
             git --no-pager diff --stat -- website/public/comparison-data
+            git --no-pager diff -- website/public/comparison-data/manifest.json
             exit 1
           fi

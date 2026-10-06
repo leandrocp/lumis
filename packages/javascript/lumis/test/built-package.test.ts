@@ -37,6 +37,6 @@ it.each(["js", "cjs"])("the built Node %s entry keeps its Wasm fallback", (exten
 
   expect(result.error).toBeUndefined();
   expect(result.status, result.stderr).toBe(0);
-  expect(result.stdout).toMatch(/^wasm\n/);
+  expect(result.stdout).toMatch(/^wasm\n/u);
   expect(result.stdout).toContain('class="l-number">42</span>');
 });

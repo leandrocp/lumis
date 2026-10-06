@@ -54,7 +54,7 @@ const entries: Record<string, Record<string, unknown>> = {
 };
 
 function toCamel(name: string): string {
-  return name.replaceAll(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
+  return name.replaceAll(/_([a-z])/gu, (_, letter: string) => letter.toUpperCase());
 }
 
 function jsNames(capability: Capability): string[] {

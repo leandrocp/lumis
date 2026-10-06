@@ -1,5 +1,5 @@
 import { createHighlighter, highlightIter } from "../src/index.ts";
-import { type Formatter } from "../src/formatters.ts";
+import type { Formatter } from "../src/formatters.ts";
 import {
   closingTags,
   escape,
@@ -21,7 +21,7 @@ class InteractiveDocsFormatter implements Formatter {
     const lines = [""];
 
     highlightIter(source, this.language, dracula, (text, language, range, scope, style) => {
-      const fragments = text.split(/(\r?\n)/);
+      const fragments = text.split(/(\r?\n)/u);
       for (let i = 0; i < fragments.length; i += 2) {
         const part = fragments[i] ?? "";
         const ending = fragments[i + 1] ?? "";
