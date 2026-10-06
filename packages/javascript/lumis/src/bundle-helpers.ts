@@ -20,12 +20,15 @@ export function mapBundle(
   bundle: LanguageBundle,
   map: (language: Language) => Language,
 ): LanguageBundle {
-  return Object.fromEntries(
-    Object.entries(bundle).map(([key, handle]) => [
-      key,
-      Object.assign(() => handle().then(map), { id: handle.id, aliases: handle.aliases }),
-    ]),
-  );
+  return {
+    ...bundle,
+    ...Object.fromEntries(
+      Object.entries(bundle).map(([key, handle]) => [
+        key,
+        Object.assign(() => handle().then(map), { id: handle.id, aliases: handle.aliases }),
+      ]),
+    ),
+  };
 }
 
 function isObjectSource(

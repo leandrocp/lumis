@@ -17,6 +17,14 @@ import {
 } from "./node-cache.js";
 
 const BUNDLE_PACKAGE_NAMES = Object.keys(BUNDLES).map((name) => `@lumis-sh/wasm-bundle-${name}`);
+const packageRoots = new Set<string>();
+let installed:
+  | {
+      cwd: string;
+      roots: number;
+      manifests: Promise<Map<string, URL>>;
+    }
+  | undefined;
 
 interface InstalledPackage {
   root: string;
@@ -42,11 +50,17 @@ function findPackage(
   }
 }
 
-async function wasmDependencies(packageJson: string): Promise<string[]> {
+async function wasmDependencies(packageJson: string, includeSelf = false): Promise<string[]> {
   const { readFile } = await importNodeBuiltin("node:fs/promises");
   try {
     const manifest: unknown = JSON.parse(await readFile(packageJson, "utf8"));
-    return wasmDependencyNames(manifest);
+    const dependencies = wasmDependencyNames(manifest);
+    if (includeSelf && typeof manifest === "object" && manifest !== null && "name" in manifest) {
+      const name = manifest.name;
+      if (typeof name === "string" && name.startsWith("@lumis-sh/wasm-"))
+        dependencies.unshift(name);
+    }
+    return dependencies;
   } catch {
     return [];
   }
@@ -69,29 +83,34 @@ function wasmDependencyNames(manifest: unknown): string[] {
 }
 
 /**
- * Where each of `packageNames` this project installed keeps its `lumis.json`.
+ * Where the running application's parser packages keep their `lumis.json`.
  *
- * From the application's directory, not Lumis's own: resolving relative to
- * this package would find whatever parser version Lumis itself happens to
- * carry, which is not what the project declared. pnpm links only the direct
- * dependencies there, and keeps the packages a bundle, or markdown, depends on
- * next to that package instead, so those are looked up from the package that
- * declared them.
+ * pnpm keeps a bundle's or parser's dependencies beside that package rather
+ * than linking them into the application's node_modules. Follow the package
+ * that declared them, without consulting Lumis's own dependencies.
  */
-async function resolveInstalledManifests(
-  packageNames: readonly string[],
+async function discoverInstalledManifests(
+  cwd: string,
+  roots: readonly string[],
 ): Promise<Map<string, URL>> {
   const { createRequire } = await import("node:module");
-  const { pathToFileURL } = await importNodeBuiltin("node:url");
+  const { pathToFileURL, fileURLToPath } = await importNodeBuiltin("node:url");
   const { dirname, join } = await importNodeBuiltin("node:path");
-  const wanted = new Set(packageNames);
+  const wanted = new Set(LANGUAGE_PACKAGE_NAMES);
   const manifests = new Map<string, URL>();
   // By directory rather than name: an old copy without a manifest, found
   // first, must not hide the one a bundle brought.
   const explored = new Set<string>();
-  const searches = [
-    { from: join(process.cwd(), "noop.js"), names: [...packageNames, ...BUNDLE_PACKAGE_NAMES] },
-  ];
+  const searches = await Promise.all(
+    roots.map(async (root) => {
+      const from = fileURLToPath(root);
+      return { from, names: await wasmDependencies(from, true) };
+    }),
+  );
+  searches.push({
+    from: join(cwd, "noop.js"),
+    names: [...LANGUAGE_PACKAGE_NAMES, ...BUNDLE_PACKAGE_NAMES],
+  });
 
   for (const { from, names } of searches) {
     const { resolve } = createRequire(pathToFileURL(from));
@@ -108,16 +127,30 @@ async function resolveInstalledManifests(
   return manifests;
 }
 
+function resolveInstalledManifests(): Promise<Map<string, URL>> {
+  const cwd = process.cwd();
+  if (installed?.cwd === cwd && installed.roots === packageRoots.size) return installed.manifests;
+  const previous = installed?.manifests ?? Promise.resolve(new Map<string, URL>());
+  const roots = [...packageRoots];
+  const manifests = previous.then(async (known) => {
+    const found = await discoverInstalledManifests(cwd, roots);
+    // Already-loaded packages keep their identity when another highlighter adds roots.
+    return new Map([...found, ...known]);
+  });
+  installed = { cwd, roots: roots.length, manifests };
+  return manifests;
+}
+
 async function resolveInstalledManifest(packageName: string): Promise<URL | undefined> {
-  // A package linked where the project can see it, or one a bundle brought.
-  // Failing that, one that a package the project installed brought.
-  return (
-    (await resolveInstalledManifests([packageName])).get(packageName) ??
-    (await resolveInstalledManifests(LANGUAGE_PACKAGE_NAMES)).get(packageName)
-  );
+  return (await resolveInstalledManifests()).get(packageName);
 }
 
 export const nodeRuntime: RuntimeEnvironment = {
+  registerPackageRoot(source) {
+    if (source.protocol === "file:") {
+      packageRoots.add(new URL("./package.json", source).href);
+    }
+  },
   async resolveWasm(wasm) {
     if (wasm instanceof URL) {
       if (wasm.protocol === "file:") {

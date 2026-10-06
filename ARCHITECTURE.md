@@ -320,6 +320,14 @@ generated range with npm's `semver` package. The
 portable Node fallback uses that browser implementation. Cross-runtime package
 fixtures pin both implementations to the same manifest contract.
 
+Node discovers packages from imported languages and bundles, then from the
+working directory. A language's file URL locates its package; a generated
+bundle carries its module URL under `Symbol.for("@lumis-sh/package-url")` so
+its language entries remain enumerable on their own. Discovery follows each
+package's parser dependencies, including pnpm's separate dependency locations.
+New roots extend the process-wide installed set and refresh the addon before
+highlighting. Already discovered package versions keep their identity.
+
 Everything a runtime persists lives under one directory, named by
 `LUMIS_DATA_DIR`: `parsers/` for language packages and parser WASM, `themes/`
 for the CLI's custom themes, `compiled/` for Wasmtime's module cache. Only the

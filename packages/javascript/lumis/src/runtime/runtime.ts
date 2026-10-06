@@ -19,6 +19,7 @@ export interface RuntimeEnvironment {
    * no project to read and loads only the packages passed to `withWasm()`.
    */
   resolveInstalledManifest?(packageName: string): Promise<URL | undefined>;
+  registerPackageRoot?(source: URL): void;
   parserInitOptions?(): Promise<ParserInitOptions>;
 }
 

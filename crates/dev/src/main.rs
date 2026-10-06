@@ -4523,10 +4523,10 @@ const PACKAGE_FORMAT_VERSION: u32 = 4;
 const HEX_FORMAT_VERSION: u32 = 3;
 
 /// The bundle counterpart of `PACKAGE_FORMAT_VERSION`, carried in a bundle's
-/// `package.json` as `lumis.bundleFormat`. 2: the default export is the bundle,
-/// each entry importing its language package, and `bundledWasms` is gone. Must match
+/// `package.json` as `lumis.bundleFormat`. 3: the bundle carries its module URL
+/// so Node can find its dependencies from any working directory. Must match
 /// `BUNDLE_FORMAT_VERSION` in `packages/javascript/scripts/build-wasm-bundles.ts`.
-const BUNDLE_FORMAT_VERSION: u32 = 2;
+const BUNDLE_FORMAT_VERSION: u32 = 3;
 
 const REGISTRY_CONCURRENCY: usize = 16;
 

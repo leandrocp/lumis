@@ -29,11 +29,11 @@ const VERSION = argValue("--version") ?? "0.0.0";
 
 /**
  * Carried as `lumis.bundleFormat`, so a change to what a bundle exports publishes
- * a new version even when its members stay the same. 2: the default export is
- * the bundle itself, and `bundledWasms` is gone. Must match
+ * a new version even when its members stay the same. 3: the bundle carries its
+ * module URL so Node can find its dependencies from any working directory. Must match
  * `BUNDLE_FORMAT_VERSION` in `crates/dev`.
  */
-const BUNDLE_FORMAT_VERSION = 2;
+const BUNDLE_FORMAT_VERSION = 3;
 
 function readLanguagesToml(): LanguagesToml {
   const text = fs.readFileSync(LANGUAGES_TOML, "utf-8");
@@ -124,6 +124,7 @@ function writeBundlePackage(
  * it is used. Pass it to \`createHighlighter({ languages })\`.
  */
 const bundle = {
+  [Symbol.for('@lumis-sh/package-url')]: import.meta.url,
 ${lazyEntries}
 }
 

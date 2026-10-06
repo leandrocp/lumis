@@ -130,6 +130,7 @@ export interface HighlighterRuntimeOptions {
 }
 
 export interface RuntimeLike {
+  registerPackageRoot?(source: URL): Promise<void>;
   configureWasmResolver(fn: WasmResolver): void;
   configureLanguagePackageResolver(fn: LanguagePackageResolver): void;
   initParser(): Promise<void>;
@@ -221,8 +222,8 @@ export const DEFAULT_LANGUAGE_PACKAGE_RESOLVER: LanguagePackageResolver = (
  */
 export function notDeclared(what: string, install: string): Error {
   return new Error(
-    `${what} is not one of the @lumis-sh/wasm-* packages this project depends on` +
-      `\n  add ${install} to its dependencies, or update it if it is there`,
+    `${what} could not be resolved from the imported packages or working directory ${process.cwd()}` +
+      `\n  install or update ${install}, or pass its language or bundle to createHighlighter()`,
   );
 }
 
@@ -1409,6 +1410,11 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
         locals: packaged.locals,
         brackets: packaged.brackets,
       };
+    }
+
+    registerPackageRoot(source: URL): Promise<void> {
+      runtime.registerPackageRoot?.(source);
+      return Promise.resolve();
     }
 
     async initParser(): Promise<void> {

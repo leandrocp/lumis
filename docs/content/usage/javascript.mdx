@@ -256,6 +256,17 @@ In Node, `@lumis-sh/lumis/langs/rust`, `@lumis-sh/lumis/bundles/web`, and a
 plain `"rust"` work too: they name the package, and Node reads the installed
 one. A browser has no `node_modules` to read, so it needs the import.
 
+Node searches from the language and bundle packages passed to
+`createHighlighter`, including their parser dependencies, with the working
+directory as a fallback. An imported bundle therefore works even when a CLI or
+editor runs from another directory. These packages remain available to later
+highlighters in the same process. Update older `@lumis-sh/wasm-bundle-*`
+packages if their injected languages still depend on the working directory.
+
+A string ID or a `@lumis-sh/lumis/langs/*` handle alone has no installation
+location. If the parsers are installed elsewhere, pass the imported language
+or bundle instead.
+
 Without a bundler, import the package from jsDelivr, which serves the parser
 file next to the module:
 

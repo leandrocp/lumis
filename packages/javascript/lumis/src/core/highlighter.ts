@@ -81,9 +81,12 @@ export interface CreateHighlighterOptions {
  * into a runtime.
  */
 export async function loadLanguageDefinition(
-  runtime: Pick<RuntimeLike, "loadLanguage">,
+  runtime: Pick<RuntimeLike, "loadLanguage" | "registerPackageRoot">,
   language: Language,
 ): Promise<void> {
+  if (language.languagePackage && language.wasm instanceof URL) {
+    await runtime.registerPackageRoot?.(language.wasm);
+  }
   // First, so a browser has them before the document that injects them.
   for (const required of language.requires ?? []) {
     await loadLanguageDefinition(runtime, required);
@@ -652,6 +655,10 @@ async function loadInitialLanguages(
 
   for (const input of inputs) {
     if (isLanguageBundle(input)) {
+      const source: unknown = Reflect.get(input, Symbol.for("@lumis-sh/package-url"));
+      if (typeof source === "string") {
+        await runtime.registerPackageRoot?.(new URL(source));
+      }
       registerLazyBundle(input, lazyRegistry);
       continue;
     }

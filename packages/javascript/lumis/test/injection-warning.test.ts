@@ -76,9 +76,9 @@ describe("unavailable injected languages", () => {
       expect(warning).toContain(`Lumis could not load "${language}"`);
       if (index.runtimeKind() === "native") {
         // oxlint-disable-next-line vitest/no-conditional-expect -- both runtimes assert their distinct installation/loading guidance.
-        expect(warning).toContain(
-          `add ${packageName} to its dependencies, or update it if it is there`,
-        );
+        expect(warning).toContain(`install or update ${packageName}`);
+        // oxlint-disable-next-line vitest/no-conditional-expect -- only Node searches the working directory.
+        expect(warning).toContain(`working directory ${process.cwd()}`);
         // oxlint-disable-next-line vitest/no-conditional-expect -- both runtimes assert their distinct installation/loading guidance.
         expect(warning).not.toContain("Load it up front");
       } else {

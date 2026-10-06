@@ -48,12 +48,8 @@ describe("a project that installed no parser", () => {
     );
 
     expect(error, "expected the load to be refused").toBeDefined();
-    // Either path proves the refusal was the policy rather than a download
-    // failing for some other reason: the TypeScript one names the package this
-    // project does not depend on, the addon one says it loads only what was
-    // installed. Which runs depends on whether the addon is built here.
-    expect(reasons(error).join(" | ")).toMatch(
-      /this project (depends on|loads only the parsers it installed)/u,
+    expect(reasons(error).join(" | ")).toContain(
+      `@lumis-sh/wasm-elixir could not be resolved from the imported packages or working directory ${process.cwd()}`,
     );
   });
 });

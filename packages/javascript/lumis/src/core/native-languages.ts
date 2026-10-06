@@ -2,7 +2,7 @@ import { LANGUAGES } from "../generated/languages-meta.js";
 import { cloneLanguageInfo } from "../catalog-metadata.js";
 import { LANGUAGE_LOADERS } from "../generated/language-loaders.js";
 import { EXACT_LANGUAGE_MAP } from "../generated/language-detection.js";
-import { LANGUAGE_PACKAGES, LANGUAGE_PACKAGE_NAMES } from "../generated/language-packages.js";
+import { LANGUAGE_PACKAGES } from "../generated/language-packages.js";
 import { LANGUAGE_PACKAGE_VERSION_RANGE } from "../generated/package-version-range.js";
 import type {
   NativeBinding,
@@ -199,7 +199,7 @@ function isImportedInstalled(
 export function createNativeLanguagesModule(
   binding: NativeBinding,
   resolvers: LanguagesModule,
-  resolveInstalledManifests?: (packageNames: readonly string[]) => Promise<Map<string, URL>>,
+  resolveInstalledManifests?: () => Promise<Map<string, URL>>,
 ): LanguagesModule {
   let globalWasmResolver: WasmResolver | undefined;
   let globalLanguagePackageResolver: LanguagePackageResolver | undefined;
@@ -218,29 +218,30 @@ export function createNativeLanguagesModule(
   }
 
   let installed: Promise<Record<string, string> | undefined> | undefined;
+  let installedSource: Promise<Map<string, URL>> | undefined;
 
   /**
    * Hand the addon the `lumis.json` of every package this project installed,
-   * once, and keep them to check a load against.
+   * and refresh the set when another imported package adds a search root.
    *
    * Those packages are the whole set Node loads from. The addon reads them
    * itself, because it loads a language injected inside a document during a
    * native walk, without coming back to JavaScript.
    */
   function tellAddon(): Promise<Record<string, string> | undefined> {
-    if (installed) return installed;
-    if (resolveInstalledManifests) {
-      installed = (async () => {
+    const source = resolveInstalledManifests?.();
+    if (installed && source === installedSource) return installed;
+    installedSource = source;
+    if (source) {
+      installed = (installed ?? Promise.resolve(undefined)).then(async () => {
         const { fileURLToPath } = await import("node:url");
         const manifests: Record<string, string> = {};
-        for (const [packageName, manifest] of await resolveInstalledManifests(
-          LANGUAGE_PACKAGE_NAMES,
-        )) {
+        for (const [packageName, manifest] of await source) {
           manifests[packageName] = fileURLToPath(manifest);
         }
         binding.setInstalledPackages(manifests);
         return manifests;
-      })();
+      });
     } else {
       installed = Promise.resolve(undefined);
     }
@@ -357,6 +358,11 @@ export function createNativeLanguagesModule(
 
     async initParser(): Promise<void> {
       // The addon resolves and compiles parsers on demand; nothing to set up.
+    }
+
+    async registerPackageRoot(source: URL): Promise<void> {
+      await this.resolver.registerPackageRoot?.(source);
+      await tellAddon();
     }
 
     registerLanguage(definition: LanguageDefinition): void {

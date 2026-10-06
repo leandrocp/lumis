@@ -45,6 +45,10 @@ describe("generated WASM bundle packages", () => {
       expect(manifest).toHaveProperty("dependencies", dependencies);
 
       const generated = await import(pathToFileURL(join(dir, "index.js")).href);
+      expect(generated.default[Symbol.for("@lumis-sh/package-url")]).toBe(
+        pathToFileURL(join(dir, "index.js")).href,
+      );
+      expect(manifest).toHaveProperty("lumis.bundleFormat", 3);
       expect(Object.keys(generated.default).sort()).toEqual([...ids].sort());
       expect(dependencies).not.toHaveProperty("@lumis-sh/wasm-plaintext");
       expect(Object.hasOwn(dependencies, "@lumis-sh/wasm-diff")).toBe(name === "full");
