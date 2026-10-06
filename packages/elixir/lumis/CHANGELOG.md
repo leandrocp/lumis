@@ -1,4 +1,4 @@
-## [0.11.0](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.1...hex-lumis/v0.11.0) (2026-10-06)
+## [0.10.2](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.1...hex-lumis/v0.10.2) (2026-10-06)
 
 ### Bug Fixes
 
@@ -8,9 +8,9 @@
 
 - Pin time and match limits in the shared conformance fixtures in [\#1698](https://github.com/leandrocp/lumis/pull/1698)
 
-### chore
+### Dependencies
 
-- **Breaking:** Bump tree-sitter 0.27, wasmtime 48, and raise the MSRV to 1.95 in [\#1702](https://github.com/leandrocp/lumis/pull/1702)
+- Bump tree-sitter 0.27, wasmtime 48, and raise the MSRV to 1.95 in [\#1702](https://github.com/leandrocp/lumis/pull/1702)
 
 ## [0.10.1](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.0...hex-lumis/v0.10.1) (2026-10-04)
 
