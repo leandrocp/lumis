@@ -5,7 +5,7 @@ import { lazy } from "../src/bundle-helpers.js";
 export const bundledLanguages: LanguageBundle = {
   angular: lazy("angular", [], () => import("../langs/angular.js")),
   astro: lazy("astro", [], () => import("../langs/astro.js")),
-  dart: lazy("dart", [], () => import("../langs/dart.js")),
+  dart: lazy("dart", ["flutter"], () => import("../langs/dart.js")),
   eex: lazy("eex", ["leex"], () => import("../langs/eex.js")),
   ejs: lazy("ejs", [], () => import("../langs/ejs.js")),
   elm: lazy("elm", [], () => import("../langs/elm.js")),
