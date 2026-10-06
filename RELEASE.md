@@ -110,8 +110,11 @@ before preparing its release:
 
 ```sh
 template="$(mise run release-template)"
-mise exec -- git-cliff --config cliff.toml --body-file "$template" --github-repo leandrocp/lumis --tag-pattern 'npm-themes/v[0-9].*' --include-path 'packages/javascript/themes/**/*' --unreleased
+GIT_CLIFF_TAG_PATTERN='npm-themes/v[0-9].*' mise exec -- git-cliff --config cliff.toml --body-file "$template" --github-repo leandrocp/lumis --include-path 'packages/javascript/themes/**/*' --unreleased
 ```
+
+Use `GIT_CLIFF_TAG_PATTERN` for the package: `cliff.toml` also reads it to classify
+#1702 as breaking only for Cargo releases.
 
 ## No pull request for a package?
 

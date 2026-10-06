@@ -12,11 +12,14 @@ protect_breaking_commits = true
 filter_commits = true
 sort_commits = "oldest"
 commit_preprocessors = [
+  # The Rust toolchain update (#1702) is breaking only for Cargo consumers.
+  { pattern = '^chore!: .*\(#1702\)', replace_command = 'case "$GIT_CLIFF_TAG_PATTERN" in npm-*|hex-*) sed "1s/^chore!:/chore:/" ;; *) cat ;; esac' },
   # Correct the breaking-change marker omitted from the squash of #1559.
   { pattern = '^fix: (render HTML lines as inline spans with overridable layout CSS) \(#1559\)', replace = 'fix!: ${1} (#1559)' },
   { pattern = '\\((\\w+\\s)?#([0-9]+)\\)', replace = "" },
 ]
 commit_parsers = [
+  { sha = "785d11758c0ffe266e1a6d1c56797689666a3fb6", group = "Dependencies" },
   { message = "^feat", group = "Features" },
   { message = "^fix", group = "Bug Fixes" },
   { message = "^perf", group = "Performance" },

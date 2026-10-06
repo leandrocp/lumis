@@ -1216,7 +1216,7 @@ while IFS= read -r entry; do
         include_args+=(--include-path "$path" --include-path "$path/**/*")
     done
 
-    commits="$(git-cliff --config cliff.toml --tag-pattern "$package/v[0-9].*" --unreleased --context "${include_args[@]}" |
+    commits="$(GIT_CLIFF_TAG_PATTERN="$package/v[0-9].*" git-cliff --config cliff.toml --unreleased --context "${include_args[@]}" |
         jq -r '.[].commits[] | "\(.id[0:7]) \(.raw_message | split("\n")[0])"')"
 
     if [ -z "$commits" ]; then
@@ -1311,7 +1311,7 @@ while IFS= read -r entry; do
         include_args+=(--include-path "$path" --include-path "$path/**/*")
     done
 
-    next="$(git-cliff --config cliff.toml --tag-pattern "$package/v[0-9].*" --bumped-version "${include_args[@]}")"
+    next="$(GIT_CLIFF_TAG_PATTERN="$package/v[0-9].*" git-cliff --config cliff.toml --bumped-version "${include_args[@]}")"
     next="${next#*/v}"
 
     if [ "$next" = "$current" ]; then
@@ -1423,7 +1423,7 @@ if [ "$package" = "npm-cli" ]; then
     done
 fi
 
-notes="$(git-cliff --config cliff.toml --body-file "$template" --github-repo leandrocp/lumis --tag-pattern "$package/v[0-9].*" --tag "$package/v$version" --strip header --unreleased "${include_args[@]}")"
+notes="$(GIT_CLIFF_TAG_PATTERN="$package/v[0-9].*" git-cliff --config cliff.toml --body-file "$template" --github-repo leandrocp/lumis --tag "$package/v$version" --strip header --unreleased "${include_args[@]}")"
 prepared_changelog="$(mktemp "$changelog.XXXXXX")"
 trap 'rm -f "$prepared_changelog"' EXIT
 printf '%s\n' "$notes" > "$prepared_changelog"
