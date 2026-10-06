@@ -71,7 +71,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # Formatting and the rules that need no type information are checked over
       # the whole repository by `lint.yml`. These add the type-aware rules, so
-      # they build what each package's tsconfig resolves against.
+      # generate the core's source inputs before its lint pass. Integration
+      # packages build their workspace declarations through their prelint hooks.
+      - run: pnpm --filter @lumis-sh/lumis run build:generate
       - run: pnpm --filter @lumis-sh/lumis run lint
       - run: pnpm --filter @lumis-sh/markdown-it-lumis run lint
       - run: pnpm --filter @lumis-sh/rehype-lumis run lint
@@ -80,7 +82,6 @@ jobs:
       - run: pnpm --filter @lumis-sh/themes run lint
       # `mise run docs` is the only caller of this script, and a pnpm upgrade
       # once made it unrunnable without any check going red.
-      - run: pnpm --filter @lumis-sh/lumis run build:generate
       - run: pnpm --filter @lumis-sh/lumis run docs
       # The release workflow publishes six native npm packages before the main
       # package, and npm will not republish an existing version.
