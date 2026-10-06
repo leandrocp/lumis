@@ -1,3 +1,13 @@
+## [0.8.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.7.2...cargo-lumis-cli/v0.8.0) (2026-10-06)
+
+### Testing
+
+- Pin time and match limits in the shared conformance fixtures in [\#1698](https://github.com/leandrocp/lumis/pull/1698)
+
+### chore
+
+- **Breaking:** Bump tree-sitter 0.27, wasmtime 48, and raise the MSRV to 1.95 in [\#1702](https://github.com/leandrocp/lumis/pull/1702)
+
 ## [0.7.2](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.7.1...cargo-lumis-cli/v0.7.2) (2026-10-04)
 
 ### Bug Fixes
