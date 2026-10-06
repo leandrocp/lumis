@@ -110,8 +110,15 @@ before preparing its release:
 
 ```sh
 template="$(mise run release-template)"
-mise exec -- git-cliff --config cliff.toml --body-file "$template" --github-repo leandrocp/lumis --tag-pattern 'npm-themes/v[0-9].*' --include-path 'packages/javascript/themes/**/*' --unreleased
+mise run release-cliff -- npm-themes --body-file "$template" --github-repo leandrocp/lumis --tag-pattern 'npm-themes/v[0-9].*' --include-path 'packages/javascript/themes/**/*' --unreleased
 ```
+
+Planning, release detection, and changelogs use `release-cliff` so they agree on
+which changes are breaking for each package. The Rust toolchain upgrade in
+[#1702](https://github.com/leandrocp/lumis/pull/1702) is breaking for Cargo packages;
+npm and Hex list it under Dependencies without a breaking marker or minor bump.
+Other breaking changes retain their classification. `mise run test-release`
+checks both cases.
 
 ## No pull request for a package?
 

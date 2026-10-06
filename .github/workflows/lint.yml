@@ -17,6 +17,8 @@ on:
       - "**/*.tsx"
       - ".github/actionlint.yaml"
       - ".github/workflows/**"
+      - ".github/scripts/**"
+      - "cliff.toml"
       - ".oxfmtrc.json"
       - ".oxlintrc.json"
       - "Cargo.toml"
@@ -40,6 +42,8 @@ on:
       - "**/*.tsx"
       - ".github/actionlint.yaml"
       - ".github/workflows/**"
+      - ".github/scripts/**"
+      - "cliff.toml"
       - ".oxfmtrc.json"
       - ".oxlintrc.json"
       - "Cargo.toml"
@@ -58,6 +62,18 @@ permissions:
   contents: read
 
 jobs:
+  release:
+    name: Release classification
+    if: >-
+      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
+          !(github.event.pull_request.head.repo.full_name == github.repository &&
+            startsWith(github.event.pull_request.head.ref, 'release/')) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: jdx/mise-action@9149ea85001c7435d5a66bb127d6a1b6227cb0a5 # v5.0.0
+      - run: mise run test-release
+
   actionlint:
     if: >-
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
