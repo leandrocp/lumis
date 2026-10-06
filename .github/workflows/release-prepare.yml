@@ -105,7 +105,7 @@ jobs:
       - uses: jdx/mise-action@9149ea85001c7435d5a66bb127d6a1b6227cb0a5 # v5.0.0
 
       # Only a crate release builds `crates/dev`, through
-      # `mise run check-crate-deps --fix`. Caching the other jobs would store an
+      # the version and dependency updater. Caching the other jobs would store an
       # empty target directory under the same key.
       - name: Cache Rust dependencies
         if: startsWith(matrix.release.package, 'cargo-')

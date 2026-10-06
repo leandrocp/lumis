@@ -67,6 +67,10 @@ enum Commands {
         #[arg(long)]
         fix: bool,
     },
+    SetCrateVersion {
+        name: String,
+        version: semver::Version,
+    },
     PreprocessQueries {
         #[arg(default_value = "")]
         name: String,
@@ -194,6 +198,7 @@ fn main() -> Result<()> {
         Commands::CargoUpdateDep { name } => cargo_update_dep(&name),
         Commands::CargoUpdateFeatures => cargo_update_features(),
         Commands::CheckCrateDeps { fix } => check_crate_deps(fix),
+        Commands::SetCrateVersion { name, version } => set_crate_version(&name, &version),
         Commands::PreprocessQueries { name } => preprocess_queries(&name),
         Commands::GenHighlights => gen_highlights(),
         Commands::GenLanguagesMd => gen_languages_md(),
@@ -2141,6 +2146,32 @@ fn read_manifests() -> Result<Vec<Manifest>> {
             })
         })
         .collect()
+}
+
+fn set_crate_version(name: &str, version: &semver::Version) -> Result<()> {
+    let mut manifests = read_manifests()?;
+    let manifest = manifests
+        .iter_mut()
+        .find(|manifest| {
+            manifest
+                .document
+                .get("package")
+                .and_then(|package| package.get("name"))
+                .and_then(toml_edit::Item::as_str)
+                == Some(name)
+        })
+        .with_context(|| format!("unknown crate: {name}"))?;
+    ensure!(
+        manifest.document["package"]["version"].as_str().is_some(),
+        "{name} must declare its own version"
+    );
+    manifest.document["package"]["version"] = toml_edit::value(version.to_string());
+    fs::write(&manifest.file, manifest.document.to_string())
+        .with_context(|| format!("failed to write {}", manifest.path))?;
+
+    // Resolve only after registry requirements also match the new version:
+    // cargo set-version updates path dependents but leaves the NIF behind.
+    check_crate_deps(true)
 }
 
 /// Every build in this repository resolves the lumis crates through `path`

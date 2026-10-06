@@ -139,9 +139,12 @@ A `version` requirement on a lumis crate must equal that crate's version here, s
 in full — `version = "2.5.0"`, never `"2"`, because `cargo set-version` only rewrites
 requirements the new version falls outside of.
 
-`release-prepare` keeps this current via `cargo set-version` plus
-`mise run check-crate-deps --fix`, which catches registry-resolved manifests like the
-Elixir NIF's. Commit every manifest they touch.
+`release-prepare` updates the crate version and all dependent requirements through
+`crates/dev`, including registry dependencies such as the Elixir NIF's. Only then
+does it run Cargo's resolver to refresh the workspace lockfile. `cargo set-version`
+cannot do this: it updates path dependencies and resolves before the NIF's
+requirement changes, which breaks a release that moves Tree-sitter versions.
+Commit every manifest and lockfile the preparation touches.
 
 Nothing built here resolves these requirements except `crates/autumnus`, so
 `check-crate-deps` is the only thing that can see drift. That is how
