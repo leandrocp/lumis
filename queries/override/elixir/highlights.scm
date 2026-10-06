@@ -1,4 +1,3 @@
-; This file is auto-generated. Do not edit.
 ; Upstream's String Sigils and Documentation patterns capture `(quoted_content)`
 ; with no anchor. A lowercase sigil's body parses as alternating
 ; `quoted_content` and `escape_sequence` siblings, so every chunk opened a match
@@ -33,7 +32,7 @@
 
 ; Unused Identifiers
 ((identifier) @comment
-  (#match? @comment "^_"))
+  (#lua-match? @comment "^_"))
 
 ; Comments
 (comment) @comment
@@ -224,26 +223,3 @@
           quoted_start: _ @comment.documentation
           quoted_end: _ @comment.documentation)
       ] @comment.documentation))) @comment.documentation
-
-; * doc string
-(unary_operator
-  operator: "@" @comment.doc
-  operand: (call
-    target: (identifier) @comment.doc.__attribute__
-    (arguments
-      [
-        (string) @comment.doc
-        (charlist) @comment.doc
-        (sigil
-          quoted_start: _ @comment.doc
-          quoted_end: _ @comment.doc) @comment.doc
-        (boolean) @comment.doc
-      ]))
-  (#any-of? @comment.doc.__attribute__ "moduledoc" "typedoc" "doc"))
-
-; Upstream gives every do @keyword, unlike defmodule's @keyword.function.
-(call
-  target: (identifier) @_definition
-  (do_block
-    "do" @keyword.function)
-  (#eq? @_definition "defmodule"))
