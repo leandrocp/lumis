@@ -1,4 +1,4 @@
-## [0.10.0](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.9.2...npm-lumis/v0.10.0) (2026-10-06)
+## [0.9.3](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.9.2...npm-lumis/v0.9.3) (2026-10-06)
 
 ### Features
 
@@ -19,9 +19,9 @@
 
 - Pin time and match limits in the shared conformance fixtures in [\#1698](https://github.com/leandrocp/lumis/pull/1698)
 
-### chore
+### Dependencies
 
-- **Breaking:** Bump tree-sitter 0.27, wasmtime 48, and raise the MSRV to 1.95 in [\#1702](https://github.com/leandrocp/lumis/pull/1702)
+- Bump tree-sitter 0.27, wasmtime 48, and raise the MSRV to 1.95 in [\#1702](https://github.com/leandrocp/lumis/pull/1702)
 
 ## [0.9.2](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.9.1...npm-lumis/v0.9.2) (2026-10-04)
 

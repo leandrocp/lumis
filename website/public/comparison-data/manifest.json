@@ -25,7 +25,7 @@
     {
       "id": "lumis",
       "label": "Lumis",
-      "version": "Lumis 0.10.0",
+      "version": "Lumis 0.9.3",
       "theme": "Neovim Catppuccin colorschemes, extracted by this repository"
     },
     {
