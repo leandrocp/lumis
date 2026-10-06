@@ -69,14 +69,17 @@ describe("ansi helper parity", () => {
     it(`answers what Rust answers for ${testCase.name}`, () => {
       switch (testCase.helper) {
         case "hexToRgb": {
+          // oxlint-disable-next-line vitest/no-conditional-expect -- each helper branch asserts its return shape, and an unknown helper throws.
           expect(hexToRgb(testCase.hex ?? ""), testCase.name).toEqual(expectedRgb(testCase));
           break;
         }
         case "styleToAnsi": {
+          // oxlint-disable-next-line vitest/no-conditional-expect -- each helper branch asserts its return shape, and an unknown helper throws.
           expect(styleToAnsi(testCase.style), testCase.name).toBe(expectedText(testCase));
           break;
         }
         case "paint": {
+          // oxlint-disable-next-line vitest/no-conditional-expect -- each helper branch asserts its return shape, and an unknown helper throws.
           expect(paint(testCase.text ?? "", testCase.style), testCase.name).toBe(
             expectedText(testCase),
           );

@@ -24,9 +24,7 @@ function localParserResolver(language: string, wasm: { name: string }): URL {
 
 beforeEach(async () => {
   // Clear FS cache so the resolver is always called
-  try {
-    rmSync(CACHE_DIR, { recursive: true });
-  } catch {}
+  rmSync(CACHE_DIR, { recursive: true, force: true });
   const { configureLanguagePackageResolver } = await import("../src/index.js");
   configureLanguagePackageResolver(localLanguagePackageResolver);
 });

@@ -98,6 +98,7 @@ function encodeBase64Octet(dataUrl: string): string {
   const octetIndex = body.search(/[+/=]/u);
   if (comma < 0 || octetIndex < 0) throw new Error("test data URL has no encodable base64 octet");
   const octet = body[octetIndex];
+  // oxlint-disable-next-line unicorn/prefer-code-point -- encode the ASCII base64 octet as one byte.
   return `${dataUrl.slice(0, comma + 1)}${body.slice(0, octetIndex)}%${octet.charCodeAt(0).toString(16)}${body.slice(octetIndex + 1)}`;
 }
 
@@ -126,8 +127,10 @@ describe("runtime parity", () => {
   it("runs under the runtime the environment asked for", () => {
     const requested = process.env.LUMIS_TEST_RUNTIME;
     if (requested === "native" || requested === "wasm") {
+      // oxlint-disable-next-line vitest/no-conditional-expect -- an explicit runtime selection and the default selection have different valid outcomes.
       expect(index.runtimeKind()).toBe(requested);
     } else {
+      // oxlint-disable-next-line vitest/no-conditional-expect -- an explicit runtime selection and the default selection have different valid outcomes.
       expect(["native", "wasm"]).toContain(index.runtimeKind());
     }
   });
@@ -232,14 +235,18 @@ describe("runtime parity", () => {
         expect(error.message).toContain("comment");
       }
       if (index.runtimeKind() === "wasm") {
+        // oxlint-disable-next-line vitest/no-conditional-expect -- only the Wasm runtime uses the web-tree-sitter load/export counters.
         expect(load.mock.calls.length - loadsBefore).toBe(0);
+        // oxlint-disable-next-line vitest/no-conditional-expect -- only the Wasm runtime uses the web-tree-sitter load/export counters.
         expect(moduleExports.mock.calls.length - exportsBefore).toBe(0);
       }
 
       const corrected = await create("wrong-grammar-first", "@test/corrected-grammar", "comment");
       expect(corrected.languages).toContain("wrong-grammar-first");
       if (index.runtimeKind() === "wasm") {
+        // oxlint-disable-next-line vitest/no-conditional-expect -- only the Wasm runtime uses the web-tree-sitter load/export counters.
         expect(load.mock.calls.length - loadsBefore).toBe(1);
+        // oxlint-disable-next-line vitest/no-conditional-expect -- only the Wasm runtime uses the web-tree-sitter load/export counters.
         expect(moduleExports.mock.calls.length - exportsBefore).toBe(0);
       }
     } finally {
@@ -278,6 +285,7 @@ describe("runtime parity", () => {
 
       expect(error.message).toMatch(/parser grammar/u);
       if (index.runtimeKind() === "wasm") {
+        // oxlint-disable-next-line vitest/no-conditional-expect -- only the Wasm runtime uses the web-tree-sitter load/export counters.
         expect(load.mock.calls.length - loadsBefore).toBe(0);
       }
     } finally {
@@ -339,14 +347,18 @@ describe("runtime parity", () => {
 
     expect(seen).toContain("markdown");
     if (native) {
+      // oxlint-disable-next-line vitest/no-conditional-expect -- native resolves injections during the document walk; Wasm resolves them during initialization.
       expect(seen).not.toContain("json");
+      // oxlint-disable-next-line vitest/no-conditional-expect -- native resolves injections during the document walk; Wasm resolves them during initialization.
       expect(hl.languages).not.toContain("json");
     } else {
+      // oxlint-disable-next-line vitest/no-conditional-expect -- native resolves injections during the document walk; Wasm resolves them during initialization.
       expect(hl.languages).toContain("json");
     }
 
     const html = hl.highlight('```JSON\n{"answer": 42}\n```\n', htmlLinked({ language: markdown }));
 
+    // oxlint-disable-next-line vitest/no-conditional-expect -- native resolves injections during the document walk; Wasm resolves them during initialization.
     if (native) expect(seen).toContain("json");
     expect(html).toContain('class="l-number"');
   }, 30_000);
@@ -355,6 +367,7 @@ describe("runtime parity", () => {
     const { default: markdown } = await import("../langs/markdown.ts");
     const { default: json } = await import("../langs/json.ts");
     const source = '```json\n{"answer": 42}\n```\n';
+    // oxlint-disable-next-line prefer-const -- the resolver can read hl before the awaited initializer settles.
     let hl: Awaited<ReturnType<typeof index.createHighlighter>> | undefined;
     let reentrantError: unknown;
 
@@ -374,10 +387,12 @@ describe("runtime parity", () => {
 
     const html = hl.highlight(source, htmlLinked({ language: markdown }));
     if (index.runtimeKind() === "native") {
+      // oxlint-disable-next-line vitest/no-conditional-expect -- native must reject synchronous reentry; the async Wasm path must leave no reentry error.
       expect(String(reentrantError)).toContain(
         "native highlighting cannot be called from a language resolver callback",
       );
     } else {
+      // oxlint-disable-next-line vitest/no-conditional-expect -- native must reject synchronous reentry; the async Wasm path must leave no reentry error.
       expect(reentrantError).toBeUndefined();
     }
     expect(html).toContain('class="l-number"');

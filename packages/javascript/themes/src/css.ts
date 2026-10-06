@@ -221,7 +221,8 @@ function underlineDecoration(underline: StyleEntry["underline"]): string | undef
       return "underline dotted";
     case "dashed":
       return "underline dashed";
-    default:
+    case undefined:
       return undefined;
   }
+  return undefined;
 }

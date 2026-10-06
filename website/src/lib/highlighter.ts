@@ -25,6 +25,7 @@ function send(req: WorkerCommand): Promise<WorkerResponse> {
   const id = nextId++;
   return new Promise((resolve) => {
     pending.set(id, { resolve });
+    // oxlint-disable-next-line unicorn/require-post-message-target-origin -- Worker.postMessage has a transfer-list/options argument, not a Window target origin.
     activeWorker.postMessage({ ...req, id });
   });
 }

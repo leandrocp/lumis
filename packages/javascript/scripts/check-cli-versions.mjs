@@ -12,8 +12,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// Keep the Node 18-compatible path calculation until the shared scripts drop Node 18.
-// oxlint-disable-next-line unicorn/prefer-import-meta-properties
+// oxlint-disable-next-line unicorn/prefer-import-meta-properties -- this shared script supports Node 18, before import.meta.dirname exists.
 const javascriptDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const repoDir = dirname(dirname(javascriptDir));
 const cliDir = join(javascriptDir, "cli");

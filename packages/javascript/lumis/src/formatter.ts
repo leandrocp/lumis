@@ -217,9 +217,12 @@ export function withAttrs<T extends Formatter>(formatter: T, attrs: FormatterAtt
         preAttrs,
         codeAttrs,
       }) as unknown as T;
-    default:
-      return formatter;
+    case "bbcode-scoped":
+    case "terminal":
+    case undefined:
+      break;
   }
+  return formatter;
 }
 
 export type {

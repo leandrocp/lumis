@@ -290,7 +290,7 @@ function classList(...classes: Array<string | undefined | false | null>): string
  * ```
  */
 export function isValidAttrName(name: string): boolean {
-  // eslint-disable-next-line no-control-regex
+  // oxlint-disable-next-line no-control-regex -- HTML attribute names reject ASCII C0/C1 control bytes.
   return name.length > 0 && !/[\s"'>/=\u0000-\u001F\u007F-\u009F]/u.test(name);
 }
 
@@ -1321,11 +1321,19 @@ function endLineDecoration(state: LineRenderState, context: LineRenderContext): 
   }
 }
 
+function isCallerAnnotation(
+  event: HighlightEvent,
+): event is Extract<HighlightEvent, { type: "annotationStart" | "annotationEnd" }> {
+  return event.type === "annotationStart" || event.type === "annotationEnd";
+}
+
 function applyLineEvent(
   state: LineRenderState,
   context: LineRenderContext,
   event: HighlightEvent,
 ): void {
+  if (isCallerAnnotation(event)) return;
+
   switch (event.type) {
     case "decorationStart":
       startLineDecoration(state, context, event.decoration);
@@ -1341,9 +1349,6 @@ function applyLineEvent(
       break;
     case "source":
       sourceEvent(state, context, event);
-      break;
-    // Caller annotations carry data a built-in formatter has never seen.
-    default:
       break;
   }
 }

@@ -21,6 +21,7 @@ const require = createRequire(import.meta.url);
 
 // Native ESM dynamic import — avoids jiti interception of import()
 // which would break resolution of ESM-only packages like @lumis-sh/lumis.
+// oxlint-disable-next-line no-new-func -- Function keeps jiti from rewriting the native dynamic import.
 const dynamicImport = new Function("specifier", "return import(specifier)");
 
 /** Resolve the root directory of an installed npm package. */

@@ -135,8 +135,10 @@ describe("#offset! matches Neovim", () => {
       const offset = Object.values(config.captureOffsets[0] ?? {})[0];
 
       if (entry.expected == null) {
+        // oxlint-disable-next-line vitest/no-conditional-expect -- each corpus row asserts either an absent directive or its expected offset.
         expect(offset).toBeUndefined();
       } else {
+        // oxlint-disable-next-line vitest/no-conditional-expect -- each corpus row asserts either an absent directive or its expected offset.
         expect(offset?.startColumn).toBe(entry.expected);
       }
     },

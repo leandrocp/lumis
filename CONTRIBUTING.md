@@ -216,13 +216,13 @@ functions, and the formatter option manifest already pins its flags.
 mise run lint
 ```
 
-Every linter runs at its strict setting, and every runtime has one. What that
-means per language, and where the configuration lives:
+Every runtime has a linter. Rules protect correctness, contracts, accessibility,
+performance and maintainability; rule counts are not a quality target.
 
-| Runtime | Linter | Strict setting | Configuration |
+| Runtime | Linter | Policy | Configuration |
 | --- | --- | --- | --- |
 | Rust | clippy, lizard | clippy's `pedantic` group plus `rust_2018_idioms` and `unreachable_pub`, all denied; cognitive complexity at most 10; classic cyclomatic complexity at most 20 | `[workspace.lints]` in the root `Cargo.toml`, `clippy.toml`, `.lizard-whitelist` |
-| JavaScript, TypeScript | oxlint | the `correctness`, `suspicious`, `perf` and `pedantic` categories, as errors; classic cyclomatic complexity at most 9 | `.oxlintrc.json` |
+| JavaScript, TypeScript | oxlint | explicitly reviewed safety and maintainability rules, as errors; classic cyclomatic complexity at most 9 | `.oxlintrc.json` |
 | Elixir | credo | `mix credo --strict`; cyclomatic complexity at most 9 | `packages/elixir/lumis/.credo.exs` |
 | Lua | selene | every lint selene ships, warnings included | `selene.toml`, `neovim.yml` |
 | GitHub Actions | actionlint | its default, which is already strict | `.github/actionlint.yaml` |
@@ -257,15 +257,24 @@ Two rules hold this together, and both come from what the checks used to miss:
   linted at all. Subtract from "everything" in `.oxlintrc.json`'s
   `ignorePatterns`, and give each entry a reason.
 - **A silenced lint says why.** Line-level `// oxlint-disable-next-line <rule> --
-  <why>` and `#[allow(...)]` with a comment above it. `--report-unused-disable-directives`
-  runs in both the root and type-aware package passes, so a silence that stops
-  being needed fails the build rather than sitting there.
+  <why>` and `#[allow(...)]` with a comment above it. Oxlint's shared config
+  rejects blanket disables, warnings and unused suppressions, including direct
+  invocations outside the package scripts. Explain the contract or runtime
+  behavior being preserved.
 
-A lint the repository has decided not to adopt is a waiver, not a silence: it
-sits in one place, with the reason and the number of sites it fired on when it
-was written down. `[workspace.lints.clippy]` and the `rules` block in
-`.oxlintrc.json` hold all of them. That list is allowed to shrink; adding to it
-needs the same justification the existing entries carry.
+Oxlint's explicit rule list is reviewed against the pinned version. Review new
+rules on upgrades instead of adopting everything in a category. Oxfmt handles
+formatting; lint should not require cosmetic rewrites or deletion of useful
+TODO comments. Keep complexity, async error handling, exhaustive union switches,
+type safety, accessibility and meaningful test checks.
+
+Keep repository-wide exceptions and unfinished migrations in the central
+config, with their reason. Counts measure the work to migrate; they do not
+justify rejecting a useful safety rule. Unsafe TypeScript boundaries, non-null
+assertions, ambiguous truthiness and readonly inputs remain separate migrations.
+Validate external values before passing them inward, and preserve intentional
+mutable parser/DOM/buffer contracts with narrow exceptions. Do not make a check
+green by adding unchecked casts or weakening types.
 
 TypeScript's type-aware rules cannot run from the repo root, because they need
 each package's `tsconfig.json` and its built dependencies. The per-package

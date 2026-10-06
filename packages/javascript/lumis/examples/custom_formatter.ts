@@ -1,5 +1,5 @@
 import { createHighlighter, highlightIter } from "../src/index.ts";
-import { type Formatter } from "../src/formatters.ts";
+import type { Formatter } from "../src/formatters.ts";
 import {
   closingTags,
   escape,

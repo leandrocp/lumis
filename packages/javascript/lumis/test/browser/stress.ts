@@ -54,6 +54,8 @@ interface StressApi {
 
 function decodeBase64(encoded: string): Uint8Array {
   const binary = atob(encoded);
+  // atob returns one binary-string code unit per byte; preserve the byte value.
+  // oxlint-disable-next-line unicorn/prefer-code-point -- this deliberately converts binary bytes
   return Uint8Array.from(binary, (byte) => byte.charCodeAt(0));
 }
 

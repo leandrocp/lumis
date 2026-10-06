@@ -267,8 +267,9 @@ function applyTerminalEvent(
         decodeSourceSlice(sourceBytes, event.start, event.end),
       );
       break;
-    // Caller annotations carry data this formatter has never seen.
-    default:
+    // Built-in formatters intentionally ignore caller annotations.
+    case "annotationStart":
+    case "annotationEnd":
       break;
   }
 }

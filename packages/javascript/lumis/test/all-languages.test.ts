@@ -89,8 +89,10 @@ describe.skipIf(languageFixtures.length === 0)("all languages", () => {
     async ({ id, language, samplePath }) => {
       expect(language.id).toBe(id);
       if (id === "plaintext") {
+        // oxlint-disable-next-line vitest/no-conditional-expect -- plaintext has no parser package; both fixture branches assert the package contract.
         expect(language.packageName).toBeUndefined();
       } else {
+        // oxlint-disable-next-line vitest/no-conditional-expect -- plaintext has no parser package; both fixture branches assert the package contract.
         expect(typeof language.packageName).toBe("string");
       }
       expect(existsSync(samplePath)).toBe(true);

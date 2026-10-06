@@ -442,6 +442,9 @@ function isSafePackagePathSegment(value: string): boolean {
   const stem = value.split(".", 1)[0]!.replace(/[ .]+$/u, "");
   let hasForbiddenCharacter = false;
   for (let index = 0; index < value.length; index += 1) {
+    // Keep this check over UTF-16 code units; each code unit is checked against
+    // the Windows C0-control range independently.
+    // oxlint-disable-next-line unicorn/prefer-code-point -- Windows path validation checks UTF-16 code units against the C0-control range.
     if (value.charCodeAt(index) <= 0x1f || '<>:"/\\|?*'.includes(value[index]!)) {
       hasForbiddenCharacter = true;
       break;
@@ -1140,8 +1143,9 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       const response = await fetchFromCdns(
         href,
         resolver === DEFAULT_LANGUAGE_PACKAGE_RESOLVER,
-      ).catch((error: Error) => {
-        throw new Error(`could not download language package ${packageName}: ${error.message}`);
+      ).catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(`could not download language package ${packageName}: ${message}`);
       });
       const packageMetadata = parseLanguagePackage(
         new Uint8Array(await response.arrayBuffer()),
@@ -1237,10 +1241,9 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       }
       const href = typeof url === "string" ? url : url.href;
       const response = await fetchFromCdns(href, this.resolver === DEFAULT_RESOLVER).catch(
-        (error: Error) => {
-          throw new Error(
-            `could not download parser WASM ${ref.name}@${ref.version}: ${error.message}`,
-          );
+        (error: unknown) => {
+          const message = error instanceof Error ? error.message : String(error);
+          throw new Error(`could not download parser WASM ${ref.name}@${ref.version}: ${message}`);
         },
       );
       return new Uint8Array(await response.arrayBuffer());

@@ -72,6 +72,7 @@ function newRuntime(): NativeRuntimeInstance {
 describe("native runtime", () => {
   it("is present wherever an addon is built", () => {
     if (!hasPrebuiltAddon) {
+      // oxlint-disable-next-line vitest/no-conditional-expect -- unsupported hosts assert addon absence; supported hosts assert the native runtime below.
       expect(binding).toBeUndefined();
       return;
     }
@@ -153,9 +154,8 @@ describe("native runtime", () => {
 
   itWithAddon("rejects direct addon reentry from a resolver callback", () => {
     const source = '```json\n{"answer": 42}\n```\n';
-    let runtime: NativeRuntimeInstance;
+    const runtime = newRuntime();
     let reentrantError: unknown;
-    runtime = newRuntime();
     const wasmResolver = (language: string, wasmJson: string) => {
       if (language === "json" && reentrantError === undefined) {
         try {

@@ -106,7 +106,7 @@ export function useLumis(options: UseLumisOptions): UseLumisResult {
           setAsyncContent(content);
         }
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         if (active) {
           setAsyncError(normalizeError(error));
         }
