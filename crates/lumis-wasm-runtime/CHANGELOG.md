@@ -1,3 +1,9 @@
+## [0.5.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.4.1...cargo-lumis-wasm-runtime/v0.5.0) (2026-10-06)
+
+### chore
+
+- **Breaking:** Bump tree-sitter 0.27, wasmtime 48, and raise the MSRV to 1.95 in [\#1702](https://github.com/leandrocp/lumis/pull/1702)
+
 ## [0.4.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.4.0...cargo-lumis-wasm-runtime/v0.4.1) (2026-10-04)
 
 ### Bug Fixes
