@@ -1,3 +1,17 @@
+## [0.11.0](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.1...hex-lumis/v0.11.0) (2026-10-06)
+
+### Bug Fixes
+
+- **elixir:** Match defmodule do highlighting in [\#1707](https://github.com/leandrocp/lumis/pull/1707)
+
+### Testing
+
+- Pin time and match limits in the shared conformance fixtures in [\#1698](https://github.com/leandrocp/lumis/pull/1698)
+
+### chore
+
+- **Breaking:** Bump tree-sitter 0.27, wasmtime 48, and raise the MSRV to 1.95 in [\#1702](https://github.com/leandrocp/lumis/pull/1702)
+
 ## [0.10.1](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.0...hex-lumis/v0.10.1) (2026-10-04)
 
 ### Bug Fixes
