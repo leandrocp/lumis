@@ -378,8 +378,8 @@
     "typescript/no-unnecessary-type-constraint": "error",
     "typescript/no-unnecessary-type-conversion": "error",
     "typescript/no-unnecessary-type-parameters": "error",
-    // Migration backlog: these six unsafe-boundary checks report 381 diagnostics.
-    // Validate boundary values and preserve domain types before enabling; counts are not exemptions.
+    // Enabled for production package sources below. Tests, tooling and site code
+    // need a separate boundary migration; do not weaken production types to match them.
     "typescript/no-unsafe-argument": "off",
     "typescript/no-unsafe-assignment": "off",
     "typescript/no-unsafe-call": "off",
@@ -517,6 +517,29 @@
     "vitest/warn-todo": "error"
   },
   "overrides": [
+    {
+      // Published package code must validate unknown inputs and reject implicit
+      // any flows or narrowing assertions that bypass the compiler.
+      "files": ["**/packages/javascript/*/src/**/*.{ts,tsx}"],
+      "rules": {
+        "typescript/no-unsafe-argument": "error",
+        "typescript/no-unsafe-assignment": "error",
+        "typescript/no-unsafe-call": "error",
+        "typescript/no-unsafe-member-access": "error",
+        "typescript/no-unsafe-return": "error",
+        "typescript/no-unsafe-type-assertion": "error"
+      }
+    },
+    {
+      // TypeScript gives import(variable) an any result. This module accepts
+      // only four fixed Node built-ins and returns their upstream module types;
+      // the variable keeps browser bundlers from resolving Node imports.
+      // A line suppression is reported unused by the non-type-aware root pass.
+      "files": ["**/packages/javascript/lumis/src/runtime/node-builtins.ts"],
+      "rules": {
+        "typescript/no-unsafe-assignment": "off"
+      }
+    },
     {
       // Compatibility exports/tests intentionally exercise deprecated names.
       // The shared formatter-helper corpus checks that these exports remain deprecated.

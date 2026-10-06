@@ -943,7 +943,7 @@ function pushThemeCssVars(
  * keeps its counterpart private.
  * @internal
  */
-export function sortedThemeNames(themes: Record<string, unknown>): string[] {
+export function sortedThemeNames(themes: Readonly<Record<string, Theme | undefined>>): string[] {
   const encoder = new TextEncoder();
 
   return Object.keys(themes).sort((left, right) => {

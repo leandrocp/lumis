@@ -378,10 +378,12 @@ function parseLanguagePackageValue(value: unknown, expectedPackageName: string):
     return invalidLanguagePackage(expectedPackageName);
   }
 
-  const languages: Record<string, PackagedLanguage> = Object.create(null);
-  for (const id of Object.keys(languagesValue)) {
-    languages[id] = parsePackagedLanguage(property(languagesValue, id), expectedPackageName);
-  }
+  const entries = Object.keys(languagesValue).map((id): [string, PackagedLanguage] => [
+    id,
+    parsePackagedLanguage(property(languagesValue, id), expectedPackageName),
+  ]);
+  const languages: Record<string, PackagedLanguage> = Object.fromEntries(entries);
+  Object.setPrototypeOf(languages, null);
   if (Object.keys(languages).length === 0) return invalidLanguagePackage(expectedPackageName);
 
   return {
@@ -510,7 +512,7 @@ function packagedLanguage(
 
 let treeSitterPromise: Promise<typeof import("web-tree-sitter")> | undefined;
 
-async function loadTreeSitter() {
+async function loadTreeSitter(): Promise<typeof import("web-tree-sitter")> {
   treeSitterPromise ??= import("web-tree-sitter");
   return treeSitterPromise;
 }
@@ -967,7 +969,7 @@ export function compileHighlightConfig(
    * result.
    */
   function parseOffsetDeltas(deltas: PredicateStep[]): QueryCaptureOffset | undefined {
-    const values = [0, 0, 0, 0];
+    const values: [number, number, number, number] = [0, 0, 0, 0];
 
     for (const [index, delta] of deltas.slice(0, values.length).entries()) {
       let value: number | undefined;
@@ -982,10 +984,10 @@ export function compileHighlightConfig(
     }
 
     return {
-      startRow: values[0] as number,
-      startColumn: values[1] as number,
-      endRow: values[2] as number,
-      endColumn: values[3] as number,
+      startRow: values[0],
+      startColumn: values[1],
+      endRow: values[2],
+      endColumn: values[3],
     };
   }
 
@@ -1359,6 +1361,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       }
 
       const loaded: LoadedLanguage = {
+        kind: "wasm",
         definition: resolved.definition,
         parser,
         language,
@@ -1411,8 +1414,13 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     async initParser(): Promise<void> {
       this.sharedCache.parserInit ??= Promise.all([
         loadTreeSitter(),
-        runtime.parserInitOptions?.() ?? Promise.resolve(),
-      ]).then(([{ Parser }, initOptions]) => Parser.init(initOptions));
+        runtime.parserInitOptions?.() ?? Promise.resolve(undefined),
+      ]).then(
+        ([treeSitter, initOptions]: [
+          typeof import("web-tree-sitter"),
+          Parameters<typeof import("web-tree-sitter").Parser.init>[0],
+        ]) => treeSitter.Parser.init(initOptions),
+      );
       await this.sharedCache.parserInit;
     }
 
@@ -1475,7 +1483,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       const existing = this.loadedLanguages.get(PLAINTEXT_LANG_ID);
       if (existing) return existing;
 
-      const loaded = { definition } as LoadedLanguage;
+      const loaded: LoadedLanguage = { kind: "plaintext", definition };
       this.loadedLanguages.set(PLAINTEXT_LANG_ID, loaded);
       this.registerLanguage(definition);
       return loaded;
@@ -1487,8 +1495,11 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       options: { rainbowBrackets?: boolean; budget?: Budget } = {},
       report?: { budget?: BudgetExhausted },
     ): LumisHighlightEvent[] {
-      if (language.definition.id === PLAINTEXT_LANG_ID) {
+      if (language.kind === "plaintext") {
         return [{ type: "source", start: 0, end: encoder.encode(source).byteLength }];
+      }
+      if (language.kind === "native") {
+        throw new Error("Native languages cannot be highlighted by the WebAssembly runtime");
       }
       if (options.rainbowBrackets && !language.brackets) {
         const compile = this.bracketCompilers.get(language);

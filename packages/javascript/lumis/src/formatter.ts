@@ -10,7 +10,7 @@ import type {
   HtmlMultiThemesOptions,
   HtmlMultiThemesFormatter,
 } from "./types.js";
-import { builtinFormatterKind, markBuiltinFormatter } from "./core/builtin-formatter.js";
+import { getBuiltinFormatter, markBuiltinFormatter } from "./core/builtin-formatter.js";
 import { layerAttrs } from "./core/attr-merge.js";
 import { formatBBCode } from "./formatter/bbcode.js";
 import { formatHtmlInline } from "./formatter/html-inline.js";
@@ -37,7 +37,7 @@ export function htmlInline(options: HtmlInlineOptions = {}): HtmlInlineFormatter
       return formatHtmlInline(source, events, formatter, budget);
     },
   };
-  return markBuiltinFormatter(formatter, "html-inline");
+  return markBuiltinFormatter({ kind: "html-inline", formatter });
 }
 
 /**
@@ -60,7 +60,7 @@ export function htmlLinked(options: HtmlLinkedOptions = {}): HtmlLinkedFormatter
       return formatHtmlLinked(source, events, formatter, budget);
     },
   };
-  return markBuiltinFormatter(formatter, "html-linked");
+  return markBuiltinFormatter({ kind: "html-linked", formatter });
 }
 
 /**
@@ -127,7 +127,7 @@ export function htmlMultiThemes(options: HtmlMultiThemesOptions): HtmlMultiTheme
       return formatHtmlMultiThemes(source, events, formatter, budget);
     },
   };
-  return markBuiltinFormatter(formatter, "html-multi-themes");
+  return markBuiltinFormatter({ kind: "html-multi-themes", formatter });
 }
 
 /**
@@ -150,7 +150,7 @@ export function bbcodeScoped(options: BBCodeScopedOptions = {}): BBCodeScopedFor
       return formatBBCode(source, events, formatter);
     },
   };
-  return markBuiltinFormatter(formatter, "bbcode-scoped");
+  return markBuiltinFormatter({ kind: "bbcode-scoped", formatter });
 }
 
 /** Attributes {@link withAttrs} layers onto a formatter. */
@@ -179,6 +179,8 @@ export interface FormatterAttrs {
  *
  * Returns the formatter untouched when it is not a built-in HTML one, since
  * there is no attribute contract to honour on a custom `render`.
+ * Rebuilt HTML formatters have the factory's return type; narrower attribute
+ * or render types attached to the original cannot be preserved by a rebuild.
  *
  * @example
  * ```ts
@@ -189,37 +191,37 @@ export interface FormatterAttrs {
  * // base is unchanged
  * ```
  */
-export function withAttrs<T extends Formatter>(formatter: T, attrs: FormatterAttrs): T {
-  const current = formatter as Formatter & FormatterAttrs;
-  const preAttrs = layerAttrs(current.preAttrs, attrs.preAttrs);
-  const codeAttrs = layerAttrs(current.codeAttrs, attrs.codeAttrs);
+export function withAttrs<T extends Formatter>(
+  formatter: T,
+  attrs: FormatterAttrs,
+): T | HtmlInlineFormatter | HtmlLinkedFormatter | HtmlMultiThemesFormatter {
+  const builtin = getBuiltinFormatter(formatter);
+  if (!builtin) return formatter;
 
-  // `render` closes over the formatter it was built with, so the derived one
-  // has to come back through the factory rather than out of a spread. Each
-  // factory writes its own `render` after spreading what it is given, so the
-  // stale one carried in here is replaced rather than inherited.
-  switch (builtinFormatterKind(formatter)) {
+  // Rebuild through the matching factory so render closes over the derived
+  // options. Its result is a built-in formatter, not an arbitrary subtype T
+  // whose render method or attribute values may have narrower types.
+  switch (builtin.kind) {
     case "html-inline":
       return htmlInline({
-        ...(formatter as unknown as HtmlInlineOptions),
-        preAttrs,
-        codeAttrs,
-      }) as unknown as T;
+        ...builtin.formatter,
+        preAttrs: layerAttrs(builtin.formatter.preAttrs, attrs.preAttrs),
+        codeAttrs: layerAttrs(builtin.formatter.codeAttrs, attrs.codeAttrs),
+      });
     case "html-linked":
       return htmlLinked({
-        ...(formatter as unknown as HtmlLinkedOptions),
-        preAttrs,
-        codeAttrs,
-      }) as unknown as T;
+        ...builtin.formatter,
+        preAttrs: layerAttrs(builtin.formatter.preAttrs, attrs.preAttrs),
+        codeAttrs: layerAttrs(builtin.formatter.codeAttrs, attrs.codeAttrs),
+      });
     case "html-multi-themes":
       return htmlMultiThemes({
-        ...(formatter as unknown as HtmlMultiThemesOptions),
-        preAttrs,
-        codeAttrs,
-      }) as unknown as T;
+        ...builtin.formatter,
+        preAttrs: layerAttrs(builtin.formatter.preAttrs, attrs.preAttrs),
+        codeAttrs: layerAttrs(builtin.formatter.codeAttrs, attrs.codeAttrs),
+      });
     case "bbcode-scoped":
     case "terminal":
-    case undefined:
       break;
   }
   return formatter;

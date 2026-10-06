@@ -102,7 +102,7 @@ async function readIndexedDb(key: string): Promise<Uint8Array | undefined> {
       .objectStore(WASM_DATABASE_STORE)
       .get(key);
     request.onsuccess = () => {
-      const result = request.result;
+      const result: unknown = request.result;
       resolve(result instanceof ArrayBuffer ? new Uint8Array(result) : undefined);
     };
     request.onerror = () => resolve(undefined);

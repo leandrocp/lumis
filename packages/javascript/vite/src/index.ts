@@ -10,7 +10,6 @@ export type VitePluginLumisOptions = RehypeLumisOptions;
 
 type Tree = ReturnType<typeof fromHtml>;
 type Pre = Extract<Tree["children"][number], { tagName: string }>;
-type Template = Pre & { content?: Tree };
 
 interface Block {
   start: number;
@@ -38,7 +37,7 @@ function findBlocks(tree: Tree): Block[] {
   function collect(root: Tree) {
     visit(root, "element", (node) => {
       if (node.tagName === "template") {
-        const content = (node as Template).content;
+        const content = node.content;
         if (content?.type === "root") collect(content);
       }
 

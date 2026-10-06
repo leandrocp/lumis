@@ -7,6 +7,7 @@ import { LANGUAGE_PACKAGE_NAMES } from "../generated/language-packages.js";
 import { loadNativeBinding } from "../native-binding.js";
 import treeSitterWasmBinary from "../tree-sitter-wasm.js";
 import type { LanguageInfo } from "../types.js";
+import { importNodeBuiltin } from "./node-builtins.js";
 import {
   isUrlString,
   readCachedWasm,
@@ -14,11 +15,6 @@ import {
   withWasmCacheLock,
   writeCachedWasm,
 } from "./node-cache.js";
-
-// oxlint-disable-next-line no-useless-concat -- keeps a bundler from resolving the specifier statically.
-const nodeFsPromises = "node:fs" + "/promises";
-const nodePath = "node:path";
-const nodeUrl = "node:url";
 
 const BUNDLE_PACKAGE_NAMES = Object.keys(BUNDLES).map((name) => `@lumis-sh/wasm-bundle-${name}`);
 
@@ -47,15 +43,29 @@ function findPackage(
 }
 
 async function wasmDependencies(packageJson: string): Promise<string[]> {
-  const { readFile } = await import(nodeFsPromises);
+  const { readFile } = await importNodeBuiltin("node:fs/promises");
   try {
-    const { dependencies = {} } = JSON.parse(await readFile(packageJson, "utf8")) as {
-      dependencies?: Record<string, string>;
-    };
-    return Object.keys(dependencies).filter((name) => name.startsWith("@lumis-sh/wasm-"));
+    const manifest: unknown = JSON.parse(await readFile(packageJson, "utf8"));
+    return wasmDependencyNames(manifest);
   } catch {
     return [];
   }
+}
+
+function wasmDependencyNames(manifest: unknown): string[] {
+  if (typeof manifest !== "object" || manifest === null || !("dependencies" in manifest)) {
+    return [];
+  }
+
+  const dependencies = manifest.dependencies;
+  if (typeof dependencies !== "object" || dependencies === null || Array.isArray(dependencies)) {
+    return [];
+  }
+
+  const entries: [string, unknown][] = Object.entries(dependencies);
+  return entries.flatMap(([name, version]) =>
+    name.startsWith("@lumis-sh/wasm-") && typeof version === "string" ? [name] : [],
+  );
 }
 
 /**
@@ -72,8 +82,8 @@ async function resolveInstalledManifests(
   packageNames: readonly string[],
 ): Promise<Map<string, URL>> {
   const { createRequire } = await import("node:module");
-  const { pathToFileURL } = await import(nodeUrl);
-  const { dirname, join } = await import(nodePath);
+  const { pathToFileURL } = await importNodeBuiltin("node:url");
+  const { dirname, join } = await importNodeBuiltin("node:path");
   const wanted = new Set(packageNames);
   const manifests = new Map<string, URL>();
   // By directory rather than name: an old copy without a manifest, found
@@ -111,7 +121,7 @@ export const nodeRuntime: RuntimeEnvironment = {
   async resolveWasm(wasm) {
     if (wasm instanceof URL) {
       if (wasm.protocol === "file:") {
-        const { fileURLToPath } = await import(nodeUrl);
+        const { fileURLToPath } = await importNodeBuiltin("node:url");
         return fileURLToPath(wasm);
       }
       return wasm.href;
@@ -145,21 +155,21 @@ export const nodeRuntime: RuntimeEnvironment = {
   },
 
   async readResolvedWasmFromDisk(source) {
-    const { isAbsolute } = await import(nodePath);
+    const { isAbsolute } = await importNodeBuiltin("node:path");
     let data: Uint8Array | undefined;
 
     if (source instanceof URL) {
       if (source.protocol === "file:") {
-        const { fileURLToPath } = await import(nodeUrl);
-        data = new Uint8Array(await (await import(nodeFsPromises)).readFile(fileURLToPath(source)));
+        const { fileURLToPath } = await importNodeBuiltin("node:url");
+        const { readFile } = await importNodeBuiltin("node:fs/promises");
+        data = new Uint8Array(await readFile(fileURLToPath(source)));
       }
     } else if (source.startsWith("file://")) {
-      const { fileURLToPath } = await import(nodeUrl);
-      data = new Uint8Array(
-        await (await import(nodeFsPromises)).readFile(fileURLToPath(new URL(source))),
-      );
+      const { fileURLToPath } = await importNodeBuiltin("node:url");
+      const { readFile } = await importNodeBuiltin("node:fs/promises");
+      data = new Uint8Array(await readFile(fileURLToPath(new URL(source))));
     } else if (!isUrlString(source)) {
-      const { readFile } = await import(nodeFsPromises);
+      const { readFile } = await importNodeBuiltin("node:fs/promises");
       try {
         data = new Uint8Array(await readFile(source));
       } catch {

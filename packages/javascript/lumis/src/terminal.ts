@@ -9,7 +9,7 @@ export function terminal(options: TerminalOptions = {}): TerminalFormatter {
       return formatTerminal(source, events, formatter);
     },
   };
-  return markBuiltinFormatter(formatter, "terminal");
+  return markBuiltinFormatter({ kind: "terminal", formatter });
 }
 
 export type { TerminalFormatter, TerminalOptions } from "./types.js";

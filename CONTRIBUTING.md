@@ -270,11 +270,19 @@ type safety, accessibility and meaningful test checks.
 
 Keep repository-wide exceptions and unfinished migrations in the central
 config, with their reason. Counts measure the work to migrate; they do not
-justify rejecting a useful safety rule. Unsafe TypeScript boundaries, non-null
+justify rejecting a useful safety rule. Production JavaScript package sources
+enforce the six unsafe-operation checks, including narrowing type assertions.
+Tests, tooling and site code still need that boundary migration; non-null
 assertions, ambiguous truthiness and readonly inputs remain separate migrations.
 Validate external values before passing them inward, and preserve intentional
 mutable parser/DOM/buffer contracts with narrow exceptions. Do not make a check
 green by adding unchecked casts or weakening types.
+
+Use domain types for internal data and discriminated unions for distinct runtime
+states. Keep `unknown` at untrusted input and error boundaries until it is
+validated; `any` and double assertions discard those checks. Keep `undefined`
+where absence is meaningful, such as optional options or an unsuccessful lookup.
+Removing its spelling by substituting `null` does not improve type safety.
 
 TypeScript's type-aware rules cannot run from the repo root, because they need
 each package's `tsconfig.json` and its built dependencies. The per-package

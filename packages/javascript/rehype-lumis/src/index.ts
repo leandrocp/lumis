@@ -24,11 +24,11 @@ interface ParsedCodeBlock {
   trailingChildren: ElementContent[];
 }
 
-function getPropertyString(value: unknown): string | undefined {
+function getPropertyString(value: Properties[keyof Properties]): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
-function propertyClassNames(value: unknown): string[] {
+function propertyClassNames(value: Properties[keyof Properties]): string[] {
   if (typeof value === "string") {
     return value.split(/\s+/u).filter(Boolean);
   }
@@ -90,7 +90,10 @@ function parseFragment(html: string): RootContent[] {
  * owns that mapping, including how a list-valued property is joined, so this
  * does not have a table of its own.
  */
-function propertyToAttr(name: string, value: Properties[string]): [string, HtmlAttrs[string]] {
+function propertyToAttr(
+  name: string,
+  value: Properties[keyof Properties],
+): [string, HtmlAttrs[string]] {
   const info = find(htmlSchema, name);
 
   if (Array.isArray(value)) {

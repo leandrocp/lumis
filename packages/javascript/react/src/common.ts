@@ -1,5 +1,5 @@
 import type { Formatter } from "@lumis-sh/lumis/formatters";
-import type { ReactNode } from "react";
+import { isValidElement, type ReactNode } from "react";
 import { fromHtml } from "hast-util-from-html";
 import { toJsxRuntime } from "hast-util-to-jsx-runtime";
 import { Fragment } from "react";
@@ -24,9 +24,17 @@ export function getLanguageId(language: Formatter["language"]): string | undefin
 
 export function toReactNode(html: string): ReactNode {
   const tree = fromHtml(html, { fragment: true });
-  return toJsxRuntime(tree, {
+  // The upstream HAST helper's global JSX.Element declaration does not establish React's element contract.
+  // Validate its output before exposing it as a ReactNode.
+  const node: unknown = toJsxRuntime(tree, {
     Fragment,
     jsx,
     jsxs,
-  }) as ReactNode;
+  });
+
+  if (!isValidElement(node)) {
+    throw new TypeError("Expected highlighted HTML to produce a React element");
+  }
+
+  return node;
 }
