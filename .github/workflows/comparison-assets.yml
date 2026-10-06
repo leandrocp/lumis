@@ -86,9 +86,13 @@ jobs:
           cache: true
       - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32
         with:
-          workspaces: |
-            .
-            benchmarks/rust
+          # mise puts the CLI, addon and NIF builds in this shared target.
+          # Cache it once: rust-cache prunes each target to its workspace's
+          # dependencies, so mapping both workspaces here would prune it twice.
+          prefix-key: comparison-rust-v1
+          workspaces: . -> target/benchmarks/rust-target
+          # A stale gallery must not discard a successful dependency build.
+          cache-on-failure: true
       - name: Regenerate the published comparison
         run: mise run -C benchmarks showcase-publish
       - name: Fail if the committed assets are stale
