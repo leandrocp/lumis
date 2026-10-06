@@ -61,7 +61,7 @@ define_catalog! {
             package_name: "@lumis-sh/wasm-csv"
         },
         "dart" => {
-            aliases: [],
+            aliases: ["flutter"],
             package_name: "@lumis-sh/wasm-dart"
         },
         "diff" => {
@@ -113,7 +113,7 @@ define_catalog! {
             package_name: "@lumis-sh/wasm-glimmer"
         },
         "go" => {
-            aliases: [],
+            aliases: ["golang"],
             package_name: "@lumis-sh/wasm-go"
         },
         "graphql" => {
