@@ -69,14 +69,29 @@ and cache behavior as `lumis highlight`. See the
 
 ## Theme selection
 
-When `--theme` is omitted, Lumis uses `[highlight].theme` from its config file. On macOS and Linux, the default path is `${XDG_CONFIG_HOME:-~/.config}/lumis/config.toml`; on Windows it is `%XDG_CONFIG_HOME%/lumis/config.toml`, or `%APPDATA%/lumis/config.toml` when XDG is unset. The default value, `auto`, queries the terminal background and chooses the built-in theme with the closest background color.
+When `--theme` is omitted, Lumis uses `[highlight].theme` from its config file. On macOS and Linux, the default path is `${XDG_CONFIG_HOME:-~/.config}/lumis/config.toml`; on Windows it is `%XDG_CONFIG_HOME%/lumis/config.toml`, or `%APPDATA%/lumis/config.toml` when XDG is unset. The default value is `auto`.
 
 ```toml
 [highlight]
 theme = "auto"
 ```
 
-If terminal color detection is unavailable, Lumis renders without a theme. An explicit `--theme` takes precedence. Set `XDG_CONFIG_HOME`, `LUMIS_CONFIG`, or `--config` to use a different config location.
+For terminal output, `auto` asks for the background, foreground and ANSI accent colors in one exchange. It chooses a light or dark theme from the foreground against the background, or from background lightness if only the background is available. Monochrome themes and themes with poor default text contrast are excluded.
+
+The closest backgrounds are considered first. Within a small background tolerance, the foreground and then the ANSI accents distinguish similar themes. This can recognize a theme whose background has been changed slightly, but cannot identify every terminal theme. Use an explicit `--theme` when you want a particular one, including a monochrome theme.
+
+If the terminal reports no background, does not answer within one second, or has no close match, Lumis renders without a theme and explains why on stderr. Partial replies still work: foreground and ANSI colors are optional.
+
+A terminal reply that arrives after Lumis exits can appear as text at the shell prompt. Set a theme explicitly if this happens; an explicit theme skips the terminal query.
+
+Automatic selection only queries when stdout is a terminal and the formatter is `terminal`. Pipes, redirected output and HTML output render without a theme and print the reason on stderr. For colored output through a pager or styled HTML, select a theme explicitly:
+
+```sh
+lumis highlight main.rs --theme dracula | less -R
+lumis highlight main.rs --formatter html-inline --theme github_light > main.html
+```
+
+An explicit `--theme` takes precedence over the config file. Set `XDG_CONFIG_HOME`, `LUMIS_CONFIG`, or `--config` to use a different config location.
 
 ## Parser cache lifecycle
 

@@ -14,6 +14,7 @@ on:
       - "Cargo.toml"
       - "crates/**"
       - "fixtures/formatter-options.json"
+      - "fixtures/theme-choice-*.json"
       - "languages.toml"
       - "queries/**"
       - "mise.toml"
@@ -29,6 +30,7 @@ on:
       - "Cargo.toml"
       - "crates/**"
       - "fixtures/formatter-options.json"
+      - "fixtures/theme-choice-*.json"
       - "languages.toml"
       - "queries/**"
       - "mise.toml"
@@ -82,7 +84,7 @@ jobs:
       msrv: '1.95'
       manifest-path: 'crates/lumis-cli/Cargo.toml'
       test-stage: ${{ github.event_name == 'pull_request' && 'stable' || 'all' }}
-      stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '["ubuntu-22.04", "windows-2022", "macos-14"]' }}
+      stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04", "windows-2022"]' || '["ubuntu-22.04", "windows-2022", "macos-14"]' }}
   test-lumis-wasm-runtime:
     if: >-
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&

@@ -7,6 +7,26 @@ use std::path::PathBuf;
 
 mod common;
 
+#[cfg(unix)]
+#[test]
+fn auto_theme_in_a_pseudoterminal() {
+    let output = std::process::Command::new("python3")
+        .arg(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/terminal_colors.py"
+        ))
+        .arg(assert_cmd::cargo::cargo_bin!("lumis"))
+        .arg(common::data_dir())
+        .output()
+        .expect("python3 is required for the terminal integration tests");
+    assert!(
+        output.status.success(),
+        "{}\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
 fn cmd() -> assert_cmd::Command {
     let mut command = cargo_bin_cmd!("lumis");
     command.env(
@@ -963,7 +983,10 @@ fn highlight_auto_renders_without_theme_when_detection_is_unavailable() {
         .write_stdin(DIFF_SNIPPET)
         .assert()
         .success()
-        .stdout(predicate::str::contains("\u{1b}[").not());
+        .stdout(predicate::str::contains("\u{1b}[").not())
+        .stderr(predicate::str::contains(
+            "theme: auto unavailable (stdout is not a terminal)",
+        ));
 }
 
 #[test]
@@ -985,7 +1008,9 @@ fn highlight_verbose_reports_unavailable_auto_theme() {
         .stderr(predicate::str::contains("--\nlanguage: diff"))
         .stderr(predicate::str::contains("language: diff"))
         .stderr(predicate::str::contains("theme: auto unavailable"))
-        .stderr(predicate::str::contains("theme: auto unavailable\n--\n\n"));
+        .stderr(predicate::str::contains(
+            "use --theme <name> to choose one\n--\n\n",
+        ));
 }
 
 #[test]

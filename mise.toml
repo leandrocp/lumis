@@ -187,6 +187,16 @@ echo "Running Javascript tests..."
 mise run test-javascript
 '''
 
+[tasks.'test-theme-choice']
+description = "Test automatic theme selection and terminal color queries"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cargo test -p lumis-core themes::choice
+cargo test -p lumis-cli terminal_colors::tests
+cargo test -p lumis-cli --test cli auto_theme_in_a_pseudoterminal
+'''
+
 [tasks.'qa-html-lines']
 description = "Capture and compare HTML line screenshots across every in-repo runtime"
 depends = ["stage-test-parsers"]

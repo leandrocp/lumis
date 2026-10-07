@@ -117,6 +117,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3d036a3c4ab069c7b410a2ce876bd74808d2d0888a82667669f8e783a898bf1"
 
 [[package]]
+name = "arrayvec"
+version = "0.7.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
+
+[[package]]
 name = "assert_cmd"
 version = "2.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1522,16 +1528,20 @@ dependencies = [
  "lumis-core",
  "lumis-wasm-runtime",
  "predicates",
+ "rustix",
  "serde",
  "serde_json",
  "streaming-iterator",
  "tempfile",
- "terminal-colorsaurus",
+ "terminal-trx",
  "terminal_size",
  "thiserror 2.0.21",
  "toml 1.1.6+spec-1.1.0",
  "tree-sitter",
+ "vte",
  "wasmtime",
+ "windows-sys 0.61.2",
+ "xterm-color",
 ]
 
 [[package]]
@@ -2778,21 +2788,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "terminal-colorsaurus"
-version = "1.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a46bb5364467da040298c573c8a95dbf9a512efc039630409a03126e3703e90"
-dependencies = [
- "cfg-if",
- "libc",
- "memchr",
- "mio",
- "terminal-trx",
- "windows-sys 0.61.2",
- "xterm-color",
-]
-
-[[package]]
 name = "terminal-trx"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3794,6 +3789,16 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+
+[[package]]
+name = "vte"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a5924018406ce0063cd67f8e008104968b74b563ee1b85dde3ed1f7cb87d3dbd"
+dependencies = [
+ "arrayvec",
+ "memchr",
+]
 
 [[package]]
 name = "vtparse"

@@ -2,6 +2,7 @@ mod config;
 mod formatter_options;
 mod gen_theme;
 mod registry;
+mod terminal_colors;
 
 use anyhow::Result;
 use clap::{ArgAction, CommandFactory, Parser, Subcommand, ValueEnum};
@@ -10,7 +11,6 @@ use formatter_options::{
     OPTSET_TERMINAL,
 };
 use lumis_core::events::HighlightEvent as CoreHighlightEvent;
-use lumis_core::formatter::ansi::hex_to_rgb;
 use lumis_core::formatter::BudgetExhausted;
 use lumis_core::formatter::Formatter as CoreFormatter;
 use lumis_core::formatter::TerminalBackground;
@@ -802,7 +802,7 @@ fn show_language(name: &str) -> Result<()> {
 }
 
 fn show_theme(name: &str, data_dir: &Path) -> Result<()> {
-    let theme = resolve_theme(Some(name.to_string()), Some(data_dir), false)
+    let theme = resolve_theme(Some(name.to_string()), Some(data_dir), false, false)
         .ok_or_else(|| anyhow::anyhow!("unknown theme: {name}"))?;
 
     println!("{}: {}\n", theme.name, theme.appearance);
@@ -817,7 +817,7 @@ fn show_theme(name: &str, data_dir: &Path) -> Result<()> {
 }
 
 fn build_theme_css(args: ThemeCssArgs, data_dir: &Path) -> Result<()> {
-    let theme = resolve_theme(Some(args.theme.clone()), Some(data_dir), false)
+    let theme = resolve_theme(Some(args.theme.clone()), Some(data_dir), false, false)
         .ok_or_else(|| anyhow::anyhow!("unknown theme: {}", args.theme))?;
     let css = lumis_core::themes::CssBuilder::new(&theme)
         .layout(!args.no_layout)
@@ -1003,18 +1003,16 @@ fn resolve_theme(
     name: Option<String>,
     data_dir: Option<&Path>,
     verbose: bool,
+    terminal_output: bool,
 ) -> Option<lumis_core::themes::Theme> {
     let name = match name.as_deref() {
-        None | Some("auto") => {
-            if let Some(name) = guess_terminal_theme() {
-                name
-            } else {
-                if verbose {
-                    eprintln!("theme: auto unavailable");
-                }
+        None | Some("auto") => match guess_terminal_theme(terminal_output) {
+            Ok(theme) => theme.name.clone(),
+            Err(reason) => {
+                eprintln!("theme: auto unavailable ({reason}); rendering without a theme; use --theme <name> to choose one");
                 return None;
             }
-        }
+        },
         Some(name) => name.to_string(),
     };
 
@@ -1044,35 +1042,16 @@ fn resolve_theme(
     None
 }
 
-fn guess_terminal_theme() -> Option<String> {
-    let background =
-        terminal_colorsaurus::background_color(terminal_colorsaurus::QueryOptions::default())
-            .ok()?
-            .scale_to_8bit();
-
-    closest_builtin_theme(background)
-}
-
-fn closest_builtin_theme(background: (u8, u8, u8)) -> Option<String> {
-    lumis_core::themes::available_themes()
-        .filter_map(|theme| {
-            let theme_background = theme.bg().and_then(hex_to_rgb)?;
-            Some((color_distance(background, theme_background), &theme.name))
-        })
-        .min_by_key(|(distance, _)| *distance)
-        .map(|(_, name)| name.clone())
-}
-
-// Redmean color distance weights RGB channels based on human perception.
-fn color_distance(left: (u8, u8, u8), right: (u8, u8, u8)) -> u64 {
-    let red_mean = u64::midpoint(u64::from(left.0), u64::from(right.0));
-    let red = i64::from(left.0) - i64::from(right.0);
-    let green = i64::from(left.1) - i64::from(right.1);
-    let blue = i64::from(left.2) - i64::from(right.2);
-
-    (((512 + red_mean) * red.unsigned_abs().pow(2)) >> 8)
-        + 4 * green.unsigned_abs().pow(2)
-        + (((767 - red_mean) * blue.unsigned_abs().pow(2)) >> 8)
+fn guess_terminal_theme(terminal_output: bool) -> Result<&'static lumis_core::themes::Theme> {
+    if !terminal_output {
+        anyhow::bail!("automatic selection is only available for terminal output");
+    }
+    if !std::io::stdout().is_terminal() {
+        anyhow::bail!("stdout is not a terminal");
+    }
+    let colors = terminal_colors::query()?;
+    lumis_core::themes::choose_theme(&colors)
+        .ok_or_else(|| anyhow::anyhow!("no suitable built-in theme matches the terminal colors"))
 }
 
 fn read_source(path: Option<String>, language: Option<String>) -> Result<(String, Language)> {
@@ -1833,8 +1812,13 @@ fn render_html_multi_themes(
         }
         let theme_name = parts[0];
         let theme_id = parts[1];
-        let theme = resolve_theme(Some(theme_id.to_string()), Some(reg.data_dir()), verbose)
-            .ok_or_else(|| anyhow::anyhow!("Theme '{theme_id}' not found"))?;
+        let theme = resolve_theme(
+            Some(theme_id.to_string()),
+            Some(reg.data_dir()),
+            verbose,
+            false,
+        )
+        .ok_or_else(|| anyhow::anyhow!("Theme '{theme_id}' not found"))?;
         theme_map.insert(theme_name.to_string(), theme);
     }
 
@@ -1918,7 +1902,7 @@ fn render_output(
 
     match chosen {
         Formatter::HtmlInline => {
-            let theme_obj = resolve_theme(theme.clone(), Some(reg.data_dir()), verbose);
+            let theme_obj = resolve_theme(theme.clone(), Some(reg.data_dir()), verbose, false);
             print_verbose_separator(verbose);
             let mut builder = lumis_core::formatter::HtmlInlineBuilder::new();
             builder
@@ -1984,7 +1968,7 @@ fn render_output(
         }
 
         Formatter::Terminal => {
-            let theme_obj = resolve_theme(theme.clone(), Some(reg.data_dir()), verbose);
+            let theme_obj = resolve_theme(theme.clone(), Some(reg.data_dir()), verbose, true);
             print_verbose_separator(verbose);
             let mut builder = lumis_core::formatter::TerminalBuilder::new();
             builder
@@ -2260,14 +2244,6 @@ mod tests {
             event,
             HighlightEvent::Start { language, .. } if language == "javascript"
         )));
-    }
-
-    #[test]
-    fn closest_builtin_theme_matches_exact_background() {
-        assert_eq!(
-            closest_builtin_theme((0x22, 0x24, 0x36)).as_deref(),
-            Some("tokyonight_moon")
-        );
     }
 
     #[test]

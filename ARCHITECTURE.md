@@ -83,6 +83,13 @@ stylesheets keep it. The layout rules are documented in
 [CSS theme files](docs/content/themes/css-files.mdx#line-layout) and the line
 helpers in [custom formatters](docs/content/formatters/custom.mdx).
 
+## Automatic terminal theme choice
+
+Automatic terminal theme choice lives in `lumis-core::themes::choose_theme`.
+The CLI gathers background, foreground and ANSI accent colors in one terminal
+exchange and passes those observations to the core. The selection rule is
+pinned by `fixtures/theme-choice-cases.json`; it does not depend on terminal I/O.
+
 ## Website rendering
 
 `website/` builds static HTML for the home, comparison, and showcase pages.

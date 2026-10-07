@@ -1,0 +1,244 @@
+[
+  {
+    "name": "black-background",
+    "background": "#000000",
+    "foreground": null,
+    "ansi": null,
+    "expected": "modus_vivendi"
+  },
+  {
+    "name": "near-black-background",
+    "background": "#0a0a0a",
+    "foreground": null,
+    "ansi": null,
+    "expected": "moonfly"
+  },
+  {
+    "name": "tokyonight-night-background-tie",
+    "background": "#1a1b26",
+    "foreground": null,
+    "ansi": null,
+    "expected": "tokyobones_dark"
+  },
+  {
+    "name": "tokyonight-moon-background",
+    "background": "#222436",
+    "foreground": null,
+    "ansi": null,
+    "expected": "tokyonight_moon"
+  },
+  {
+    "name": "grey-no-close-match",
+    "background": "#666666",
+    "foreground": null,
+    "ansi": null,
+    "expected": null
+  },
+  {
+    "name": "blue-no-close-match",
+    "background": "#0099ff",
+    "foreground": null,
+    "ansi": null,
+    "expected": null
+  },
+  {
+    "name": "solarized-background-tie",
+    "background": "#fdf6e3",
+    "foreground": null,
+    "ansi": null,
+    "expected": "everforest_light"
+  },
+  {
+    "name": "white-background-tie",
+    "background": "#ffffff",
+    "foreground": null,
+    "ansi": null,
+    "expected": "adwaita_light"
+  },
+  {
+    "name": "no-background",
+    "background": null,
+    "foreground": null,
+    "ansi": null,
+    "expected": null
+  },
+  {
+    "name": "black-foreground",
+    "background": "#000000",
+    "foreground": "#c9c7cd",
+    "ansi": null,
+    "expected": "oldworld_oled"
+  },
+  {
+    "name": "tokyonight-night-palette",
+    "background": "#1a1b26",
+    "foreground": "#c0caf5",
+    "ansi": [
+      "#15161e",
+      "#f7768e",
+      "#9ece6a",
+      "#e0af68",
+      "#7aa2f7",
+      "#bb9af7",
+      "#7dcfff",
+      "#a9b1d6",
+      "#414868",
+      "#f7768e",
+      "#9ece6a",
+      "#e0af68",
+      "#7aa2f7",
+      "#bb9af7",
+      "#7dcfff",
+      "#c0caf5"
+    ],
+    "expected": "tokyonight_night"
+  },
+  {
+    "name": "tokyonight-moon-palette",
+    "background": "#222436",
+    "foreground": "#c8d3f5",
+    "ansi": [
+      "#1b1d2b",
+      "#ff757f",
+      "#c3e88d",
+      "#ffc777",
+      "#82aaff",
+      "#c099ff",
+      "#86e1fc",
+      "#828bb8",
+      "#444a73",
+      "#ff757f",
+      "#c3e88d",
+      "#ffc777",
+      "#82aaff",
+      "#c099ff",
+      "#86e1fc",
+      "#c8d3f5"
+    ],
+    "expected": "tokyonight_moon"
+  },
+  {
+    "name": "tokyonight-moon-darker-background",
+    "background": "#1e2030",
+    "foreground": "#c8d3f5",
+    "ansi": [
+      "#1b1d2b",
+      "#ff757f",
+      "#c3e88d",
+      "#ffc777",
+      "#82aaff",
+      "#c099ff",
+      "#86e1fc",
+      "#828bb8",
+      "#444a73",
+      "#ff757f",
+      "#c3e88d",
+      "#ffc777",
+      "#82aaff",
+      "#c099ff",
+      "#86e1fc",
+      "#c8d3f5"
+    ],
+    "expected": "tokyonight_moon"
+  },
+  {
+    "name": "solarized-light-palette",
+    "background": "#fdf6e3",
+    "foreground": "#657b83",
+    "ansi": [
+      "#073642",
+      "#dc322f",
+      "#859900",
+      "#b58900",
+      "#268bd2",
+      "#d33682",
+      "#2aa198",
+      "#eee8d5",
+      "#002b36",
+      "#cb4b16",
+      "#586e75",
+      "#657b83",
+      "#839496",
+      "#6c71c4",
+      "#93a1a1",
+      "#fdf6e3"
+    ],
+    "expected": "solarized_autumn_light"
+  },
+  {
+    "name": "white-foreground",
+    "background": "#ffffff",
+    "foreground": "#1f2328",
+    "ansi": null,
+    "expected": "github_light"
+  },
+  {
+    "name": "tokyonight-night-foreground-only",
+    "background": "#1a1b26",
+    "foreground": "#c0caf5",
+    "ansi": null,
+    "expected": "tokyobones_dark"
+  },
+  {
+    "name": "tokyonight-night-palette-only",
+    "background": "#1a1b26",
+    "foreground": null,
+    "ansi": [
+      "#15161e",
+      "#f7768e",
+      "#9ece6a",
+      "#e0af68",
+      "#7aa2f7",
+      "#bb9af7",
+      "#7dcfff",
+      "#a9b1d6",
+      "#414868",
+      "#f7768e",
+      "#9ece6a",
+      "#e0af68",
+      "#7aa2f7",
+      "#bb9af7",
+      "#7dcfff",
+      "#c0caf5"
+    ],
+    "expected": "tokyonight_night"
+  },
+  {
+    "name": "tokyonight-moon-darker-background-palette-only",
+    "background": "#1e2030",
+    "foreground": null,
+    "ansi": [
+      "#1b1d2b",
+      "#ff757f",
+      "#c3e88d",
+      "#ffc777",
+      "#82aaff",
+      "#c099ff",
+      "#86e1fc",
+      "#828bb8",
+      "#444a73",
+      "#ff757f",
+      "#c3e88d",
+      "#ffc777",
+      "#82aaff",
+      "#c099ff",
+      "#86e1fc",
+      "#c8d3f5"
+    ],
+    "expected": "tokyonight_moon"
+  },
+  {
+    "name": "foreground-without-background",
+    "background": null,
+    "foreground": "#ffffff",
+    "ansi": null,
+    "expected": null
+  },
+  {
+    "name": "dark-foreground-on-dark-background",
+    "background": "#1a1b26",
+    "foreground": "#101010",
+    "ansi": null,
+    "expected": null
+  }
+]
