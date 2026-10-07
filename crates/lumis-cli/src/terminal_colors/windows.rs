@@ -83,14 +83,15 @@ fn ascii_key(record: &INPUT_RECORD) -> Option<(u8, u16)> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs::OpenOptions;
     use std::os::windows::process::CommandExt;
     use std::process::{Command, Stdio};
     use std::time::Duration;
     use terminal_trx::ConsoleHandles;
     use windows_sys::Win32::System::Console::{
-        GetConsoleMode, SetConsoleMode, WriteConsoleInputW, ENABLE_VIRTUAL_TERMINAL_INPUT,
-        FOCUS_EVENT, INPUT_RECORD_0, KEY_EVENT_RECORD, KEY_EVENT_RECORD_0,
-        WINDOW_BUFFER_SIZE_EVENT,
+        GetConsoleMode, GetStdHandle, SetConsoleMode, SetStdHandle, WriteConsoleInputW,
+        ENABLE_VIRTUAL_TERMINAL_INPUT, FOCUS_EVENT, INPUT_RECORD_0, KEY_EVENT_RECORD,
+        KEY_EVENT_RECORD_0, STD_OUTPUT_HANDLE, WINDOW_BUFFER_SIZE_EVENT,
     };
     use windows_sys::Win32::System::Threading::CREATE_NO_WINDOW;
 
@@ -190,6 +191,29 @@ mod tests {
     }
 
     fn exercise_console() {
+        let output = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open("CONOUT$")
+            .unwrap();
+        // terminal-trx opens its fallback CONOUT$ with write access only, but
+        // GetConsoleMode requires read access. Supply a normal console stdout
+        // in this isolated child and keep stderr connected to the test harness.
+        // SAFETY: both handles stay open until stdout is restored, including on panic.
+        let original = unsafe { GetStdHandle(STD_OUTPUT_HANDLE) };
+        assert_ne!(
+            unsafe { SetStdHandle(STD_OUTPUT_HANDLE, output.as_raw_handle()) },
+            0
+        );
+        let result = std::panic::catch_unwind(check_console);
+        // SAFETY: original is still the live pipe handle owned by this process.
+        assert_ne!(unsafe { SetStdHandle(STD_OUTPUT_HANDLE, original) }, 0);
+        if let Err(panic) = result {
+            std::panic::resume_unwind(panic);
+        }
+    }
+
+    fn check_console() {
         let mut tty = terminal_trx::terminal().unwrap();
         let mut tty = tty.lock();
         let before = mode(tty.input_buffer_handle());
