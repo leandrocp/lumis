@@ -11,6 +11,9 @@ allowBuilds:
   core-js-pure: true
   esbuild: true
   sharp: true
+hoistPattern:
+  - '*'
+  - '!@lumis-sh/wasm-*'
 minimumReleaseAgeExclude:
   - '@lumis-sh/*'
   - '@shikijs/core@4.4.2'

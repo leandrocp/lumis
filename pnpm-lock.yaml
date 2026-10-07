@@ -179,9 +179,6 @@ importers:
       '@lumis-sh/themes':
         specifier: workspace:*
         version: link:../themes
-      '@lumis-sh/wasm-bundle-full':
-        specifier: ^0.1.4
-        version: 0.1.4(@lumis-sh/lumis@0.9.3)
       '@lumis-sh/wasm-json':
         specifier: 0.26.5
         version: 0.26.5(@lumis-sh/lumis@0.9.3)
@@ -969,38 +966,6 @@ packages:
     resolution: {integrity: sha512-413cMZON945rqxXpGVRZEtMfCdtTdOuuVpNzHiKe3cF/hwmMM5ukp1eo7jwRoT8m/aVPHH+jtcLIzNo3nvrPMQ==}
     engines: {node: '>=18'}
 
-  '@lumis-sh/wasm-angular@0.26.5':
-    resolution: {integrity: sha512-QXpkjLuM+q91vdslXD4m4UVr6Mmvc+2t8xtS7jVQmqIyQ2F3cy7NYrvJBCbnwR5LR4xx5WNDRePDL9peE4DA+A==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-arduino@0.26.3':
-    resolution: {integrity: sha512-8/6XyRusuwsYIWQ7oGCZP+HRTQ45UoTU0NTHw+kWrI6xa6H3RGMvaq9NHNoudNNtvHuZIR4gHAap3Ug09yNZLA==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-asm@0.26.4':
-    resolution: {integrity: sha512-28BPuX6Xt+2o8e46CVOGdR3YMforWnAiZ05PJK5VX+JqQYemR2iivR0KHdj6wJakbRQj1IAQa6BMcXDnHGH+Hw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-astro@0.26.3':
-    resolution: {integrity: sha512-MyZY5U9WJM9uGmr+lxLbpz9fGYVcUbgdMAP3dWItFGEzFEd/NG2U2YG6EMQ3I0R9uMqnZ112CxoEdrPkKr7aNg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
   '@lumis-sh/wasm-bash@0.26.6':
     resolution: {integrity: sha512-JEDmTIo+eAX4hVf6N6vhqq3Ks9qhDDCHG9Bytuf32aCqSEfavgnayt+2/0FciP+LCaYwA6laXum7kw+1yyRCCw==}
     peerDependencies:
@@ -1009,45 +974,8 @@ packages:
       '@lumis-sh/lumis':
         optional: true
 
-  '@lumis-sh/wasm-bicep@0.26.2':
-    resolution: {integrity: sha512-5tMRXLeu8zVA/plBvQwVgFW2xaCbUV5B/8Su2CReqqxXP5+kYLhYEteQgPkH4ZMlRD+ep+ybnmIh+yGnJzTZcg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-bundle-full@0.1.4':
-    resolution: {integrity: sha512-hZoWC2sOOzUeV4scFlFGdb7XMnWuHbalvJi+W2BL1EdKoUcy3RU/ySp7RwtlWh6jaDEcoFes13ycjK28HBcURQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-
   '@lumis-sh/wasm-c@0.26.3':
     resolution: {integrity: sha512-/h0OUB7eqhLJ7zqVlGDfkHpwDes5VIN+xyDDDmECHvwl8j6q6XBft639xobQUkOeIUOHcmOktERAQwKn81H+cw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-caddy@0.26.4':
-    resolution: {integrity: sha512-1IqjYSZQLmm+EMjAKjvEnjCj0219WzXhVZJskpgef5nOs2C/N5ZMlnib7px1bfMa1AofLjM89jDD3GFTgzW0aQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-clojure@0.26.3':
-    resolution: {integrity: sha512-pVhOyV6DwxH0ANi2dDmcUxG2tKJUWCyXFuXD83dhFRanLZfisNPQAEK0dCmBMn3g3FpoLg/BJTGKinOhS44ZNg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-cmake@0.26.5':
-    resolution: {integrity: sha512-M9cH9WZkr1TdbqXM3Ky/uLXsah+tAmdKcmVuOFSexIskMgDNI6TzyOC4J9v/WXmniG/3OIvkzIDzHNmtuaHpuQ==}
     peerDependencies:
       '@lumis-sh/lumis': '>=0.9.0'
     peerDependenciesMeta:
@@ -1062,56 +990,8 @@ packages:
       '@lumis-sh/lumis':
         optional: true
 
-  '@lumis-sh/wasm-commonlisp@0.26.4':
-    resolution: {integrity: sha512-yXzSSepDlY2YU3Trr8O2XXJ+dRt/GDYpLxdvxoSioFBTZG/zn8nDU+qeQvEyVzdcyXBdBJN2wekr0JDBBgwfmw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-cpp@0.26.2':
-    resolution: {integrity: sha512-gxYeZzsuRLqqtbwB+J9tmKUMWsjvVO8L9YNU+aw9ibnNXr/dv42NGfKe3lUV3RslYBJ3ghyj0xdBGNA/wNf53Q==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-csharp@0.26.3':
-    resolution: {integrity: sha512-zzBapVX+jVmAdLiw1frzFXp5PLF4cpHHo8mOIrAGNoxIbv0tXitmnV0IF/Mck5FZLxvoLZGV1O6JRFnuYCAd0Q==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
   '@lumis-sh/wasm-css@0.26.4':
     resolution: {integrity: sha512-ZgX7kOsiiXtu8ZkITUDVdQCPDFuxqioBUXWlWG4gr9WMx4IjNW3+bDRgGXxaVYnYi7uSJTIiF3xWQTwpNbZFIg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-csv@0.26.3':
-    resolution: {integrity: sha512-H1izSVGQq8tPAsFF/6oPS5QCFXB1lo4UlM6qmNT9E59XxcmFusHexSjZShx5Et7T95i5EuWfc6mHEUDKqyngvw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-d@0.26.3':
-    resolution: {integrity: sha512-c1d3tz+bljkSHnc7ZVlaBca4vmVNHZ4+ecLn6AuGuPYvo3Xq78aNZp6+mGzqWEs8Zhr8IX+L7KrFH7rRDwU8+Q==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-dart@0.26.5':
-    resolution: {integrity: sha512-gPS12XFKyjW6B6zOkumxBgh1wFpf1yKGic/9RTMAjJvNQg/TdS6sVtCqx4rJg1TMggZW0BlabBk4hzI5Q95+fg==}
     peerDependencies:
       '@lumis-sh/lumis': '>=0.9.0'
     peerDependenciesMeta:
@@ -1126,38 +1006,6 @@ packages:
       '@lumis-sh/lumis':
         optional: true
 
-  '@lumis-sh/wasm-dockerfile@0.26.3':
-    resolution: {integrity: sha512-DthYhCv2MxeLHxrrKQBSt80zkvEDdQfKpMOhoGvXMjfW6VINLhYPSf7fxHrrC9IwKe/4wfUFZNGj6wjIGqANoQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-dot@0.26.2':
-    resolution: {integrity: sha512-zcFcNXutxJEUl11fqT82TY2WTA697DJF93VQ/DKrvU451qv66tmGxZN42yGjAv1XSOfHFu4YVEpu+M4R8tP1kQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-editorconfig@0.26.3':
-    resolution: {integrity: sha512-zZHgcZg3K8D4DMFhNrAJN93lXu1BMNJEYXpTXS62ZFt4rJfysRy3eaaR/04W+rdaTizRmj/1ANNOAleA9e2Wsg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-eex@0.26.3':
-    resolution: {integrity: sha512-JWDSyrWvTMN2FHw/ZmrfYNfF5TxtR0P51riLDJzgiPh0Ed+TVvma8FAY2oL+wQrFOuE+j38RPG3exserIAnWGg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
   '@lumis-sh/wasm-elixir@0.26.8':
     resolution: {integrity: sha512-dB/3nd5md6J/AkH4/axpzs5I6wExp1+bDv75ja5boRyBZopGA8mutV0iT4H4siiarnIqR/i4w7di23Qc7WlFBg==}
     peerDependencies:
@@ -1166,120 +1014,8 @@ packages:
       '@lumis-sh/lumis':
         optional: true
 
-  '@lumis-sh/wasm-elm@0.26.3':
-    resolution: {integrity: sha512-d2Zatk2PbgM3tpJbibsvbinCXBAy5H7g/ySBn229khm3Yul375LkNFWylFO6cUa4N3VbHPr+cMgDeoMDoIlKYg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-embedded-template@0.26.4':
-    resolution: {integrity: sha512-yVEAO7gvHV/lYMENebTua02RIap3utv80QHuqaNTLdejq62/yjaQROy3Bu8Jx5tntTY4RP5gHUYww7weca2N4A==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-erlang@0.26.5':
-    resolution: {integrity: sha512-y+T0VrK70L5xop54qgVlC9lG6esFJkG3qVOFfRzzQtaRxbrMKI3uSLd9hUyg1yW6SNRhKw/EySJTwt11aw9hSA==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-fish@0.26.2':
-    resolution: {integrity: sha512-6fFF7qw8eArGn/RmJkyAusSiD5hGnsQq6lkolbZuMmrw594aRlBEvJSlAhZQE2/VjK1R9NgmBlnarV8SL5yQfg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-fortran@0.26.3':
-    resolution: {integrity: sha512-yT30hX3bY623YyQ2mdd9CvCz+eamxNXwqX7mAvmzyOLf3UbCpHxa6/qA6+TwfRYbWlkZmzrx1woPmgJwfk6/qQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-fsharp@0.26.8':
-    resolution: {integrity: sha512-2kwV5iWUKNpk0D0nBTH6FeHUU5wMnZwUKHlmSNLhaJCkGWEhsVdBjdN0qfMQAYc0qQ1POVUWI+HlwY33Z1Sfog==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-gitattributes@0.26.3':
-    resolution: {integrity: sha512-J0i2dcrRasXYUCt0Oo5DTRwKs+fQ0fhxO98HQ5FjWJSCoV9JJWjYUaDz3Wb7L7jizH3t8cWP9DR93PXmCBtPug==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-gitignore@0.26.2':
-    resolution: {integrity: sha512-cIo2MIp40kcb/2/RNDAY9sgw0eVYcMeAJ8AkD89BGhret1zzVmNf5ra2nqBqmcWOtb2qFbhvE5FEtmj/ygcp3A==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-gleam@0.26.6':
-    resolution: {integrity: sha512-C0uohwOvVPGXScOU6+j7Y+AMCAqEg/YS6RzIKGdzY7HHaShQ4rDd5xuC3daZ5j060zrLQMzowZxzU+rXqlj0Jw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-glimmer@0.26.3':
-    resolution: {integrity: sha512-0hxuwmPC+fIXgZb5MTQ26/iKaTmYFiNeT/mtFg4A0n4XB8J0yF7zNra6E528ZVklY1h+3ycY0IB0kKpXvgkn1w==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-glsl@0.26.3':
-    resolution: {integrity: sha512-wi9Azut/kXi8jmvfwQUpaQq/kurlkK4KTbXmLVHMaoL1mIYkoY3KPpZ2W3hhjeyh7Y1LczAqTrGphfC81ala4A==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
   '@lumis-sh/wasm-go@0.26.4':
     resolution: {integrity: sha512-6ZMQjCs8bY95O1iydv99WUfZ4ANbrQeWsLHPsIxS1zcCsGNRzTBbbTgfX7hTSWzRGa4Vt14k+5QI7FcqhbKItw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-graphql@0.26.3':
-    resolution: {integrity: sha512-eXSbaikHFnxW3gfUcBepN0rX4CHemjytxlCI8oMbbC32vLNxlXzpetF/oyhWb5a1hw2+4XavusUTPpU1Vst5cA==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-haskell@0.26.3':
-    resolution: {integrity: sha512-v11X2Ar0bLkTxTF5agkfIb9ww1HNkiYsBaff5PlI6xHZAGWLqKiHyJWo6F07SojZRj7iYfi3rwj7QhH0C17qcw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-hcl@0.26.4':
-    resolution: {integrity: sha512-EJOUeDZuQA3lOcyuxVrvZN6+CjazbCN2qLqrdpFVMRDb7LEvv73d9LE41BLHxyrrNuIP7gIqlC/KXhcEw0ZQZQ==}
     peerDependencies:
       '@lumis-sh/lumis': '>=0.9.0'
     peerDependenciesMeta:
@@ -1302,40 +1038,8 @@ packages:
       '@lumis-sh/lumis':
         optional: true
 
-  '@lumis-sh/wasm-http@0.26.2':
-    resolution: {integrity: sha512-LViJxx7atlUUMJmKrX9Y1qxcxaZY4mDifcx5Z1SZkU9OWv147SqAjt2fRodHeN6ONbN4D4VfJEkWsIUUUiq7TQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-iex@0.26.2':
-    resolution: {integrity: sha512-m0T0zmMkv6yA/WPviLF9vsKetjoix98tBQjUBxoB+UrxuV1h5TDPnFSizEN48JJAJq/qV3hALMmySj6DGFc0Jg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-ini@0.26.3':
-    resolution: {integrity: sha512-NtvtXS/b/tZLl4b2vqHAp59M5tgE1mobOhQpdhZAJQ64/aEr7wdr0lptmJQsZYZ/byXgIWvSBtACqhI3ILiNeQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
   '@lumis-sh/wasm-java@0.26.3':
     resolution: {integrity: sha512-5MUGorJaRLI0Ftu4hkIlU1PDPHrAUcHfCLkEuzxj/2gV2Yf2KWG0QFaNgQ77dmU2R8HbsutPJkBDeZALq4jkng==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-javadoc@0.26.3':
-    resolution: {integrity: sha512-2354nmQsI+v4R6Zowhs27x7XVI6MqWljnwc4arHbpxED6pSo4gWN7X17H8DCBtSPT+8Zc1HlP/3sStmUWlc7JA==}
     peerDependencies:
       '@lumis-sh/lumis': '>=0.9.0'
     peerDependenciesMeta:
@@ -1350,120 +1054,8 @@ packages:
       '@lumis-sh/lumis':
         optional: true
 
-  '@lumis-sh/wasm-jinja@0.26.6':
-    resolution: {integrity: sha512-FLYw9OU+62Lg0Qt2oa87wW4797brWsDl+YUJo1HtHHqpBm8RTP1q32G7WQuLA3Z7zrJCCV41+MUClV7hxgGcqg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-jinja_inline@0.26.5':
-    resolution: {integrity: sha512-D0k3o1ATFzvFdJIvqB9CnD3OxrKoiLzFRKs0+OkUEdvIrYr+r13ZdWiobv7/UqeDyWJFz1149MDVCPcJPwJSzw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-jq@0.26.2':
-    resolution: {integrity: sha512-MWh1mnCojViHPRuudwBRkJKTG1nGPEUleiTKjEE1RHSUBwU94deJblJhyEOZx+7B3oWTzPTcztFeMXwDSr8q6w==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-json5@0.26.3':
-    resolution: {integrity: sha512-m2/o7Ol4+SbEaZZG/bzFSyZTMuBBtzcRIzsJGEAI5ttTqFchJJIb8RWEjQ5RZ5oWB7yuyJAkku6avfRSL39plg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
   '@lumis-sh/wasm-json@0.26.5':
     resolution: {integrity: sha512-cK2n5sR+DC8C1VA0N8HzyUx2SK/Eo+eSRDwKyI1xGNPTopTx0hdXUcnTCAxB5WmcOF5G6SgB/8cso8TtbzZBAg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-julia@0.26.3':
-    resolution: {integrity: sha512-fL2ekClSA/FzvGLXNRYpnHZUwmCt/zZMT8JvL/gz3rlVCBijl/JKaO0Jg1/jZt2W92VcPmPuA1KU36L/Ii3VaQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-just@0.26.3':
-    resolution: {integrity: sha512-Sqa0yHoNPSjnu6j8DQxCOJoHKTIPLIcolr3Rsmb09tE7ZXVb4e1p7ge0mAfNgNGEA+zt9bthn3EX6ulCQKmg9g==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-kdl@0.26.4':
-    resolution: {integrity: sha512-yCcO/WCFA0dnGncWfiEVBZSuQAkaDw7jurAenAAFWVUS7BOKgZhSzSAq8gWIFnbqAO9djF/D7Y1YDP3AmSp69g==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-kotlin@0.26.5':
-    resolution: {integrity: sha512-jm5TjXCt58uv2VoEBoIgNkvSPJYhooco47LX5xp7INcYDieROBsT3pRK2O3xftPhnfMHwuuglNSdtzlPcM/5rA==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-latex@0.26.2':
-    resolution: {integrity: sha512-LzQtI0sfAnocfGejoOfvfoHKRCyGFOjnDLOxbKijQv2c3VAzOilU9+T4kUoWgUnu1eaod/GYo6qlndyKDD68Cw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-liquid@0.26.3':
-    resolution: {integrity: sha512-A6pf9UyA7NA1usgniZa5LdWSKt+bFhWO7bf2IVMDFc1Topuh5qRewyGi6ZKd7R4Sd4VKEvqbfaqPiRIRWk3gEg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-llvm@0.26.3':
-    resolution: {integrity: sha512-o+8EBJ0dJOWG9vuFPyyhZL5veavcR9xKfP69h82P5y+teZiJPspDAoCOlC8cuAgZm3oROzccB/FFl3G/7U0iSg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-lua@0.26.3':
-    resolution: {integrity: sha512-eAnX2HPmNh1IxH+Ispzed12e/3aKbZcBofw3OZqyAvui0qloGnsrU5ekQ5Fs0o7myfYIbMx/BJrL4wKbJO+X6g==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-luadoc@0.26.3':
-    resolution: {integrity: sha512-NxsH9uiQTfaiPJ99iHQ2FrmRzrSXRBcz6371DRzHyK1NHwq3LG5kAPU1u3FwXhaFMf+hVmCQIWIbIS0kuib18w==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-make@0.26.3':
-    resolution: {integrity: sha512-guofHwycdXtEF3jWBFJfo3eYEsRhBrtVbHKREH+RLFZmfDSWveMnN72f9+MVES/pwE/2f5Dfgs73u7ngm9a20g==}
     peerDependencies:
       '@lumis-sh/lumis': '>=0.9.0'
     peerDependenciesMeta:
@@ -1486,176 +1078,8 @@ packages:
       '@lumis-sh/lumis':
         optional: true
 
-  '@lumis-sh/wasm-matlab@0.26.4':
-    resolution: {integrity: sha512-7R64KUIyB9yQmMEWnUGf6FRNoqdf1TnBy7XeWV65GT0mZX7R7fvLpmCwqbUfBbHaaIOYSyejisBjBx0c85nseQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-mermaid@0.26.2':
-    resolution: {integrity: sha512-o7KfWJOVQJOGcVBr7s1YHWwoiMN56BQznEXW+LJOXOtBGb2o6nSapjXMAR556jwA/dXsdTYVMNjmy5x7R0U26w==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-nginx@0.26.2':
-    resolution: {integrity: sha512-1gtBITxofR6X8941ZBQGSLHR/X6jwhpFUxqqhkE9Va0zUQ3zFhD31TkBipQm1BE0Zr709rdeflJNQnneC6Ds/w==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-nim@0.26.3':
-    resolution: {integrity: sha512-hYKFDAkYOJvk/2YCm0iE8x/7d7danJrg0zXEH1ky/mTswCcMXHtF07Ln3qynp+apSzln6V4i0KXnE+66eH7QfA==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-nix@0.26.3':
-    resolution: {integrity: sha512-QeDw6Gi6fRmmr9dvnUf8dsngxvOApARTjH/ebAqO7ar3Iw89NkG/HmTCiqDHrf45YI3VMg0yDlQ+vjCNenVrqw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-nushell@0.26.7':
-    resolution: {integrity: sha512-khM4T58j8Kk/rNMFeTEZc0x1ASCXB7QysTDJ/ow+9NX1PqvmhVM11RUqsk9xYk2vUZ38F/TUPLvuVUa8W1gvdQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-objc@0.26.2':
-    resolution: {integrity: sha512-y7+fyoFs4xR/OGxAXjVrJ2nPaiOKXQ3CZA141iS2nUGRwQgalRTWdwGcZxafqF/M08YAfD9cE58JxFtkhHKbpg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-ocaml@0.26.4':
-    resolution: {integrity: sha512-y1ZpRlPkO/OXmJEVWlM2j1UVBoBys+Oq3vRWucCIog2OfxlA8Li6dRd8KPkjTgpzwthJVG0fShUOu4TA2Vt9Dg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-ocaml_interface@0.26.4':
-    resolution: {integrity: sha512-Wzo4/501p9GvOSFQKWJcP9DchbBpp5JDV7WLZ6xDskJryxIYOvFVUlsnHi1squ30Y+mdjuLmxe1BPMD3T15P6Q==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-pascal@0.26.2':
-    resolution: {integrity: sha512-IKzIqHInHyF0Hxnd66bVqk8dPsR5jnH0U8BMHd1J9+M5p9KUVMCBMFTvMqHCdSNGuH2oc7303ePuXBAABvMAVQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-perl@0.26.5':
-    resolution: {integrity: sha512-XURt1dRJUDB02CzT4mVDh4E+1l4wUjHrZ14QfRh9r5q3XtlTw9qCqUSMbFlNhoTpnQQ6dIlE2Iv4yvqcqi7KMg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-php@0.26.5':
-    resolution: {integrity: sha512-GygqEJ5x15lHP7sKMVcGQzbzCt7YEajqw5K2fN9qxaT5P6jtbVE+CWvLkLo6nOyR6B7Gb6OpX6YpKtTwQEjFIg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-powershell@0.26.4':
-    resolution: {integrity: sha512-T1UhBUJ/cTCTPGAW3Yme5q46sQMcPtW1byNk/ghnnVqzETx8wkVAH2hkCy1sc8419mq+RMI9BomxuxKBR7C/CQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-prisma@0.26.3':
-    resolution: {integrity: sha512-lNBBfx8T9IMkKAHY8K66RBjxZhlMDuok/G6jjJU6V0c7xO5jKGo9tCcBc2lnCBrBgVXLxtlxfcWpNrSvZoRc0Q==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-protobuf@0.26.5':
-    resolution: {integrity: sha512-6pLQpIX1nTl1QcOHzPz59UsHC7l1MT6UdtwOXqc8mCuPYvyaskX1Y2X5KZKznKKLd7Sjr+JW2jfTWeGjRUbhwA==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-puppet@0.26.2':
-    resolution: {integrity: sha512-DuAu/4xjcM4Nlh/y30o/04Hcu37wZtBC9waZAcL4vXaqWMZ3IyplOWd+fZo2UFyoeKinBtBPVQ24QgUIVmo1tw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
   '@lumis-sh/wasm-python@0.26.5':
     resolution: {integrity: sha512-338SYNItiEWS39Fy/mgmVjMpcz7BDuB3Xcjag1jnp7xcuZVFms3D9hFjASwDDijYbf0dq/BjrfR1x7bMZiPP9g==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-qmljs@0.26.3':
-    resolution: {integrity: sha512-SVMwQGkfD2hJjQ1Ymf0OFkWflt8SMght3Q3/Ho2TP0XsPl7rvql9BI92AC/9PYsaJsUM+N3Mj+f7AH+3IOvG6w==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-r@0.26.3':
-    resolution: {integrity: sha512-p2HpDMqAJvxDJ4cLp8I9Uy1cOPbfmyzVl0jaJnCkmIX2rWZIXMegT0ntSJMv+QZppKjIE/9UqrggXdbUl4ngGQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-racket@0.26.4':
-    resolution: {integrity: sha512-E3QFvVBASsGM7dETWbn0kvdT92sJXuNoZChNegWLYdARU95GpxuP9ecTimPSQpmTK6k91I3lc0Pw79a7htSIWg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-regex@0.26.3':
-    resolution: {integrity: sha512-aYKeltFCn+ZbS/SoN/HoSTO3SATvr834tcgR0AYWqqyVvy0OjLXC7M/Jdq/Tlop6QNX9yTUdgoQUDaRV8rPRIA==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-rst@0.26.3':
-    resolution: {integrity: sha512-HPu87TgundXzu2iuJuUkk9sPdWJQ6GbHP5fEfKG1+t1uKF//VE7lRfa/X7PUqyAQPH188n+Y/r8S/8GL3nFUUA==}
     peerDependencies:
       '@lumis-sh/lumis': '>=0.9.0'
     peerDependenciesMeta:
@@ -1678,192 +1102,8 @@ packages:
       '@lumis-sh/lumis':
         optional: true
 
-  '@lumis-sh/wasm-scala@0.26.4':
-    resolution: {integrity: sha512-I+cyiL5lV6ye6C/TPvJ/pYLrnbUNPpIePx+qSkFn4ID4KvlDjFJp/Dh1Cp9MpxgzYudIPiF1SJA72nGuIpMGaA==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-scheme@0.26.4':
-    resolution: {integrity: sha512-G2Rg1Z0HuXsybsg0wq8S0dVkLrL8GFTvZ4/ij8Z3mN4bWxNatu+nTczb7LMSEvWJ28cR94GoUi9Ht+jPoX+HuQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-scss@0.26.2':
-    resolution: {integrity: sha512-xF1s/ilf6dzjylvYesvuNjteBJW8glXl220J+xRNiZkF3Hmh6iST/KNlcfpT7J45anmIdX9+tJ9lvhsWzDt1tA==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-solidity@0.26.3':
-    resolution: {integrity: sha512-GpBBn0tQFISIKi4TGSNg9jpSs1iuDz6r8MWiBuvECRqPA2YS7ENZmEMitQ1M/GrxuQhDDzpn2+l6oUjjqY4tfg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-sql@0.26.4':
-    resolution: {integrity: sha512-Llpo9xBIqFSpqs5MGdFW2eauKYscm7N40iLuIhhb0NlvHI1uWHL/+EQXkeLbjrhocD6jBg32QSQgCDv9EWyI4w==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-surface@0.26.3':
-    resolution: {integrity: sha512-xCpZqPvZEBEind0hDbWVUSvCs2UqnzlLBbNdj2IfxvH0HMTWXr/e7yA5HhiX7LScggS/gYtNx+fP3Yu6IIPDRw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-svelte@0.26.3':
-    resolution: {integrity: sha512-r/qsa+qOQAxO2SNEX2Br7mj3DmwiI/DHcpc9F2tvsFGkkx4SYy3k3nVUuy0WoKk7BoY2uVkd506TGwbrcEkhuA==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-swift@0.26.3':
-    resolution: {integrity: sha512-tGt05+kHZDgt/FrPpGdER3f27AkYYTftIxMHy4i5o3cVKtVhPSXaE6OyH/rhzZZRNMPIqAwMpQgUqD2J5FiQmQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-tcl@0.26.3':
-    resolution: {integrity: sha512-SY5mEJox1+SLuzazIkHdYN+l+54LLHHA+NC2gNQ0ARllinUG8Yk9t0c/ic0Ufy5itKwrHPTGN/LNSJzroBAvzQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-terraform@0.26.3':
-    resolution: {integrity: sha512-Wy8qmhVmPCa7ARFu8M/neBkK1JNuH81vH/RC0ysz/UCydatgEBf/PQ6tJ9bFYbYvMWxiCJ0urAl4W0ZPetcB9Q==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-toml@0.26.2':
-    resolution: {integrity: sha512-RwMgHB71MPZQmbwyP3JpQBUsX6pvZZaHYcyuXn7XC0EtnE/oxr7YuumzOelVVky/sUTxa0unSAdBgHK98jI6VQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-toon@0.26.4':
-    resolution: {integrity: sha512-6VNV7Zlp6iH7CHHVwYstb5P0iWDJVx6JhCbpVsGx1iHrXFfE7PC93sDqnSLCaTXSm1Kg+DHxfmVbQpNLeoGvHg==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
   '@lumis-sh/wasm-tsx@0.26.3':
     resolution: {integrity: sha512-vCpCyy8RRHQPO+cEez9+20eV91IB8Kn1DuAKtKAvmHryZzKEx5CfQECTGiUD8t+o7swCa5J/rDfNtUqVXbtvug==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-typescript@0.26.3':
-    resolution: {integrity: sha512-J1D/QE4KaiASYDwGY/Q+7JI/fuoFkI+bBPbq7LBLuzPCWRspK94jSkpzz81piLxceyh1Sf6ZSYbr+ieyB1BowA==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-typst@0.26.3':
-    resolution: {integrity: sha512-n86JEv807RehRqIDaCfp5feoxbrmq06hj2yQCSEWjQcFzh2imyQTSKmOcPM7j3vECoKEIm1XPM1+cFo2tQO+VQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-vhdl@0.26.3':
-    resolution: {integrity: sha512-HihC8q5/G00BLyWUhCl57jknUaxzDzR7Ugg4LyIntfwzeVtMT0L7OLgTiCQ81bEmAvC3UNJZAUPLZILrioFFZA==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-vim@0.26.3':
-    resolution: {integrity: sha512-z93+5jVFxsVF4Gux/N51hgT9jfsyrcccZArxfN7UJQOzDhDC+6MWjxaKVYqzhkKaUBZyW3QdGE30ivXJ/XCk2g==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-vue@0.26.2':
-    resolution: {integrity: sha512-zKKJy1weRaB92aUD+gBkYmpFPCLDXLH6WLMAm6UZbceTD4AwU8zLgyPU4sfV16rPuYkta1ziXkel5hqBqO3eRw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-wat@0.26.2':
-    resolution: {integrity: sha512-KuZU0FRgWRdmanKjBR6bb3NbaFrJSGkrCYqW8qPjFtkwpkzA9HngLP93PiSZRP+VQIdm9a2z5pUCO5/r3nBCzw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-wgsl@0.26.2':
-    resolution: {integrity: sha512-jfJJsVGkZc19MKSudlrrYZ6iuMjN7ZRQdzBKBBWHJjry/XgUiS7HJiLvDHX5ksYOJHxCBZrQ3j8tNq4pZqt+fw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-xml@0.26.4':
-    resolution: {integrity: sha512-yKXDNZo92EJJpsopF2GjfvQM5EUzwtCtYCcHboJjxlNCp042Asc4YgZo4w6iwagbwYAxuCeOQ1H1kue6FqwlNw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-yaml@0.26.3':
-    resolution: {integrity: sha512-dzypaH6AdiQFOo/GiHdE/u9Fe2Nl6y1YSyo3HZ0ZLsNgXgOex9tkYaVYMrQMlCkrjX0nXCpapJxPo8TI2C2oMQ==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-zig@0.26.2':
-    resolution: {integrity: sha512-Y1rxWDtgf0W0pAV2S45VZUlJM5CFKK3O0UX4UxI596eZYfJSWwKMpctTGHnZnronC0g7G+ijC00kXOqjftfRGw==}
-    peerDependencies:
-      '@lumis-sh/lumis': '>=0.9.0'
-    peerDependenciesMeta:
-      '@lumis-sh/lumis':
-        optional: true
-
-  '@lumis-sh/wasm-zsh@0.26.2':
-    resolution: {integrity: sha512-wyrpMW5jCrRNkIxegP1uW+PvizhQEFkFoDYQUdRo43KXrxYae7vVpM4HFziKcr4rmda4ZzzRdwuaWnPbPyyKWg==}
     peerDependencies:
       '@lumis-sh/lumis': '>=0.9.0'
     peerDependenciesMeta:
@@ -4121,372 +3361,51 @@ snapshots:
       '@lumis-sh/lumis-native-linux-x64-musl': 0.9.3
       '@lumis-sh/lumis-native-win32-arm64-msvc': 0.9.3
       '@lumis-sh/lumis-native-win32-x64-msvc': 0.9.3
-
-  '@lumis-sh/wasm-angular@0.26.5(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-arduino@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-asm@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-astro@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-bash@0.26.6(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
+    optional: true
 
   '@lumis-sh/wasm-bash@0.26.6(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
 
-  '@lumis-sh/wasm-bicep@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-bundle-full@0.1.4(@lumis-sh/lumis@0.9.3)':
-    dependencies:
-      '@lumis-sh/lumis': 0.9.3
-      '@lumis-sh/wasm-angular': 0.26.5(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-arduino': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-asm': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-astro': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-bash': 0.26.6(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-bicep': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-c': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-caddy': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-clojure': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-cmake': 0.26.5(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-comment': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-commonlisp': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-cpp': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-csharp': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-css': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-csv': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-d': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-dart': 0.26.5(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-diff': 0.26.5(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-dockerfile': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-dot': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-editorconfig': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-eex': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-elixir': 0.26.8(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-elm': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-embedded-template': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-erlang': 0.26.5(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-fish': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-fortran': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-fsharp': 0.26.8(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-gitattributes': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-gitignore': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-gleam': 0.26.6(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-glimmer': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-glsl': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-go': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-graphql': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-haskell': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-hcl': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-heex': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-html': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-http': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-iex': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-ini': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-java': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-javadoc': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-javascript': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-jinja': 0.26.6(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-jinja_inline': 0.26.5(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-jq': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-json': 0.26.5(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-json5': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-julia': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-just': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-kdl': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-kotlin': 0.26.5(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-latex': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-liquid': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-llvm': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-lua': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-luadoc': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-make': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-markdown': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-markdown_inline': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-matlab': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-mermaid': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-nginx': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-nim': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-nix': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-nushell': 0.26.7(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-objc': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-ocaml': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-ocaml_interface': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-pascal': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-perl': 0.26.5(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-php': 0.26.5(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-powershell': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-prisma': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-protobuf': 0.26.5(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-puppet': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-python': 0.26.5(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-qmljs': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-r': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-racket': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-regex': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-rst': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-ruby': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-rust': 0.26.5(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-scala': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-scheme': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-scss': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-solidity': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-sql': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-surface': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-svelte': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-swift': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-tcl': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-terraform': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-toml': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-toon': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-tsx': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-typescript': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-typst': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-vhdl': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-vim': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-vue': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-wat': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-wgsl': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-xml': 0.26.4(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-yaml': 0.26.3(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-zig': 0.26.2(@lumis-sh/lumis@0.9.3)
-      '@lumis-sh/wasm-zsh': 0.26.2(@lumis-sh/lumis@0.9.3)
-
-  '@lumis-sh/wasm-c@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
   '@lumis-sh/wasm-c@0.26.3(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
-
-  '@lumis-sh/wasm-caddy@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-clojure@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-cmake@0.26.5(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-comment@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
 
   '@lumis-sh/wasm-comment@0.26.3(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
 
-  '@lumis-sh/wasm-commonlisp@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-cpp@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-csharp@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-css@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
   '@lumis-sh/wasm-css@0.26.4(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
-
-  '@lumis-sh/wasm-csv@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-d@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-dart@0.26.5(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-diff@0.26.5(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
 
   '@lumis-sh/wasm-diff@0.26.5(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
 
-  '@lumis-sh/wasm-dockerfile@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-dot@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-editorconfig@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-eex@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-elixir@0.26.8(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
   '@lumis-sh/wasm-elixir@0.26.8(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
-
-  '@lumis-sh/wasm-elm@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-embedded-template@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-erlang@0.26.5(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-fish@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-fortran@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-fsharp@0.26.8(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-gitattributes@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-gitignore@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-gleam@0.26.6(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-glimmer@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-glsl@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-go@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
 
   '@lumis-sh/wasm-go@0.26.4(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
 
-  '@lumis-sh/wasm-graphql@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-haskell@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-hcl@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-heex@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
   '@lumis-sh/wasm-heex@0.26.3(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
-
-  '@lumis-sh/wasm-html@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
 
   '@lumis-sh/wasm-html@0.26.4(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
 
-  '@lumis-sh/wasm-http@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-iex@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-ini@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-java@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
   '@lumis-sh/wasm-java@0.26.3(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
 
-  '@lumis-sh/wasm-javadoc@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-javascript@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
   '@lumis-sh/wasm-javascript@0.26.4(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
-
-  '@lumis-sh/wasm-jinja@0.26.6(@lumis-sh/lumis@0.9.3)':
-    dependencies:
-      '@lumis-sh/wasm-jinja_inline': 0.26.5(@lumis-sh/lumis@0.9.3)
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-jinja_inline@0.26.5(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-jq@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-json5@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
 
   '@lumis-sh/wasm-json@0.26.5(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
@@ -4496,273 +3415,31 @@ snapshots:
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
 
-  '@lumis-sh/wasm-julia@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-just@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-kdl@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-kotlin@0.26.5(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-latex@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-liquid@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-llvm@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-lua@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-luadoc@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-make@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-markdown@0.26.3(@lumis-sh/lumis@0.9.3)':
-    dependencies:
-      '@lumis-sh/wasm-markdown_inline': 0.26.3(@lumis-sh/lumis@0.9.3)
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
   '@lumis-sh/wasm-markdown@0.26.3(@lumis-sh/lumis@packages+javascript+lumis)':
     dependencies:
       '@lumis-sh/wasm-markdown_inline': 0.26.3(@lumis-sh/lumis@packages+javascript+lumis)
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
 
-  '@lumis-sh/wasm-markdown_inline@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
   '@lumis-sh/wasm-markdown_inline@0.26.3(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
-
-  '@lumis-sh/wasm-matlab@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-mermaid@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-nginx@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-nim@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-nix@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-nushell@0.26.7(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-objc@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-ocaml@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-ocaml_interface@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-pascal@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-perl@0.26.5(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-php@0.26.5(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-powershell@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-prisma@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-protobuf@0.26.5(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-puppet@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-python@0.26.5(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
 
   '@lumis-sh/wasm-python@0.26.5(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
 
-  '@lumis-sh/wasm-qmljs@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-r@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-racket@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-regex@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-rst@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-ruby@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
   '@lumis-sh/wasm-ruby@0.26.4(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
-
-  '@lumis-sh/wasm-rust@0.26.5(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
 
   '@lumis-sh/wasm-rust@0.26.5(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
 
-  '@lumis-sh/wasm-scala@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-scheme@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-scss@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-solidity@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-sql@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-surface@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-svelte@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-swift@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-tcl@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-terraform@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-toml@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-toon@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-tsx@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
   '@lumis-sh/wasm-tsx@0.26.3(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
-
-  '@lumis-sh/wasm-typescript@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-typst@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-vhdl@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-vim@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-vue@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-wat@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-wgsl@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-xml@0.26.4(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-yaml@0.26.3(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-zig@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
-
-  '@lumis-sh/wasm-zsh@0.26.2(@lumis-sh/lumis@0.9.3)':
-    optionalDependencies:
-      '@lumis-sh/lumis': 0.9.3
 
   '@microsoft/api-extractor-model@7.33.12(@types/node@26.6.4)':
     dependencies:
