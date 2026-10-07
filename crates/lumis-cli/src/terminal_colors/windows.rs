@@ -93,7 +93,7 @@ mod tests {
         ENABLE_VIRTUAL_TERMINAL_INPUT, FOCUS_EVENT, INPUT_RECORD_0, KEY_EVENT_RECORD,
         KEY_EVENT_RECORD_0, STD_OUTPUT_HANDLE, WINDOW_BUFFER_SIZE_EVENT,
     };
-    use windows_sys::Win32::System::Threading::CREATE_NO_WINDOW;
+    use windows_sys::Win32::System::Threading::CREATE_NEW_CONSOLE;
 
     #[test]
     fn console_events_respect_deadline() {
@@ -110,7 +110,7 @@ mod tests {
                 "--nocapture",
             ])
             .env(CHILD, "1")
-            .creation_flags(CREATE_NO_WINDOW)
+            .creation_flags(CREATE_NEW_CONSOLE)
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
