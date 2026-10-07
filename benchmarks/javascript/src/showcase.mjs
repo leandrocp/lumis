@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { implementationById } from "../../scripts/implementations.mjs";
 import { loadLibraries } from "./libraries.mjs";
+import { parserBytes } from "./parsers.mjs";
 import { createHighlighter, runtimeKind, withWasm } from "@lumis-sh/lumis";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
 import bash from "@lumis-sh/lumis/langs/bash";
@@ -19,20 +20,6 @@ import markdownInline from "@lumis-sh/lumis/langs/markdown_inline";
 import java from "@lumis-sh/lumis/langs/java";
 import rust from "@lumis-sh/lumis/langs/rust";
 import tsx from "@lumis-sh/lumis/langs/tsx";
-import bashWasm from "@lumis-sh/wasm-bash";
-import commentWasm from "@lumis-sh/wasm-comment";
-import cssWasm from "@lumis-sh/wasm-css";
-import elixirWasm from "@lumis-sh/wasm-elixir";
-import goWasm from "@lumis-sh/wasm-go";
-import heexWasm from "@lumis-sh/wasm-heex";
-import htmlWasm from "@lumis-sh/wasm-html";
-import javascriptWasm from "@lumis-sh/wasm-javascript";
-import jsonWasm from "@lumis-sh/wasm-json";
-import markdownWasm from "@lumis-sh/wasm-markdown";
-import markdownInlineWasm from "@lumis-sh/wasm-markdown_inline";
-import javaWasm from "@lumis-sh/wasm-java";
-import rustWasm from "@lumis-sh/wasm-rust";
-import tsxWasm from "@lumis-sh/wasm-tsx";
 
 const benchmarksDir = resolve(import.meta.dirname, "../..");
 const generatedDir = resolve(benchmarksDir, "showcase/generated");
@@ -50,22 +37,24 @@ const languagePackageResolver = (packageName) => {
   if (!local) throw new Error(`missing local language package ${packageName}`);
   return pathToFileURL(local.metadataPath);
 };
-const languages = [
-  withWasm(html, htmlWasm),
-  withWasm(comment, commentWasm),
-  withWasm(css, cssWasm),
-  withWasm(json, jsonWasm),
-  withWasm(javascript, javascriptWasm),
-  withWasm(rust, rustWasm),
-  withWasm(elixir, elixirWasm),
-  withWasm(heex, heexWasm),
-  withWasm(go, goWasm),
-  withWasm(markdown, markdownWasm),
-  withWasm(markdownInline, markdownInlineWasm),
-  withWasm(bash, bashWasm),
-  withWasm(java, javaWasm),
-  withWasm(tsx, tsxWasm),
-];
+const languages = await Promise.all(
+  [
+    html,
+    comment,
+    css,
+    json,
+    javascript,
+    rust,
+    elixir,
+    heex,
+    go,
+    markdown,
+    markdownInline,
+    bash,
+    java,
+    tsx,
+  ].map(async (language) => withWasm(language, await parserBytes(language.id))),
+);
 const byId = new Map(languages.map((language) => [language.id, language]));
 
 const lumis = await createHighlighter({ languages, languagePackageResolver });

@@ -2,7 +2,7 @@ import { writeFile } from "node:fs/promises";
 import { createHighlighter } from "@lumis-sh/lumis";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
 import githubLight from "@lumis-sh/themes/github_light";
-import elixir from "@lumis-sh/wasm-elixir";
+import { elixir } from "@lumis-sh/wasm-elixir";
 
 const source = `defmodule Lumis.Release do
   def manifest(env) do
