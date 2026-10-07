@@ -12,6 +12,7 @@ allowBuilds:
   esbuild: true
   sharp: true
 minimumReleaseAgeExclude:
+  - '@lumis-sh/*'
   - '@shikijs/core@4.4.2'
   - '@shikijs/engine-javascript@4.4.2'
   - '@shikijs/engine-oniguruma@4.4.2'

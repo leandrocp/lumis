@@ -278,12 +278,12 @@ pnpm --filter @lumis-sh/benchmarks run lint
 '''
 
 [tasks."sync-language-deps"]
-description = "Point the benchmark language packages at the versions the catalog pins"
+description = "Point the benchmark language packages at the latest published versions"
 run = "node benchmarks/scripts/sync-language-deps.mjs"
 dir = "{{config_root}}/.."
 
 [tasks."check-language-deps"]
-description = "Verify the benchmark language packages match the catalog pins"
+description = "Verify the benchmark language packages are the latest published versions"
 run = "node benchmarks/scripts/sync-language-deps.mjs --check"
 dir = "{{config_root}}/.."
 

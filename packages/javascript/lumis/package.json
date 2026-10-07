@@ -112,8 +112,8 @@
   },
   "devDependencies": {
     "@lumis-sh/themes": "workspace:*",
-    "@lumis-sh/wasm-bundle-full": "^0.1.1",
-    "@lumis-sh/wasm-json": "0.26.2",
+    "@lumis-sh/wasm-bundle-full": "^0.1.4",
+    "@lumis-sh/wasm-json": "0.26.5",
     "@microsoft/api-extractor": "^7.58.0",
     "@playwright/test": "1.63.0",
     "@types/node": "^26.6.3",

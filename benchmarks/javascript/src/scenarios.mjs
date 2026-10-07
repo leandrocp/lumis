@@ -3,6 +3,7 @@ import { dirname, isAbsolute, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { benchmarkImplementations } from "../../scripts/implementations.mjs";
 import { measureCall } from "./measure.mjs";
+import { parserBytes } from "./parsers.mjs";
 
 const benchmarksDir = resolve(import.meta.dirname, "../..");
 const repoDir = resolve(benchmarksDir, "..");
@@ -140,9 +141,9 @@ async function loadLumis() {
   const languages = Object.fromEntries(
     await Promise.all(
       uniqueIds.map(async (id) => {
-        const [{ default: language }, { default: wasm }] = await Promise.all([
+        const [{ default: language }, wasm] = await Promise.all([
           import(`@lumis-sh/lumis/langs/${id}`),
-          import(`@lumis-sh/wasm-${id}`),
+          parserBytes(id),
         ]);
         return [id, withWasm(language, wasm)];
       }),
