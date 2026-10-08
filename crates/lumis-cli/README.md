@@ -56,7 +56,7 @@ lumis themes generate    Extract a theme JSON file from a Neovim colorscheme rep
 
 ```sh
 lumis highlight src/main.rs
-lumis highlight -t dracula -f html-inline src/main.rs -o out.html
+lumis highlight -t dracula -f html-inline src/main.rs > out.html
 lumis highlight -l python <<< 'x = 1'
 ```
 

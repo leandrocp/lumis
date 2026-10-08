@@ -403,7 +403,7 @@ Lumis reads `~/.config/lumis/config.toml` by default on macOS and Linux. Set `XD
 theme = "auto" # or a theme name such as "tokyonight_moon"
 ```
 
-`auto` queries the terminal background and selects the built-in theme with the closest background color. If the terminal cannot be queried, Lumis renders without a theme. An explicit `--theme` takes precedence over the config file.
+`auto` uses the terminal's background, foreground and ANSI accent colors to choose a nearby light or dark theme, excluding monochrome themes. It only queries for the `terminal` formatter when stdout is a terminal. If colors are unavailable or no suitable theme matches, Lumis renders without a theme and explains why on stderr. Use an explicit `--theme` for pipes or HTML output; it takes precedence over the config file. See [theme selection](/cli/behavior#theme-selection) for the selection rules.
 
 ## Data directory
 
