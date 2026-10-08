@@ -10,16 +10,16 @@ importers:
     dependencies:
       '@lumis-sh/lumis':
         specifier: latest
-        version: 0.9.2
+        version: 0.9.3
       '@lumis-sh/themes':
         specifier: latest
         version: 0.4.0
       '@lumis-sh/wasm-bundle-full':
         specifier: latest
-        version: 0.1.3(@lumis-sh/lumis@0.9.2)
+        version: 0.1.4(@lumis-sh/lumis@0.9.3)
       '@modelcontextprotocol/server':
         specifier: latest
-        version: 2.1.0
+        version: 2.2.0
       '@vercel/analytics':
         specifier: ^2.0.1
         version: 2.0.1(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)
@@ -27,17 +27,17 @@ importers:
         specifier: ^0.4.0
         version: 0.4.0
       fumadocs-core:
-        specifier: 16.15.15
-        version: 16.15.15(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.1.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.48.0(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5)
+        specifier: 16.15.17
+        version: 16.15.17(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.2.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.49.0(@types/react@19.3.0)(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5)
       fumadocs-mdx:
         specifier: 15.4.5
-        version: 15.4.5(@types/mdast@4.0.4)(@types/mdx@2.0.14)(@types/react@19.3.0)(fumadocs-core@16.15.15(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.1.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.48.0(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5))(mdast-util-directive@3.1.0(supports-color@8.1.1))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)
+        version: 15.4.5(@types/mdast@4.0.4)(@types/mdx@2.0.14)(@types/react@19.3.0)(fumadocs-core@16.15.17(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.2.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.49.0(@types/react@19.3.0)(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5))(mdast-util-directive@3.1.0(supports-color@8.1.1))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)
       fumadocs-ui:
         specifier: npm:@fumadocs/base-ui@16.15.11
-        version: '@fumadocs/base-ui@16.15.11(@types/mdx@2.0.14)(@types/react@19.3.0)(fumadocs-core@16.15.15(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.1.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.48.0(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(tailwindcss@4.3.3)'
+        version: '@fumadocs/base-ui@16.15.11(@types/mdx@2.0.14)(@types/react@19.3.0)(fumadocs-core@16.15.17(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.2.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.49.0(@types/react@19.3.0)(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(tailwindcss@4.3.3)'
       lucide-react:
-        specifier: ^1.48.0
-        version: 1.48.0(react@19.3.0)
+        specifier: ^1.49.0
+        version: 1.49.0(@types/react@19.3.0)(react@19.3.0)
       next:
         specifier: 16.3.8
         version: 16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -635,60 +635,60 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@lumis-sh/lumis-native-darwin-arm64@0.9.2':
-    resolution: {integrity: sha512-lDTr0ZHe6oA7dgqe2JVwrv+vBI+8wQ9TIR2JMKsfh7uB7kSEwZEpazifC5jJQsX5yOY9xUHZPUYY0f0T/W2ZWw==}
+  '@lumis-sh/lumis-native-darwin-arm64@0.9.3':
+    resolution: {integrity: sha512-aYxFOe2b5/ltPaIuJUORA5qr8+ZEfSCfSBY5NjsFEIzfRjh3+516yObCWXBmmmV7h/YLgrabEqFVDc1vJvaasQ==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [darwin]
 
-  '@lumis-sh/lumis-native-darwin-x64@0.9.2':
-    resolution: {integrity: sha512-jgiyRi/p6eNZOUXYeR9hYz7cUnzOrJOY4YTexsXedtSwGyvkhkY72CD3cT+jF8O+w7q3g5sjV+YseEnbvwlV3A==}
+  '@lumis-sh/lumis-native-darwin-x64@0.9.3':
+    resolution: {integrity: sha512-Hz0VE62saZG1iDlhMPzOxY8UpadSw8LvVFqBLWoUVe127mqcxXbI5aS/UUeKUoiLnNTMnSWp/T9vzQbgWvJClg==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [darwin]
 
-  '@lumis-sh/lumis-native-linux-arm64-gnu@0.9.2':
-    resolution: {integrity: sha512-GPq7Mk3JznIIud4/0M12C5pU4N4QUzIi78rR7VrogiIOilE0U5eoNS9Bbg+0B0pWF8NzikbwnzX+dfwEAZ5fyw==}
+  '@lumis-sh/lumis-native-linux-arm64-gnu@0.9.3':
+    resolution: {integrity: sha512-V/zhX40OlTezyXj/NkjNbyH0rREN/Cz+qaYaRqo3vD4YC7pCB+Iqqz4ue5DambqmcBPBpg1+dnTELMJSB0cPVg==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@lumis-sh/lumis-native-linux-arm64-musl@0.9.2':
-    resolution: {integrity: sha512-ZSU/TMnrnbND4PhoU4A518XOhmFxZYOoHMpkyMmOL02jQKuVQEtR6YXp4JV7QKnDdQFKLsam3j154NLMd6YNRg==}
+  '@lumis-sh/lumis-native-linux-arm64-musl@0.9.3':
+    resolution: {integrity: sha512-9U89gZBBYbH7cxiSbghklpJJwO1Q9T+NwO7Tfr15tz32jAYxGnhszWDuK1blMl/6cm9fxexW13Rr05Kf4XLELg==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@lumis-sh/lumis-native-linux-x64-gnu@0.9.2':
-    resolution: {integrity: sha512-b4/p5p2aOUuY3sgyvXCvOE8QSsT0rR2TNcCeE0cayNiiAe7B3zCF7tUiYjvzU/JBiQa7mV45iYPFis7PU0Bs2A==}
+  '@lumis-sh/lumis-native-linux-x64-gnu@0.9.3':
+    resolution: {integrity: sha512-heHlhjI/jyL/TtVw9TKgOD/i6Cm10qctlKRO5rlXPETyun8wHHEkFt7YEecwteOdj/LGxrWu+GPfFfq87zTXVg==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@lumis-sh/lumis-native-linux-x64-musl@0.9.2':
-    resolution: {integrity: sha512-oh0oimaCwmL4Q1zy7xhgc8eq8fiC8k6yimsU4HyydJfKNhk1NYM4ZrFC3ZdC+Z4PtuvXcu21Odr1WQx/ZP4M2Q==}
+  '@lumis-sh/lumis-native-linux-x64-musl@0.9.3':
+    resolution: {integrity: sha512-d2fOlCFETbFkyaG4y7S9csRyXuu9ljBqka/4yoMd2hS2D/4a1qUpnFf43+L4EIPEimd3Xzff5YE4B1aoSXLmoA==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@lumis-sh/lumis-native-win32-arm64-msvc@0.9.2':
-    resolution: {integrity: sha512-sIRlTRy+ZIzAURxxB8KKfUPQkHfU5ELPOV4CfVWT2sHUaH9kx6Psu8+WoaaVbhEyKBCkMJ6nGYDg7HIPVFbRQw==}
+  '@lumis-sh/lumis-native-win32-arm64-msvc@0.9.3':
+    resolution: {integrity: sha512-PgHr0czwvefZO9WDlAOF78tVR7Rsner4saJdbqvmneC1rU9SE6zd6e3LI/oLRIx3k4N7+Fg8bAX5l/hbBJW5Xw==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [win32]
 
-  '@lumis-sh/lumis-native-win32-x64-msvc@0.9.2':
-    resolution: {integrity: sha512-as02Z/pd/pDOCAjB8cWGCWJ7rJnx8CbUC5ABj+sAIRpKIlLHKKPR9COZIYyI4NBz2FXPbHGZWSxCLpIjspyo3A==}
+  '@lumis-sh/lumis-native-win32-x64-msvc@0.9.3':
+    resolution: {integrity: sha512-mHPzd0vIRuo29EhAAG4Gj9MEWPcQIMJbCg2UsgZirQajiSqhgdHfiT0lNaj+uJXWweKdeF2MxOP4AuwQQaTCAQ==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
 
-  '@lumis-sh/lumis@0.9.2':
-    resolution: {integrity: sha512-26z3sMWAJ6RXWx1VC6RScDTL4SUUQlEnnuUPFWEdNPXFjeLY/KYUzcMYKRcIPJAu8S+KL26RphILcxgfmTLnpw==}
+  '@lumis-sh/lumis@0.9.3':
+    resolution: {integrity: sha512-413cMZON945rqxXpGVRZEtMfCdtTdOuuVpNzHiKe3cF/hwmMM5ukp1eo7jwRoT8m/aVPHH+jtcLIzNo3nvrPMQ==}
     engines: {node: '>=18'}
 
   '@lumis-sh/themes@0.4.0':
@@ -742,8 +742,8 @@ packages:
       '@lumis-sh/lumis':
         optional: true
 
-  '@lumis-sh/wasm-bundle-full@0.1.3':
-    resolution: {integrity: sha512-7uscQwrXbQ6OFuY6J4hlZsr45vzJzGKQ13xYQxwd4DboUjovFGALVLHDUjDj9XTr1Vn2njALtu8OBMzXYiBX4Q==}
+  '@lumis-sh/wasm-bundle-full@0.1.4':
+    resolution: {integrity: sha512-hZoWC2sOOzUeV4scFlFGdb7XMnWuHbalvJi+W2BL1EdKoUcy3RU/ySp7RwtlWh6jaDEcoFes13ycjK28HBcURQ==}
     peerDependencies:
       '@lumis-sh/lumis': '>=0.9.0'
 
@@ -1598,12 +1598,12 @@ packages:
   '@mdx-js/mdx@3.1.1':
     resolution: {integrity: sha512-f6ZO2ifpwAQIpzGWaBQT2TXxPv6z3RBzQKpVftEWN78Vl/YweF1uwussDx8ECAXVtr3Rs89fKyG9YlzUs9DyGQ==}
 
-  '@modelcontextprotocol/core@2.1.0':
-    resolution: {integrity: sha512-YdFj5gMRHr0gYNAhTbQDgjLHiEJdIAUYxomhKseUNye7ZGlISQmUoLh2sveFFCiQ7j2YMffT1kgSND0FSfIFjQ==}
+  '@modelcontextprotocol/core@2.2.0':
+    resolution: {integrity: sha512-iLhmprRmWI8EcosOA3wVvww22z02NkgqhV4fBH6f/odQBsi7xnJc0HGmi21yWO+/iKw2yzqVE127Zhna5/+JXw==}
     engines: {node: '>=20'}
 
-  '@modelcontextprotocol/server@2.1.0':
-    resolution: {integrity: sha512-FdvwZU5N03O77Suh35JqjAqq5R1ZTEPFtwu6N4BgBq28qrQtrCnpbLL5U2pwYCuE194jAw0xnlOVmIqhfoYuUQ==}
+  '@modelcontextprotocol/server@2.2.0':
+    resolution: {integrity: sha512-qFnltjus6Gk8Lx6J1w2RXmr3YPN22MNT6qD6zjAkaiWIlFIFxWClz0rXHNuJF/KSUyn5YGhkSvXkWDbQHVLFEQ==}
     engines: {node: '>=20'}
 
   '@next/env@16.3.8':
@@ -1661,8 +1661,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@noble/hashes@2.3.0':
-    resolution: {integrity: sha512-oN+QwyX7VSHotibwubG3kpzbwKrfnyR6OOO+3Nk/53ADL7FmgHHz4TgrbaYKvvOw09u6QTx0oiH1cNCIOuN0CQ==}
+  '@noble/hashes@2.4.0':
+    resolution: {integrity: sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==}
     engines: {node: '>= 20.19.0'}
 
   '@shikijs/core@4.4.3':
@@ -2260,8 +2260,8 @@ packages:
       react-dom:
         optional: true
 
-  fumadocs-core@16.15.15:
-    resolution: {integrity: sha512-kEQLKRlpRl16MfMrlAYiEpk3FPadn4725R3QHYVnF3tJhflRXvznWaJ5pP33F09d6qnOss5onEIgMpAO6rOrpA==}
+  fumadocs-core@16.15.17:
+    resolution: {integrity: sha512-Pexn60R+S5F33UccW9WoLN+LHAOIraA/VvQt1xAXmfLxitx5rIPR7B9M+5mrqECnuSPltoX843NZ//Z5j/HAOg==}
     peerDependencies:
       '@mdx-js/mdx': '*'
       '@mixedbread/sdk': 0.x.x
@@ -2523,10 +2523,14 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucide-react@1.48.0:
-    resolution: {integrity: sha512-R0CIKY/fXiC6y9xRBADgsK+VW2p/pcTJOMhLZf1T+uG+vJUvyUR02nGOgmIIC7MPkiNK4Ox8QDnbqF8rJYWPZQ==}
+  lucide-react@1.49.0:
+    resolution: {integrity: sha512-ApfaNM4/7jBrVopqLJ84Jz8TMQ1Q1JeZ1PmKh25aeS3E1FTVcMkSh1bEQB7dfzdIrwXRP8p3z4AJjTIHHb5IIA==}
     peerDependencies:
+      '@types/react': '*'
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -3420,15 +3424,15 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  '@fumadocs/base-ui@16.15.11(@types/mdx@2.0.14)(@types/react@19.3.0)(fumadocs-core@16.15.15(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.1.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.48.0(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(tailwindcss@4.3.3)':
+  '@fumadocs/base-ui@16.15.11(@types/mdx@2.0.14)(@types/react@19.3.0)(fumadocs-core@16.15.17(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.2.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.49.0(@types/react@19.3.0)(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(tailwindcss@4.3.3)':
     dependencies:
       '@base-ui/react': 1.8.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fuma-translate/react': 1.0.2(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fumadocs/tailwind': 0.1.2(tailwindcss@4.3.3)
       class-variance-authority: 0.7.1
       cn: 0.2.6
-      fumadocs-core: 16.15.15(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.1.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.48.0(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5)
-      lucide-react: 1.48.0(react@19.3.0)
+      fumadocs-core: 16.15.17(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.2.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.49.0(@types/react@19.3.0)(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5)
+      lucide-react: 1.49.0(@types/react@19.3.0)(react@19.3.0)
       motion: 13.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       next-themes: 0.4.6(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
@@ -3581,614 +3585,614 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@lumis-sh/lumis-native-darwin-arm64@0.9.2':
+  '@lumis-sh/lumis-native-darwin-arm64@0.9.3':
     optional: true
 
-  '@lumis-sh/lumis-native-darwin-x64@0.9.2':
+  '@lumis-sh/lumis-native-darwin-x64@0.9.3':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-arm64-gnu@0.9.2':
+  '@lumis-sh/lumis-native-linux-arm64-gnu@0.9.3':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-arm64-musl@0.9.2':
+  '@lumis-sh/lumis-native-linux-arm64-musl@0.9.3':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-x64-gnu@0.9.2':
+  '@lumis-sh/lumis-native-linux-x64-gnu@0.9.3':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-x64-musl@0.9.2':
+  '@lumis-sh/lumis-native-linux-x64-musl@0.9.3':
     optional: true
 
-  '@lumis-sh/lumis-native-win32-arm64-msvc@0.9.2':
+  '@lumis-sh/lumis-native-win32-arm64-msvc@0.9.3':
     optional: true
 
-  '@lumis-sh/lumis-native-win32-x64-msvc@0.9.2':
+  '@lumis-sh/lumis-native-win32-x64-msvc@0.9.3':
     optional: true
 
-  '@lumis-sh/lumis@0.9.2':
+  '@lumis-sh/lumis@0.9.3':
     dependencies:
-      '@noble/hashes': 2.3.0
+      '@noble/hashes': 2.4.0
       pathe: 2.0.3
       semver: 7.8.5
     optionalDependencies:
-      '@lumis-sh/lumis-native-darwin-arm64': 0.9.2
-      '@lumis-sh/lumis-native-darwin-x64': 0.9.2
-      '@lumis-sh/lumis-native-linux-arm64-gnu': 0.9.2
-      '@lumis-sh/lumis-native-linux-arm64-musl': 0.9.2
-      '@lumis-sh/lumis-native-linux-x64-gnu': 0.9.2
-      '@lumis-sh/lumis-native-linux-x64-musl': 0.9.2
-      '@lumis-sh/lumis-native-win32-arm64-msvc': 0.9.2
-      '@lumis-sh/lumis-native-win32-x64-msvc': 0.9.2
+      '@lumis-sh/lumis-native-darwin-arm64': 0.9.3
+      '@lumis-sh/lumis-native-darwin-x64': 0.9.3
+      '@lumis-sh/lumis-native-linux-arm64-gnu': 0.9.3
+      '@lumis-sh/lumis-native-linux-arm64-musl': 0.9.3
+      '@lumis-sh/lumis-native-linux-x64-gnu': 0.9.3
+      '@lumis-sh/lumis-native-linux-x64-musl': 0.9.3
+      '@lumis-sh/lumis-native-win32-arm64-msvc': 0.9.3
+      '@lumis-sh/lumis-native-win32-x64-msvc': 0.9.3
 
   '@lumis-sh/themes@0.4.0': {}
 
-  '@lumis-sh/wasm-angular@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-angular@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-arduino@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-arduino@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-asm@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-asm@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-astro@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-astro@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-bash@0.26.6(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-bash@0.26.6(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-bicep@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-bicep@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-bundle-full@0.1.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-bundle-full@0.1.4(@lumis-sh/lumis@0.9.3)':
     dependencies:
-      '@lumis-sh/lumis': 0.9.2
-      '@lumis-sh/wasm-angular': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-arduino': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-asm': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-astro': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-bash': 0.26.6(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-bicep': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-c': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-caddy': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-clojure': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-cmake': 0.26.5(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-comment': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-commonlisp': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-cpp': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-csharp': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-css': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-csv': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-d': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-dart': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-diff': 0.26.5(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-dockerfile': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-dot': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-editorconfig': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-eex': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-elixir': 0.26.5(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-elm': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-embedded-template': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-erlang': 0.26.5(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-fish': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-fortran': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-fsharp': 0.26.8(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-gitattributes': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-gitignore': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-gleam': 0.26.6(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-glimmer': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-glsl': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-go': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-graphql': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-haskell': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-hcl': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-heex': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-html': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-http': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-iex': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-ini': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-java': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-javadoc': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-javascript': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-jinja': 0.26.6(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-jinja_inline': 0.26.5(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-jq': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-json': 0.26.5(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-json5': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-julia': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-just': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-kdl': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-kotlin': 0.26.5(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-latex': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-liquid': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-llvm': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-lua': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-luadoc': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-make': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-markdown': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-markdown_inline': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-matlab': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-mermaid': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-nginx': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-nim': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-nix': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-nushell': 0.26.7(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-objc': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-ocaml': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-ocaml_interface': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-pascal': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-perl': 0.26.5(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-php': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-powershell': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-prisma': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-protobuf': 0.26.5(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-puppet': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-python': 0.26.5(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-qmljs': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-r': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-racket': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-regex': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-rst': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-ruby': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-rust': 0.26.5(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-scala': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-scheme': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-scss': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-solidity': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-sql': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-surface': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-svelte': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-swift': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-tcl': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-terraform': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-toml': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-toon': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-tsx': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-typescript': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-typst': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-vhdl': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-vim': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-vue': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-wat': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-wgsl': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-xml': 0.26.4(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-yaml': 0.26.3(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-zig': 0.26.2(@lumis-sh/lumis@0.9.2)
-      '@lumis-sh/wasm-zsh': 0.26.2(@lumis-sh/lumis@0.9.2)
+      '@lumis-sh/lumis': 0.9.3
+      '@lumis-sh/wasm-angular': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-arduino': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-asm': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-astro': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-bash': 0.26.6(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-bicep': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-c': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-caddy': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-clojure': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-cmake': 0.26.5(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-comment': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-commonlisp': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-cpp': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-csharp': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-css': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-csv': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-d': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-dart': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-diff': 0.26.5(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-dockerfile': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-dot': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-editorconfig': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-eex': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-elixir': 0.26.5(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-elm': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-embedded-template': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-erlang': 0.26.5(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-fish': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-fortran': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-fsharp': 0.26.8(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-gitattributes': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-gitignore': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-gleam': 0.26.6(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-glimmer': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-glsl': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-go': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-graphql': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-haskell': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-hcl': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-heex': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-html': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-http': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-iex': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-ini': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-java': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-javadoc': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-javascript': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-jinja': 0.26.6(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-jinja_inline': 0.26.5(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-jq': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-json': 0.26.5(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-json5': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-julia': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-just': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-kdl': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-kotlin': 0.26.5(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-latex': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-liquid': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-llvm': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-lua': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-luadoc': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-make': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-markdown': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-markdown_inline': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-matlab': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-mermaid': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-nginx': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-nim': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-nix': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-nushell': 0.26.7(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-objc': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-ocaml': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-ocaml_interface': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-pascal': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-perl': 0.26.5(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-php': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-powershell': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-prisma': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-protobuf': 0.26.5(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-puppet': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-python': 0.26.5(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-qmljs': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-r': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-racket': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-regex': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-rst': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-ruby': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-rust': 0.26.5(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-scala': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-scheme': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-scss': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-solidity': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-sql': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-surface': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-svelte': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-swift': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-tcl': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-terraform': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-toml': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-toon': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-tsx': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-typescript': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-typst': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-vhdl': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-vim': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-vue': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-wat': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-wgsl': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-xml': 0.26.4(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-yaml': 0.26.3(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-zig': 0.26.2(@lumis-sh/lumis@0.9.3)
+      '@lumis-sh/wasm-zsh': 0.26.2(@lumis-sh/lumis@0.9.3)
 
-  '@lumis-sh/wasm-c@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-c@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-caddy@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-caddy@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-clojure@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-clojure@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-cmake@0.26.5(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-cmake@0.26.5(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-comment@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-comment@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-commonlisp@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-commonlisp@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-cpp@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-cpp@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-csharp@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-csharp@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-css@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-css@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-csv@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-csv@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-d@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-d@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-dart@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-dart@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-diff@0.26.5(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-diff@0.26.5(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-dockerfile@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-dockerfile@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-dot@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-dot@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-editorconfig@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-editorconfig@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-eex@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-eex@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-elixir@0.26.5(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-elixir@0.26.5(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-elm@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-elm@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-embedded-template@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-embedded-template@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-erlang@0.26.5(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-erlang@0.26.5(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-fish@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-fish@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-fortran@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-fortran@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-fsharp@0.26.8(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-fsharp@0.26.8(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-gitattributes@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-gitattributes@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-gitignore@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-gitignore@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-gleam@0.26.6(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-gleam@0.26.6(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-glimmer@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-glimmer@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-glsl@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-glsl@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-go@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-go@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-graphql@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-graphql@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-haskell@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-haskell@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-hcl@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-hcl@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-heex@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-heex@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-html@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-html@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-http@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-http@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-iex@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-iex@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-ini@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-ini@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-java@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-java@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-javadoc@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-javadoc@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-javascript@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-javascript@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-jinja@0.26.6(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-jinja@0.26.6(@lumis-sh/lumis@0.9.3)':
     dependencies:
-      '@lumis-sh/wasm-jinja_inline': 0.26.5(@lumis-sh/lumis@0.9.2)
+      '@lumis-sh/wasm-jinja_inline': 0.26.5(@lumis-sh/lumis@0.9.3)
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-jinja_inline@0.26.5(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-jinja_inline@0.26.5(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-jq@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-jq@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-json5@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-json5@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-json@0.26.5(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-json@0.26.5(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-julia@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-julia@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-just@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-just@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-kdl@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-kdl@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-kotlin@0.26.5(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-kotlin@0.26.5(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-latex@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-latex@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-liquid@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-liquid@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-llvm@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-llvm@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-lua@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-lua@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-luadoc@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-luadoc@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-make@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-make@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-markdown@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-markdown@0.26.3(@lumis-sh/lumis@0.9.3)':
     dependencies:
-      '@lumis-sh/wasm-markdown_inline': 0.26.3(@lumis-sh/lumis@0.9.2)
+      '@lumis-sh/wasm-markdown_inline': 0.26.3(@lumis-sh/lumis@0.9.3)
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-markdown_inline@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-markdown_inline@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-matlab@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-matlab@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-mermaid@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-mermaid@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-nginx@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-nginx@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-nim@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-nim@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-nix@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-nix@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-nushell@0.26.7(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-nushell@0.26.7(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-objc@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-objc@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-ocaml@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-ocaml@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-ocaml_interface@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-ocaml_interface@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-pascal@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-pascal@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-perl@0.26.5(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-perl@0.26.5(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-php@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-php@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-powershell@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-powershell@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-prisma@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-prisma@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-protobuf@0.26.5(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-protobuf@0.26.5(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-puppet@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-puppet@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-python@0.26.5(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-python@0.26.5(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-qmljs@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-qmljs@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-r@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-r@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-racket@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-racket@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-regex@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-regex@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-rst@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-rst@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-ruby@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-ruby@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-rust@0.26.5(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-rust@0.26.5(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-scala@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-scala@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-scheme@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-scheme@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-scss@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-scss@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-solidity@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-solidity@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-sql@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-sql@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-surface@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-surface@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-svelte@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-svelte@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-swift@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-swift@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-tcl@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-tcl@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-terraform@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-terraform@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-toml@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-toml@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-toon@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-toon@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-tsx@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-tsx@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-typescript@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-typescript@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-typst@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-typst@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-vhdl@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-vhdl@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-vim@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-vim@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-vue@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-vue@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-wat@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-wat@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-wgsl@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-wgsl@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-xml@0.26.4(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-xml@0.26.4(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-yaml@0.26.3(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-yaml@0.26.3(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-zig@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-zig@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
-  '@lumis-sh/wasm-zsh@0.26.2(@lumis-sh/lumis@0.9.2)':
+  '@lumis-sh/wasm-zsh@0.26.2(@lumis-sh/lumis@0.9.3)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.2
+      '@lumis-sh/lumis': 0.9.3
 
   '@mdx-js/mdx@3.1.1(supports-color@8.1.1)':
     dependencies:
@@ -4220,13 +4224,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@modelcontextprotocol/core@2.1.0':
+  '@modelcontextprotocol/core@2.2.0':
     dependencies:
       zod: 4.6.5
 
-  '@modelcontextprotocol/server@2.1.0':
+  '@modelcontextprotocol/server@2.2.0':
     dependencies:
-      '@modelcontextprotocol/core': 2.1.0
+      '@modelcontextprotocol/core': 2.2.0
       zod: 4.6.5
 
   '@next/env@16.3.8': {}
@@ -4255,7 +4259,7 @@ snapshots:
   '@next/swc-win32-x64-msvc@16.3.8':
     optional: true
 
-  '@noble/hashes@2.3.0': {}
+  '@noble/hashes@2.4.0': {}
 
   '@shikijs/core@4.4.3':
     dependencies:
@@ -4727,7 +4731,7 @@ snapshots:
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
 
-  fumadocs-core@16.15.15(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.1.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.48.0(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5):
+  fumadocs-core@16.15.17(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.2.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.49.0(@types/react@19.3.0)(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5):
     dependencies:
       '@fumari/image-size': 0.1.1
       estree-util-value-to-estree: 3.5.0
@@ -4750,13 +4754,13 @@ snapshots:
       zbsearch: 4.0.0
     optionalDependencies:
       '@mdx-js/mdx': 3.1.1(supports-color@8.1.1)
-      '@modelcontextprotocol/server': 2.1.0
+      '@modelcontextprotocol/server': 2.2.0
       '@types/estree-jsx': 1.0.5
       '@types/hast': 3.0.5
       '@types/mdast': 4.0.4
       '@types/react': 19.3.0
       algoliasearch: 5.49.2
-      lucide-react: 1.48.0(react@19.3.0)
+      lucide-react: 1.49.0(@types/react@19.3.0)(react@19.3.0)
       next: 16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
@@ -4764,14 +4768,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  fumadocs-mdx@15.4.5(@types/mdast@4.0.4)(@types/mdx@2.0.14)(@types/react@19.3.0)(fumadocs-core@16.15.15(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.1.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.48.0(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5))(mdast-util-directive@3.1.0(supports-color@8.1.1))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(supports-color@8.1.1):
+  fumadocs-mdx@15.4.5(@types/mdast@4.0.4)(@types/mdx@2.0.14)(@types/react@19.3.0)(fumadocs-core@16.15.17(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.2.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.49.0(@types/react@19.3.0)(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5))(mdast-util-directive@3.1.0(supports-color@8.1.1))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(supports-color@8.1.1):
     dependencies:
       '@mdx-js/mdx': 3.1.1(supports-color@8.1.1)
       '@standard-schema/spec': 1.1.0
       chokidar: 5.0.0
       esbuild: 0.28.2
       estree-util-value-to-estree: 3.5.0
-      fumadocs-core: 16.15.15(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.1.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.48.0(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5)
+      fumadocs-core: 16.15.17(@mdx-js/mdx@3.1.1(supports-color@8.1.1))(@modelcontextprotocol/server@2.2.0)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(algoliasearch@5.49.2)(lucide-react@1.49.0(@types/react@19.3.0)(react@19.3.0))(next@16.3.8(@babel/core@7.29.0(supports-color@8.1.1))(@types/node@26.6.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@8.1.1)(zod@4.6.5)
       github-slugger: 2.0.0
       magic-string: 1.4.1
       mdast-util-mdx: 3.0.0(supports-color@8.1.1)
@@ -5000,9 +5004,11 @@ snapshots:
       yallist: 3.1.1
     optional: true
 
-  lucide-react@1.48.0(react@19.3.0):
+  lucide-react@1.49.0(@types/react@19.3.0)(react@19.3.0):
     dependencies:
       react: 19.3.0
+    optionalDependencies:
+      '@types/react': 19.3.0
 
   magic-string@0.30.21:
     dependencies:
