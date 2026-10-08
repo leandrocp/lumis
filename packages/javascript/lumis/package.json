@@ -125,7 +125,7 @@
     "tsup": "^8.3.0",
     "tsx": "^4.19.0",
     "typedoc": "^0.28.18",
-    "typescript": "^6.0.2",
+    "typescript": "^7.0.2",
     "vite": "^8.0.3",
     "vitest": "^5.0.2",
     "web-tree-sitter": "0.26.13"
