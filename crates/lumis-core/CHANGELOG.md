@@ -1,3 +1,10 @@
+## [4.0.2](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v4.0.1...cargo-lumis-core/v4.0.2) (2026-10-09)
+
+### Bug Fixes
+
+- **release:** Separate new changelog entries from history in [\#1661](https://github.com/leandrocp/lumis/pull/1661)
+- **cli:** Choose readable themes from terminal colors in [\#1733](https://github.com/leandrocp/lumis/pull/1733)
+
 ## [4.0.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v4.0.0...cargo-lumis-core/v4.0.1) (2026-10-02)
 
 ### Bug Fixes
