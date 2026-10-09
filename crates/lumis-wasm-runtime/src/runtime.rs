@@ -1588,6 +1588,72 @@ mod tests {
         );
     }
 
+    #[test]
+    fn atoms_respects_the_time_budget() {
+        // Nested alternatives leave many matches open along a long `or` chain.
+        let alternatives = (0..=20)
+            .map(|depth| {
+                format!(
+                    "{}(identifier) @local.definition{}",
+                    "(_ ".repeat(depth),
+                    ")".repeat(depth)
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+        let runtime = Runtime::with_worker_limit(1).unwrap();
+        runtime
+            .load_language(LanguageSpec {
+                id: "elixir".into(),
+                aliases: Vec::new(),
+                grammar_name: "elixir".into(),
+                wasm: include_bytes!("../../../fixtures/test-parsers/tree-sitter-elixir.wasm")
+                    .to_vec(),
+                highlights: "(identifier) @variable".into(),
+                injections: String::new(),
+                locals: format!("(binary_operator left: [{alternatives}] operator: \"=\")"),
+                brackets: String::new(),
+            })
+            .unwrap();
+        let control = runtime.highlight("x = 1", "elixir", false).unwrap();
+        assert!(control
+            .iter()
+            .any(|event| matches!(event, HighlightEvent::Start { .. })));
+
+        let source = include_str!("../../../fixtures/regressions/atoms.ex");
+        let source_len = source.len();
+        let (sender, receiver) = mpsc::sync_channel(1);
+        let worker = thread::spawn(move || {
+            let started = Instant::now();
+            let output = runtime
+                .highlight_with(
+                    source,
+                    "elixir",
+                    &HighlightOptions {
+                        time_limit_ms: Some(100),
+                        ..HighlightOptions::default()
+                    },
+                )
+                .unwrap();
+            sender.send((started.elapsed(), output)).unwrap();
+        });
+        let (elapsed, output) = receiver
+            .recv_timeout(Duration::from_secs(1))
+            .expect("a 100 ms highlight exceeded the one-second watchdog");
+        worker.join().unwrap();
+
+        // Parser loading is excluded; allow CI scheduling overhead.
+        assert!(
+            elapsed < Duration::from_millis(250),
+            "highlight took {elapsed:?}"
+        );
+        assert_eq!(output.budget, Some(BudgetExhausted::Time));
+        assert!(matches!(
+            output.events.as_slice(),
+            [HighlightEvent::Source { start: 0, end }] if *end == source_len
+        ));
+    }
+
     /// The Node addon loads an installed language from inside the resolver
     /// callback, so that load has to be given back just like the store's.
     #[test]
