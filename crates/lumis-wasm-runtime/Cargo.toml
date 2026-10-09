@@ -28,7 +28,7 @@ semver = "1"
 sha2 = "0.11"
 tempfile = "3"
 toml = "1.1"
-wasmparser = "0.259"
+wasmparser = "0.260"
 
 [dev-dependencies]
 tree-sitter-json = "0.24.8"
