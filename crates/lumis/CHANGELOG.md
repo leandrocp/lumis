@@ -1,3 +1,9 @@
+## [0.17.1](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.17.0...cargo-lumis/v0.17.1) (2026-10-10)
+
+### Dependencies
+
+- Upgrade Tree-sitter to 0.27.1 in [\#1739](https://github.com/leandrocp/lumis/pull/1739)
+
 ## [0.17.0](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.16.1...cargo-lumis/v0.17.0) (2026-10-06)
 
 ### Features
