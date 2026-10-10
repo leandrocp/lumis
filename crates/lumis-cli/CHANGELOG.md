@@ -1,3 +1,17 @@
+## [0.8.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.0...cargo-lumis-cli/v0.8.1) (2026-10-10)
+
+### Features
+
+- **languages:** Add flutter and golang aliases in [\#1724](https://github.com/leandrocp/lumis/pull/1724)
+
+### Bug Fixes
+
+- **cli:** Choose readable themes from terminal colors in [\#1733](https://github.com/leandrocp/lumis/pull/1733)
+
+### Dependencies
+
+- Upgrade Tree-sitter to 0.27.1 in [\#1739](https://github.com/leandrocp/lumis/pull/1739)
+
 ## [0.8.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.7.2...cargo-lumis-cli/v0.8.0) (2026-10-06)
 
 ### Testing
