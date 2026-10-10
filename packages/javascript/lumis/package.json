@@ -1,6 +1,6 @@
 {
   "name": "@lumis-sh/lumis",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Syntax Highlighter powered by Tree-sitter and Neovim themes",
   "author": "Leandro Pereira",
   "license": "MIT",

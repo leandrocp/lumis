@@ -1,3 +1,17 @@
+## [0.9.4](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.9.3...npm-lumis/v0.9.4) (2026-10-10)
+
+### Features
+
+- **languages:** Add flutter and golang aliases in [\#1724](https://github.com/leandrocp/lumis/pull/1724)
+
+### Bug Fixes
+
+- **cli:** Choose readable themes from terminal colors in [\#1733](https://github.com/leandrocp/lumis/pull/1733)
+
+### Dependencies
+
+- Upgrade Tree-sitter to 0.27.1 in [\#1739](https://github.com/leandrocp/lumis/pull/1739)
+
 ## [0.9.3](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.9.2...npm-lumis/v0.9.3) (2026-10-06)
 
 ### Features
