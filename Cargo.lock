@@ -1546,7 +1546,7 @@ dependencies = [
 
 [[package]]
 name = "lumis-core"
-version = "4.0.1"
+version = "4.0.2"
 dependencies = [
  "derive_builder",
  "glob",
