@@ -1,3 +1,9 @@
+## [0.10.3](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.2...hex-lumis/v0.10.3) (2026-10-10)
+
+### Dependencies
+
+- Upgrade Tree-sitter to 0.27.1 in [\#1739](https://github.com/leandrocp/lumis/pull/1739)
+
 ## [0.10.2](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.1...hex-lumis/v0.10.2) (2026-10-06)
 
 ### Bug Fixes
