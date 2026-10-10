@@ -1,3 +1,9 @@
+## [0.5.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.5.0...cargo-lumis-wasm-runtime/v0.5.1) (2026-10-10)
+
+### Features
+
+- **languages:** Add flutter and golang aliases in [\#1724](https://github.com/leandrocp/lumis/pull/1724)
+
 ## [0.5.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.4.1...cargo-lumis-wasm-runtime/v0.5.0) (2026-10-06)
 
 ### chore
