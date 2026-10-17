@@ -29,16 +29,25 @@ Not merged is not released.
 11. npm-react                    needs 7
 12. npm-cli
 13. hex-lumis                    needs 1 and 3 published to crates.io
+14. wasm-bundles                 needs its members on npm and Hex
 ```
 
 Merge order is publish order; nothing enforces it. This is every releasable package —
 the list itself lives in `mise run release-packages`.
 
-`@lumis-sh/wasm-bundle-*` is not on that list and has no tag. A bundle is a
-manifest and an import list derived from `languages.toml`, so it is generated at
-publish time like the parser packages and versioned the same way: its dependency
-list is its identity, and `wasm-release.yml` gives it the next patch whenever
-that list changes. Nothing to bump and nothing to remember.
+`wasm-bundles` releases every `@lumis-sh/wasm-bundle-*` and `lumis_wasm_bundle_*`
+under one version. `wasm-bundles.json` records each bundle's last release: its
+version, `lumis.bundleFormat` and dependency ranges. The release pull request
+moves only the bundles that no longer match that record, to one patch past the
+highest bundle version the record, npm or Hex has seen. The rest keep theirs.
+
+Its `bundles-check` fails until every member, at its required range, is on npm
+and Hex. A language merged into `main` updates the pull request before its parser
+publishes, so re-run the check once the parser is out. The `wasm-bundles/v<version>`
+tag publishes from `wasm-release.yml`, each registry checked on its own, so a
+re-run publishes only where that version is still missing. A bundle whose members
+changed between the last update of the pull request and its merge is not
+published; that run fails, and the next release pull request picks the bundle up.
 
 - `npm-lumis` and `npm-cli` publish their `@lumis-sh/lumis-native-*` / `@lumis-sh/cli-*`
   platform packages first, at the same version. `release-prepare` bumps them together
@@ -49,14 +58,15 @@ that list changes. Nothing to bump and nothing to remember.
 - `@lumis-sh/wasm-*` parser packages are outside this flow: `wasm-release.yml` publishes
   them on any push to `main` that touches parsers, queries or the package templates.
   `mise run wasm-publish-needed` lists pending ones.
-- A change to what a parser or bundle package contains bumps `PACKAGE_FORMAT_VERSION`
-  or `BUNDLE_FORMAT_VERSION` in `crates/dev`, and merging it republishes every parser
-  or bundle on npm. That happens on the push to `main`, before any runtime release that
-  reads the new format can ship, so the order takes care of itself. Let that WASM
-  Release run finish before merging `npm-lumis`.
-- Each registry is checked on its own. Hex gets a release only when its newest
+- A change to what a parser package contains bumps `PACKAGE_FORMAT_VERSION` in
+  `crates/dev`, and merging it republishes every parser on npm. That happens on the
+  push to `main`, before any runtime release that reads the new format can ship, so
+  the order takes care of itself. Let that WASM Release run finish before merging
+  `npm-lumis`. Bumping `BUNDLE_FORMAT_VERSION` in `build-wasm-bundles.ts` puts every
+  bundle in the next `wasm-bundles` release instead, on both registries.
+- Each registry is checked on its own. Hex gets a parser release only when its newest
   release ships another definition (a new parser, queries or required grammar), read
-  from that release's `lumis.json`, or a bundle's members change. A format change that
+  from that release's `lumis.json`. A format change that
   touches only the npm entry leaves Hex on the version it has, so Hex and npm versions
   can differ. When a format change does reach what Hex ships (`priv/parsers`,
   `mix.exs`, the README), raise the `lumis-language-package-v3` tag in
@@ -240,10 +250,11 @@ repository write access can publish*. That was equally true of `NPM_TOKEN`,
 which any branch's workflow could read, so this is not a new exposure — but it
 is not one trusted publishing removes either.
 
-What holds the line today is the `github.ref == 'refs/heads/main'` guard on the
-publishing jobs. Note what that is worth: `workflow_dispatch` runs the workflow
-file **from the ref you pick**, so the guard is only as good as the file on that
-branch. npm's third, optional claim is a GitHub **environment**, which would
+What holds the line today is the ref guard on the publishing jobs: `main`, or a
+release tag such as `wasm-bundles/v*`, which `release-tag.yml` pushes but anyone
+with write access can too. Note what that is worth: `workflow_dispatch` runs
+the workflow file **from the ref you pick**, so the guard is only as good as the
+file on that branch. npm's third, optional claim is a GitHub **environment**, which would
 move the check into repository settings where a branch cannot rewrite it. It is
 deliberately not used. Adding it later means revoking and re-adding all 142
 configurations, so it is a decision to revisit as a whole, not per package.

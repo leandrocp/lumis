@@ -1136,6 +1136,7 @@ npm-vite|packages/javascript/vite
 npm-react|packages/javascript/react
 npm-cli|packages/javascript/cli
 hex-lumis|packages/elixir/lumis
+wasm-bundles|wasm-bundles.json|languages.toml|packages/javascript/scripts/build-wasm-bundles.ts
 TABLE
 '''
 
@@ -1321,6 +1322,7 @@ case "${package%%-*}" in
     cargo) sed -n 's/^version = "\([^"]*\)"$/\1/p' "$directory/Cargo.toml" | head -n1 ;;
     npm) jq -r .version "$directory/package.json" ;;
     hex) sed -n 's/^  @version "\([^"]*\)"$/\1/p' "$directory/mix.exs" | head -n1 ;;
+    wasm) jq -r .version "$directory" ;;
 esac
 '''
 
@@ -1342,6 +1344,15 @@ while IFS= read -r entry; do
 
     if [ -n "$tag" ] && [ "$current" != "${tag#*/v}" ]; then
         printf 'skipping %s: %s is already prepared and %s is still the latest tag\n' "$package" "$current" "$tag" >&2
+        continue
+    fi
+
+    if [ "$package" = "wasm-bundles" ]; then
+        pnpm --dir packages/javascript run build:wasm-bundles >&2
+        next="$(cargo run -q --manifest-path crates/dev/Cargo.toml -- wasm-bundles-plan)"
+        if [ -n "$next" ]; then
+            printf '%s %s\n' "$package" "$next"
+        fi
         continue
     fi
 
@@ -1434,6 +1445,13 @@ entry="$(mise run release-packages | awk -F'|' -v name="$package" '$1 == name')"
 if [ -z "$entry" ]; then
     echo "Unknown package: $package" >&2
     exit 1
+fi
+
+if [ "$package" = "wasm-bundles" ]; then
+    pnpm --dir packages/javascript run build:wasm-bundles
+    cargo run -q --manifest-path crates/dev/Cargo.toml -- wasm-bundles-prepare "$version"
+    printf 'Prepared %s %s\n' "$package" "$version"
+    exit 0
 fi
 
 IFS='|' read -r -a package_paths <<< "${entry#*|}"

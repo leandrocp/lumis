@@ -16,9 +16,8 @@ const LUMIS_PACKAGE_JSON = path.resolve(import.meta.dirname, "../lumis/package.j
 /// so a copy in the tree is a second source of truth that goes stale the moment
 /// membership changes without someone bumping a version by hand.
 ///
-/// `--out` is where they land and `--version` is what they claim. The release
-/// planner owns both: it decides the version from what is published, the same
-/// way it does for parsers.
+/// `--out` is where they land and `--version` is what they claim, which the
+/// release takes from `wasm-bundles.json`.
 function argValue(flag: string): string | undefined {
   const index = process.argv.indexOf(flag);
   return index === -1 ? undefined : process.argv[index + 1];
@@ -28,10 +27,9 @@ const OUT_DIR = path.resolve(WORKSPACE_ROOT, argValue("--out") ?? path.join("tmp
 const VERSION = argValue("--version") ?? "0.0.0";
 
 /**
- * Carried as `lumis.bundleFormat`, so a change to what a bundle exports publishes
- * a new version even when its members stay the same. 3: the bundle carries its
- * module URL so Node can find its dependencies from any working directory. Must match
- * `BUNDLE_FORMAT_VERSION` in `crates/dev`.
+ * Carried as `lumis.bundleFormat`, so a change to what a bundle exports is a new
+ * bundle release even when its members stay the same. 3: the bundle carries its
+ * module URL so Node can find its dependencies from any working directory.
  */
 const BUNDLE_FORMAT_VERSION = 3;
 

@@ -16,6 +16,8 @@ permissions:
 on:
   push:
     branches: [main]
+    # Path filters do not apply to tags, which `release-tag.yml` pushes.
+    tags: ["wasm-bundles/v*"]
     paths:
       - "languages.toml"
       - "crates/dev/**"
@@ -30,12 +32,12 @@ on:
       - ".github/workflows/wasm-release.yml"
       - ".github/workflows/wasm-release-parser.yml"
       - ".github/workflows/upgrade-langs.yml"
-  # Plan only, never publish. Everything the plan needs — the toolchain,
-  # staging the bundles, reading their manifests, reaching both registries —
-  # otherwise runs for the first time after a merge, where a mistake stops a
-  # release rather than a pull request.
+  # Plan only, never publish. Everything the plan needs — the toolchain and
+  # reaching both registries — otherwise runs for the first time after a merge,
+  # where a mistake stops a release rather than a pull request.
   pull_request:
     paths:
+      - "wasm-bundles.json"
       - "languages.toml"
       - "crates/dev/**"
       - "crates/lumis/vendored_parsers/**"
@@ -60,10 +62,10 @@ jobs:
   # The same work `plan` does, on a pull request, publishing nothing.
   #
   # `plan` is guarded to `refs/heads/main`, so until now every part of it — the
-  # toolchain it needs, staging the bundles, reading their manifests, reaching
-  # npm and Hex — first ran after a merge. Three releases broke that way in a
-  # day: a missing `pnpm`, a missing `pnpm install`, and a plan that resolved a
-  # version for a package whose trusted publisher named another workflow.
+  # toolchain it needs and reaching npm and Hex — first ran after a merge. Three
+  # releases broke that way in a day: a missing `pnpm`, a missing `pnpm install`,
+  # and a plan that resolved a version for a package whose trusted publisher
+  # named another workflow.
   #
   # This catches the first two. It cannot catch the third: a trusted publisher
   # lives on the npm package record, and nothing short of a real publish — with
@@ -101,18 +103,6 @@ jobs:
           workspaces: "crates/dev -> target"
           shared-key: wasm-release-plan
 
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          version: 11.15.1
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
-        with:
-          node-version: "lts/*"
-
-      - name: Stage the bundles
-        run: |
-          pnpm install --frozen-lockfile --ignore-scripts
-          pnpm --dir packages/javascript run build:wasm-bundles
-
       # Printed to the summary because the useful review question about a
       # release-affecting change is "what would this publish", and reading it
       # off a log means opening the run.
@@ -125,15 +115,10 @@ jobs:
             echo "### Release plan"
             echo
             echo '```'
-            echo "$plan" | jq -r '
-              (.parsers[] | "parser  \(.wasm_name) \(.version) npm=\(.npm) hex=\(.hex)"),
-              (.bundles[] | "bundle  \(.bundle) \(.version) npm=\(.npm) hex=\(.hex)")
-            '
+            echo "$plan" | jq -r '.parsers[] | "parser  \(.wasm_name) \(.version) npm=\(.npm) hex=\(.hex)"'
             echo '```'
             echo
-            printf 'Merging publishes %s parsers and %s bundles.\n' \
-              "$(echo "$plan" | jq -r '.parsers | length')" \
-              "$(echo "$plan" | jq -r '.bundles | length')"
+            printf 'Merging publishes %s parsers.\n' "$(echo "$plan" | jq -r '.parsers | length')"
           } >> "$GITHUB_STEP_SUMMARY"
 
           echo "$plan" | jq .
@@ -154,9 +139,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       parsers: ${{ steps.plan.outputs.parsers }}
-      bundles: ${{ steps.plan.outputs.bundles }}
-      bundles_npm: ${{ steps.plan.outputs.bundles_npm }}
-      bundle_members: ${{ steps.plan.outputs.bundle_members }}
       any: ${{ steps.plan.outputs.any }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -174,22 +156,6 @@ jobs:
           workspaces: "crates/dev -> target"
           shared-key: wasm-release-plan
 
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          version: 11.15.1
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
-        with:
-          node-version: "lts/*"
-
-      # Bundles are generated, not committed, so the planner has nothing to
-      # read until this runs. The version here is a placeholder: membership is
-      # what the plan needs, and the version it resolves is passed back to the
-      # generator when a bundle is actually published.
-      - name: Stage the bundles
-        run: |
-          pnpm install --frozen-lockfile --ignore-scripts
-          pnpm --dir packages/javascript run build:wasm-bundles
-
       - name: Plan the release
         id: plan
         env:
@@ -198,19 +164,12 @@ jobs:
           plan=$(cargo run -q --manifest-path crates/dev/Cargo.toml -- \
             wasm-release-plan "$PARSER_FILTER")
           echo "$plan" | jq -r '.parsers[] | "\(.wasm_name) \(.version) npm=\(.npm) hex=\(.hex)"'
-          echo "$plan" | jq -r '.bundles[] | "\(.app) \(.version) npm=\(.npm) hex=\(.hex)"'
 
           # One pipeline per parser that any registry is missing, publishing to
-          # whichever registries are missing it. Bundles carry no bytes, so they
-          # are published rather than built.
+          # whichever registries are missing it.
           {
             echo "parsers=$(echo "$plan" | jq -c '[.parsers[] | {parser: .wasm_name, version: .version, npm: .npm, hex: .hex, from_hex: .from_hex, npm_package: .npm_package, app: .hex_package}]')"
-            echo "bundles_npm=$(echo "$plan" | jq -c '[.bundles[] | select(.npm) | {bundle: .bundle, version: .version}]')"
-            echo "bundles=$(echo "$plan" | jq -c '[.bundles[] | select(.hex) | {bundle: .bundle, app: .app, version: .version}]')"
             echo "any=$(echo "$plan" | jq -r '.parsers | length > 0')"
-            # Each bundle's npm packages, read off the bundles staged above, so
-            # `bundles-ready` holds a bundle back only for its own members.
-            echo "bundle_members=$(jq -cn '[inputs | {key: (.name | ltrimstr("@lumis-sh/wasm-bundle-")), value: (.dependencies | keys)}] | from_entries' tmp/wasm/npm/wasm-bundle-*/package.json)"
           } >> "$GITHUB_OUTPUT"
 
       # Every parser job runs this same tool, so it is compiled once, here, and
@@ -309,61 +268,97 @@ jobs:
     secrets:
       HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
 
-  # Which planned bundles can publish, once every parser pipeline has finished.
-  # A bundle waits for its own members only: each member this run was
-  # publishing to a registry has to have published there, and a parser the
-  # bundle does not group cannot hold it back. Members outside the plan are
-  # already published. The next run publishes whatever waits here.
-  bundles-ready:
-    needs: [plan, release]
+  # The bundles' release pull request fails here until every member it requires
+  # is on both registries. Re-run it once the parsers it waits for are out.
+  bundles-check:
     if: >-
-      ${{ !cancelled() && needs.plan.result == 'success' &&
-          (needs.plan.outputs.bundles_npm != '[]' || needs.plan.outputs.bundles != '[]') }}
+      ${{ github.event_name == 'pull_request' &&
+          github.head_ref == 'release/wasm-bundles' }}
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-    outputs:
-      npm: ${{ steps.ready.outputs.npm }}
-      hex: ${{ steps.ready.outputs.hex }}
     steps:
-      # A parser pipeline's jobs are named "<parser> / <job>", from the
-      # `release` job's name and `wasm-release-parser.yml`.
-      - name: Match each bundle against its members
-        id: ready
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PARSERS: ${{ needs.plan.outputs.parsers }}
-          MEMBERS: ${{ needs.plan.outputs.bundle_members }}
-          BUNDLES_NPM: ${{ needs.plan.outputs.bundles_npm }}
-          BUNDLES_HEX: ${{ needs.plan.outputs.bundles }}
-        run: |
-          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs?per_page=100" \
-            --jq '.jobs[] | select(.conclusion == "success") | .name' > "$RUNNER_TEMP/succeeded"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
-          ready() {
-            local registry=$1 checked
-            checked=$(jq -c --argjson plan "$PARSERS" --argjson members "$MEMBERS" \
-              --rawfile succeeded "$RUNNER_TEMP/succeeded" --arg registry "$registry" '
-              ($succeeded | split("\n")) as $done
-              | map(. as $bundle | . + {waiting: [
-                  $plan[]
-                  | select(.[$registry])
-                  | select(.npm_package | IN(($members[$bundle.bundle] // [])[]))
-                  | select("\(.parser) / publish-\($registry)" | IN($done[]) | not)
-                  | .npm_package
-                ]})' <<< "$2")
-            jq -r --arg registry "$registry" '.[] | select(.waiting != [])
-              | "::warning::\($registry) bundle \(.bundle) waits for \(.waiting | join(", "))"' <<< "$checked"
-            echo "$registry=$(jq -c 'map(select(.waiting == []) | del(.waiting))' <<< "$checked")" >> "$GITHUB_OUTPUT"
-          }
-          ready npm "$BUNDLES_NPM"
-          ready hex "$BUNDLES_HEX"
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: "crates/dev -> target"
+          shared-key: wasm-release-plan
+
+      - name: Check every member is published
+        run: cargo run -q --manifest-path crates/dev/Cargo.toml -- wasm-bundles-check
+
+  # Bundles publish only from the tag a merged `chore(release): wasm-bundles`
+  # pull request gets, at the versions `wasm-bundles.json` records.
+  bundles-plan:
+    if: startsWith(github.ref, 'refs/tags/wasm-bundles/v')
+    runs-on: ubuntu-latest
+    outputs:
+      npm: ${{ steps.plan.outputs.npm }}
+      hex: ${{ steps.plan.outputs.hex }}
+      stale: ${{ steps.plan.outputs.stale }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: "crates/dev -> target"
+          shared-key: wasm-release-plan
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 11.15.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "lts/*"
+
+      - name: Stage the bundles
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm --dir packages/javascript run build:wasm-bundles
+
+      # Each registry is read on its own, so a re-run publishes only where the
+      # version is still missing.
+      - name: Plan the bundles
+        id: plan
+        run: |
+          set -euo pipefail
+          plan=$(cargo run -q --manifest-path crates/dev/Cargo.toml -- \
+            wasm-bundles-publish-plan "${GITHUB_REF_NAME#wasm-bundles/v}")
+          echo "$plan" | jq -r '.bundles[] | "\(.app) \(.version) npm=\(.npm) hex=\(.hex)"'
+          {
+            echo "npm=$(echo "$plan" | jq -c '[.bundles[] | select(.npm) | {bundle: .bundle, version: .version}]')"
+            echo "hex=$(echo "$plan" | jq -c '[.bundles[] | select(.hex) | {bundle: .bundle, app: .app, version: .version}]')"
+            echo "stale=$(echo "$plan" | jq -c '.stale')"
+          } >> "$GITHUB_OUTPUT"
+
+  # A bundle whose members changed between the pull request and its merge would
+  # publish members its check never saw. The next release pull request takes it.
+  bundles-stale:
+    needs: bundles-plan
+    if: needs.bundles-plan.outputs.stale != '[]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report the bundles left out
+        env:
+          STALE: ${{ needs.bundles-plan.outputs.stale }}
+        run: |
+          echo "::error::$(jq -r 'join(", ")' <<< "$STALE") changed after the release was prepared, so they were not published"
+          exit 1
 
   publish-npm-bundles:
-    needs: bundles-ready
-    if: >-
-      ${{ !cancelled() && needs.bundles-ready.result == 'success' &&
-          needs.bundles-ready.outputs.npm != '[]' }}
+    needs: bundles-plan
+    if: needs.bundles-plan.outputs.npm != '[]'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -371,7 +366,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.bundles-ready.outputs.npm) }}
+        include: ${{ fromJson(needs.bundles-plan.outputs.npm) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -390,9 +385,6 @@ jobs:
 
       - run: npm install --global npm@12
 
-      # Generated here rather than carried from `plan`, because only now is the
-      # version known. A bundle is a manifest and an import list, so generating
-      # it is milliseconds.
       - name: Generate the bundle
         run: |
           pnpm install --frozen-lockfile --ignore-scripts
@@ -410,18 +402,15 @@ jobs:
           BUNDLE: ${{ matrix.bundle }}
 
   # In parallel with the npm bundles, as a parser's Hex release is with its npm
-  # one, and with the same cost: if a bundle's npm publish fails where Hex
-  # succeeds, the next run releases that bundle to Hex again under a new patch.
+  # one.
   publish-hex-bundles:
-    needs: bundles-ready
-    if: >-
-      ${{ !cancelled() && needs.bundles-ready.result == 'success' &&
-          needs.bundles-ready.outputs.hex != '[]' }}
+    needs: bundles-plan
+    if: needs.bundles-plan.outputs.hex != '[]'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.bundles-ready.outputs.hex) }}
+        include: ${{ fromJson(needs.bundles-plan.outputs.hex) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:

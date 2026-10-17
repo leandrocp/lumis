@@ -879,11 +879,6 @@ The `wasm-release` workflow publishes to npm and Hex:
    **publish-npm** and **publish-hex** publish that artifact, in parallel, to
    whichever registries need it. A parser that fails stops its own pipeline;
    every other parser still publishes.
-3. **bundles-ready**, then **publish-npm-bundles** and **publish-hex-bundles**
-   in parallel — one job per bundle a registry is missing, once every parser
-   pipeline has finished. A bundle depends on every language it groups, so it
-   waits for its own members: one whose member failed to publish is held back
-   until the next run, and the others publish.
 
 So two parsers missing from both registries is two pipelines of one build and
 two publish jobs each, and neither registry is ever published from a build the
@@ -891,6 +886,12 @@ other did not get.
 
 Running it publishes everything pending. There is nothing to opt into: a package
 already on a registry at its resolved version is simply not in the plan.
+
+Bundles are not in that plan. They release through the `wasm-bundles` release
+pull request ([RELEASE.md](RELEASE.md#publish-order)), whose **bundles-check**
+fails until every member is on npm and Hex. Its tag runs **bundles-plan**, then
+**publish-npm-bundles** and **publish-hex-bundles** in parallel, one job per
+bundle a registry is missing at that version.
 
 **The version comes from the definition, not a counter.** A definition already
 published keeps the version it went out under, so a registry that is behind
@@ -912,15 +913,10 @@ staged from the parser in that release rather than a rebuild.
 **Hex gets a release only when its own package changes.** A Hex package is
 `priv/parsers`, a `mix.exs` and a README, so a format change that touches only
 the npm entry is no news to it. The plan compares the definition the newest Hex
-release ships with the one it would stage. For a bundle it compares the
-dependency list, members and ranges. When nothing differs, Hex keeps the version
-it has, and its versions and npm's part ways until the next change that reaches
-it. A language's `requires` is part of its definition, so a new required grammar
-is a new version on both.
-
-A run filtered to named parsers plans **no bundles**. A bundle depends on every
-parser it groups, and the ones it would be short of are exactly the ones the
-filter left out.
+release ships with the one it would stage. When nothing differs, Hex keeps the
+version it has, and its versions and npm's part ways until the next change that
+reaches it. A language's `requires` is part of its definition, so a new required
+grammar is a new version on both.
 
 `mise run wasm-publish-needed` still answers the narrower question of which
 parsers npm is behind on.
@@ -969,9 +965,10 @@ Versions match npm in both cases, because they are read from the npm package
 rather than recomputed — a parser takes the version from the `lumis.json`
 staged with it, and a bundle from `wasm-bundle-<name>/package.json`.
 
-Hex publishes on every run of `WASM Release`, alongside npm. There is no input
-to set and no separate trigger: the plan decides, and a package already on Hex
-at its resolved version is simply not in it.
+Parsers publish to Hex on every run of `WASM Release`, alongside npm. There is
+no input to set and no separate trigger: the plan decides, and a package already
+on Hex at its resolved version is simply not in it. Bundles publish to Hex from
+the `wasm-bundles/v*` tag run, the same way.
 
 Nothing asks a registry whether a version is already there. The plan settled
 that, and Hex rejects a duplicate regardless, which is what makes a retry safe
