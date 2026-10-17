@@ -1,3 +1,13 @@
+## [0.2.1](https://github.com/leandrocp/lumis/compare/npm-vite/v0.2.0...npm-vite/v0.2.1) (2026-10-17)
+
+### Features
+
+- **vite:** Skip unlabeled code blocks in [\#1749](https://github.com/leandrocp/lumis/pull/1749)
+
+### Bug Fixes
+
+- **javascript:** Require Lumis as an integration peer in [\#1751](https://github.com/leandrocp/lumis/pull/1751)
+
 ## [0.2.0](https://github.com/leandrocp/lumis/compare/npm-vite/v0.1.0...npm-vite/v0.2.0) (2026-09-29)
 
 
