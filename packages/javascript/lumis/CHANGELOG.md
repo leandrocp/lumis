@@ -1,3 +1,25 @@
+## [0.9.5](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.9.4...npm-lumis/v0.9.5) (2026-10-17)
+
+### Features
+
+- **themes:** Expose closest across Rust, JavaScript, and Elixir in [\#1750](https://github.com/leandrocp/lumis/pull/1750)
+- **api:** Align public language and theme modules in [\#1752](https://github.com/leandrocp/lumis/pull/1752)
+- **themes:** Update themes in [\#1767](https://github.com/leandrocp/lumis/pull/1767)
+- Update lang php in [\#1768](https://github.com/leandrocp/lumis/pull/1768)
+- Update lang erlang in [\#1766](https://github.com/leandrocp/lumis/pull/1766)
+- Update lang graphql in [\#1765](https://github.com/leandrocp/lumis/pull/1765)
+
+### Bug Fixes
+
+- Use theme names for multi-theme HTML classes in [\#1748](https://github.com/leandrocp/lumis/pull/1748)
+- Restore groovy and hurl in [\#1788](https://github.com/leandrocp/lumis/pull/1788)
+- Add missing queries  in [\#1786](https://github.com/leandrocp/lumis/pull/1786)
+
+### Documentation
+
+- Clean up API documentation in [\#1763](https://github.com/leandrocp/lumis/pull/1763)
+- Link the crate docs to the languages reference in [\#1789](https://github.com/leandrocp/lumis/pull/1789)
+
 ## [0.9.4](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.9.3...npm-lumis/v0.9.4) (2026-10-10)
 
 ### Features

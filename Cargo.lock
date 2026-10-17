@@ -1565,7 +1565,7 @@ dependencies = [
 
 [[package]]
 name = "lumis-js-native"
-version = "0.9.4"
+version = "0.9.5"
 dependencies = [
  "base64 0.23.1",
  "lumis-core",
