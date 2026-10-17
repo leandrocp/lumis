@@ -1,3 +1,20 @@
+## [0.10.4](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.3...hex-lumis/v0.10.4) (2026-10-17)
+
+### Features
+
+- **themes:** Expose closest across Rust, JavaScript, and Elixir in [\#1750](https://github.com/leandrocp/lumis/pull/1750)
+- **api:** Align public language and theme modules in [\#1752](https://github.com/leandrocp/lumis/pull/1752)
+- **themes:** Update themes in [\#1767](https://github.com/leandrocp/lumis/pull/1767)
+
+### Bug Fixes
+
+- Use theme names for multi-theme HTML classes in [\#1748](https://github.com/leandrocp/lumis/pull/1748)
+- **elixir:** Report queries that do not compile as :invalid_queries in [\#1780](https://github.com/leandrocp/lumis/pull/1780)
+
+### Documentation
+
+- Clean up API documentation in [\#1763](https://github.com/leandrocp/lumis/pull/1763)
+
 ## [0.10.3](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.2...hex-lumis/v0.10.3) (2026-10-11)
 
 ### Dependencies
