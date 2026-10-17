@@ -1,3 +1,9 @@
+## [0.5.2](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.5.1...cargo-lumis-wasm-runtime/v0.5.2) (2026-10-17)
+
+### Bug Fixes
+
+- Restore groovy and hurl in [\#1788](https://github.com/leandrocp/lumis/pull/1788)
+
 ## [0.5.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.5.0...cargo-lumis-wasm-runtime/v0.5.1) (2026-10-10)
 
 ### Features
