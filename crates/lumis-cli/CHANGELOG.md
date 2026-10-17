@@ -1,3 +1,13 @@
+## [0.8.2](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.1...cargo-lumis-cli/v0.8.2) (2026-10-17)
+
+### Features
+
+- **themes:** Expose closest across Rust, JavaScript, and Elixir in [\#1750](https://github.com/leandrocp/lumis/pull/1750)
+
+### Bug Fixes
+
+- Restore groovy and hurl in [\#1788](https://github.com/leandrocp/lumis/pull/1788)
+
 ## [0.8.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.0...cargo-lumis-cli/v0.8.1) (2026-10-10)
 
 ### Features
