@@ -1,3 +1,19 @@
+## [4.1.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v4.0.2...cargo-lumis-core/v4.1.0) (2026-10-17)
+
+### Features
+
+- **themes:** Expose closest across Rust, JavaScript, and Elixir in [\#1750](https://github.com/leandrocp/lumis/pull/1750)
+- **api:** Align public language and theme modules in [\#1752](https://github.com/leandrocp/lumis/pull/1752)
+- **themes:** Update themes in [\#1767](https://github.com/leandrocp/lumis/pull/1767)
+
+### Bug Fixes
+
+- Use theme names for multi-theme HTML classes in [\#1748](https://github.com/leandrocp/lumis/pull/1748)
+
+### Documentation
+
+- Clean up API documentation in [\#1763](https://github.com/leandrocp/lumis/pull/1763)
+
 ## [4.0.2](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v4.0.1...cargo-lumis-core/v4.0.2) (2026-10-09)
 
 ### Bug Fixes
