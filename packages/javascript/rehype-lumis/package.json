@@ -1,6 +1,6 @@
 {
   "name": "@lumis-sh/rehype-lumis",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "rehype plugin for Lumis syntax highlighter",
   "author": "Leandro Pereira",
   "license": "MIT",

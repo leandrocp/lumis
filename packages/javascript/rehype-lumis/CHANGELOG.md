@@ -1,3 +1,14 @@
+## [0.3.1](https://github.com/leandrocp/lumis/compare/npm-rehype-lumis/v0.3.0...npm-rehype-lumis/v0.3.1) (2026-10-17)
+
+### Features
+
+- **vite:** Skip unlabeled code blocks in [\#1749](https://github.com/leandrocp/lumis/pull/1749)
+- **api:** Align public language and theme modules in [\#1752](https://github.com/leandrocp/lumis/pull/1752)
+
+### Bug Fixes
+
+- **javascript:** Require Lumis as an integration peer in [\#1751](https://github.com/leandrocp/lumis/pull/1751)
+
 ## [0.3.0](https://github.com/leandrocp/lumis/compare/npm-rehype-lumis/v0.2.1...npm-rehype-lumis/v0.3.0) (2026-09-29)
 
 
