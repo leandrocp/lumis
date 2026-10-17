@@ -1,3 +1,10 @@
+## [0.4.1](https://github.com/leandrocp/lumis/compare/npm-themes/v0.4.0...npm-themes/v0.4.1) (2026-10-17)
+
+### Features
+
+- **themes:** Expose closest across Rust, JavaScript, and Elixir in [\#1750](https://github.com/leandrocp/lumis/pull/1750)
+- **themes:** Update themes in [\#1767](https://github.com/leandrocp/lumis/pull/1767)
+
 ## [0.4.0](https://github.com/leandrocp/lumis/compare/npm-themes/v0.3.2...npm-themes/v0.4.0) (2026-09-29)
 
 
