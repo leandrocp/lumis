@@ -1,3 +1,5 @@
+## [0.10.5](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.4...hex-lumis/v0.10.5) (2026-10-23)
+
 ## [0.10.4](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.3...hex-lumis/v0.10.4) (2026-10-23)
 
 ### Features
