@@ -962,6 +962,10 @@ fn gen_css() -> Result<()> {
     let css_dir = Path::new("css");
     fs::create_dir_all(css_dir)?;
 
+    for path in glob::glob("css/*.css")? {
+        fs::remove_file(path?)?;
+    }
+
     let mut themes: Vec<_> = lumis::themes::ALL_THEMES.iter().collect();
     themes.sort_by(|a, b| a.name.cmp(&b.name));
 
@@ -1258,6 +1262,7 @@ fn gen_themes_md(check: bool) -> Result<()> {
     ];
 
     if check {
+        theme_licenses::verify_inventory(&entries)?;
         let stale: Vec<&str> = outputs
             .iter()
             .filter(|(path, content)| fs::read_to_string(path).ok().as_deref() != Some(content))

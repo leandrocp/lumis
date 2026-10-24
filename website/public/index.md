@@ -13,7 +13,7 @@ Lumis is a syntax highlighter powered by Tree-sitter. It supports 7 runtimes: CL
 
 - 7 runtimes: 5 first-party and 2 community-maintained
 - 110+ compiled Tree-sitter grammars with highlight and injection queries
-- 250+ themes generated from Neovim colorschemes
+- 220+ themes generated from permissively licensed Neovim colorschemes
 - HTML inline, HTML linked, multi-theme HTML, terminal, and BBCode formatters, plus custom formatters
 - Parsers declared as dependencies, integrity-checked, and persisted across restarts
 

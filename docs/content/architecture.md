@@ -56,7 +56,7 @@ supported series does not require a runtime package release.
 
 ### Themes
 
-250+ themes extracted from Neovim colorschemes. Each theme is a JSON file mapping Tree-sitter scopes to styles. Themes have a `name` and `appearance` (light or dark).
+220+ themes extracted from permissively licensed Neovim colorschemes. Each theme is a JSON file mapping Tree-sitter scopes to styles. Themes have a `name` and `appearance` (light or dark).
 
 ### Formatters
 

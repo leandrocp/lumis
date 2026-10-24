@@ -968,8 +968,20 @@ mod tests {
         let theme = get("github_light").expect("Theme not found");
         assert_eq!(theme.name, "github_light");
 
-        let err = get("non_existent_theme");
-        assert!(err.is_err());
+        for name in [
+            "non_existent_theme",
+            "nord",
+            "modus_vivendi",
+            "bluloco_dark",
+            "neovim_dark",
+            "darkplus",
+        ] {
+            assert!(matches!(get(name), Err(ThemeError::NotFound(_))), "{name}");
+            assert!(
+                !available_themes().any(|theme| theme.name == name),
+                "{name}"
+            );
+        }
     }
 
     #[test]

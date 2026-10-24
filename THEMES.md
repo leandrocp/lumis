@@ -9,23 +9,14 @@ Each theme keeps the license of the plugin it was extracted from. See [`themes/N
 | `adwaita_dark` | [Mofiqul/adwaita.nvim](https://github.com/Mofiqul/adwaita.nvim) | MIT |
 | `adwaita_light` | [Mofiqul/adwaita.nvim](https://github.com/Mofiqul/adwaita.nvim) | MIT |
 | `arctic` | [rockyzhang24/arctic.nvim](https://github.com/rockyzhang24/arctic.nvim) | MIT |
-| `astrodark` | [AstroNvim/astrotheme](https://github.com/AstroNvim/astrotheme) | GPL-3.0 |
-| `astrojupiter` | [AstroNvim/astrotheme](https://github.com/AstroNvim/astrotheme) | GPL-3.0 |
-| `astrolight` | [AstroNvim/astrotheme](https://github.com/AstroNvim/astrotheme) | GPL-3.0 |
-| `astromars` | [AstroNvim/astrotheme](https://github.com/AstroNvim/astrotheme) | GPL-3.0 |
 | `aura_dark` | [daltonmenezes/aura-theme](https://github.com/daltonmenezes/aura-theme) | MIT |
 | `aura_dark_soft_text` | [daltonmenezes/aura-theme](https://github.com/daltonmenezes/aura-theme) | MIT |
 | `aura_soft_dark` | [daltonmenezes/aura-theme](https://github.com/daltonmenezes/aura-theme) | MIT |
 | `aura_soft_dark_soft_text` | [daltonmenezes/aura-theme](https://github.com/daltonmenezes/aura-theme) | MIT |
 | `aurora` | [ray-x/aurora](https://github.com/ray-x/aurora) | MIT |
-| `ayu_dark` | [Shatur/neovim-ayu](https://github.com/Shatur/neovim-ayu) | GPL-3.0 |
-| `ayu_light` | [Shatur/neovim-ayu](https://github.com/Shatur/neovim-ayu) | GPL-3.0 |
-| `ayu_mirage` | [Shatur/neovim-ayu](https://github.com/Shatur/neovim-ayu) | GPL-3.0 |
 | `bamboo_light` | [ribru17/bamboo.nvim](https://github.com/ribru17/bamboo.nvim) | MIT |
 | `bamboo_multiplex` | [ribru17/bamboo.nvim](https://github.com/ribru17/bamboo.nvim) | MIT |
 | `bamboo_vulgaris` | [ribru17/bamboo.nvim](https://github.com/ribru17/bamboo.nvim) | MIT |
-| `bluloco_dark` | [uloco/bluloco.nvim](https://github.com/uloco/bluloco.nvim) | LGPL-3.0 |
-| `bluloco_light` | [uloco/bluloco.nvim](https://github.com/uloco/bluloco.nvim) | LGPL-3.0 |
 | `carbonfox` | [EdenEast/nightfox.nvim](https://github.com/EdenEast/nightfox.nvim) | MIT |
 | `catppuccin_frappe` | [catppuccin/nvim](https://github.com/catppuccin/nvim) | MIT |
 | `catppuccin_latte` | [catppuccin/nvim](https://github.com/catppuccin/nvim) | MIT |
@@ -35,7 +26,6 @@ Each theme keeps the license of the plugin it was extracted from. See [`themes/N
 | `cobalt2` | [lalitmee/cobalt2.nvim](https://github.com/lalitmee/cobalt2.nvim) | MIT |
 | `cyberdream_dark` | [scottmckendry/cyberdream.nvim](https://github.com/scottmckendry/cyberdream.nvim) | MIT |
 | `cyberdream_light` | [scottmckendry/cyberdream.nvim](https://github.com/scottmckendry/cyberdream.nvim) | MIT |
-| `darkplus` | [martinsione/darkplus.nvim](https://github.com/martinsione/darkplus.nvim) | None found |
 | `darkvoid` | [darkvoid-theme/darkvoid.nvim](https://github.com/darkvoid-theme/darkvoid.nvim) | MIT |
 | `dawnfox` | [EdenEast/nightfox.nvim](https://github.com/EdenEast/nightfox.nvim) | MIT |
 | `dayfox` | [EdenEast/nightfox.nvim](https://github.com/EdenEast/nightfox.nvim) | MIT |
@@ -97,11 +87,6 @@ Each theme keeps the license of the plugin it was extracted from. See [`themes/N
 | `lackluster` | [slugbyte/lackluster.nvim](https://github.com/slugbyte/lackluster.nvim) | MIT |
 | `lackluster_hack` | [slugbyte/lackluster.nvim](https://github.com/slugbyte/lackluster.nvim) | MIT |
 | `lackluster_mint` | [slugbyte/lackluster.nvim](https://github.com/slugbyte/lackluster.nvim) | MIT |
-| `material_darker` | [marko-cerovac/material.nvim](https://github.com/marko-cerovac/material.nvim) | GPL-2.0 |
-| `material_deep_ocean` | [marko-cerovac/material.nvim](https://github.com/marko-cerovac/material.nvim) | GPL-2.0 |
-| `material_lighter` | [marko-cerovac/material.nvim](https://github.com/marko-cerovac/material.nvim) | GPL-2.0 |
-| `material_oceanic` | [marko-cerovac/material.nvim](https://github.com/marko-cerovac/material.nvim) | GPL-2.0 |
-| `material_palenight` | [marko-cerovac/material.nvim](https://github.com/marko-cerovac/material.nvim) | GPL-2.0 |
 | `matte_black` | [tahayvr/matteblack.nvim](https://github.com/tahayvr/matteblack.nvim) | MIT |
 | `melange_dark` | [savq/melange-nvim](https://github.com/savq/melange-nvim) | MIT |
 | `melange_light` | [savq/melange-nvim](https://github.com/savq/melange-nvim) | MIT |
@@ -131,8 +116,6 @@ Each theme keeps the license of the plugin it was extracted from. See [`themes/N
 | `mfd_stealth` | [kungfusheep/mfd.nvim](https://github.com/kungfusheep/mfd.nvim) | Apache-2.0 |
 | `miasma` | [xero/miasma.nvim](https://github.com/xero/miasma.nvim) | CC0-1.0 |
 | `midnight` | [dasupradyumna/midnight.nvim](https://github.com/dasupradyumna/midnight.nvim) | Apache-2.0 |
-| `modus_operandi` | [miikanissi/modus-themes.nvim](https://github.com/miikanissi/modus-themes.nvim) | GPL-3.0 |
-| `modus_vivendi` | [miikanissi/modus-themes.nvim](https://github.com/miikanissi/modus-themes.nvim) | GPL-3.0 |
 | `molokai` | [UtkarshVerma/molokai.nvim](https://github.com/UtkarshVerma/molokai.nvim) | MIT |
 | `monokai` | [tanvirtin/monokai.nvim](https://github.com/tanvirtin/monokai.nvim) | MIT |
 | `monokai_nightasty_dark` | [polirritmico/monokai-nightasty.nvim](https://github.com/polirritmico/monokai-nightasty.nvim) | Apache-2.0 |
@@ -144,7 +127,6 @@ Each theme keeps the license of the plugin it was extracted from. See [`themes/N
 | `monokai_pro_spectrum` | [loctvl842/monokai-pro.nvim](https://github.com/loctvl842/monokai-pro.nvim) | MIT |
 | `monokai_soda` | [tanvirtin/monokai.nvim](https://github.com/tanvirtin/monokai.nvim) | MIT |
 | `moonfly` | [bluz71/vim-moonfly-colors](https://github.com/bluz71/vim-moonfly-colors) | MIT |
-| `moonlight` | [shaunsingh/moonlight.nvim](https://github.com/shaunsingh/moonlight.nvim) | GPL-2.0 |
 | `neobones_dark` | [zenbones-theme/zenbones.nvim](https://github.com/zenbones-theme/zenbones.nvim) | MIT |
 | `neobones_light` | [zenbones-theme/zenbones.nvim](https://github.com/zenbones-theme/zenbones.nvim) | MIT |
 | `neofusion` | [diegoulloao/neofusion.nvim](https://github.com/diegoulloao/neofusion.nvim) | MIT |
@@ -158,25 +140,16 @@ Each theme keeps the license of the plugin it was extracted from. See [`themes/N
 | `neomodern_moon_light` | [casedami/neomodern.nvim](https://github.com/casedami/neomodern.nvim) | Apache-2.0 |
 | `neomodern_roseprime_dark` | [casedami/neomodern.nvim](https://github.com/casedami/neomodern.nvim) | Apache-2.0 |
 | `neomodern_roseprime_light` | [casedami/neomodern.nvim](https://github.com/casedami/neomodern.nvim) | Apache-2.0 |
-| `neon_dark` | [rafamadriz/neon](https://github.com/rafamadriz/neon) | GPL-3.0 |
-| `neon_default` | [rafamadriz/neon](https://github.com/rafamadriz/neon) | GPL-3.0 |
-| `neon_doom` | [rafamadriz/neon](https://github.com/rafamadriz/neon) | GPL-3.0 |
-| `neon_light` | [rafamadriz/neon](https://github.com/rafamadriz/neon) | GPL-3.0 |
 | `neosolarized` | [svrana/neosolarized.nvim](https://github.com/svrana/neosolarized.nvim) | MIT |
 | `neosolarized2_dark` | [Tsuzat/NeoSolarized.nvim](https://github.com/Tsuzat/NeoSolarized.nvim) | Apache-2.0 |
 | `neosolarized2_light` | [Tsuzat/NeoSolarized.nvim](https://github.com/Tsuzat/NeoSolarized.nvim) | Apache-2.0 |
-| `neovim_dark` | [folke/lazy.nvim](https://github.com/folke/lazy.nvim) | Apache-2.0 |
-| `neovim_light` | [folke/lazy.nvim](https://github.com/folke/lazy.nvim) | Apache-2.0 |
 | `night_owl` | [oxfist/night-owl.nvim](https://github.com/oxfist/night-owl.nvim) | BSD-3-Clause |
 | `nightfly` | [bluz71/vim-nightfly-colors](https://github.com/bluz71/vim-nightfly-colors) | MIT |
 | `nightfox` | [EdenEast/nightfox.nvim](https://github.com/EdenEast/nightfox.nvim) | MIT |
-| `no_clown_fiesta` | [aktersnurra/no-clown-fiesta.nvim](https://github.com/aktersnurra/no-clown-fiesta.nvim) | None found |
-| `nord` | [shaunsingh/nord.nvim](https://github.com/shaunsingh/nord.nvim) | GPL-2.0 |
 | `nordbones` | [zenbones-theme/zenbones.nvim](https://github.com/zenbones-theme/zenbones.nvim) | MIT |
 | `nordfox` | [EdenEast/nightfox.nvim](https://github.com/EdenEast/nightfox.nvim) | MIT |
 | `nordic` | [AlexvZyl/nordic.nvim](https://github.com/AlexvZyl/nordic.nvim) | MIT |
 | `obscure` | [killitar/obscure.nvim](https://github.com/killitar/obscure.nvim) | Apache-2.0 |
-| `oceanic_next` | [mhartington/oceanic-next](https://github.com/mhartington/oceanic-next) | Apache-2.0 AND Vim |
 | `ofirkai` | [ofirgall/ofirkai.nvim](https://github.com/ofirgall/ofirkai.nvim) | MIT |
 | `oldworld` | [dgox16/oldworld.nvim](https://github.com/dgox16/oldworld.nvim) | MIT |
 | `oldworld_cooler` | [dgox16/oldworld.nvim](https://github.com/dgox16/oldworld.nvim) | MIT |
@@ -199,7 +172,6 @@ Each theme keeps the license of the plugin it was extracted from. See [`themes/N
 | `palenightfall` | [JoosepAlviste/palenightfall.nvim](https://github.com/JoosepAlviste/palenightfall.nvim) | MIT |
 | `papercolor_dark` | [NLKNguyen/papercolor-theme](https://github.com/NLKNguyen/papercolor-theme) | MIT |
 | `papercolor_light` | [NLKNguyen/papercolor-theme](https://github.com/NLKNguyen/papercolor-theme) | MIT |
-| `poimandres` | [olivercederborg/poimandres.nvim](https://github.com/olivercederborg/poimandres.nvim) | None found |
 | `rosebones_dark` | [zenbones-theme/zenbones.nvim](https://github.com/zenbones-theme/zenbones.nvim) | MIT |
 | `rosebones_light` | [zenbones-theme/zenbones.nvim](https://github.com/zenbones-theme/zenbones.nvim) | MIT |
 | `rosepine_dark` | [rose-pine/neovim](https://github.com/rose-pine/neovim) | MIT |
@@ -239,7 +211,6 @@ Each theme keeps the license of the plugin it was extracted from. See [`themes/N
 | `token_ultra_light` | [ThorstenRhau/token](https://github.com/ThorstenRhau/token) | BSD-3-Clause |
 | `tokyobones_dark` | [zenbones-theme/zenbones.nvim](https://github.com/zenbones-theme/zenbones.nvim) | MIT |
 | `tokyobones_light` | [zenbones-theme/zenbones.nvim](https://github.com/zenbones-theme/zenbones.nvim) | MIT |
-| `tokyodark` | [tiagovla/tokyodark.nvim](https://github.com/tiagovla/tokyodark.nvim) | GPL-3.0 |
 | `tokyonight_day` | [folke/tokyonight.nvim](https://github.com/folke/tokyonight.nvim) | Apache-2.0 |
 | `tokyonight_moon` | [folke/tokyonight.nvim](https://github.com/folke/tokyonight.nvim) | Apache-2.0 |
 | `tokyonight_night` | [folke/tokyonight.nvim](https://github.com/folke/tokyonight.nvim) | Apache-2.0 |
@@ -254,7 +225,6 @@ Each theme keeps the license of the plugin it was extracted from. See [`themes/N
 | `xcode_light` | [nomis51/nvim-xcode-theme](https://github.com/nomis51/nvim-xcode-theme) | ISC |
 | `xcode_light_hc` | [nomis51/nvim-xcode-theme](https://github.com/nomis51/nvim-xcode-theme) | ISC |
 | `xcode_wwdc` | [nomis51/nvim-xcode-theme](https://github.com/nomis51/nvim-xcode-theme) | ISC |
-| `yorumi` | [yorumicolors/yorumi.nvim](https://github.com/yorumicolors/yorumi.nvim) | None found |
 | `zenbones_dark` | [zenbones-theme/zenbones.nvim](https://github.com/zenbones-theme/zenbones.nvim) | MIT |
 | `zenbones_light` | [zenbones-theme/zenbones.nvim](https://github.com/zenbones-theme/zenbones.nvim) | MIT |
 | `zenburn` | [phha/zenburn.nvim](https://github.com/phha/zenburn.nvim) | MIT |

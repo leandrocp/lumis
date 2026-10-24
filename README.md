@@ -25,7 +25,7 @@
 ## Features
 
 - **110+ Tree-sitter languages** - Fast, accurate, and updated syntax parsing
-- **250+ built-in Neovim themes** - Updated and curated themes from the Neovim community
+- **[220+ built-in Neovim themes](https://docs.lumis.sh/themes)** - Extracted from permissively licensed colorschemes
 - **7 runtimes** - CLI, Rust, Elixir, JavaScript / TypeScript, and Browsers / CDN, plus community-maintained Java and Python packages
 - **Built-in formatters** - HTML (inline/linked), Terminal (ANSI), Multi-theme (light/dark), BBCode
 - **Custom formatters** - Build your own output

@@ -7,7 +7,7 @@ The installed binary is `lumis`.
 ## Features
 
 - **110+ Tree-sitter languages** - Fast, accurate, and updated syntax parsing
-- **250+ built-in Neovim themes** - Updated and curated themes from the Neovim community
+- **[220+ built-in Neovim themes](https://docs.lumis.sh/themes)** - Extracted from permissively licensed colorschemes
 - **Built-in formatters** - HTML (inline/linked), Terminal (ANSI), Multi-theme (light/dark), BBCode
 - **Custom formatters** - Build your own output
 - **Language auto-detection** - File extension, shebang, and emacs-mode support

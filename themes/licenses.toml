@@ -17,18 +17,10 @@ license = "MIT"
 license_file = "LICENSE"
 copyright = ["Copyright (c) 2022 LunarVim"]
 
-[sources."https://github.com/aktersnurra/no-clown-fiesta.nvim"]
-license = "NONE"
-note = "No license file at the pinned commit or on the default branch, and the README states no license."
-
 [sources."https://github.com/AlexvZyl/nordic.nvim"]
 license = "MIT"
 license_file = "LICENSE"
 copyright = ["Copyright (c) 2023 Alexander van Zyl"]
-
-[sources."https://github.com/AstroNvim/astrotheme"]
-license = "GPL-3.0"
-license_file = "LICENSE"
 
 [sources."https://github.com/blazkowolf/gruber-darker.nvim"]
 license = "MIT"
@@ -127,11 +119,6 @@ license = "MIT"
 license_file = "LICENSE"
 copyright = ["Copyright (c) 2023 Everblush"]
 
-[sources."https://github.com/folke/lazy.nvim"]
-license = "Apache-2.0"
-license_file = "LICENSE"
-note = "Placeholder plugin only. `neovim_dark` and `neovim_light` are Neovim's built-in `default` colorscheme, so their colors come from neovim/neovim (Apache-2.0, with Vim-licensed parts), not from lazy.nvim."
-
 [sources."https://github.com/folke/tokyonight.nvim"]
 license = "Apache-2.0"
 license_file = "LICENSE"
@@ -182,14 +169,6 @@ license = "MIT"
 license_file = "LICENSE"
 copyright = ["Copyright (c) 2021 Luis Carlos Cordero"]
 
-[sources."https://github.com/marko-cerovac/material.nvim"]
-license = "GPL-2.0"
-license_file = "LICENSE"
-
-[sources."https://github.com/martinsione/darkplus.nvim"]
-license = "NONE"
-note = "No license file at the pinned commit or on the default branch. The README says it is ported from the Visual Studio Code Dark+ theme."
-
 [sources."https://github.com/maxmx03/fluoromachine.nvim"]
 license = "MIT"
 license_file = "LICENSE"
@@ -211,15 +190,6 @@ copyright = ["Copyright (c) 2023 Rohit K Viswanath"]
 license = "MIT"
 license_file = "LICENSE"
 copyright = ["Copyright (c) 2021 metalelf0"]
-
-[sources."https://github.com/mhartington/oceanic-next"]
-license = "Apache-2.0 AND Vim"
-license_file = "license.txt"
-note = "`license.txt` is a copy of Neovim's LICENSE: the Apache-2.0 text followed by the Vim license. It names no copyright holder."
-
-[sources."https://github.com/miikanissi/modus-themes.nvim"]
-license = "GPL-3.0"
-license_file = "LICENSE"
 
 [sources."https://github.com/Mofiqul/adwaita.nvim"]
 license = "MIT"
@@ -275,10 +245,6 @@ license = "MIT"
 license_file = "LICENSE"
 copyright = ["Copyright (c) 2023 Oli Morris"]
 
-[sources."https://github.com/olivercederborg/poimandres.nvim"]
-license = "NONE"
-note = "No license file at the pinned commit or on the default branch. The README says it is based on drcmda/poimandres-theme, which is MIT."
-
 [sources."https://github.com/oxfist/night-owl.nvim"]
 license = "BSD-3-Clause"
 license_file = "LICENSE"
@@ -297,10 +263,6 @@ license_file = "LICENSE"
 license = "MIT"
 license_file = "LICENSE"
 copyright = ["Copyright (c) 2021 projekt0n̅"]
-
-[sources."https://github.com/rafamadriz/neon"]
-license = "GPL-3.0"
-license_file = "LICENSE"
 
 [sources."https://github.com/ramojus/mellifluous.nvim"]
 license = "MIT"
@@ -375,18 +337,6 @@ license = "MIT"
 license_file = "LICENSE"
 copyright = ["Copyright (c) 2023 Scott McKendry"]
 
-[sources."https://github.com/Shatur/neovim-ayu"]
-license = "GPL-3.0"
-license_file = "COPYING"
-
-[sources."https://github.com/shaunsingh/moonlight.nvim"]
-license = "GPL-2.0"
-license_file = "LICENSE"
-
-[sources."https://github.com/shaunsingh/nord.nvim"]
-license = "GPL-2.0"
-license_file = "LICENSE"
-
 [sources."https://github.com/slugbyte/lackluster.nvim"]
 license = "MIT"
 license_file = "LICENSE.md"
@@ -433,10 +383,6 @@ license = "BSD-3-Clause"
 license_file = "LICENSE"
 copyright = ["Copyright (c) 2026, Thorsten Rhau"]
 
-[sources."https://github.com/tiagovla/tokyodark.nvim"]
-license = "GPL-3.0"
-license_file = "LICENSE"
-
 [sources."https://github.com/tjdevries/colorbuddy.nvim"]
 license = "MIT"
 license_file = "LICENSE"
@@ -447,10 +393,6 @@ license = "Apache-2.0"
 license_file = "LICENSE"
 copyright = ["Copyright 2025 Alok \"Tsuzat\" Singh"]
 note = "The repository is archived."
-
-[sources."https://github.com/uloco/bluloco.nvim"]
-license = "LGPL-3.0"
-license_file = "LICENSE"
 
 [sources."https://github.com/UtkarshVerma/molokai.nvim"]
 license = "MIT"
@@ -473,10 +415,6 @@ copyright = ["Copyright (c) 2023 Verf"]
 [sources."https://github.com/xero/miasma.nvim"]
 license = "CC0-1.0"
 license_file = "LICENSE"
-
-[sources."https://github.com/yorumicolors/yorumi.nvim"]
-license = "NONE"
-note = "No license file at the pinned commit or on the default branch, and the README states no license."
 
 [sources."https://github.com/zenbones-theme/zenbones.nvim"]
 license = "MIT"

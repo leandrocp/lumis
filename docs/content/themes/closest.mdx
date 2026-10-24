@@ -15,8 +15,8 @@ when no suitable match exists.
 ```ts
 import * as themes from '@lumis-sh/lumis/themes';
 
-const theme = themes.closest({ background: '#000000' });
-console.log(theme?.name); // modus_vivendi
+const theme = themes.closest({ background: '#0d1117' });
+console.log(theme?.name); // github_dark
 ```
 
 This synchronous API works in Node and browsers. The `/themes` entry point
@@ -30,17 +30,17 @@ includes the built-in theme catalog. Import individual themes from
 use lumis::themes::{self, TerminalColors};
 
 let mut colors = TerminalColors::default();
-colors.background = Some((0, 0, 0));
+colors.background = Some((13, 17, 23));
 let theme = themes::closest(&colors);
-assert_eq!(theme.map(|theme| theme.name.as_str()), Some("modus_vivendi"));
+assert_eq!(theme.map(|theme| theme.name.as_str()), Some("github_dark"));
 ```
 
   </Tab>
   <Tab value="Elixir">
 
 ```elixir
-theme = Lumis.Theme.closest(%{background: "#000000"})
-theme.name #=> "modus_vivendi"
+theme = Lumis.Theme.closest(%{background: "#0d1117"})
+theme.name #=> "github_dark"
 ```
 
   </Tab>

@@ -1053,8 +1053,9 @@ Themes are extracted from Neovim colorscheme plugins. Each theme is a JSON file 
 
 1. Record the plugin's license in `themes/licenses.toml`, read from the license
    file at the commit the theme will be extracted from. Add an entry for each
-   `dependencies` URL too. A plugin without a license is recorded as
-   `license = "NONE"`.
+   `dependencies` URL too. Bundled sources must use one of the reviewed
+   permissive licenses: MIT, Apache-2.0, BSD-3-Clause, CC0-1.0 or ISC. Do not add
+   copyleft, Vim-licensed or unlicensed themes to the built-in collection.
 
 ```toml
 [sources."https://github.com/author/theme-repo"]
@@ -1106,5 +1107,7 @@ identical theme data, so revision-only changes do not create update PRs.
 copyright. `crates/lumis-core` and `@lumis-sh/themes` ship a copy of the notice.
 `mise run themes-check-notices` fails when a theme or dependency URL has no entry
 in `themes/licenses.toml`, when an entry is no longer used, or when a generated
-file is stale. A revision bump does not re-read the license, so check the
+file is stale. It also rejects unreviewed licenses and checks that the JSON,
+JavaScript module and CSS inventories match the theme definitions, including
+the removal of stale assets. A revision bump does not re-read the license, so check the
 license file again when an update PR moves a theme to a new commit.

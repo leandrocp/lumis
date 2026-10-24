@@ -176,8 +176,8 @@ defmodule Lumis.Theme do
   3:1 text contrast. Monochrome themes are excluded. Raises `ArgumentError` for
   invalid colors or an ANSI palette other than 16 entries.
 
-      Lumis.Theme.closest(%{background: "#000000"}).name
-      #=> "modus_vivendi"
+      Lumis.Theme.closest(%{background: "#0d1117"}).name
+      #=> "github_dark"
   """
   @spec closest(%{
           optional(:background) => String.t() | nil,

@@ -95,6 +95,49 @@ fn validate(themes: &[ThemeDefinition], licenses: &ThemeLicenses) -> Result<()> 
         inconsistent.join(", ")
     );
 
+    let excluded: Vec<&str> = licenses
+        .sources
+        .iter()
+        .filter(|(_, source)| {
+            !matches!(
+                source.license.as_str(),
+                "MIT" | "Apache-2.0" | "BSD-3-Clause" | "CC0-1.0" | "ISC"
+            )
+        })
+        .map(|(url, _)| url.as_str())
+        .collect();
+    ensure!(
+        excluded.is_empty(),
+        "bundled themes require a reviewed permissive license: {}",
+        excluded.join(", ")
+    );
+
+    Ok(())
+}
+
+pub(crate) fn verify_inventory(themes: &[ThemeDefinition]) -> Result<()> {
+    let expected: BTreeSet<&str> = themes.iter().map(|theme| theme.name.as_str()).collect();
+    ensure!(expected.len() > 200, "incomplete bundled theme catalog");
+    for (directory, extension) in [
+        ("themes", "json"),
+        ("crates/lumis-core/themes", "json"),
+        ("css", "css"),
+        ("crates/lumis/css", "css"),
+        ("packages/elixir/lumis/priv/static/css", "css"),
+        ("packages/javascript/themes/themes", "ts"),
+    ] {
+        let files = fs::read_dir(directory)?.collect::<std::io::Result<Vec<_>>>()?;
+        let actual: BTreeSet<String> = files
+            .iter()
+            .map(std::fs::DirEntry::path)
+            .filter(|path| path.extension().is_some_and(|ext| ext == extension))
+            .map(|path| path.file_stem().unwrap().to_string_lossy().into_owned())
+            .collect();
+        ensure!(
+            expected == actual.iter().map(String::as_str).collect(),
+            "theme inventory differs from themes/themes.lua in {directory}"
+        );
+    }
     Ok(())
 }
 
@@ -261,6 +304,26 @@ mod tests {
     #[test]
     fn accepts_a_licensed_source() {
         validate(&[theme("https://github.com/a/a", &[])], &licenses(MIT_A)).unwrap();
+    }
+
+    #[test]
+    fn rejects_nonpermissive_and_unreviewed_theme_licenses() {
+        for license in [
+            "GPL-2.0",
+            "GPL-3.0",
+            "LGPL-3.0",
+            "Apache-2.0 AND Vim",
+            "NONE",
+            "Custom",
+        ] {
+            let source = format!(
+                "[sources.\"https://github.com/a/a\"]\nlicense = \"{license}\"\nlicense_file = \"LICENSE\"\n"
+            );
+            assert!(
+                validate(&[theme("https://github.com/a/a", &[])], &licenses(&source)).is_err(),
+                "accepted {license} in the bundled theme catalog"
+            );
+        }
     }
 
     #[test]

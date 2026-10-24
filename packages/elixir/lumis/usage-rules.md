@@ -1,13 +1,13 @@
 # Lumis - Usage Rules for AI Agents
 
-Lumis is a syntax highlighter for Elixir that uses Tree-sitter parsers and Neovim themes. It provides fast, accurate syntax highlighting with support for 110+ languages and 250+ built-in themes, outputting to HTML (inline or linked) or terminal (ANSI codes).
+Lumis is a syntax highlighter for Elixir that uses Tree-sitter parsers and Neovim themes. It provides fast, accurate syntax highlighting with support for 110+ languages and 220+ built-in themes, outputting to HTML (inline or linked) or terminal (ANSI codes).
 
 ## Core Concepts
 
 ### What Lumis Does
 - Highlights source code using Tree-sitter parsers
 - Supports 110+ programming languages with auto-detection
-- Provides 250+ built-in Neovim themes (light and dark)
+- Provides 220+ built-in Neovim themes (light and dark)
 - Handles incomplete/malformed code gracefully (useful for streaming scenarios)
 - Outputs HTML with inline styles, HTML with CSS classes, or ANSI terminal codes
 
@@ -1046,7 +1046,7 @@ Lumis is a fast, reliable syntax highlighter for Elixir. Key points to remember:
 6. **Include CSS files** when using `:html_linked` formatter
 7. **Handles incomplete code** gracefully for streaming scenarios
 8. **110+ languages** with auto-detection support
-9. **250+ built-in Neovim themes** available
+9. **220+ built-in Neovim themes** available
 10. **Line numbers** are 1-indexed in the `data-line` attribute
 11. **Validate options** with `validate_options!/1` when needed
 12. **Load parsers at startup** with `async_load/1` so the first request does not compile
