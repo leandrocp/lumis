@@ -87,7 +87,7 @@
 //!
 //! ## Themes
 //!
-//! 120+ themes from popular Neovim colorschemes. Use with HTML inline and terminal formatters.
+//! 220+ themes from permissively licensed Neovim colorschemes. Use with HTML inline and terminal formatters.
 //!
 //! ```rust
 //! use lumis::themes;
@@ -100,7 +100,6 @@
 //! ```
 //!
 //! See the [`themes`] module for loading custom themes from JSON files.
-//! Available themes are listed below.
 //!
 //! ## Languages available
 //!
@@ -109,126 +108,8 @@
 //!
 //! ## Themes available
 //!
-//! | Theme Name |
-//! | ---------- |
-//! | aura_dark |
-//! | aura_dark_soft_text |
-//! | aura_soft_dark |
-//! | aura_soft_dark_soft_text |
-//! | ayu_dark |
-//! | ayu_light |
-//! | ayu_mirage |
-//! | bamboo_light |
-//! | bamboo_multiplex |
-//! | bamboo_vulgaris |
-//! | bluloco_dark |
-//! | bluloco_light |
-//! | carbonfox |
-//! | catppuccin_frappe |
-//! | catppuccin_latte |
-//! | catppuccin_macchiato |
-//! | catppuccin_mocha |
-//! | cyberdream_dark |
-//! | cyberdream_light |
-//! | darkplus |
-//! | dawnfox |
-//! | dayfox |
-//! | dracula |
-//! | dracula_soft |
-//! | duskfox |
-//! | edge_aura |
-//! | edge_dark |
-//! | edge_light |
-//! | edge_neon |
-//! | everforest_dark |
-//! | everforest_light |
-//! | flexoki_dark |
-//! | flexoki_light |
-//! | github_dark |
-//! | github_dark_colorblind |
-//! | github_dark_default |
-//! | github_dark_dimmed |
-//! | github_dark_high_contrast |
-//! | github_dark_tritanopia |
-//! | github_light |
-//! | github_light_colorblind |
-//! | github_light_default |
-//! | github_light_high_contrast |
-//! | github_light_tritanopia |
-//! | horizon_dark |
-//! | iceberg |
-//! | gruvbox_dark |
-//! | gruvbox_dark_hard |
-//! | gruvbox_dark_soft |
-//! | gruvbox_light |
-//! | gruvbox_light_hard |
-//! | gruvbox_light_soft |
-//! | kanagawa_dragon |
-//! | kanagawa_lotus |
-//! | kanagawa_wave |
-//! | material_darker |
-//! | material_deep_ocean |
-//! | material_lighter |
-//! | material_oceanic |
-//! | material_palenight |
-//! | matte_black |
-//! | melange_dark |
-//! | melange_light |
-//! | molokai |
-//! | modus_operandi |
-//! | modus_vivendi |
-//! | monokai_pro_dark |
-//! | monokai_pro_machine |
-//! | monokai_pro_ristretto |
-//! | monokai_pro_spectrum |
-//! | moonfly |
-//! | moonlight |
-//! | neosolarized |
-//! | neovim_dark |
-//! | neovim_light |
-//! | nightfly |
-//! | nightfox |
-//! | nord |
-//! | nordfox |
-//! | nordic |
-//! | onedark |
-//! | onedark_cool |
-//! | onedark_darker |
-//! | onedark_deep |
-//! | onedark_light |
-//! | onedark_warm |
-//! | onedark_warmer |
-//! | onedarkpro_dark |
-//! | onedarkpro_vivid |
-//! | onelight |
-//! | papercolor_dark |
-//! | papercolor_light |
-//! | rosepine_dark |
-//! | rosepine_dawn |
-//! | rosepine_moon |
-//! | solarized_autumn_dark |
-//! | solarized_autumn_light |
-//! | solarized_spring_dark |
-//! | solarized_spring_light |
-//! | solarized_summer_dark |
-//! | solarized_summer_light |
-//! | solarized_winter_dark |
-//! | solarized_winter_light |
-//! | srcery |
-//! | terafox |
-//! | tokyonight_day |
-//! | tokyonight_moon |
-//! | tokyonight_night |
-//! | tokyonight_storm |
-//! | vscode_dark |
-//! | vscode_light |
-//! | xcode_dark |
-//! | xcode_dark_hc |
-//! | xcode_light |
-//! | xcode_light_hc |
-//! | xcode_wwdc |
-//! | zenburn |
-//! | zephyr_dark |
+//! See [Themes](https://docs.lumis.sh/reference/themes) for every built-in theme
+//! and the license of the colorscheme it was extracted from.
 
 #[path = "formatter/mod.rs"]
 pub mod formatters;
