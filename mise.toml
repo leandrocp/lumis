@@ -511,6 +511,7 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 pnpm --filter @lumis-sh/lumis run build
+pnpm --filter @lumis-sh/themes-copyleft run build
 args=(install chromium firefox webkit)
 if [[ "${CI:-}" == "true" ]]; then
     args=(install --with-deps chromium firefox webkit)
