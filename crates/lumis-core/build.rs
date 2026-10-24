@@ -1,4 +1,4 @@
-// Generates two files into OUT_DIR:
+// Generates language metadata into OUT_DIR:
 //
 // 1. `languages_data.rs` (included by `src/languages.rs`)
 //
@@ -10,23 +10,15 @@
 //      - `always`: PlainText, Diff (no feature gate)
 //      - `gated`: everything else, behind `lang-*` features
 //
-// 2. `theme_data.rs` (included by `src/themes.rs`)
-//
-//    Scans `themes/*.json` and emits:
-//      - One `LazyLock<Theme>` constant per theme file
-//      - `get(name) -> Result<Theme, ThemeError>` to look up themes by name
-//      - `ALL_THEMES` vec of all built-in themes
-//
 // To inspect the generated output, look in:
 //   target/debug/build/lumis-core-<hash>/out/
 
-use quote::{format_ident, quote};
 use serde::Deserialize;
 use std::collections::BTreeMap;
 use std::env;
 use std::fs;
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 #[derive(Deserialize)]
 struct LanguagesToml {
@@ -181,82 +173,6 @@ fn languages() {
     writeln!(f, "}}").unwrap();
 }
 
-fn themes() {
-    let themes_dir = manifest_dir().join("themes");
-
-    println!("cargo:rerun-if-changed={}", themes_dir.display());
-
-    let out_dir = env::var("OUT_DIR").unwrap();
-    let dest_path = Path::new(&out_dir).join("theme_data.rs");
-
-    let mut theme_names: Vec<String> = fs::read_dir(&themes_dir)
-        .unwrap()
-        .filter_map(|entry| {
-            let entry = entry.ok()?;
-            let path = entry.path();
-            if path.extension().and_then(|s| s.to_str()) == Some("json") {
-                path.file_stem().and_then(|s| s.to_str()).map(String::from)
-            } else {
-                None
-            }
-        })
-        .collect();
-
-    // `read_dir` yields filesystem order, which differs per machine.
-    theme_names.sort();
-
-    let theme_constants = theme_names.iter().map(|name| {
-        let constant_name = format_ident!("{}", name.to_uppercase());
-        let json_path = format!("{}/{}.json", themes_dir.display(), name);
-
-        quote! {
-            #[doc(hidden)]
-            pub(crate) static #constant_name: LazyLock<Theme> = LazyLock::new(|| {
-                let theme_str = include_str!(#json_path);
-                crate::themes::from_json(theme_str).unwrap_or_else(|_| panic!("failed to load theme: {}", #name))
-            });
-        }
-    });
-
-    let theme_refs = theme_names.iter().map(|name| {
-        let constant_name = format_ident!("{}", name.to_uppercase());
-        quote! { &#constant_name }
-    });
-
-    let theme_name_matches = theme_names.iter().map(|name| {
-        let constant_name = format_ident!("{}", name.to_uppercase());
-        let name_str = name.to_lowercase();
-        quote! { #name_str => Ok(#constant_name.clone()), }
-    });
-
-    let output = quote! {
-        use std::sync::LazyLock;
-
-        #(#theme_constants)*
-
-        #[doc(hidden)]
-        pub static ALL_THEMES: LazyLock<Vec<&'static Theme>> = LazyLock::new(|| vec![
-            #(#theme_refs),*
-        ]);
-
-        /// Retrieves a theme by its name.
-        pub fn get(name: &str) -> Result<Theme, ThemeError> {
-            match name {
-                #(#theme_name_matches)*
-                _ => Err(ThemeError::NotFound(name.to_string())),
-            }
-        }
-
-        /// Returns an iterator over all available built-in themes.
-        pub fn available_themes() -> impl Iterator<Item = &'static Theme> {
-            ALL_THEMES.iter().copied()
-        }
-    };
-
-    fs::write(dest_path, output.to_string()).unwrap();
-}
-
 fn main() {
     languages();
-    themes();
 }

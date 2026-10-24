@@ -5,6 +5,7 @@
 -- - name: Theme identifier used for file naming (required)
 -- - config: Function to set up and activate the theme (required)
 -- - dependencies: Optional array of dependency URLs
+-- - builtin: Extract from the running Neovim binary and runtime, not a plugin
 
 local function load_material(colorscheme)
 	require("material").setup({ async_loading = false })
@@ -33,16 +34,18 @@ end
 
 return {
 	{
-		url = "https://github.com/folke/lazy.nvim",
+		url = "https://github.com/neovim/neovim",
 		name = "neovim_dark",
+		builtin = true,
 		config = function()
 			vim.o.background = "dark"
 			vim.cmd([[colorscheme default]])
 		end,
 	},
 	{
-		url = "https://github.com/folke/lazy.nvim",
+		url = "https://github.com/neovim/neovim",
 		name = "neovim_light",
+		builtin = true,
 		config = function()
 			vim.o.background = "light"
 			vim.cmd([[colorscheme default]])

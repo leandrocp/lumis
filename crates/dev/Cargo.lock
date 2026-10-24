@@ -747,7 +747,7 @@ version = "4.1.0"
 dependencies = [
  "derive_builder",
  "glob",
- "quote",
+ "lumis-themes",
  "regex",
  "serde",
  "serde_json",
@@ -755,6 +755,10 @@ dependencies = [
  "toml",
  "typed-path",
 ]
+
+[[package]]
+name = "lumis-themes"
+version = "0.1.0"
 
 [[package]]
 name = "lumis-wasm-runtime"

@@ -16,12 +16,14 @@ when no suitable match exists.
 import * as themes from '@lumis-sh/lumis/themes';
 
 const theme = themes.closest({ background: '#000000' });
-console.log(theme?.name); // modus_vivendi
+console.log(theme?.name);
 ```
 
-This synchronous API works in Node and browsers. The `/themes` entry point
-includes the built-in theme catalog. Import individual themes from
-`@lumis-sh/themes/<name>` when you already know which one you want.
+This synchronous API works in Node and browsers. Node includes installed theme
+packs automatically. Browser `get`, `available`, and `closest` use only the
+default pack, even when an optional theme has been imported. Import individual
+themes from `@lumis-sh/themes/<name>` or `@lumis-sh/themes-copyleft/<name>` when
+you already know which one you want. See [theme packs](/themes#install-a-theme-pack).
 
   </Tab>
   <Tab value="Rust">
@@ -32,7 +34,7 @@ use lumis::themes::{self, TerminalColors};
 let mut colors = TerminalColors::default();
 colors.background = Some((0, 0, 0));
 let theme = themes::closest(&colors);
-assert_eq!(theme.map(|theme| theme.name.as_str()), Some("modus_vivendi"));
+println!("{:?}", theme.map(|theme| &theme.name));
 ```
 
   </Tab>
@@ -40,7 +42,7 @@ assert_eq!(theme.map(|theme| theme.name.as_str()), Some("modus_vivendi"));
 
 ```elixir
 theme = Lumis.Theme.closest(%{background: "#000000"})
-theme.name #=> "modus_vivendi"
+if theme, do: theme.name
 ```
 
   </Tab>
@@ -54,6 +56,10 @@ The CLI queries the terminal's colors and uses the same selection rules.
 
   </Tab>
 </Tabs>
+
+Matching considers the available packs, so installing or removing the optional
+pack can change the selected theme. Unavailable catalog entries are never
+candidates.
 
 ## Inputs and no-match behavior
 

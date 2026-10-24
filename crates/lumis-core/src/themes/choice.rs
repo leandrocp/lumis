@@ -180,6 +180,7 @@ fn color_distance(left: Rgb, right: Rgb) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::themes::get;
     use serde::Deserialize;
 
     #[derive(Deserialize)]
@@ -189,6 +190,7 @@ mod tests {
         foreground: Option<String>,
         ansi: Option<[Option<String>; 16]>,
         expected: Option<String>,
+        expected_default: Option<String>,
     }
 
     fn color(hex: Option<&str>) -> Option<Rgb> {
@@ -209,11 +211,15 @@ mod tests {
                 ansi: case.ansi.unwrap_or_default().map(|c| color(c.as_deref())),
             };
             let actual = closest(&colors).map(|theme| theme.name.as_str());
-            if actual != case.expected.as_deref() {
-                failures.push(format!(
-                    "{}: {actual:?}, expected {:?}",
-                    case.name, case.expected
-                ));
+            let expected = if get("modus_vivendi").is_ok() {
+                case.expected.as_deref()
+            } else {
+                case.expected_default
+                    .as_deref()
+                    .or(case.expected.as_deref())
+            };
+            if actual != expected {
+                failures.push(format!("{}: {actual:?}, expected {expected:?}", case.name));
             }
         }
         assert!(failures.is_empty(), "{}", failures.join("\n"));

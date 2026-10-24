@@ -5,7 +5,8 @@ import * as nodeEntry from "../src/index.js";
 import * as nodeLanguages from "../src/languages.js";
 import * as browserLanguages from "../src/languages.browser.js";
 import * as html from "../src/formatter/html.js";
-import * as themes from "../src/themes/index.js";
+import * as browserThemes from "../src/themes/index.js";
+import * as nodeThemes from "../src/themes/node.js";
 
 type Spelling = string | string[];
 
@@ -36,12 +37,12 @@ const lookupCases: {
 
 /** The two published entries, each the `.` of a different condition. */
 const entries = {
-  node: { root: nodeEntry, languages: nodeLanguages },
-  browser: { root: browserEntry, languages: browserLanguages },
+  node: { root: nodeEntry, languages: nodeLanguages, themes: nodeThemes },
+  browser: { root: browserEntry, languages: browserLanguages, themes: browserThemes },
 };
 
 function exportsFor(entry: keyof typeof entries): Record<string, unknown> {
-  const { root, languages } = entries[entry];
+  const { root, languages, themes } = entries[entry];
   return {
     ...root,
     ...Object.fromEntries(

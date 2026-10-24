@@ -7,6 +7,7 @@ import { THEME_DATA } from "../src/generated/theme-data.js";
 interface Case extends TerminalColors {
   name: string;
   expected: string | null;
+  expected_default?: string | null;
 }
 
 const cases: Case[] = JSON.parse(
@@ -23,7 +24,7 @@ describe("closest", () => {
   });
 
   it.each(cases)("$name", (testCase) => {
-    expect(closest(testCase)?.name ?? null).toBe(testCase.expected);
+    expect(closest(testCase)?.name ?? null).toBe(testCase.expected_default ?? testCase.expected);
   });
 
   it("pins the excluded monochrome themes", () => {
@@ -34,12 +35,15 @@ describe("closest", () => {
 
   it("returns a full theme without sharing mutable catalog state", () => {
     const first = closest({ background: "#000000" });
-    expect(first?.name).toBe("modus_vivendi");
-    expect(Object.keys(first?.highlights ?? {}).length).toBeGreaterThan(10);
-    if (!first) throw new Error("missing expected theme");
+    const fixture = cases.find((entry) => entry.name === "black-background");
+    if (!fixture || !first) throw new Error("missing expected theme or fixture");
+    const expected = fixture.expected_default ?? fixture.expected;
+    expect(expected).toBeTypeOf("string");
+    expect(first.name).toBe(expected);
+    expect(Object.keys(first.highlights).length).toBeGreaterThan(10);
     first.name = "changed";
     first.highlights.normal = { fg: "#000000" };
-    expect(closest({ background: "#000000" })?.name).toBe("modus_vivendi");
+    expect(closest({ background: "#000000" })?.name).toBe(expected);
     expect(closest({ background: "#000000" })?.highlights.normal?.fg).not.toBe("#000000");
   });
 

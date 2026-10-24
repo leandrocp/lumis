@@ -1,0 +1,20 @@
+[package]
+name = "lumis-themes"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license-file = "data/NOTICE.md"
+homepage.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "Default theme data for Lumis"
+include = ["/src/", "/data/", "/LICENSE"]
+
+[features]
+copyleft = ["dep:lumis-themes-copyleft-data"]
+
+[dependencies]
+lumis-themes-copyleft-data = { version = "0.1.0", path = "../lumis-themes-copyleft-data", optional = true }
+
+[lints]
+workspace = true

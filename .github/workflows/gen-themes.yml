@@ -39,11 +39,10 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Install Neovim
+      - name: Install extractor build dependencies
         run: |
-          sudo add-apt-repository ppa:neovim-ppa/unstable -y
           sudo apt-get update
-          sudo apt-get install -y lua5.4 neovim
+          sudo apt-get install -y lua5.4 ninja-build cmake build-essential
 
       - name: themes-gen
         run: echo "y" | mise run themes-gen
@@ -61,10 +60,16 @@ jobs:
             changed_themes=$(git diff --name-only -- \
               themes \
               css \
-              crates/lumis-core/themes \
+              crates/lumis-themes/data \
+              crates/lumis-themes-copyleft-data/data \
               crates/lumis/css \
               packages/elixir/lumis/priv/static/css \
+              packages/elixir/themes/priv \
+              packages/elixir/themes-copyleft/priv \
+              packages/javascript/themes/pack \
               packages/javascript/themes/themes \
+              packages/javascript/themes-copyleft/pack \
+              packages/javascript/themes-copyleft/themes \
               | awk '{ name = $0; sub(/^.*\//, "", name); sub(/\.(json|css|ts)$/, "", name); print name }' \
               | sort -u)
 
@@ -85,10 +90,16 @@ jobs:
           add-paths: |
             themes
             css
-            crates/lumis-core/themes
+            crates/lumis-themes/data
+            crates/lumis-themes-copyleft-data/data
             crates/lumis/css
             packages/elixir/lumis/priv/static/css
+            packages/elixir/themes/priv
+            packages/elixir/themes-copyleft/priv
+            packages/javascript/themes/pack
             packages/javascript/themes/themes
+            packages/javascript/themes-copyleft/pack
+            packages/javascript/themes-copyleft/themes
           commit-message: "feat(themes): update generated themes"
           title: "feat(themes): update themes"
           body-path: .github/gen-themes-pr-body.md

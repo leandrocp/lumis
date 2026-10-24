@@ -13,9 +13,6 @@ include = [
     "/src/",
     "/build.rs",
     "/languages.toml",
-    "/themes/*.json",
-    "/themes/NOTICE.md",
-    "/themes/licenses/",
     "/CHANGELOG.md",
     "/LICENSE",
 ]
@@ -273,6 +270,7 @@ lang-zig = []
 lang-zsh = []
 
 [dependencies]
+lumis-themes = { version = "0.1.0", path = "../lumis-themes" }
 derive_builder = "0.20"
 glob = "0.3"
 regex = "1"
@@ -286,7 +284,6 @@ typed-path = "0.12"
 [build-dependencies]
 toml = "1.1"
 serde = { version = "1", features = ["derive"] }
-quote = "1"
 
 [dev-dependencies]
 pretty_assertions = "1"

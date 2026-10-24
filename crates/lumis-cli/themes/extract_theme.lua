@@ -325,6 +325,29 @@ local function get_plugin_revision(repo_url)
 	return plugins[1].rev
 end
 
+local function get_neovim_revision()
+	local revision = (vim.version().build or ""):gsub("^g", "")
+	assert(
+		#revision == 40 and revision:match("^%x+$"),
+		"Built-in themes require Neovim built with a full commit ID (git config core.abbrev 40 before building)"
+	)
+
+	local runtime = assert(uv.fs_realpath(vim.env.VIMRUNTIME), "Cannot resolve Neovim runtime")
+	local function git(...)
+		local command = { "git", "-C", runtime }
+		vim.list_extend(command, { ... })
+		local result = vim.system(command, { text = true }):wait()
+		assert(result.code == 0, "Built-in themes require a runtime from a Neovim source checkout: " .. result.stderr)
+		return vim.trim(result.stdout)
+	end
+
+	local root = git("rev-parse", "--show-toplevel")
+	assert(uv.fs_realpath(root .. "/runtime") == runtime, "VIMRUNTIME must be the Neovim checkout's runtime")
+	assert(git("rev-parse", "HEAD") == revision, "Neovim binary and runtime revisions differ")
+	assert(git("status", "--porcelain", "--untracked-files=all", "--", ".") == "", "Neovim runtime is modified")
+	return revision
+end
+
 local function is_incomplete_plugin_dir(plugin_path)
 	if vim.fn.isdirectory(plugin_path) == 0 then
 		return false
@@ -440,7 +463,7 @@ end
 local function extract_colorscheme_colors(theme)
 	local colorscheme_name = vim.g.colors_name
 	local appearance = vim.o.background
-	local revision = get_plugin_revision(theme.url)
+	local revision = theme.builtin and get_neovim_revision() or get_plugin_revision(theme.url)
 
 	print(
 		string.format(
@@ -610,6 +633,13 @@ end
 if not theme then
 	print(string.format("❌ theme '%s' not found in themes.lua\n", theme_name))
 	os.exit(1)
+end
+
+if theme.builtin then
+	theme.config()
+	extract_colorscheme_colors(theme)
+	vim.cmd("quit!")
+	return
 end
 
 local plugins_to_install = {}

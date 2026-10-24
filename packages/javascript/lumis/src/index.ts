@@ -3,7 +3,8 @@
 import { createHighlighterModule } from "./core/highlighter.js";
 import { createRuntime, getDefaultRuntime } from "./runtime/node.js";
 import * as languages from "./languages.js";
-import { availableThemes as listThemes, sanitizeThemeName as sanitizeName } from "./themes.js";
+import { available as listThemes } from "./themes/installed.js";
+import { sanitizeThemeName as sanitizeName } from "./themes.js";
 
 export { runtimeKind } from "./runtime/node.js";
 export { highlightIter, highlightEvents } from "./core/highlighter.js";

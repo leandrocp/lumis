@@ -103,12 +103,40 @@ defmodule Lumis.Native do
 
   def available_languages, do: :erlang.nif_error(:nif_not_loaded)
   def language_info(_name), do: :erlang.nif_error(:nif_not_loaded)
-  def available_themes, do: :erlang.nif_error(:nif_not_loaded)
-  def get_theme(_name), do: :erlang.nif_error(:nif_not_loaded)
-  def closest_theme(_background, _foreground, _ansi), do: :erlang.nif_error(:nif_not_loaded)
+
+  def available_themes do
+    Lumis.Themes.ensure_initialized(__MODULE__)
+    available_themes_nif()
+  end
+
+  def get_theme(name) do
+    Lumis.Themes.ensure_initialized(__MODULE__)
+    get_theme_nif(name)
+  end
+
+  def closest_theme(background, foreground, ansi) do
+    Lumis.Themes.ensure_initialized(__MODULE__)
+    closest_theme_nif(background, foreground, ansi)
+  end
+
+  def theme_css_from_name(name, options) do
+    Lumis.Themes.ensure_initialized(__MODULE__)
+    theme_css_from_name_nif(name, options)
+  end
+
+  @doc false
+  def install_theme_packs(_files), do: :erlang.nif_error(:nif_not_loaded)
+  @doc false
+  def available_themes_nif, do: :erlang.nif_error(:nif_not_loaded)
+  @doc false
+  def get_theme_nif(_name), do: :erlang.nif_error(:nif_not_loaded)
+  @doc false
+  def closest_theme_nif(_background, _foreground, _ansi), do: :erlang.nif_error(:nif_not_loaded)
+  @doc false
+  def theme_css_from_name_nif(_name, _options), do: :erlang.nif_error(:nif_not_loaded)
+
   def build_theme_from_file(_path), do: :erlang.nif_error(:nif_not_loaded)
   def build_theme_from_json_string(_json_string), do: :erlang.nif_error(:nif_not_loaded)
-  def theme_css_from_name(_name, _options), do: :erlang.nif_error(:nif_not_loaded)
   def theme_css_from_theme(_theme, _options), do: :erlang.nif_error(:nif_not_loaded)
 
   def configure_store(_data_dir, _installed_dirs), do: :erlang.nif_error(:nif_not_loaded)
@@ -122,8 +150,21 @@ defmodule Lumis.Native do
   def guess_language(_name, _source), do: :erlang.nif_error(:nif_not_loaded)
   def has_language(_name), do: :erlang.nif_error(:nif_not_loaded)
   def loaded_languages, do: :erlang.nif_error(:nif_not_loaded)
-  def highlight(_source, _options), do: :erlang.nif_error(:nif_not_loaded)
-  def highlight_events(_source, _options), do: :erlang.nif_error(:nif_not_loaded)
+
+  def highlight(source, options) do
+    Lumis.Themes.ensure_initialized(__MODULE__)
+    highlight_nif(source, options)
+  end
+
+  def highlight_events(source, options) do
+    Lumis.Themes.ensure_initialized(__MODULE__)
+    highlight_events_nif(source, options)
+  end
+
+  @doc false
+  def highlight_nif(_source, _options), do: :erlang.nif_error(:nif_not_loaded)
+  @doc false
+  def highlight_events_nif(_source, _options), do: :erlang.nif_error(:nif_not_loaded)
 
   def ansi_hex_to_rgb(_hex), do: :erlang.nif_error(:nif_not_loaded)
   def ansi_rgb_to_ansi(_r, _g, _b, _is_background), do: :erlang.nif_error(:nif_not_loaded)

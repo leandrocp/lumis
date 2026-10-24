@@ -1036,9 +1036,36 @@ underscored application name, since an Elixir application name is an atom —
 
 Themes are extracted from Neovim colorscheme plugins. Each theme is a JSON file in `themes/`. Theme definitions live in [`themes/themes.lua`](themes/themes.lua), which follows the `vim.pack` convention so Neovim can install them automatically.
 
-`mise run poc-theme-packs` runs the isolated [optional theme-pack experiment](poc/theme-packs/README.md)
-against Lumis, MDEx and mdex_native. It builds patched snapshots under `tmp/`;
-it does not change the production catalog or package layout.
+`mise run themes-gen` builds its extractor from `themes/neovim-revision` with
+the full commit embedded in the binary and uses that checkout's runtime.
+The built-in `neovim_dark` and `neovim_light` themes record this revision,
+not a placeholder plugin's commit. Their conservative `Apache-2.0 AND Vim`
+classification is a distribution policy, not a claim that every color is copyleft.
+
+Theme delivery uses two packs: permissive `default` themes are included
+automatically; `copyleft` themes require an optional dependency, with no runtime
+registration. Rust uses `lumis-themes` for the default registry,
+`lumis-themes-copyleft` for dependency-only activation, and
+`lumis-themes-copyleft-data` as the leaf payload crate. npm uses
+`@lumis-sh/themes` and `@lumis-sh/themes-copyleft`; Hex uses `lumis_themes`
+and `lumis_themes_copyleft`.
+
+`themes/catalog.json` is generated metadata with `schema_version: 1` and a
+`themes` array of `name`, `appearance`, `pack`, `license`, `url`, and `revision`.
+`themes/packs/default.json` and `themes/packs/copyleft.json` contain the
+redistributable payloads. Do not use a glob over `themes/*.json` as a runtime
+catalog: it includes metadata and themes unavailable for redistribution.
+`darkplus`, `no_clown_fiesta`, `poimandres`, and `yorumi` remain catalog entries
+only, never packaged JSON, CSS, or demo data. Pack membership follows the
+reviewed policy in `fixtures/theme-packs.json`, not a hand-maintained count.
+
+The website deliberately installs both npm packs for its demos. Browser
+`get`, `available`, and `closest` still use the default pack only; optional
+themes are explicit imports. Existing per-theme forwarding imports require
+the optional package. Node and Elixir discover installed optional dependencies,
+Rust enables them through Cargo dependency resolution, and the standalone CLI
+discovers its companion pack automatically. Java integration is tracked in its
+external repository and is not completed by this change.
 
 ### Adding a new theme
 
@@ -1107,8 +1134,9 @@ identical theme data, so revision-only changes do not create update PRs.
 
 `mise run docs-gen-themes-md` writes `THEMES.md`, the docs reference page and
 `themes/NOTICE.md`, which lists each theme's source, pinned commit, license and
-copyright. `crates/lumis-core` and `@lumis-sh/themes` ship the notice and the full
-upstream license texts, including their copyright notices.
+copyright. Theme payload packages ship pack-specific notices and full upstream
+license texts, including their copyright notices. Neither a catalog entry nor
+an extraction dependency grants permission to redistribute a theme.
 
 After adding a source or changing a theme revision, fetch the license texts:
 
@@ -1118,7 +1146,7 @@ mise run themes-fetch-licenses
 
 This reads each licensed theme's recorded commit and downloads its license into
 `themes/licenses/<owner>/<repo>/<commit>/`, then regenerates the notices and
-copies the texts into `crates/lumis-core/themes/licenses/`. Extraction dependencies
+copies the texts into the theme payload packages. Extraction dependencies
 have no recorded theme commit; their `license_revision` in `themes/licenses.toml`
 pins the bundled license text, not the plugin used during extraction. Sources
 marked `NONE` have no license text to fetch; that does not grant permission to

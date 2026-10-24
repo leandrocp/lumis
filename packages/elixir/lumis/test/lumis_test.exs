@@ -138,15 +138,18 @@ defmodule Lumis.LumisTest do
   end
 
   test "available_themes" do
-    expected_count =
-      __DIR__
-      |> Path.join("../../../../themes")
-      |> File.ls!()
-      |> Enum.count(&String.ends_with?(&1, ".json"))
+    expected =
+      Lumis.Themes.installed_files()
+      |> Enum.flat_map(fn file ->
+        file |> File.read!() |> Jason.decode!() |> Map.fetch!("themes")
+      end)
+      |> Enum.map(fn theme -> %{name: theme["name"], appearance: theme["appearance"]} end)
+      |> Enum.sort_by(& &1.name)
 
     themes = Lumis.Theme.available()
 
-    assert length(themes) == expected_count
+    assert length(expected) > 200
+    assert themes == expected
     assert themes == Enum.sort_by(themes, & &1.name)
     assert %{name: "github_light", appearance: "light"} in themes
     assert %{name: "dracula", appearance: "dark"} in themes

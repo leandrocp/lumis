@@ -100,25 +100,55 @@ test("hostLibc answers gnu off Linux and one of the two flavours on it", () => {
   }
 });
 
-test("the shim spawns the resolved binary and forwards arguments", () => {
+test("the shim discovers an installed optional pack without changing user arguments", () => {
   const target = cliTargetFor(process.platform, process.arch, hostLibc());
   if (!target) {
     throw new Error(`this host (${process.platform}-${process.arch}) has no CLI package to test`);
   }
 
+  const isolated = mkdtempSync(join(tmpdir(), "lumis-cli-shim-"));
+  const bin = join(isolated, "bin");
+  const platformPackage = join(isolated, "node_modules", "@lumis-sh", `cli-${target}`);
+  const optionalPackage = join(isolated, "node_modules", "@lumis-sh", "themes-copyleft");
   const binaryName = process.platform === "win32" ? "lumis.exe" : "lumis";
-  const binary = join(npmDir, target, binaryName);
-  mkdirSync(join(npmDir, target), { recursive: true });
-  writeFileSync(binary, '#!/usr/bin/env node\nconsole.log(process.argv.slice(2).join(" "));\n');
+  const binary = join(platformPackage, binaryName);
+  mkdirSync(bin);
+  mkdirSync(platformPackage, { recursive: true });
+  copyFileSync(shim, join(bin, "lumis"));
+  copyFileSync(join(packageDir, "bin", "target.js"), join(bin, "target.js"));
+  writeFileSync(join(platformPackage, "package.json"), "{}");
+  writeFileSync(
+    binary,
+    "#!/usr/bin/env node\nconsole.log(JSON.stringify(process.argv.slice(2)));\n",
+  );
   chmodSync(binary, 0o755);
 
   try {
-    const result = spawnSync(process.execPath, [shim, "ok"], { encoding: "utf8" });
-    assert.equal(result.stderr, "");
-    assert.equal(result.status, 0);
-    assert.equal(result.stdout.trim(), "ok");
+    const run = () => {
+      const result = spawnSync(
+        process.execPath,
+        [join(bin, "lumis"), "--theme", "nord", "a b.rs"],
+        {
+          encoding: "utf8",
+          cwd: tmpdir(),
+        },
+      );
+      assert.equal(result.stderr, "");
+      assert.equal(result.status, 0);
+      return JSON.parse(result.stdout);
+    };
+    const userArgs = ["--theme", "nord", "a b.rs"];
+    assert.deepEqual(run(), userArgs);
+
+    mkdirSync(optionalPackage, { recursive: true });
+    const manifest = join(optionalPackage, "lumis-themes.json");
+    writeFileSync(manifest, "{}");
+    assert.deepEqual(run(), ["--theme-pack", manifest, ...userArgs]);
+
+    rmSync(optionalPackage, { recursive: true });
+    assert.deepEqual(run(), userArgs);
   } finally {
-    rmSync(binary, { force: true });
+    rmSync(isolated, { force: true, recursive: true });
   }
 });
 

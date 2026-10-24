@@ -1,0 +1,2053 @@
+{
+  "schema_version": 1,
+  "themes": [
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "adwaita_dark",
+      "pack": "default",
+      "revision": "c607954f7b2cf56b24e921db0dab4749f3430a22",
+      "url": "https://github.com/Mofiqul/adwaita.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "adwaita_light",
+      "pack": "default",
+      "revision": "c607954f7b2cf56b24e921db0dab4749f3430a22",
+      "url": "https://github.com/Mofiqul/adwaita.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "arctic",
+      "pack": "default",
+      "revision": "46da33aeb3a8ee48533f41911b3aaf4f1541dd6f",
+      "url": "https://github.com/rockyzhang24/arctic.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-3.0",
+      "name": "astrodark",
+      "pack": "copyleft",
+      "revision": "f6883da9b88ac810e6e5568db9a74ba6d6672d4b",
+      "url": "https://github.com/AstroNvim/astrotheme"
+    },
+    {
+      "appearance": "light",
+      "license": "GPL-3.0",
+      "name": "astrojupiter",
+      "pack": "copyleft",
+      "revision": "f6883da9b88ac810e6e5568db9a74ba6d6672d4b",
+      "url": "https://github.com/AstroNvim/astrotheme"
+    },
+    {
+      "appearance": "light",
+      "license": "GPL-3.0",
+      "name": "astrolight",
+      "pack": "copyleft",
+      "revision": "f6883da9b88ac810e6e5568db9a74ba6d6672d4b",
+      "url": "https://github.com/AstroNvim/astrotheme"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-3.0",
+      "name": "astromars",
+      "pack": "copyleft",
+      "revision": "f6883da9b88ac810e6e5568db9a74ba6d6672d4b",
+      "url": "https://github.com/AstroNvim/astrotheme"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "aura_dark",
+      "pack": "default",
+      "revision": "20924aa0a43975420edd0e0b2f919e07a3eff9c9",
+      "url": "https://github.com/daltonmenezes/aura-theme"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "aura_dark_soft_text",
+      "pack": "default",
+      "revision": "20924aa0a43975420edd0e0b2f919e07a3eff9c9",
+      "url": "https://github.com/daltonmenezes/aura-theme"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "aura_soft_dark",
+      "pack": "default",
+      "revision": "20924aa0a43975420edd0e0b2f919e07a3eff9c9",
+      "url": "https://github.com/daltonmenezes/aura-theme"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "aura_soft_dark_soft_text",
+      "pack": "default",
+      "revision": "20924aa0a43975420edd0e0b2f919e07a3eff9c9",
+      "url": "https://github.com/daltonmenezes/aura-theme"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "aurora",
+      "pack": "default",
+      "revision": "c3879c696ba7298e35b01ec612aa32523b152778",
+      "url": "https://github.com/ray-x/aurora"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-3.0",
+      "name": "ayu_dark",
+      "pack": "copyleft",
+      "revision": "e5a9f0fa2918d6b5f57c21b3ac014314ee5e41c8",
+      "url": "https://github.com/Shatur/neovim-ayu"
+    },
+    {
+      "appearance": "light",
+      "license": "GPL-3.0",
+      "name": "ayu_light",
+      "pack": "copyleft",
+      "revision": "e5a9f0fa2918d6b5f57c21b3ac014314ee5e41c8",
+      "url": "https://github.com/Shatur/neovim-ayu"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-3.0",
+      "name": "ayu_mirage",
+      "pack": "copyleft",
+      "revision": "e5a9f0fa2918d6b5f57c21b3ac014314ee5e41c8",
+      "url": "https://github.com/Shatur/neovim-ayu"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "bamboo_light",
+      "pack": "default",
+      "revision": "1309bc88bffcf1bedc3e84e7fa9004de93da774a",
+      "url": "https://github.com/ribru17/bamboo.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "bamboo_multiplex",
+      "pack": "default",
+      "revision": "1309bc88bffcf1bedc3e84e7fa9004de93da774a",
+      "url": "https://github.com/ribru17/bamboo.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "bamboo_vulgaris",
+      "pack": "default",
+      "revision": "1309bc88bffcf1bedc3e84e7fa9004de93da774a",
+      "url": "https://github.com/ribru17/bamboo.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "LGPL-3.0",
+      "name": "bluloco_dark",
+      "pack": "copyleft",
+      "revision": "caa4233dab772dad1db272c78025dd9682dca9e8",
+      "url": "https://github.com/uloco/bluloco.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "LGPL-3.0",
+      "name": "bluloco_light",
+      "pack": "copyleft",
+      "revision": "caa4233dab772dad1db272c78025dd9682dca9e8",
+      "url": "https://github.com/uloco/bluloco.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "carbonfox",
+      "pack": "default",
+      "revision": "4dacd3f0185a2227bdf3b6c0975a8f0bf87cac9a",
+      "url": "https://github.com/EdenEast/nightfox.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "catppuccin_frappe",
+      "pack": "default",
+      "revision": "edefef779ab08ce1a4a404713e3012b0d202bd35",
+      "url": "https://github.com/catppuccin/nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "catppuccin_latte",
+      "pack": "default",
+      "revision": "edefef779ab08ce1a4a404713e3012b0d202bd35",
+      "url": "https://github.com/catppuccin/nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "catppuccin_macchiato",
+      "pack": "default",
+      "revision": "edefef779ab08ce1a4a404713e3012b0d202bd35",
+      "url": "https://github.com/catppuccin/nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "catppuccin_mocha",
+      "pack": "default",
+      "revision": "edefef779ab08ce1a4a404713e3012b0d202bd35",
+      "url": "https://github.com/catppuccin/nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "citruszest",
+      "pack": "default",
+      "revision": "e6fed9ec3d0ac190b1387379c138ba5e23a1f4f9",
+      "url": "https://github.com/zootedb0t/citruszest.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "cobalt2",
+      "pack": "default",
+      "revision": "0cc17f3491feba19ed62b2d9622577f7822a0113",
+      "url": "https://github.com/lalitmee/cobalt2.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "cyberdream_dark",
+      "pack": "default",
+      "revision": "39e1fda12c0704e01029b286a4c7e77e33a0c5cd",
+      "url": "https://github.com/scottmckendry/cyberdream.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "cyberdream_light",
+      "pack": "default",
+      "revision": "39e1fda12c0704e01029b286a4c7e77e33a0c5cd",
+      "url": "https://github.com/scottmckendry/cyberdream.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "NONE",
+      "name": "darkplus",
+      "pack": "unavailable",
+      "revision": "6101ffce60682208e9e076710299d189ce11c40d",
+      "url": "https://github.com/martinsione/darkplus.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "darkvoid",
+      "pack": "default",
+      "revision": "45be993a5617e05811b6b293c05e6aded7003cc9",
+      "url": "https://github.com/darkvoid-theme/darkvoid.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "dawnfox",
+      "pack": "default",
+      "revision": "4dacd3f0185a2227bdf3b6c0975a8f0bf87cac9a",
+      "url": "https://github.com/EdenEast/nightfox.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "dayfox",
+      "pack": "default",
+      "revision": "4dacd3f0185a2227bdf3b6c0975a8f0bf87cac9a",
+      "url": "https://github.com/EdenEast/nightfox.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "deepwhite",
+      "pack": "default",
+      "revision": "ccad56bb5eb7d29258980cfc0a716eb87bcad69e",
+      "url": "https://github.com/Verf/deepwhite.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "doom_one_dark",
+      "pack": "default",
+      "revision": "beae92173315c7282f6897e666cfd67fbf0f3ac9",
+      "url": "https://github.com/NTBBloodbath/doom-one.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "doom_one_light",
+      "pack": "default",
+      "revision": "beae92173315c7282f6897e666cfd67fbf0f3ac9",
+      "url": "https://github.com/NTBBloodbath/doom-one.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "dracula",
+      "pack": "default",
+      "revision": "ae752c13e95fb7c5f58da4b5123cb804ea7568ee",
+      "url": "https://github.com/Mofiqul/dracula.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "dracula_soft",
+      "pack": "default",
+      "revision": "ae752c13e95fb7c5f58da4b5123cb804ea7568ee",
+      "url": "https://github.com/Mofiqul/dracula.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "duckbones",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "duskfox",
+      "pack": "default",
+      "revision": "4dacd3f0185a2227bdf3b6c0975a8f0bf87cac9a",
+      "url": "https://github.com/EdenEast/nightfox.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "edge_aura",
+      "pack": "default",
+      "revision": "7ec78c21bd8f0b2b0b47043bb1e730c561647c72",
+      "url": "https://github.com/sainnhe/edge"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "edge_dark",
+      "pack": "default",
+      "revision": "7ec78c21bd8f0b2b0b47043bb1e730c561647c72",
+      "url": "https://github.com/sainnhe/edge"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "edge_light",
+      "pack": "default",
+      "revision": "7ec78c21bd8f0b2b0b47043bb1e730c561647c72",
+      "url": "https://github.com/sainnhe/edge"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "edge_neon",
+      "pack": "default",
+      "revision": "7ec78c21bd8f0b2b0b47043bb1e730c561647c72",
+      "url": "https://github.com/sainnhe/edge"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "eldritch",
+      "pack": "default",
+      "revision": "c9131a5a11f00a2f428f563a4eb2c4aeb680d963",
+      "url": "https://github.com/eldritch-theme/eldritch.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "embark",
+      "pack": "default",
+      "revision": "2331671b548abcade22b0197fde58e11744c99bb",
+      "url": "https://github.com/embark-theme/vim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "everblush",
+      "pack": "default",
+      "revision": "678f808d81801b983b6fb8296fb17ba1b2785d7c",
+      "url": "https://github.com/Everblush/nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "everforest_dark",
+      "pack": "default",
+      "revision": "a0e9edc57379e8feafc6ba207c26dbb12fc1b6d8",
+      "url": "https://github.com/neanias/everforest-nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "everforest_light",
+      "pack": "default",
+      "revision": "a0e9edc57379e8feafc6ba207c26dbb12fc1b6d8",
+      "url": "https://github.com/neanias/everforest-nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "flexoki_dark",
+      "pack": "default",
+      "revision": "c3e2251e813d29d885a7cbbe9808a7af234d845d",
+      "url": "https://github.com/kepano/flexoki-neovim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "flexoki_light",
+      "pack": "default",
+      "revision": "c3e2251e813d29d885a7cbbe9808a7af234d845d",
+      "url": "https://github.com/kepano/flexoki-neovim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "flow_dark",
+      "pack": "default",
+      "revision": "4863b14263a77f8efb79068f7078b6261c9cbda2",
+      "url": "https://github.com/0xstepit/flow.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "flow_light",
+      "pack": "default",
+      "revision": "4863b14263a77f8efb79068f7078b6261c9cbda2",
+      "url": "https://github.com/0xstepit/flow.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "fluoromachine_delta",
+      "pack": "default",
+      "revision": "a279f667168e742df059caf1f1f4daf1de24f4f8",
+      "url": "https://github.com/maxmx03/fluoromachine.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "fluoromachine_fluoromachine",
+      "pack": "default",
+      "revision": "a279f667168e742df059caf1f1f4daf1de24f4f8",
+      "url": "https://github.com/maxmx03/fluoromachine.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "fluoromachine_retrowave",
+      "pack": "default",
+      "revision": "a279f667168e742df059caf1f1f4daf1de24f4f8",
+      "url": "https://github.com/maxmx03/fluoromachine.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "forestbones_dark",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "forestbones_light",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "github_dark",
+      "pack": "default",
+      "revision": "c106c9472154d6b2c74b74565616b877ae8ed31d",
+      "url": "https://github.com/projekt0n/github-nvim-theme"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "github_dark_colorblind",
+      "pack": "default",
+      "revision": "c106c9472154d6b2c74b74565616b877ae8ed31d",
+      "url": "https://github.com/projekt0n/github-nvim-theme"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "github_dark_dimmed",
+      "pack": "default",
+      "revision": "c106c9472154d6b2c74b74565616b877ae8ed31d",
+      "url": "https://github.com/projekt0n/github-nvim-theme"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "github_dark_high_contrast",
+      "pack": "default",
+      "revision": "c106c9472154d6b2c74b74565616b877ae8ed31d",
+      "url": "https://github.com/projekt0n/github-nvim-theme"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "github_dark_tritanopia",
+      "pack": "default",
+      "revision": "c106c9472154d6b2c74b74565616b877ae8ed31d",
+      "url": "https://github.com/projekt0n/github-nvim-theme"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "github_light",
+      "pack": "default",
+      "revision": "c106c9472154d6b2c74b74565616b877ae8ed31d",
+      "url": "https://github.com/projekt0n/github-nvim-theme"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "github_light_colorblind",
+      "pack": "default",
+      "revision": "c106c9472154d6b2c74b74565616b877ae8ed31d",
+      "url": "https://github.com/projekt0n/github-nvim-theme"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "github_light_high_contrast",
+      "pack": "default",
+      "revision": "c106c9472154d6b2c74b74565616b877ae8ed31d",
+      "url": "https://github.com/projekt0n/github-nvim-theme"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "github_light_tritanopia",
+      "pack": "default",
+      "revision": "c106c9472154d6b2c74b74565616b877ae8ed31d",
+      "url": "https://github.com/projekt0n/github-nvim-theme"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "gruber_darker",
+      "pack": "default",
+      "revision": "50fa4e583099729fcaaadc73a5afb74f7a91a625",
+      "url": "https://github.com/blazkowolf/gruber-darker.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "gruvbox_baby",
+      "pack": "default",
+      "revision": "bd52e62d8134647090108189e69c8b3cd18bdbbf",
+      "url": "https://github.com/luisiacc/gruvbox-baby"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "gruvbox_dark",
+      "pack": "default",
+      "revision": "154eb5ff5b96d0641307113fa385eaf0d36d9796",
+      "url": "https://github.com/ellisonleao/gruvbox.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "gruvbox_dark_hard",
+      "pack": "default",
+      "revision": "154eb5ff5b96d0641307113fa385eaf0d36d9796",
+      "url": "https://github.com/ellisonleao/gruvbox.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "gruvbox_dark_soft",
+      "pack": "default",
+      "revision": "154eb5ff5b96d0641307113fa385eaf0d36d9796",
+      "url": "https://github.com/ellisonleao/gruvbox.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "gruvbox_light",
+      "pack": "default",
+      "revision": "154eb5ff5b96d0641307113fa385eaf0d36d9796",
+      "url": "https://github.com/ellisonleao/gruvbox.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "gruvbox_light_hard",
+      "pack": "default",
+      "revision": "154eb5ff5b96d0641307113fa385eaf0d36d9796",
+      "url": "https://github.com/ellisonleao/gruvbox.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "gruvbox_light_soft",
+      "pack": "default",
+      "revision": "154eb5ff5b96d0641307113fa385eaf0d36d9796",
+      "url": "https://github.com/ellisonleao/gruvbox.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "gruvbox_material_dark",
+      "pack": "default",
+      "revision": "11d779b26a9ab2b3db8c22c6ac9fb6e8ed4fea79",
+      "url": "https://github.com/sainnhe/gruvbox-material"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "gruvbox_material_light",
+      "pack": "default",
+      "revision": "11d779b26a9ab2b3db8c22c6ac9fb6e8ed4fea79",
+      "url": "https://github.com/sainnhe/gruvbox-material"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "horizon_dark",
+      "pack": "default",
+      "revision": "b4d7b1e7c3aa77aea31b9ced8960e49fd8682c47",
+      "url": "https://github.com/akinsho/horizon.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "horizon_light",
+      "pack": "default",
+      "revision": "b4d7b1e7c3aa77aea31b9ced8960e49fd8682c47",
+      "url": "https://github.com/akinsho/horizon.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "hybrid",
+      "pack": "default",
+      "revision": "0eafd5f0e1223073bdc7c02aedfd85bff029aa5c",
+      "url": "https://github.com/HoNamDuong/hybrid.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "iceberg",
+      "pack": "default",
+      "revision": "23835d5ed696436f716cbfdb56a93a7850fe3b18",
+      "url": "https://github.com/cocopon/iceberg.vim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "jellybeans",
+      "pack": "default",
+      "revision": "d5989265b5256cb296b5772c73e57490e84f69b1",
+      "url": "https://github.com/metalelf0/jellybeans-nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "kanagawa_dragon",
+      "pack": "default",
+      "revision": "bb85e4bfc8d89b0e62c8fa53ccdd13d12e2f77b3",
+      "url": "https://github.com/rebelot/kanagawa.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "kanagawa_lotus",
+      "pack": "default",
+      "revision": "bb85e4bfc8d89b0e62c8fa53ccdd13d12e2f77b3",
+      "url": "https://github.com/rebelot/kanagawa.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "kanagawa_paper_dark",
+      "pack": "default",
+      "revision": "ecf19801a2673054c19421d82b766f7641688320",
+      "url": "https://github.com/thesimonho/kanagawa-paper.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "kanagawa_paper_light",
+      "pack": "default",
+      "revision": "d6ba194faba511c9b112a13c79b5e123dcb5dd41",
+      "url": "https://github.com/thesimonho/kanagawa-paper.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "kanagawa_wave",
+      "pack": "default",
+      "revision": "bb85e4bfc8d89b0e62c8fa53ccdd13d12e2f77b3",
+      "url": "https://github.com/rebelot/kanagawa.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "kanagawabones",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "lackluster",
+      "pack": "default",
+      "revision": "70dd682e564784893b984deb51dd5ddd263c8cc7",
+      "url": "https://github.com/slugbyte/lackluster.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "lackluster_hack",
+      "pack": "default",
+      "revision": "70dd682e564784893b984deb51dd5ddd263c8cc7",
+      "url": "https://github.com/slugbyte/lackluster.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "lackluster_mint",
+      "pack": "default",
+      "revision": "70dd682e564784893b984deb51dd5ddd263c8cc7",
+      "url": "https://github.com/slugbyte/lackluster.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-2.0",
+      "name": "material_darker",
+      "pack": "copyleft",
+      "revision": "92f7366a9315cd386bc4fa4d716fde375dda210f",
+      "url": "https://github.com/marko-cerovac/material.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-2.0",
+      "name": "material_deep_ocean",
+      "pack": "copyleft",
+      "revision": "92f7366a9315cd386bc4fa4d716fde375dda210f",
+      "url": "https://github.com/marko-cerovac/material.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "GPL-2.0",
+      "name": "material_lighter",
+      "pack": "copyleft",
+      "revision": "92f7366a9315cd386bc4fa4d716fde375dda210f",
+      "url": "https://github.com/marko-cerovac/material.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-2.0",
+      "name": "material_oceanic",
+      "pack": "copyleft",
+      "revision": "92f7366a9315cd386bc4fa4d716fde375dda210f",
+      "url": "https://github.com/marko-cerovac/material.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-2.0",
+      "name": "material_palenight",
+      "pack": "copyleft",
+      "revision": "92f7366a9315cd386bc4fa4d716fde375dda210f",
+      "url": "https://github.com/marko-cerovac/material.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "matte_black",
+      "pack": "default",
+      "revision": "a8a039f5d6189b28d76fa0221e64965efec7e996",
+      "url": "https://github.com/tahayvr/matteblack.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "melange_dark",
+      "pack": "default",
+      "revision": "ce42f6b629beeaa00591ba73a77d3eeac4cf28ce",
+      "url": "https://github.com/savq/melange-nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "melange_light",
+      "pack": "default",
+      "revision": "ce42f6b629beeaa00591ba73a77d3eeac4cf28ce",
+      "url": "https://github.com/savq/melange-nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "mellifluous_alduin",
+      "pack": "default",
+      "revision": "ec0575bdb63594c5e7fba6eb9607b009aa1fb74e",
+      "url": "https://github.com/ramojus/mellifluous.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "mellifluous_dark",
+      "pack": "default",
+      "revision": "ec0575bdb63594c5e7fba6eb9607b009aa1fb74e",
+      "url": "https://github.com/ramojus/mellifluous.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "mellifluous_kanagawa_dragon",
+      "pack": "default",
+      "revision": "ec0575bdb63594c5e7fba6eb9607b009aa1fb74e",
+      "url": "https://github.com/ramojus/mellifluous.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "mellifluous_light",
+      "pack": "default",
+      "revision": "ec0575bdb63594c5e7fba6eb9607b009aa1fb74e",
+      "url": "https://github.com/ramojus/mellifluous.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "mellifluous_mountain",
+      "pack": "default",
+      "revision": "ec0575bdb63594c5e7fba6eb9607b009aa1fb74e",
+      "url": "https://github.com/ramojus/mellifluous.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "mellifluous_tender",
+      "pack": "default",
+      "revision": "ec0575bdb63594c5e7fba6eb9607b009aa1fb74e",
+      "url": "https://github.com/ramojus/mellifluous.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "mellow",
+      "pack": "default",
+      "revision": "6273b7f0ddf6ac2b75021b3bc0bd8b3305cfeef1",
+      "url": "https://github.com/mellow-theme/mellow.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "mfd_amber",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "mfd_blackout",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "mfd_dark",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "mfd_default",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "mfd_flir",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "mfd_flir_bh",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "mfd_flir_fusion",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "mfd_flir_rh",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "mfd_gbl_dark",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "mfd_gbl_light",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "mfd_hud",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "mfd_lumon",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "mfd_mono",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "mfd_nvg",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "mfd_paper",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "mfd_scarlet",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "mfd_stealth",
+      "pack": "default",
+      "revision": "72ae627792960a7e490cb5242a78c570d02ba775",
+      "url": "https://github.com/kungfusheep/mfd.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "CC0-1.0",
+      "name": "miasma",
+      "pack": "default",
+      "revision": "627f2e1cac91de0d1d4dd7472b506a30f41b2b7d",
+      "url": "https://github.com/xero/miasma.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "midnight",
+      "pack": "default",
+      "revision": "fe062a6f2e5bd77cd8a260f61e6e12789eaf4f13",
+      "url": "https://github.com/dasupradyumna/midnight.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "GPL-3.0",
+      "name": "modus_operandi",
+      "pack": "copyleft",
+      "revision": "15ffb5ab6a12f72ee1e8393fe5810d5317da2d3e",
+      "url": "https://github.com/miikanissi/modus-themes.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-3.0",
+      "name": "modus_vivendi",
+      "pack": "copyleft",
+      "revision": "15ffb5ab6a12f72ee1e8393fe5810d5317da2d3e",
+      "url": "https://github.com/miikanissi/modus-themes.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "molokai",
+      "pack": "default",
+      "revision": "720bacc534fa3b1566d75612986737088a4fb132",
+      "url": "https://github.com/UtkarshVerma/molokai.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "monokai",
+      "pack": "default",
+      "revision": "759be78d722e306e4a3aac9cc0738f1be86a1ab8",
+      "url": "https://github.com/tanvirtin/monokai.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "monokai_nightasty_dark",
+      "pack": "default",
+      "revision": "5731bc3c01e6c94a709021e5ee31070840e47584",
+      "url": "https://github.com/polirritmico/monokai-nightasty.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "monokai_nightasty_light",
+      "pack": "default",
+      "revision": "5731bc3c01e6c94a709021e5ee31070840e47584",
+      "url": "https://github.com/polirritmico/monokai-nightasty.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "monokai_pro",
+      "pack": "default",
+      "revision": "759be78d722e306e4a3aac9cc0738f1be86a1ab8",
+      "url": "https://github.com/tanvirtin/monokai.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "monokai_pro_dark",
+      "pack": "default",
+      "revision": "a68e38b8e55d69a215d0f02598900a79c356da9d",
+      "url": "https://github.com/loctvl842/monokai-pro.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "monokai_pro_machine",
+      "pack": "default",
+      "revision": "a68e38b8e55d69a215d0f02598900a79c356da9d",
+      "url": "https://github.com/loctvl842/monokai-pro.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "monokai_pro_ristretto",
+      "pack": "default",
+      "revision": "a68e38b8e55d69a215d0f02598900a79c356da9d",
+      "url": "https://github.com/loctvl842/monokai-pro.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "monokai_pro_spectrum",
+      "pack": "default",
+      "revision": "a68e38b8e55d69a215d0f02598900a79c356da9d",
+      "url": "https://github.com/loctvl842/monokai-pro.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "monokai_soda",
+      "pack": "default",
+      "revision": "759be78d722e306e4a3aac9cc0738f1be86a1ab8",
+      "url": "https://github.com/tanvirtin/monokai.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "moonfly",
+      "pack": "default",
+      "revision": "2c883835f5b7b380a0a9e80695c420f7efebdfe4",
+      "url": "https://github.com/bluz71/vim-moonfly-colors"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-2.0",
+      "name": "moonlight",
+      "pack": "copyleft",
+      "revision": "e24e4218ec680b6396532808abf57ca0ada82e66",
+      "url": "https://github.com/shaunsingh/moonlight.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "neobones_dark",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "neobones_light",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "neofusion",
+      "pack": "default",
+      "revision": "c8ef24be527be37254bf8981fa3e6216dee4f8d8",
+      "url": "https://github.com/diegoulloao/neofusion.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "neomodern_gyokuro_dark",
+      "pack": "default",
+      "revision": "d41469578922a23d75a0d9e8deef1e34837230a6",
+      "url": "https://github.com/casedami/neomodern.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "neomodern_gyokuro_light",
+      "pack": "default",
+      "revision": "d41469578922a23d75a0d9e8deef1e34837230a6",
+      "url": "https://github.com/casedami/neomodern.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "neomodern_hojicha_dark",
+      "pack": "default",
+      "revision": "d41469578922a23d75a0d9e8deef1e34837230a6",
+      "url": "https://github.com/casedami/neomodern.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "neomodern_hojicha_light",
+      "pack": "default",
+      "revision": "d41469578922a23d75a0d9e8deef1e34837230a6",
+      "url": "https://github.com/casedami/neomodern.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "neomodern_iceclimber_dark",
+      "pack": "default",
+      "revision": "d41469578922a23d75a0d9e8deef1e34837230a6",
+      "url": "https://github.com/casedami/neomodern.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "neomodern_iceclimber_light",
+      "pack": "default",
+      "revision": "d41469578922a23d75a0d9e8deef1e34837230a6",
+      "url": "https://github.com/casedami/neomodern.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "neomodern_moon_dark",
+      "pack": "default",
+      "revision": "d41469578922a23d75a0d9e8deef1e34837230a6",
+      "url": "https://github.com/casedami/neomodern.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "neomodern_moon_light",
+      "pack": "default",
+      "revision": "d41469578922a23d75a0d9e8deef1e34837230a6",
+      "url": "https://github.com/casedami/neomodern.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "neomodern_roseprime_dark",
+      "pack": "default",
+      "revision": "d41469578922a23d75a0d9e8deef1e34837230a6",
+      "url": "https://github.com/casedami/neomodern.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "neomodern_roseprime_light",
+      "pack": "default",
+      "revision": "d41469578922a23d75a0d9e8deef1e34837230a6",
+      "url": "https://github.com/casedami/neomodern.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-3.0",
+      "name": "neon_dark",
+      "pack": "copyleft",
+      "revision": "7765aaa7d1cd3804176140644640766e4411c766",
+      "url": "https://github.com/rafamadriz/neon"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-3.0",
+      "name": "neon_default",
+      "pack": "copyleft",
+      "revision": "7765aaa7d1cd3804176140644640766e4411c766",
+      "url": "https://github.com/rafamadriz/neon"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-3.0",
+      "name": "neon_doom",
+      "pack": "copyleft",
+      "revision": "7765aaa7d1cd3804176140644640766e4411c766",
+      "url": "https://github.com/rafamadriz/neon"
+    },
+    {
+      "appearance": "light",
+      "license": "GPL-3.0",
+      "name": "neon_light",
+      "pack": "copyleft",
+      "revision": "7765aaa7d1cd3804176140644640766e4411c766",
+      "url": "https://github.com/rafamadriz/neon"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "neosolarized",
+      "pack": "default",
+      "revision": "0c01fd2ac2ab33918073f57c63bcb2ae5a31d8de",
+      "url": "https://github.com/svrana/neosolarized.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "neosolarized2_dark",
+      "pack": "default",
+      "revision": "3c55ad358c062aa4879950c4f83b4deeac6b72df",
+      "url": "https://github.com/Tsuzat/NeoSolarized.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "neosolarized2_light",
+      "pack": "default",
+      "revision": "3c55ad358c062aa4879950c4f83b4deeac6b72df",
+      "url": "https://github.com/Tsuzat/NeoSolarized.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0 AND Vim",
+      "name": "neovim_dark",
+      "pack": "copyleft",
+      "revision": "7b87ce822e6fd45a4d9993599c2854afdb0dc4dd",
+      "url": "https://github.com/neovim/neovim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0 AND Vim",
+      "name": "neovim_light",
+      "pack": "copyleft",
+      "revision": "7b87ce822e6fd45a4d9993599c2854afdb0dc4dd",
+      "url": "https://github.com/neovim/neovim"
+    },
+    {
+      "appearance": "dark",
+      "license": "BSD-3-Clause",
+      "name": "night_owl",
+      "pack": "default",
+      "revision": "86ed124c2f7e118670649701288e024444bf91e5",
+      "url": "https://github.com/oxfist/night-owl.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "nightfly",
+      "pack": "default",
+      "revision": "2c31d07ce05efa92bcb7f893f9c74a846226c898",
+      "url": "https://github.com/bluz71/vim-nightfly-colors"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "nightfox",
+      "pack": "default",
+      "revision": "4dacd3f0185a2227bdf3b6c0975a8f0bf87cac9a",
+      "url": "https://github.com/EdenEast/nightfox.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "NONE",
+      "name": "no_clown_fiesta",
+      "pack": "unavailable",
+      "revision": "04b808e9769ded988089772ffcaf08d92d75d927",
+      "url": "https://github.com/aktersnurra/no-clown-fiesta.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-2.0",
+      "name": "nord",
+      "pack": "copyleft",
+      "revision": "80c1e5321505aeb22b7a9f23eb82f1e193c12470",
+      "url": "https://github.com/shaunsingh/nord.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "nordbones",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "nordfox",
+      "pack": "default",
+      "revision": "4dacd3f0185a2227bdf3b6c0975a8f0bf87cac9a",
+      "url": "https://github.com/EdenEast/nightfox.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "nordic",
+      "pack": "default",
+      "revision": "9fb62116b891184049c50ca6ffb0d3bc100a1a6e",
+      "url": "https://github.com/AlexvZyl/nordic.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "obscure",
+      "pack": "default",
+      "revision": "6c2ee734099de2f95a79a1577cd231f7fe2d38a6",
+      "url": "https://github.com/killitar/obscure.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0 AND Vim",
+      "name": "oceanic_next",
+      "pack": "copyleft",
+      "revision": "09833f72d5ba23de2e8bcae18f479f326f5f677a",
+      "url": "https://github.com/mhartington/oceanic-next"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "ofirkai",
+      "pack": "default",
+      "revision": "f51d56db89a36674b39395efce5dc431778ef343",
+      "url": "https://github.com/ofirgall/ofirkai.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "oldworld",
+      "pack": "default",
+      "revision": "db072a0bd2c90035fc3a57a73014cb54d3902f1f",
+      "url": "https://github.com/dgox16/oldworld.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "oldworld_cooler",
+      "pack": "default",
+      "revision": "db072a0bd2c90035fc3a57a73014cb54d3902f1f",
+      "url": "https://github.com/dgox16/oldworld.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "oldworld_oled",
+      "pack": "default",
+      "revision": "db072a0bd2c90035fc3a57a73014cb54d3902f1f",
+      "url": "https://github.com/dgox16/oldworld.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "one_monokai",
+      "pack": "default",
+      "revision": "907cb55796037a9839d121b239237bbb9fe764e0",
+      "url": "https://github.com/cpea2506/one_monokai.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "onedark",
+      "pack": "default",
+      "revision": "24c806cb85c1f84d9faaff457cf7aa87c685a070",
+      "url": "https://github.com/olimorris/onedarkpro.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "onedark_cool",
+      "pack": "default",
+      "revision": "df4792accde9db0043121f32628bcf8e645d9aea",
+      "url": "https://github.com/navarasu/onedark.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "onedark_darker",
+      "pack": "default",
+      "revision": "df4792accde9db0043121f32628bcf8e645d9aea",
+      "url": "https://github.com/navarasu/onedark.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "onedark_deep",
+      "pack": "default",
+      "revision": "df4792accde9db0043121f32628bcf8e645d9aea",
+      "url": "https://github.com/navarasu/onedark.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "onedark_light",
+      "pack": "default",
+      "revision": "df4792accde9db0043121f32628bcf8e645d9aea",
+      "url": "https://github.com/navarasu/onedark.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "onedark_warm",
+      "pack": "default",
+      "revision": "df4792accde9db0043121f32628bcf8e645d9aea",
+      "url": "https://github.com/navarasu/onedark.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "onedark_warmer",
+      "pack": "default",
+      "revision": "df4792accde9db0043121f32628bcf8e645d9aea",
+      "url": "https://github.com/navarasu/onedark.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "onedarkpro_dark",
+      "pack": "default",
+      "revision": "24c806cb85c1f84d9faaff457cf7aa87c685a070",
+      "url": "https://github.com/olimorris/onedarkpro.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "onedarkpro_vivid",
+      "pack": "default",
+      "revision": "24c806cb85c1f84d9faaff457cf7aa87c685a070",
+      "url": "https://github.com/olimorris/onedarkpro.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "onelight",
+      "pack": "default",
+      "revision": "24c806cb85c1f84d9faaff457cf7aa87c685a070",
+      "url": "https://github.com/olimorris/onedarkpro.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "onenord_dark",
+      "pack": "default",
+      "revision": "5240bfb79bcab7e03508626c5283cfc417b79169",
+      "url": "https://github.com/rmehri01/onenord.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "onenord_light",
+      "pack": "default",
+      "revision": "5240bfb79bcab7e03508626c5283cfc417b79169",
+      "url": "https://github.com/rmehri01/onenord.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "oxocarbon_dark",
+      "pack": "default",
+      "revision": "cd6523a0836d6e8ee823d343149fd06c7b71fdde",
+      "url": "https://github.com/nyoom-engineering/oxocarbon.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "oxocarbon_light",
+      "pack": "default",
+      "revision": "cd6523a0836d6e8ee823d343149fd06c7b71fdde",
+      "url": "https://github.com/nyoom-engineering/oxocarbon.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "palenightfall",
+      "pack": "default",
+      "revision": "25a1e7d43256834a671174e5d83edb57f7bec1e0",
+      "url": "https://github.com/JoosepAlviste/palenightfall.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "papercolor_dark",
+      "pack": "default",
+      "revision": "0cfe64ffb24c21a6101b5f994ca342a74c977aef",
+      "url": "https://github.com/NLKNguyen/papercolor-theme"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "papercolor_light",
+      "pack": "default",
+      "revision": "0cfe64ffb24c21a6101b5f994ca342a74c977aef",
+      "url": "https://github.com/NLKNguyen/papercolor-theme"
+    },
+    {
+      "appearance": "dark",
+      "license": "NONE",
+      "name": "poimandres",
+      "pack": "unavailable",
+      "revision": "a488957d803943a4201ac3b774913fcafa9e6b3a",
+      "url": "https://github.com/olivercederborg/poimandres.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "rosebones_dark",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "rosebones_light",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "rosepine_dark",
+      "pack": "default",
+      "revision": "ff483051a47e27d84bdef47703538df1ed9f4a47",
+      "url": "https://github.com/rose-pine/neovim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "rosepine_dawn",
+      "pack": "default",
+      "revision": "ff483051a47e27d84bdef47703538df1ed9f4a47",
+      "url": "https://github.com/rose-pine/neovim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "rosepine_moon",
+      "pack": "default",
+      "revision": "ff483051a47e27d84bdef47703538df1ed9f4a47",
+      "url": "https://github.com/rose-pine/neovim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "seoulbones_dark",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "seoulbones_light",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "solarized_autumn_dark",
+      "pack": "default",
+      "revision": "a8085e29883ddcfb39bd46197eb32ef00df05368",
+      "url": "https://github.com/maxmx03/solarized.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "solarized_autumn_light",
+      "pack": "default",
+      "revision": "a8085e29883ddcfb39bd46197eb32ef00df05368",
+      "url": "https://github.com/maxmx03/solarized.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "solarized_osaka_dark",
+      "pack": "default",
+      "revision": "a21176efde15fab21fabda0bf2ba123ed6d7332d",
+      "url": "https://github.com/craftzdog/solarized-osaka.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "solarized_osaka_light",
+      "pack": "default",
+      "revision": "a21176efde15fab21fabda0bf2ba123ed6d7332d",
+      "url": "https://github.com/craftzdog/solarized-osaka.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "solarized_spring_dark",
+      "pack": "default",
+      "revision": "a8085e29883ddcfb39bd46197eb32ef00df05368",
+      "url": "https://github.com/maxmx03/solarized.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "solarized_spring_light",
+      "pack": "default",
+      "revision": "a8085e29883ddcfb39bd46197eb32ef00df05368",
+      "url": "https://github.com/maxmx03/solarized.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "solarized_summer_dark",
+      "pack": "default",
+      "revision": "a8085e29883ddcfb39bd46197eb32ef00df05368",
+      "url": "https://github.com/maxmx03/solarized.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "solarized_summer_light",
+      "pack": "default",
+      "revision": "a8085e29883ddcfb39bd46197eb32ef00df05368",
+      "url": "https://github.com/maxmx03/solarized.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "solarized_winter_dark",
+      "pack": "default",
+      "revision": "a8085e29883ddcfb39bd46197eb32ef00df05368",
+      "url": "https://github.com/maxmx03/solarized.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "solarized_winter_light",
+      "pack": "default",
+      "revision": "a8085e29883ddcfb39bd46197eb32ef00df05368",
+      "url": "https://github.com/maxmx03/solarized.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "sonokai_andromeda",
+      "pack": "default",
+      "revision": "b023c5280b16fe2366f5e779d8d2756b3e5ee9c3",
+      "url": "https://github.com/sainnhe/sonokai"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "sonokai_atlantis",
+      "pack": "default",
+      "revision": "b023c5280b16fe2366f5e779d8d2756b3e5ee9c3",
+      "url": "https://github.com/sainnhe/sonokai"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "sonokai_default",
+      "pack": "default",
+      "revision": "b023c5280b16fe2366f5e779d8d2756b3e5ee9c3",
+      "url": "https://github.com/sainnhe/sonokai"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "sonokai_espresso",
+      "pack": "default",
+      "revision": "b023c5280b16fe2366f5e779d8d2756b3e5ee9c3",
+      "url": "https://github.com/sainnhe/sonokai"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "sonokai_maia",
+      "pack": "default",
+      "revision": "b023c5280b16fe2366f5e779d8d2756b3e5ee9c3",
+      "url": "https://github.com/sainnhe/sonokai"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "sonokai_shusia",
+      "pack": "default",
+      "revision": "b023c5280b16fe2366f5e779d8d2756b3e5ee9c3",
+      "url": "https://github.com/sainnhe/sonokai"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "srcery",
+      "pack": "default",
+      "revision": "d4889a85c26702217838da941f921042c17b6397",
+      "url": "https://github.com/srcery-colors/srcery-vim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "synthweave",
+      "pack": "default",
+      "revision": "0520bc260674745cdd3b5465f322de5731217dc6",
+      "url": "https://github.com/samharju/synthweave.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "synthweave_aqua",
+      "pack": "default",
+      "revision": "0520bc260674745cdd3b5465f322de5731217dc6",
+      "url": "https://github.com/samharju/synthweave.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "terafox",
+      "pack": "default",
+      "revision": "4dacd3f0185a2227bdf3b6c0975a8f0bf87cac9a",
+      "url": "https://github.com/EdenEast/nightfox.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "BSD-3-Clause",
+      "name": "token_dark",
+      "pack": "default",
+      "revision": "1538e1eadcbc9eb465b33bab71eec48c8bed0b76",
+      "url": "https://github.com/ThorstenRhau/token"
+    },
+    {
+      "appearance": "dark",
+      "license": "BSD-3-Clause",
+      "name": "token_flint_dark",
+      "pack": "default",
+      "revision": "3454326ab2c1a025e157e559ef8c6e3e2be01ef2",
+      "url": "https://github.com/ThorstenRhau/token"
+    },
+    {
+      "appearance": "light",
+      "license": "BSD-3-Clause",
+      "name": "token_flint_light",
+      "pack": "default",
+      "revision": "3454326ab2c1a025e157e559ef8c6e3e2be01ef2",
+      "url": "https://github.com/ThorstenRhau/token"
+    },
+    {
+      "appearance": "light",
+      "license": "BSD-3-Clause",
+      "name": "token_light",
+      "pack": "default",
+      "revision": "1538e1eadcbc9eb465b33bab71eec48c8bed0b76",
+      "url": "https://github.com/ThorstenRhau/token"
+    },
+    {
+      "appearance": "dark",
+      "license": "BSD-3-Clause",
+      "name": "token_meridian_dark",
+      "pack": "default",
+      "revision": "19acc041465c89739778a6054da8039b68798251",
+      "url": "https://github.com/ThorstenRhau/token"
+    },
+    {
+      "appearance": "light",
+      "license": "BSD-3-Clause",
+      "name": "token_meridian_light",
+      "pack": "default",
+      "revision": "19acc041465c89739778a6054da8039b68798251",
+      "url": "https://github.com/ThorstenRhau/token"
+    },
+    {
+      "appearance": "dark",
+      "license": "BSD-3-Clause",
+      "name": "token_temper_dark",
+      "pack": "default",
+      "revision": "1538e1eadcbc9eb465b33bab71eec48c8bed0b76",
+      "url": "https://github.com/ThorstenRhau/token"
+    },
+    {
+      "appearance": "light",
+      "license": "BSD-3-Clause",
+      "name": "token_temper_light",
+      "pack": "default",
+      "revision": "1538e1eadcbc9eb465b33bab71eec48c8bed0b76",
+      "url": "https://github.com/ThorstenRhau/token"
+    },
+    {
+      "appearance": "dark",
+      "license": "BSD-3-Clause",
+      "name": "token_ultra_dark",
+      "pack": "default",
+      "revision": "1538e1eadcbc9eb465b33bab71eec48c8bed0b76",
+      "url": "https://github.com/ThorstenRhau/token"
+    },
+    {
+      "appearance": "light",
+      "license": "BSD-3-Clause",
+      "name": "token_ultra_light",
+      "pack": "default",
+      "revision": "1538e1eadcbc9eb465b33bab71eec48c8bed0b76",
+      "url": "https://github.com/ThorstenRhau/token"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "tokyobones_dark",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "tokyobones_light",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "GPL-3.0",
+      "name": "tokyodark",
+      "pack": "copyleft",
+      "revision": "659aff3c73dc2e0159314050a81671f0b2eaad01",
+      "url": "https://github.com/tiagovla/tokyodark.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "Apache-2.0",
+      "name": "tokyonight_day",
+      "pack": "default",
+      "revision": "cdc07ac78467a233fd62c493de29a17e0cf2b2b6",
+      "url": "https://github.com/folke/tokyonight.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "tokyonight_moon",
+      "pack": "default",
+      "revision": "cdc07ac78467a233fd62c493de29a17e0cf2b2b6",
+      "url": "https://github.com/folke/tokyonight.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "tokyonight_night",
+      "pack": "default",
+      "revision": "cdc07ac78467a233fd62c493de29a17e0cf2b2b6",
+      "url": "https://github.com/folke/tokyonight.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "Apache-2.0",
+      "name": "tokyonight_storm",
+      "pack": "default",
+      "revision": "cdc07ac78467a233fd62c493de29a17e0cf2b2b6",
+      "url": "https://github.com/folke/tokyonight.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "vague",
+      "pack": "default",
+      "revision": "73f8aaa866bf3d14dd0b0ab9e48c11794c1cb7ab",
+      "url": "https://github.com/vague-theme/vague.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "vesper",
+      "pack": "default",
+      "revision": "1717b1ad657c94bec3fc2bdebb0c55452d9fe46d",
+      "url": "https://github.com/datsfilipe/vesper.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "vimbones",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "vscode_dark",
+      "pack": "default",
+      "revision": "6439ed89d0e10193f07e92268a321d7c6f6e93ee",
+      "url": "https://github.com/Mofiqul/vscode.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "vscode_light",
+      "pack": "default",
+      "revision": "6439ed89d0e10193f07e92268a321d7c6f6e93ee",
+      "url": "https://github.com/Mofiqul/vscode.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "ISC",
+      "name": "xcode_dark",
+      "pack": "default",
+      "revision": "c57b4df378952382eb0c8aa93614d1d70f35798a",
+      "url": "https://github.com/nomis51/nvim-xcode-theme"
+    },
+    {
+      "appearance": "dark",
+      "license": "ISC",
+      "name": "xcode_dark_hc",
+      "pack": "default",
+      "revision": "c57b4df378952382eb0c8aa93614d1d70f35798a",
+      "url": "https://github.com/nomis51/nvim-xcode-theme"
+    },
+    {
+      "appearance": "light",
+      "license": "ISC",
+      "name": "xcode_light",
+      "pack": "default",
+      "revision": "c57b4df378952382eb0c8aa93614d1d70f35798a",
+      "url": "https://github.com/nomis51/nvim-xcode-theme"
+    },
+    {
+      "appearance": "light",
+      "license": "ISC",
+      "name": "xcode_light_hc",
+      "pack": "default",
+      "revision": "c57b4df378952382eb0c8aa93614d1d70f35798a",
+      "url": "https://github.com/nomis51/nvim-xcode-theme"
+    },
+    {
+      "appearance": "dark",
+      "license": "ISC",
+      "name": "xcode_wwdc",
+      "pack": "default",
+      "revision": "c57b4df378952382eb0c8aa93614d1d70f35798a",
+      "url": "https://github.com/nomis51/nvim-xcode-theme"
+    },
+    {
+      "appearance": "dark",
+      "license": "NONE",
+      "name": "yorumi",
+      "pack": "unavailable",
+      "revision": "e5b93e2c0adb3d95ca9f3c5c20e824d15afcfe48",
+      "url": "https://github.com/yorumicolors/yorumi.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "zenbones_dark",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "zenbones_light",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "zenburn",
+      "pack": "default",
+      "revision": "f5ee12b30119499c7fa7f95719cd7c5aab9f9f29",
+      "url": "https://github.com/phha/zenburn.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "zenburned",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "zenwritten_dark",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "light",
+      "license": "MIT",
+      "name": "zenwritten_light",
+      "pack": "default",
+      "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "url": "https://github.com/zenbones-theme/zenbones.nvim"
+    },
+    {
+      "appearance": "dark",
+      "license": "MIT",
+      "name": "zephyr_dark",
+      "pack": "default",
+      "revision": "7fd86b7164442d3b5ec2c81b2694d040e716b5cf",
+      "url": "https://github.com/glepnir/zephyr-nvim"
+    }
+  ]
+}

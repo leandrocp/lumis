@@ -16,21 +16,27 @@ Not merged is not released.
 ## Publish order
 
 ```
- 1. cargo-lumis-core
- 2. cargo-lumis-build
- 3. cargo-lumis-wasm-runtime     needs 1
- 4. cargo-lumis                  needs 1, 2, 3
- 5. cargo-lumis-cli              needs 1, 3
- 6. npm-themes
- 7. npm-lumis                    builds against 6
- 8. npm-markdown-it-lumis        needs 7
- 9. npm-rehype-lumis             needs 7
-10. npm-vite                     needs 9
-11. npm-react                    needs 7
-12. npm-cli
-13. hex-lumis                    needs 1 and 3 published to crates.io
-14. npm-wasm-bundle-*            needs its members on npm
-15. hex-wasm-bundle-*            needs its members on Hex
+ 1. cargo-lumis-themes-copyleft-data
+ 2. cargo-lumis-themes           needs 1, including its optional dependency
+ 3. cargo-lumis-themes-copyleft  needs 2
+ 4. cargo-lumis-core            needs 2
+ 5. cargo-lumis-build
+ 6. cargo-lumis-wasm-runtime    needs 4
+ 7. cargo-lumis                 needs 4, 5, 6
+ 8. cargo-lumis-cli             needs 4, 6
+ 9. npm-themes
+10. npm-themes-copyleft         needs 9
+11. npm-lumis                   builds against 9
+12. npm-markdown-it-lumis       needs 11
+13. npm-rehype-lumis            needs 11
+14. npm-vite                    needs 13
+15. npm-react                   needs 11
+16. npm-cli
+17. hex-themes
+18. hex-themes-copyleft
+19. hex-lumis                   needs 4 and 6 on crates.io, and 17 on Hex
+20. npm-wasm-bundle-*           needs its members on npm
+21. hex-wasm-bundle-*           needs its members on Hex
 ```
 
 Merge order is publish order; nothing enforces it. This is every releasable package —
@@ -58,9 +64,17 @@ the next release pull request picks the bundle up.
   and `mise run lint` fails on drift. `npm-cli` need not match `cargo-lumis-cli`.
 - `npm-lumis` also updates the comparison manifest's version label. This changes
   metadata only; highlighting changes must regenerate the comparison before release.
-- `cargo-lumis-core` and `npm-themes` include upstream theme license texts alongside
-  their notices. Run `mise run themes-check-notices` before packaging; the npm build
-  copies `themes/licenses/` into `dist/licenses/`.
+- Theme payload packages include pack-specific upstream license texts and notices.
+  `lumis-themes` carries the default pack; `lumis-themes-copyleft-data` is the
+  optional leaf payload, activated by the `lumis-themes-copyleft` dependency.
+  npm ships `@lumis-sh/themes` and `@lumis-sh/themes-copyleft`; Hex ships
+  `lumis_themes` and `lumis_themes_copyleft`. Publish payload dependencies before
+  their consumers, using the package list from `mise run release-packages`.
+  Run `mise run themes-check-notices` before packaging. Verify each archive
+  against its generated `themes/packs/` manifest: unavailable catalog entries
+  must not appear as JSON, CSS, or demo payloads. The standalone CLI companion
+  pack must be discovered without a registration command. Java integration
+  remains external; these packages do not establish support there.
 - `hex-lumis` goes last — see [Elixir package](#elixir-package).
 - `@lumis-sh/wasm-*` parser packages are outside this flow: `wasm-release.yml` publishes
   them on any push to `main` that touches parsers, queries or the package templates.

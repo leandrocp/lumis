@@ -12,8 +12,11 @@ importers:
         specifier: ^0.9.0
         version: 0.9.0
       '@lumis-sh/themes':
-        specifier: ^0.4.0
-        version: 0.4.0
+        specifier: link:../packages/javascript/themes
+        version: link:../packages/javascript/themes
+      '@lumis-sh/themes-copyleft':
+        specifier: link:../packages/javascript/themes-copyleft
+        version: link:../packages/javascript/themes-copyleft
       '@lumis-sh/wasm-bundle-full':
         specifier: ^0.1.3
         version: 0.1.3(@lumis-sh/lumis@0.9.0)
@@ -305,9 +308,6 @@ packages:
   '@lumis-sh/lumis@0.9.0':
     resolution: {integrity: sha512-5U/VBCPI09tofLxQiAWJZTIlh90EZIewmge1Zakw8E52EtpPUVV8jDD0AYlgv/BAqEMjD82sJmFgpHczt0lPTw==}
     engines: {node: '>=18'}
-
-  '@lumis-sh/themes@0.4.0':
-    resolution: {integrity: sha512-qwu/1Cq5U5zMqVA5cuCkKJkA3FMRHK8a8fqs715WuRZvAH2hyZ4V7t8Hm/sUGAWz12oIsZSh+y1yDC7j0rp88A==}
 
   '@lumis-sh/wasm-angular@0.26.4':
     resolution: {integrity: sha512-Wam0rW6KDhFcrgvMP7UOTBDkZEVmP9XDkO0ZscSwYMV6aACLeBNPVA60Gi721udqq7dMnCBtc3MVQaPqGhpUXw==}
@@ -2132,8 +2132,6 @@ snapshots:
       '@lumis-sh/lumis-native-linux-x64-musl': 0.9.0
       '@lumis-sh/lumis-native-win32-arm64-msvc': 0.9.0
       '@lumis-sh/lumis-native-win32-x64-msvc': 0.9.0
-
-  '@lumis-sh/themes@0.4.0': {}
 
   '@lumis-sh/wasm-angular@0.26.4(@lumis-sh/lumis@0.9.0)':
     optionalDependencies:

@@ -19,6 +19,7 @@ use xz2::write::XzEncoder;
 
 mod stress;
 mod theme_licenses;
+mod theme_packs;
 mod wasi_sdk;
 
 #[derive(Parser)]
@@ -968,11 +969,23 @@ fn gen_css() -> Result<()> {
     let css_dir = Path::new("css");
     fs::create_dir_all(css_dir)?;
 
-    let mut themes: Vec<_> = lumis::themes::ALL_THEMES.iter().collect();
+    let mut themes = Vec::new();
+    for pack in ["default", "copyleft"] {
+        let manifest: Value =
+            serde_json::from_str(&fs::read_to_string(format!("themes/packs/{pack}.json"))?)?;
+        for value in manifest["themes"]
+            .as_array()
+            .context("theme pack has no themes")?
+        {
+            themes.push(serde_json::from_value::<lumis::themes::Theme>(
+                value.clone(),
+            )?);
+        }
+    }
     themes.sort_by(|a, b| a.name.cmp(&b.name));
 
     for theme in themes {
-        let css = lumis::themes::CssBuilder::new(theme)
+        let css = lumis::themes::CssBuilder::new(&theme)
             .enable_italic(true)
             .build();
         let css_path = css_dir.join(format!("{}.css", theme.name));
@@ -995,14 +1008,30 @@ fn is_revision_only_theme_update(previous: &Value, current: &Value) -> bool {
 }
 
 fn filter_theme_updates(name: &str) -> Result<()> {
+    let definitions = parse_themes_lua()?;
+    let builtins: BTreeSet<_> = definitions
+        .iter()
+        .filter(|theme| theme.builtin)
+        .map(|theme| theme.name.as_str())
+        .collect();
     let mut theme_paths = if name.is_empty() {
-        glob::glob("themes/*.json")?.collect::<Result<Vec<_>, _>>()?
+        definitions
+            .iter()
+            .map(|theme| PathBuf::from(format!("themes/{}.json", theme.name)))
+            .collect()
     } else {
         vec![PathBuf::from(format!("themes/{name}.json"))]
     };
     theme_paths.sort();
 
     for path in theme_paths {
+        if path
+            .file_stem()
+            .and_then(|name| name.to_str())
+            .is_some_and(|name| builtins.contains(name))
+        {
+            continue;
+        }
         if !path.exists() {
             continue;
         }
@@ -1041,34 +1070,23 @@ fn filter_theme_updates(name: &str) -> Result<()> {
 }
 
 fn sync_themes() -> Result<()> {
-    let dest = Path::new("crates/lumis-core/themes");
-    fs::create_dir_all(dest)?;
-
-    for entry in fs::read_dir(dest)? {
-        let entry = entry?;
-        if entry.path().extension().is_some_and(|e| e == "json") {
-            fs::remove_file(entry.path())?;
-        }
+    let obsolete = Path::new("crates/lumis-core/themes");
+    if obsolete.exists() {
+        fs::remove_dir_all(obsolete)?;
     }
-
-    for entry in glob::glob("themes/*.json")? {
-        let src = entry?;
-        let file_name = src.file_name().unwrap();
-        fs::copy(&src, dest.join(file_name))?;
-    }
-
-    println!("Synced theme JSON files to crates/lumis-core/themes/");
-    Ok(())
+    gen_themes_md(false, false)
 }
 
 fn sync_css() -> Result<()> {
     let destinations = [
-        "crates/lumis/css",
-        "packages/elixir/lumis/priv/static/css",
-        "packages/javascript/themes/dist/css",
+        ("crates/lumis/css", "default"),
+        ("packages/elixir/lumis/priv/static/css", "default"),
+        ("packages/javascript/themes/dist/css", "default"),
+        ("packages/javascript/themes-copyleft/dist/css", "copyleft"),
     ];
+    let catalog: Value = serde_json::from_str(&fs::read_to_string("themes/catalog.json")?)?;
 
-    for dest in &destinations {
+    for (dest, pack) in &destinations {
         let dest = Path::new(dest);
         fs::create_dir_all(dest)?;
 
@@ -1079,10 +1097,14 @@ fn sync_css() -> Result<()> {
             }
         }
 
-        for entry in glob::glob("css/*.css")? {
-            let src = entry?;
-            let file_name = src.file_name().unwrap();
-            fs::copy(&src, dest.join(file_name))?;
+        for theme in catalog["themes"]
+            .as_array()
+            .context("theme catalog has no themes")?
+        {
+            if theme["pack"] == *pack {
+                let name = theme["name"].as_str().context("theme has no name")?;
+                fs::copy(format!("css/{name}.css"), dest.join(format!("{name}.css")))?;
+            }
         }
     }
 
@@ -1093,10 +1115,12 @@ fn sync_css() -> Result<()> {
 }
 
 /// A theme definition from themes/themes.lua.
+#[derive(Clone)]
 struct ThemeDefinition {
     name: String,
     url: String,
     dependencies: Vec<String>,
+    builtin: bool,
 }
 
 /// Extract theme definitions from themes/themes.lua using `full_moon` AST parsing.
@@ -1129,6 +1153,7 @@ fn parse_themes_lua() -> Result<Vec<ThemeDefinition>> {
         let mut name = None;
         let mut url = None;
         let mut dependencies = Vec::new();
+        let mut builtin = false;
 
         for inner_field in inner.fields() {
             let Field::NameKey { key, value, .. } = inner_field else {
@@ -1138,6 +1163,7 @@ fn parse_themes_lua() -> Result<Vec<ThemeDefinition>> {
             match (key.token().to_string().as_str(), &**value) {
                 ("name", value) => name = lua_string_literal(value),
                 ("url", value) => url = lua_string_literal(value),
+                ("builtin", Expression::Symbol(value)) => builtin = value.to_string() == "true",
                 ("dependencies", Expression::TableConstructor(deps)) => {
                     dependencies = deps
                         .fields()
@@ -1157,6 +1183,7 @@ fn parse_themes_lua() -> Result<Vec<ThemeDefinition>> {
                 name,
                 url,
                 dependencies,
+                builtin,
             });
         }
     }
@@ -1193,10 +1220,11 @@ fn gen_themes_md(check: bool, fetch_licenses: bool) -> Result<()> {
     let licenses = theme_licenses::read("themes/licenses.toml")?;
     let themes = theme_licenses::resolve(&entries, &licenses, Path::new("themes"))?;
     theme_licenses::sync_license_texts(&themes, &entries, &licenses, check, fetch_licenses)?;
+    theme_packs::generate(&themes, &entries, &licenses, check)?;
 
     let mut table_lines = vec![
-        "| Theme | Repository | License |".to_string(),
-        "|-------|------------|---------|".to_string(),
+        "| Theme | Repository | License | Pack |".to_string(),
+        "|-------|------------|---------|------|".to_string(),
     ];
 
     for theme in &themes {
@@ -1205,10 +1233,11 @@ fn gen_themes_md(check: bool, fetch_licenses: bool) -> Result<()> {
             .strip_prefix("https://github.com/")
             .unwrap_or(theme.url);
         table_lines.push(format!(
-            "| `{}` | [{repo_name}]({}) | {} |",
+            "| `{}` | [{repo_name}]({}) | {} | {} |",
             theme.name,
             theme.url,
-            theme_licenses::license_label(&theme.license.license)
+            theme_licenses::license_label(&theme.license.license),
+            theme_packs::pack(&theme.license.license)?
         ));
     }
 
@@ -1260,8 +1289,7 @@ fn gen_themes_md(check: bool, fetch_licenses: bool) -> Result<()> {
     let outputs = [
         ("THEMES.md", themes_md.join("\n")),
         ("docs/content/reference/themes.md", docs_md.join("\n")),
-        ("themes/NOTICE.md", notice.clone()),
-        ("crates/lumis-core/themes/NOTICE.md", notice),
+        ("themes/NOTICE.md", notice),
     ];
 
     if check {

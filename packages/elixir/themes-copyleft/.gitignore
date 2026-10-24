@@ -1,0 +1,5 @@
+/_build/
+/deps/
+/cover/
+/lumis_themes_copyleft-*.tar
+/erl_crash.dump

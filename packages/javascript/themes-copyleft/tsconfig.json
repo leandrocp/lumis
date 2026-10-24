@@ -1,0 +1,6 @@
+{
+  "extends": "../themes/tsconfig.json",
+  "compilerOptions": { "rootDir": ".", "outDir": "dist" },
+  "include": ["src/**/*.ts", "themes/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -11,7 +11,102 @@ keywords:
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 
-Lumis themes come from the Neovim ecosystem. You can use the built-in collection, load theme JSON yourself, or generate new themes from a colorscheme repository.
+Lumis themes come from the Neovim ecosystem. Permissively licensed themes are
+included automatically. Copyleft themes are an optional dependency: installing
+the pack makes them available without registration or a configuration switch.
+You can also load your own theme JSON or generate a theme from a colorscheme.
+
+## Install a theme pack
+
+The default pack is `@lumis-sh/themes` on npm, `lumis-themes` on crates.io,
+and `lumis_themes` on Hex. Lumis includes it by default. Add the copyleft pack
+only if its upstream licenses suit your application. Each pack ships license
+texts and notices; individual themes retain their upstream licenses.
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
+
+```sh
+npm install @lumis-sh/lumis @lumis-sh/themes
+npm install @lumis-sh/themes-copyleft
+```
+
+On Node, `get`, `available`, and `closest` from `@lumis-sh/lumis/themes`
+include the installed optional pack automatically. In a browser those operations
+use the default pack only. Import an optional theme explicitly for browser use:
+
+```js
+import nord from '@lumis-sh/themes-copyleft/nord';
+```
+
+Existing `@lumis-sh/themes/nord` imports forward to the optional package and
+require it to be installed; they do not add Nord to browser discovery.
+
+  </Tab>
+  <Tab value="Rust">
+
+```sh
+cargo add lumis
+cargo add lumis-themes-copyleft
+```
+
+Adding the dependency enables optional themes in `lumis::themes` automatically.
+No registration call is needed.
+
+  </Tab>
+  <Tab value="Elixir">
+
+Add the optional pack to your dependencies:
+
+```elixir
+{:lumis_themes_copyleft, "~> 0.1"}
+```
+
+```sh
+mix deps.get
+```
+
+`Lumis.Theme` discovers the installed pack automatically.
+
+  </Tab>
+  <Tab value="Java">
+
+Theme-pack integration in the separately maintained Java binding is pending.
+The installation steps here do not enable packs in `lumis4j`.
+
+  </Tab>
+  <Tab value="CLI">
+
+For an npm-managed CLI, install the companion pack alongside it:
+
+```sh
+npm install --global @lumis-sh/cli @lumis-sh/themes-copyleft
+lumis themes list
+```
+
+The standalone CLI discovers the installed companion pack automatically; it
+does not require a registration command or an enable flag.
+For a standalone binary, the companion manifest belongs at
+`theme-packs/copyleft/lumis-themes.json` inside the Lumis data directory,
+beside the executable, or under the installation's `share/lumis/` directory.
+Keep the pack's license texts and notice with it.
+
+Standalone companion archives are attached to the
+[`cargo-lumis-themes-copyleft-data` releases](https://github.com/leandrocp/lumis/releases).
+Extract `lumis-themes-copyleft.tar.gz` beside the executable or into the Lumis
+data directory. The archive includes the required `theme-packs/copyleft/`
+layout and license assets.
+
+  </Tab>
+</Tabs>
+
+## Catalog and availability
+
+The [theme catalog](/reference/themes) records source and license information.
+`darkplus`, `no_clown_fiesta`, `poimandres`, and `yorumi` are unavailable for
+redistribution: their metadata remains in the catalog, but no pack includes
+their JSON, CSS, or demo payloads. An upstream repository being public is not
+permission to redistribute its theme data.
 
 To match an application or terminal background automatically, use
 [`closest`](/themes/closest).

@@ -122,12 +122,16 @@ sources = [
     "css/*.css",
     "packages/javascript/themes/{package.json,tsconfig.json,tsup.config.ts}",
     "packages/javascript/themes/{src,scripts}/**",
+    "packages/javascript/themes/pack/**",
+    "packages/javascript/themes-copyleft/**",
 ]
 outputs = [
     "packages/javascript/themes/dist/index.js",
     "packages/javascript/themes/dist/index.cjs",
+    "packages/javascript/themes-copyleft/dist/index.js",
+    "packages/javascript/themes-copyleft/dist/index.cjs",
 ]
-run = "pnpm --filter @lumis-sh/themes run build"
+run = "pnpm --filter @lumis-sh/themes run build && pnpm --filter @lumis-sh/themes-copyleft run build"
 
 [tasks.'setup-js-lumis']
 description = "Build JavaScript language and runtime artifacts"
@@ -637,6 +641,7 @@ pnpm --filter @lumis-sh/rehype-lumis run lint
 pnpm --filter @lumis-sh/vite run lint
 pnpm --filter @lumis-sh/react run lint
 pnpm --filter @lumis-sh/themes run lint
+pnpm --filter @lumis-sh/themes-copyleft run lint
 echo ""
 echo "Running benchmark checks through mise..."
 mise run -C benchmarks lint
@@ -766,6 +771,7 @@ echo "Installed lumis to ${usage_path?}/lumis"
 
 [tasks.'dev']
 description = "Start website dev server"
+depends = ["setup-js-themes"]
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -776,6 +782,11 @@ if [ ! -f packages/javascript/lumis/dist/bundles/full.js ]; then
 fi
 (cd website && pnpm dev)
 '''
+
+[tasks.'website-build']
+description = "Build the website with both locally generated theme packs"
+depends = ["setup-js-themes"]
+run = "pnpm --dir website run build"
 
 [tasks.'docs-site']
 description = "Start docs site dev server"
@@ -912,9 +923,28 @@ cargo run --quiet --manifest-path crates/dev/Cargo.toml --no-default-features --
 description = "Fetch theme license texts at recorded commits and regenerate notices"
 run = "cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- gen-themes-md --fetch-licenses"
 
-[tasks.'poc-theme-packs']
-description = "Demonstrate optional theme packs with Lumis, MDEx and mdex_native"
-run = "bash poc/theme-packs/run.sh"
+[tasks.'test-theme-packs']
+description = "Verify packaged dependency-only theme activation and host bootstrap"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cargo test --manifest-path crates/dev/Cargo.toml --test theme_pack_consumer
+cargo test -p lumis-core --test theme_packs
+pnpm --filter @lumis-sh/lumis run test:theme-packs
+'''
+
+[tasks.'themes-package-cli']
+description = "Package the standalone CLI companion theme data with its licenses"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+staging="$(mktemp -d)"
+trap 'rm -rf "$staging"' EXIT
+mkdir -p "$staging/theme-packs/copyleft" target/theme-packs
+cp -R crates/lumis-themes-copyleft-data/data/. "$staging/theme-packs/copyleft/"
+tar -czf target/theme-packs/lumis-themes-copyleft.tar.gz -C "$staging" theme-packs
+sha256sum target/theme-packs/lumis-themes-copyleft.tar.gz > target/theme-packs/lumis-themes-copyleft.tar.gz.sha256
+'''
 
 [tasks.'langs-extract-scopes']
 description = "Extract highlight scopes from query files"
@@ -1201,37 +1231,61 @@ description = "Extract highlight scopes from theme files"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-jq -r '.highlights | keys[]' themes/*.json | sort -u
+jq -r '.highlights // {} | keys[]' themes/*.json | sort -u
+'''
+
+[tasks.'themes-neovim']
+description = "Build the pinned Neovim extractor with full source provenance"
+sources = ["themes/neovim-revision"]
+outputs = ["nvim/source/build/bin/nvim"]
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+source="$PWD/nvim/source"
+revision="$(cat themes/neovim-revision)"
+if [ ! -d "$source/.git" ]; then
+    git init "$source"
+    git -C "$source" remote add origin https://github.com/neovim/neovim.git
+fi
+test -z "$(git -C "$source" status --porcelain)"
+git -C "$source" fetch --depth 1 origin "$revision"
+git -C "$source" checkout --detach "$revision"
+git -C "$source" config core.abbrev 40
+make -C "$source" CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DENABLE_LIBINTL=OFF -DENABLE_LTO=OFF"
 '''
 
 [tasks.'themes-gen']
 description = "Generate theme JSON files from Neovim colorschemes"
+depends = ["themes-neovim"]
 usage = '''
 arg "[theme_name]"
 '''
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
+nvim="$PWD/nvim/source/build/bin/nvim"
+export VIMRUNTIME="$PWD/nvim/source/runtime"
 if [ -z "${usage_theme_name:-}" ]; then
     echo "This will regenerate all theme files in themes/"
     read -p "Do you want to proceed? (y/N) " reply
     [[ "$reply" =~ ^[Yy]$ ]] || { echo "Operation cancelled."; exit 0; }
-    find themes -type f -name '*.json' -delete
     for name in $(cargo run --manifest-path crates/dev/Cargo.toml -- list-themes); do
         printf '\nGenerating %s...\n' "$name"
-        nvim --clean --headless -V3 -u themes/init.lua -l themes/extract_theme.lua "$name"
+        "$nvim" --clean --headless -V3 -u themes/init.lua -l themes/extract_theme.lua "$name"
     done
 else
     echo "This will regenerate ${usage_theme_name:-} in themes/"
     read -p "Do you want to proceed? (y/N) " reply
     [[ "$reply" =~ ^[Yy]$ ]] || { echo "Operation cancelled."; exit 0; }
-    nvim --clean --headless -V3 -u themes/init.lua -l themes/extract_theme.lua ${usage_theme_name:-}
+    "$nvim" --clean --headless -V3 -u themes/init.lua -l themes/extract_theme.lua ${usage_theme_name:-}
 fi
 cargo run --manifest-path crates/dev/Cargo.toml -- filter-theme-updates "${usage_theme_name:-}"
-cargo run --manifest-path crates/dev/Cargo.toml -- sync-themes
 mise run themes-fetch-licenses
+cargo run --manifest-path crates/dev/Cargo.toml -- sync-themes
 pnpm --filter @lumis-sh/themes run build:themes
 pnpm --filter @lumis-sh/themes run build:assets
+pnpm --filter @lumis-sh/themes-copyleft run build:themes
+pnpm --filter @lumis-sh/themes-copyleft run build:assets
 '''
 
 [tasks.'themes-list']
@@ -1248,12 +1302,16 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 cat <<'TABLE'
+cargo-lumis-themes-copyleft-data|crates/lumis-themes-copyleft-data
+cargo-lumis-themes|crates/lumis-themes
+cargo-lumis-themes-copyleft|crates/lumis-themes-copyleft
 cargo-lumis-core|crates/lumis-core
 cargo-lumis-build|crates/lumis-build
 cargo-lumis-wasm-runtime|crates/lumis-wasm-runtime
 cargo-lumis|crates/lumis
 cargo-lumis-cli|crates/lumis-cli|crates/lumis-wasm-runtime|.gitattributes
 npm-themes|packages/javascript/themes|themes/licenses|themes/NOTICE.md
+npm-themes-copyleft|packages/javascript/themes-copyleft
 npm-lumis|packages/javascript/lumis|crates/lumis|crates/lumis-core|crates/lumis-wasm-runtime
 npm-markdown-it-lumis|packages/javascript/markdown-it-lumis
 npm-rehype-lumis|packages/javascript/rehype-lumis
@@ -1261,6 +1319,8 @@ npm-vite|packages/javascript/vite
 npm-react|packages/javascript/react
 npm-cli|packages/javascript/cli
 hex-lumis|packages/elixir/lumis
+hex-themes|packages/elixir/themes
+hex-themes-copyleft|packages/elixir/themes-copyleft
 npm-wasm-bundle-backend|wasm-bundles.json|languages.toml|templates/wasm
 npm-wasm-bundle-full|wasm-bundles.json|languages.toml|templates/wasm
 npm-wasm-bundle-system|wasm-bundles.json|languages.toml|templates/wasm
@@ -1636,7 +1696,9 @@ if [ "$(mise run release-version "$package")" != "$version" ]; then
             npm --prefix "$directory" version --no-git-tag-version "$version"
             ;;
         hex)
-            mise run elixir-nif-lock-check --fix
+            if [ "$package" = "hex-lumis" ]; then
+                mise run elixir-nif-lock-check --fix
+            fi
             python3 -c 'from pathlib import Path; import re, sys; path = Path(sys.argv[1]); version = sys.argv[2]; content = path.read_text(); content = re.sub(r"@version \"[^\"]+\"", f"@version \"{version}\"", content, count=1); path.write_text(content)' "$directory/mix.exs" "$version"
             ;;
     esac

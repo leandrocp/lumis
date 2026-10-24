@@ -7,6 +7,7 @@
     "src/languages.browser.ts",
     "src/formatters.ts",
     "src/themes/index.ts",
+    "src/themes/node.ts",
     "src/formatter/html.ts",
     "src/formatter/ansi.ts",
     "langs/**/*.ts",

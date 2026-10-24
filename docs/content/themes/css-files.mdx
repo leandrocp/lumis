@@ -19,6 +19,16 @@ The `htmlLinked` formatter emits CSS class names instead of inline styles. You p
 
 Import a stylesheet from `@lumis-sh/themes/css/<theme>.css`.
 
+Optional themes use `@lumis-sh/themes-copyleft/css/<theme>.css` and require
+that package to be installed. For example:
+
+```js
+import '@lumis-sh/themes-copyleft/css/nord.css'
+```
+
+See [theme pack installation](/themes#install-a-theme-pack). Themes marked
+unavailable in the catalog have no distributed CSS or JSON.
+
 ```js
 import '@lumis-sh/themes/css/catppuccin_frappe.css'
 import {highlight} from '@lumis-sh/lumis'
@@ -49,12 +59,13 @@ Available distribution folders:
 
 ## Elixir / Phoenix
 
-Lumis ships CSS files under `priv/static/css/`.
+The `lumis_themes` package ships default CSS files under `priv/static/css/`.
+The optional `lumis_themes_copyleft` package ships its own CSS in the same layout.
 
 ```elixir title="endpoint.ex"
 plug Plug.Static,
   at: "/themes",
-  from: {:lumis, "priv/static/css/"},
+  from: {:lumis_themes, "priv/static/css/"},
   only: ["catppuccin_frappe.css"]
 ```
 
@@ -71,8 +82,10 @@ plug Plug.Static,
 Inside this repo, CSS theme files are generated into multiple targets:
 
 - `css/*.css`
-- `packages/elixir/lumis/priv/static/css/`
+- `packages/elixir/themes/priv/static/css/`
+- `packages/elixir/themes-copyleft/priv/static/css/`
 - `packages/javascript/themes/dist/css/`
+- `packages/javascript/themes-copyleft/dist/css/`
 
 That is why the same theme can be consumed from Rust assets, Elixir static files, and the npm themes package.
 

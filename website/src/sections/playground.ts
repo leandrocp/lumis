@@ -4,7 +4,7 @@ import {
   PLAYGROUND_DEFAULT_LANGUAGE,
   getSample,
 } from "../data/languages";
-import { loadTheme, THEMES, THEMES_BY_ID } from "../data/themes";
+import { AVAILABLE_THEMES, loadTheme, THEMES, THEMES_BY_ID } from "../data/themes";
 import { renderHighlight } from "../lib/highlighter";
 
 function pickRandom<T>(items: T[]): T {
@@ -32,7 +32,7 @@ export function renderPlayground() {
             <label>
               <span class="mb-1 block font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">Theme</span>
               <select name="theme" class="h-9 border border-zinc-200 bg-white px-3 pr-8 font-mono text-xs text-zinc-900 outline-none focus:border-zinc-900 dark:border-zinc-800 dark:bg-[#09090b] dark:text-white dark:focus:border-white">
-                ${THEMES.map((theme) => `<option value="${theme.id}">${theme.label}</option>`).join("")}
+                ${THEMES.map((theme) => `<option value="${theme.id}" ${theme.available ? "" : "disabled"}>${theme.label} [${theme.pack}]</option>`).join("")}
               </select>
             </label>
             <button type="button" class="randomize flex h-9 cursor-pointer items-center gap-2 border border-zinc-200 bg-white px-3 font-mono text-xs text-zinc-500 transition-colors hover:border-zinc-900 hover:text-zinc-900 dark:border-zinc-800 dark:bg-[#09090b] dark:text-zinc-400 dark:hover:border-white dark:hover:text-white">
@@ -42,6 +42,23 @@ export function renderPlayground() {
           </div>
         </div>
 
+        <p class="mt-4 font-mono text-xs text-zinc-500 dark:text-zinc-400">
+          <span class="border border-zinc-300 px-1 dark:border-zinc-700">default</span> permissive themes included automatically.
+          <span class="border border-zinc-300 px-1 dark:border-zinc-700">copyleft</span> optional pack, installed for this demo.
+          <span class="border border-zinc-300 px-1 dark:border-zinc-700">unavailable</span> metadata only; redistribution permission missing.
+          <a class="underline" href="https://docs.lumis.sh/themes">Theme packs and licenses</a>
+        </p>
+        <details class="mt-3 font-mono text-xs text-zinc-500 dark:text-zinc-400">
+          <summary class="cursor-pointer">Unavailable themes (metadata only)</summary>
+          <ul class="mt-2 grid gap-2 sm:grid-cols-2">
+            ${THEMES.filter((theme) => !theme.available)
+              .map(
+                (theme) =>
+                  `<li><button type="button" disabled class="cursor-not-allowed opacity-60">${theme.label} <span class="border border-zinc-300 px-1 dark:border-zinc-700">unavailable</span></button> — ${theme.license} · <a class="underline" href="${theme.url}">source</a></li>`,
+              )
+              .join("")}
+          </ul>
+        </details>
         <div class="mt-8 overflow-hidden border border-zinc-200 dark:border-zinc-800">
           <div class="preview-content max-h-[50rem] overflow-y-auto [&_code]:font-mono"><div class="flex items-center justify-center py-24 font-mono text-xs text-zinc-400">Highlighting...</div></div>
         </div>
@@ -59,7 +76,7 @@ export async function setupPlayground(root: HTMLElement) {
   // it has to name the same language every time. Randomizing is what the button
   // is for.
   languageSelect.value = PLAYGROUND_DEFAULT_LANGUAGE;
-  themeSelect.value = pickRandom(THEMES).id;
+  themeSelect.value = pickRandom(AVAILABLE_THEMES).id;
 
   let renderToken = 0;
 
@@ -91,7 +108,7 @@ export async function setupPlayground(root: HTMLElement) {
 
   randomizeButton.addEventListener("click", () => {
     const language = pickRandom(LANGUAGES);
-    const theme = pickRandom(THEMES);
+    const theme = pickRandom(AVAILABLE_THEMES);
     languageSelect.value = language.id;
     themeSelect.value = theme.id;
     void render();

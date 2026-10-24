@@ -1,8 +1,6 @@
 import type { Theme } from "@lumis-sh/lumis";
-
-const themeModules = import.meta.glob<Theme>("../../../themes/*.json", {
-  import: "default",
-});
+import { parseThemePack } from "@lumis-sh/themes/manifest";
+import catalog from "../../../themes/catalog.json";
 
 function labelizeTheme(id: string): string {
   return id
@@ -11,47 +9,51 @@ function labelizeTheme(id: string): string {
     .join(" ");
 }
 
-function stripPrefix(path: string): string {
-  const filename = path.split("/").pop();
-  return filename?.replace(/\.json$/u, "") ?? path;
-}
+if (catalog.schema_version !== 1) throw new Error("Unsupported theme catalog");
 
-export const THEMES = Object.keys(themeModules)
-  .map((path) => {
-    const id = stripPrefix(path);
-    if (!id) {
-      throw new Error(`Could not derive a theme id from ${path}`);
-    }
-
-    return {
-      id,
-      label: labelizeTheme(id),
-      path,
-    };
-  })
+export const THEMES = catalog.themes
+  .map((theme) => ({
+    name: theme.name,
+    appearance: theme.appearance,
+    pack: theme.pack,
+    license: theme.license,
+    url: theme.url,
+    revision: theme.revision,
+    id: theme.name,
+    label: labelizeTheme(theme.name),
+    available: theme.pack === "default" || theme.pack === "copyleft",
+  }))
   .sort((a, b) => a.label.localeCompare(b.label));
 
 export type ThemeOption = (typeof THEMES)[number];
 
 export const THEMES_BY_ID = new Map(THEMES.map((theme) => [theme.id, theme]));
+export const AVAILABLE_THEMES = THEMES.filter((theme) => theme.available);
 
-const themeCache = new Map<string, Promise<Theme>>();
+const packCache = new Map<string, Promise<Theme[]>>();
 
-export function loadTheme(id: string): Promise<Theme> {
-  const existing = themeCache.get(id);
-  if (existing) return existing;
-
+export async function loadTheme(id: string): Promise<Theme> {
   const entry = THEMES_BY_ID.get(id);
   if (!entry) {
     throw new Error(`Unknown theme: ${id}`);
   }
-
-  const loader = themeModules[entry.path];
-  if (!loader) {
-    throw new Error(`No loader for theme: ${id}`);
+  if (!entry.available) {
+    throw new Error(`Theme unavailable for redistribution: ${id}`);
   }
 
-  const promise = loader();
-  themeCache.set(id, promise);
-  return promise;
+  let pack = packCache.get(entry.pack);
+  if (!pack) {
+    pack =
+      entry.pack === "copyleft"
+        ? import("@lumis-sh/themes-copyleft/lumis-themes.json").then((data) =>
+            parseThemePack(data.default, "copyleft"),
+          )
+        : import("@lumis-sh/themes/lumis-themes.json").then((data) =>
+            parseThemePack(data.default, "default"),
+          );
+    packCache.set(entry.pack, pack);
+  }
+  const theme = (await pack).find((candidate) => candidate.name === id);
+  if (!theme) throw new Error(`Theme missing from ${entry.pack} pack: ${id}`);
+  return theme;
 }

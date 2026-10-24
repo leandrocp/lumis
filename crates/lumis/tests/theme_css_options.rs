@@ -103,29 +103,50 @@ fn read_stylesheet(path: &std::path::Path) -> String {
 #[test]
 fn prebuilt_stylesheets_keep_layout() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let packs = [
+        include_str!("../../../themes/packs/default.json"),
+        include_str!("../../../themes/packs/copyleft.json"),
+    ]
+    .map(|source| serde_json::from_str::<Value>(source).unwrap());
+    let default_names: BTreeSet<_> = packs[0]["themes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|theme| theme["name"].as_str().unwrap())
+        .collect();
+    let themes: BTreeMap<_, _> = packs
+        .iter()
+        .flat_map(|pack| pack["themes"].as_array().unwrap())
+        .map(|theme| serde_json::from_value::<themes::Theme>(theme.clone()).unwrap())
+        .map(|theme| (theme.name.clone(), theme))
+        .collect();
     let paths: Vec<_> = std::fs::read_dir(root.join("css"))
         .unwrap()
         .map(|entry| entry.unwrap().path())
         .filter(|path| path.extension().is_some_and(|ext| ext == "css"))
         .collect();
     assert!(paths.len() > 200);
+    assert_eq!(paths.len(), themes.len());
     for path in paths {
         let name = path.file_stem().unwrap().to_str().unwrap();
-        let theme = themes::get(name).unwrap();
+        let theme = &themes[name];
         let bundled = read_stylesheet(&path);
-        assert_eq!(CssBuilder::new(&theme).build(), bundled, "{name}");
+        assert_eq!(CssBuilder::new(theme).build(), bundled, "{name}");
         assert_eq!(
-            CssBuilder::new(&theme).layout(false).build(),
+            CssBuilder::new(theme).layout(false).build(),
             bundled.split_once("@layer lumis").unwrap().0,
             "{name}"
         );
-        assert_eq!(
-            read_stylesheet(
-                &root
-                    .join("packages/elixir/lumis/priv/static/css")
-                    .join(path.file_name().unwrap())
-            ),
-            bundled
-        );
+        let elixir_css = root
+            .join("packages/elixir/lumis/priv/static/css")
+            .join(path.file_name().unwrap());
+        if default_names.contains(name) {
+            assert_eq!(read_stylesheet(&elixir_css), bundled);
+        } else {
+            assert!(
+                !elixir_css.exists(),
+                "optional theme in default package: {name}"
+            );
+        }
     }
 }

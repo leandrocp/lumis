@@ -1540,8 +1540,8 @@ version = "4.1.0"
 dependencies = [
  "derive_builder",
  "glob",
+ "lumis-themes",
  "pretty_assertions",
- "quote",
  "regex",
  "rustler",
  "serde",
@@ -1566,6 +1566,24 @@ dependencies = [
  "serde",
  "serde_json",
 ]
+
+[[package]]
+name = "lumis-themes"
+version = "0.1.0"
+dependencies = [
+ "lumis-themes-copyleft-data",
+]
+
+[[package]]
+name = "lumis-themes-copyleft"
+version = "0.1.0"
+dependencies = [
+ "lumis-themes",
+]
+
+[[package]]
+name = "lumis-themes-copyleft-data"
+version = "0.1.0"
 
 [[package]]
 name = "lumis-wasm-runtime"

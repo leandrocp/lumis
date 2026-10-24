@@ -11,7 +11,7 @@ import catppuccinFrappe from "@lumis-sh/themes/catppuccin_frappe";
 import catppuccinLatte from "@lumis-sh/themes/catppuccin_latte";
 import dracula from "@lumis-sh/themes/dracula";
 import githubLight from "@lumis-sh/themes/github_light";
-import nord from "@lumis-sh/themes/nord";
+import nord from "@lumis-sh/themes-copyleft/nord";
 import tokyonightMoon from "@lumis-sh/themes/tokyonight_moon";
 import cssLanguage from "@lumis-sh/wasm-css";
 import elixirLanguage from "@lumis-sh/wasm-elixir";
@@ -285,11 +285,11 @@ const output = hl.highlight(template, htmlMultiThemes({
     id: "themes",
     title: "250+ Neovim themes",
     blurb:
-      "Each theme is generated from the colorscheme itself, so it looks like the editor it came from.",
+      "Permissive themes are included by default. This demo also installs the optional copyleft pack for Nord.",
     tags: ["htmlInline", "Elixir"],
     source: `${REPO}/packages/javascript/lumis/examples/theme-gallery.html`,
     code: `import dracula from '@lumis-sh/themes/dracula'
-import nord from '@lumis-sh/themes/nord'
+import nord from '@lumis-sh/themes-copyleft/nord'
 import githubLight from '@lumis-sh/themes/github_light'
 import tokyonightMoon from '@lumis-sh/themes/tokyonight_moon'
 

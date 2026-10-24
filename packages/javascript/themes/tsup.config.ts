@@ -16,6 +16,7 @@ if (fs.existsSync(themesDir)) {
 export default defineConfig({
   entry: {
     index: "src/index.ts",
+    manifest: "src/manifest.ts",
     ...themeEntries,
   },
   format: ["esm", "cjs"],

@@ -771,7 +771,7 @@ impl From<&catalog::LanguagePackageRef> for ExLanguagePackageRef<'static> {
 }
 
 #[cfg_attr(not(test), rustler::nif(schedule = "DirtyCpu"))]
-pub(crate) fn highlight<'a>(
+pub(crate) fn highlight_nif<'a>(
     env: Env<'a>,
     source: &'a str,
     options: ExOptions<'a>,
@@ -874,7 +874,7 @@ fn syntax_events<'a>(
 }
 
 #[cfg_attr(not(test), rustler::nif(schedule = "DirtyCpu"))]
-pub(crate) fn highlight_events<'a>(
+pub(crate) fn highlight_events_nif<'a>(
     env: Env<'a>,
     source: &'a str,
     options: ExEventOptions<'a>,
@@ -1137,8 +1137,23 @@ fn language_info(name: &str) -> Option<ExLanguageInfo<'static>> {
         .map(|language| ExLanguageInfo::from(language.info()))
 }
 
+#[cfg_attr(not(test), rustler::nif(schedule = "DirtyIo"))]
+fn install_theme_packs(files: Vec<String>) -> NifResult<Atom> {
+    let jsons = files
+        .iter()
+        .map(|path| {
+            std::fs::read_to_string(path).map_err(|error| {
+                Error::Term(Box::new(format!("cannot read theme pack {path}: {error}")))
+            })
+        })
+        .collect::<NifResult<Vec<_>>>()?;
+    let sources: Vec<&str> = jsons.iter().map(String::as_str).collect();
+    themes::install_packs(&sources).map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    Ok(rustler::types::atom::ok())
+}
+
 #[cfg_attr(not(test), rustler::nif)]
-fn available_themes() -> Vec<ExThemeInfo<'static>> {
+fn available_themes_nif() -> Vec<ExThemeInfo<'static>> {
     // Rust's `available_themes` yields whole themes, which carry more than the
     // wire needs; the summary is built here rather than shipping 246 of them.
     let mut summaries: Vec<ExThemeInfo<'static>> =
@@ -1148,7 +1163,7 @@ fn available_themes() -> Vec<ExThemeInfo<'static>> {
 }
 
 #[cfg_attr(not(test), rustler::nif)]
-fn closest_theme(
+fn closest_theme_nif(
     background: Option<&str>,
     foreground: Option<&str>,
     ansi: Option<Vec<Option<&str>>>,
@@ -1173,7 +1188,7 @@ fn theme_color(hex: Option<&str>) -> NifResult<Option<(u8, u8, u8)>> {
 }
 
 #[cfg_attr(not(test), rustler::nif)]
-fn get_theme(name: &str) -> NifResult<ExTheme> {
+fn get_theme_nif(name: &str) -> NifResult<ExTheme> {
     // Fast path: check if theme is already cached (read lock)
     {
         let cache = THEME_CACHE.read();
@@ -1210,7 +1225,7 @@ fn build_theme_from_json_string(json_string: &str) -> NifResult<ExTheme> {
 }
 
 #[cfg_attr(not(test), rustler::nif)]
-fn theme_css_from_name(name: &str, options: ExCssOptions) -> NifResult<String> {
+fn theme_css_from_name_nif(name: &str, options: ExCssOptions) -> NifResult<String> {
     let theme = themes::get(name).map_err(|_e| Error::Atom("error"))?;
     Ok(build_theme_css(&theme, options))
 }

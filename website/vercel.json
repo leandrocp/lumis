@@ -1,10 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "installCommand": "npx --yes pnpm@11.15.1 install --frozen-lockfile",
-  "buildCommand": "npx --yes pnpm@11.15.1 build",
+  "installCommand": "npx --yes pnpm@11.15.1 --dir .. install --frozen-lockfile && npx --yes pnpm@11.15.1 install --frozen-lockfile",
+  "buildCommand": "npx --yes pnpm@11.15.1 --dir .. --filter @lumis-sh/themes run build && npx --yes pnpm@11.15.1 --dir .. --filter @lumis-sh/themes-copyleft run build && npx --yes pnpm@11.15.1 build",
   "outputDirectory": "dist",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- .",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ../themes/catalog.json ../packages/javascript/themes ../packages/javascript/themes-copyleft",
   "headers": [
     {
       "source": "/",

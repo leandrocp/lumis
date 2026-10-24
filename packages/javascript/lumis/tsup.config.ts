@@ -31,7 +31,7 @@ export default defineConfig({
     index: "src/index.ts",
     languages: "src/languages.ts",
     formatters: "src/formatters.ts",
-    themes: "src/themes/index.ts",
+    themes: "src/themes/node.ts",
     "formatters/html": "src/formatter/html.ts",
     "formatters/ansi": "src/formatter/ansi.ts",
     ...langEntries,

@@ -30,7 +30,14 @@ try {
   process.exit(1);
 }
 
-const result = spawnSync(binary, process.argv.slice(2), { stdio: "inherit" });
+const args = process.argv.slice(2);
+try {
+  args.unshift("--theme-pack", require.resolve("@lumis-sh/themes-copyleft/lumis-themes.json"));
+} catch (error) {
+  if (error.code !== "MODULE_NOT_FOUND") throw error;
+}
+
+const result = spawnSync(binary, args, { stdio: "inherit" });
 
 if (result.error) {
   console.error(result.error.message);

@@ -27,7 +27,7 @@
 ## Features
 
 - **110+ Tree-sitter languages** - Fast, accurate, and updated syntax parsing
-- **250+ built-in Neovim themes** - Updated and curated themes from the Neovim community
+- **200+ Neovim themes** - Permissively licensed themes installed with Lumis
 - **Built-in formatters** - HTML (inline/linked), Terminal (ANSI), Multi-theme (light/dark), BBCode
 - **Custom formatters** - Build your own output
 - **Language auto-detection** - File extension, shebang, and emacs-mode support
@@ -47,6 +47,10 @@ def deps do
   ]
 end
 ```
+
+Lumis includes `lumis_themes` as a dependency. For the optional copyleft and
+Vim-licensed themes, add `{:lumis_themes_copyleft, "~> 0.1.0"}`; no registration
+is needed. See [themes](https://docs.lumis.sh/themes) for the available packs.
 
 ## Usage
 

@@ -71,10 +71,35 @@
 `mise run themes-fetch-licenses` downloads the full texts at the commits recorded
 in theme JSON; extraction dependencies use explicit `license_revision` values.
 The checked-in texts live under `themes/licenses/<owner>/<repo>/<commit>/`.
-Notice generation copies them beside the crate's theme data, and the JavaScript
-theme build copies them into `dist/licenses/`. Both packages ship notices with
-relative links to those texts. `mise run themes-check-notices` checks the required
-texts and crate copies offline.
+Notice generation copies the relevant texts beside each pack's theme data, and
+the JavaScript theme build copies them into `dist/licenses/`. Payload packages
+ship pack-specific notices with relative links to those texts.
+`mise run themes-check-notices` checks the required texts and copies offline.
+
+### Theme packs
+
+`themes/catalog.json` is the full, generated metadata catalog: version-one
+`schema_version` and `themes` entries containing `name`, `appearance`, `pack`,
+`license`, `url`, and `revision`. `themes/packs/default.json` and
+`themes/packs/copyleft.json` hold redistributable theme data. The four
+unavailable themes (`darkplus`, `no_clown_fiesta`, `poimandres`, and `yorumi`)
+remain in metadata only; no package or demo carries their JSON or CSS payloads.
+
+The default registry lives in `lumis-themes`. The
+`lumis-themes-copyleft-data` leaf crate owns optional payloads without depending
+on the registry; `lumis-themes-copyleft` enables the registry's optional data
+dependency through Cargo feature unification. Adding that dependency activates
+the pack without a registration call. npm and Hex follow the same dependency-only
+contract through `@lumis-sh/themes-copyleft` and `lumis_themes_copyleft`, beside
+their default `@lumis-sh/themes` and `lumis_themes` packages. The standalone CLI
+discovers its companion pack automatically.
+
+Browser `get`, `available`, and `closest` remain default-only. Explicit optional
+per-theme imports work, including forwarding imports at their old paths when the
+optional package is installed. The website deliberately imports optional data
+for demos, lists the full metadata catalog with pack labels, and disables
+unavailable entries. This does not activate browser-wide discovery or complete
+the external Java binding's integration.
 
 ## JavaScript integrations
 

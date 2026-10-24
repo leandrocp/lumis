@@ -31,6 +31,14 @@
   "scripts": {
     "test": "node scripts/test-shim.js"
   },
+  "peerDependencies": {
+    "@lumis-sh/themes-copyleft": "workspace:^"
+  },
+  "peerDependenciesMeta": {
+    "@lumis-sh/themes-copyleft": {
+      "optional": true
+    }
+  },
   "optionalDependencies": {
     "@lumis-sh/cli-darwin-arm64": "workspace:*",
     "@lumis-sh/cli-darwin-x64": "workspace:*",

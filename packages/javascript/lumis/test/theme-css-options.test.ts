@@ -1,9 +1,10 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { buildCss, type BuildCssOptions } from "@lumis-sh/themes";
 import ts from "typescript";
 import { expect, it } from "vitest";
 import manifest from "../../../../fixtures/theme-css-options.json";
+import { readThemes } from "../../themes/scripts/read-themes.js";
 
 const defaults: Required<BuildCssOptions> = {
   layout: true,
@@ -63,7 +64,7 @@ it("renders the shared CSS cases", () => {
 it("keeps layout in every prebuilt stylesheet", () => {
   const root = new URL("../../../../css/", import.meta.url);
   const require = createRequire(import.meta.url);
-  const files = readdirSync(root).filter((file) => file.endsWith(".css"));
+  const files = readThemes().map(({ name }) => `${name}.css`);
   expect(files.length).toBeGreaterThan(200);
   for (const file of files) {
     const css = readFileSync(new URL(file, root), "utf8");

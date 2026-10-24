@@ -128,11 +128,6 @@ license = "MIT"
 license_file = "LICENSE"
 copyright = ["Copyright (c) 2023 Everblush"]
 
-[sources."https://github.com/folke/lazy.nvim"]
-license = "Apache-2.0"
-license_file = "LICENSE"
-note = "Placeholder plugin only. `neovim_dark` and `neovim_light` are Neovim's built-in `default` colorscheme, so their colors come from neovim/neovim (Apache-2.0, with Vim-licensed parts), not from lazy.nvim."
-
 [sources."https://github.com/folke/tokyonight.nvim"]
 license = "Apache-2.0"
 license_file = "LICENSE"
@@ -245,6 +240,12 @@ copyright = ["Copyright (c) 2021 Navarasu"]
 license = "MIT"
 license_file = "LICENSE"
 copyright = ["Copyright (c) 2024 William Mathewson"]
+
+[sources."https://github.com/neovim/neovim"]
+license = "Apache-2.0 AND Vim"
+license_file = "LICENSE.txt"
+copyright = ["Copyright Neovim contributors. All rights reserved."]
+note = "Built-in default colors are extracted from the Neovim binary and matching runtime at the recorded commit. They are assigned to the optional pack conservatively under Neovim's mixed Apache-2.0/Vim licensing; this is a distribution policy, not a finding that each exported color is copyleft."
 
 [sources."https://github.com/NLKNguyen/papercolor-theme"]
 license = "MIT"

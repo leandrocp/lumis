@@ -2,27 +2,31 @@
   "name": "@lumis-sh/lumis",
   "version": "0.9.5",
   "description": "Syntax Highlighter powered by Tree-sitter and Neovim themes",
-  "author": "Leandro Pereira",
+  "keywords": [
+    "code-highlighting",
+    "highlighter",
+    "javascript",
+    "neovim",
+    "syntax-highlighting",
+    "tree-sitter",
+    "typescript",
+    "wasm"
+  ],
+  "homepage": "https://lumis.sh",
+  "bugs": "https://github.com/leandrocp/lumis/issues",
   "license": "MIT",
+  "author": "Leandro Pereira",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/leandrocp/lumis.git",
     "directory": "packages/javascript/lumis"
   },
-  "bugs": "https://github.com/leandrocp/lumis/issues",
-  "homepage": "https://lumis.sh",
-  "keywords": [
-    "syntax-highlighting",
-    "code-highlighting",
-    "highlighter",
-    "javascript",
-    "typescript",
-    "tree-sitter",
-    "neovim",
-    "wasm"
+  "files": [
+    "dist",
+    "CHANGELOG.md"
   ],
-  "sideEffects": false,
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -159,11 +163,6 @@
       "default": "./dist/languages.js"
     }
   },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
-  "packageManager": "pnpm@11.15.1",
   "scripts": {
     "build:langs": "tsx scripts/build-langs.ts",
     "build:runtime-wasm": "tsx scripts/build-runtime-wasm.ts",
@@ -175,31 +174,19 @@
     "test:conformance": "vitest run test/conformance.test.ts",
     "test:conformance:browser": "playwright test",
     "test:all-languages": "vitest run test/all-languages.test.ts",
+    "test:theme-packs": "node scripts/test-theme-packs.mjs",
     "dev": "vite",
     "docs": "typedoc",
     "lint": "oxlint -c ../../../.oxlintrc.json --type-aware --deny-warnings --report-unused-disable-directives --ignore-pattern 'examples/**' .",
     "prepack": "pnpm run build"
   },
   "dependencies": {
+    "@lumis-sh/themes": "workspace:^",
     "@noble/hashes": "2.4.0",
     "pathe": "2.0.3",
     "semver": "7.8.5"
   },
-  "optionalDependencies": {
-    "@lumis-sh/lumis-native-darwin-arm64": "workspace:*",
-    "@lumis-sh/lumis-native-darwin-x64": "workspace:*",
-    "@lumis-sh/lumis-native-linux-arm64-gnu": "workspace:*",
-    "@lumis-sh/lumis-native-linux-arm64-musl": "workspace:*",
-    "@lumis-sh/lumis-native-linux-x64-gnu": "workspace:*",
-    "@lumis-sh/lumis-native-linux-x64-musl": "workspace:*",
-    "@lumis-sh/lumis-native-win32-arm64-msvc": "workspace:*",
-    "@lumis-sh/lumis-native-win32-x64-msvc": "workspace:*"
-  },
-  "engines": {
-    "node": ">=18"
-  },
   "devDependencies": {
-    "@lumis-sh/themes": "workspace:*",
     "@lumis-sh/wasm-json": "0.26.5",
     "@microsoft/api-extractor": "^7.59.4",
     "@playwright/test": "1.64.1",
@@ -217,5 +204,27 @@
     "vite": "^8.3.4",
     "vitest": "^5.0.5",
     "web-tree-sitter": "0.27.1"
-  }
+  },
+  "peerDependencies": {
+    "@lumis-sh/themes-copyleft": "workspace:^"
+  },
+  "peerDependenciesMeta": {
+    "@lumis-sh/themes-copyleft": {
+      "optional": true
+    }
+  },
+  "optionalDependencies": {
+    "@lumis-sh/lumis-native-darwin-arm64": "workspace:*",
+    "@lumis-sh/lumis-native-darwin-x64": "workspace:*",
+    "@lumis-sh/lumis-native-linux-arm64-gnu": "workspace:*",
+    "@lumis-sh/lumis-native-linux-arm64-musl": "workspace:*",
+    "@lumis-sh/lumis-native-linux-x64-gnu": "workspace:*",
+    "@lumis-sh/lumis-native-linux-x64-musl": "workspace:*",
+    "@lumis-sh/lumis-native-win32-arm64-msvc": "workspace:*",
+    "@lumis-sh/lumis-native-win32-x64-msvc": "workspace:*"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@11.15.1"
 }

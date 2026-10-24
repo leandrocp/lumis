@@ -16,6 +16,7 @@ on:
       - "npm-react/v*"
       - "npm-cli/v*"
       - "npm-themes/v*"
+      - "npm-themes-copyleft/v*"
 
 permissions:
   contents: read
@@ -254,6 +255,9 @@ jobs:
           if [ "$component" = "npm-themes" ]; then
             set_output filter "@lumis-sh/themes"
             set_output build_filters "@lumis-sh/themes"
+          elif [ "$component" = "npm-themes-copyleft" ]; then
+            set_output filter "@lumis-sh/themes-copyleft"
+            set_output build_filters "@lumis-sh/themes @lumis-sh/themes-copyleft"
           elif [ "$component" = "npm-lumis" ]; then
             set_output filter "@lumis-sh/lumis"
             set_output build_filters "@lumis-sh/themes @lumis-sh/lumis"

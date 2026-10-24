@@ -285,6 +285,29 @@ fn themes_show_finds_a_theme_from_the_data_dir() {
 }
 
 #[test]
+fn companion_theme_pack_is_discovered_from_an_unrelated_directory() {
+    let data = tempfile::tempdir().unwrap();
+    let working_directory = tempfile::tempdir().unwrap();
+    let manifest = data.path().join("theme-packs/copyleft/lumis-themes.json");
+    write_file(&manifest, include_str!("../../../themes/packs/copyleft.json"));
+    cmd()
+        .current_dir(working_directory.path())
+        .env("LUMIS_DATA_DIR", data.path())
+        .args(["themes", "build-css", "modus_vivendi"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("#b6a0ff"));
+    write_file(&manifest, "{malformed");
+    cmd()
+        .current_dir(working_directory.path())
+        .env("LUMIS_DATA_DIR", data.path())
+        .args(["themes", "list"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("invalid theme json"));
+}
+
+#[test]
 fn themes_show_rejects_an_unknown_theme() {
     cmd()
         .args(["themes", "show", "not-a-theme"])

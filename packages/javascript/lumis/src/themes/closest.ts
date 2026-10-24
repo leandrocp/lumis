@@ -124,6 +124,10 @@ function paletteDistance(accents: readonly Rgb[], theme: Theme): number {
  * @throws {TypeError} For invalid RGB hex strings or an ANSI palette other than 16 entries.
  */
 export function closest(colors: TerminalColors): Theme | undefined {
+  return closestFrom(colors, THEME_DATA);
+}
+
+export function closestFrom(colors: TerminalColors, themes: readonly Theme[]): Theme | undefined {
   const background = color(colors.background);
   const foreground = color(colors.foreground);
   if (colors.ansi != null && colors.ansi.length !== 16) {
@@ -133,7 +137,7 @@ export function closest(colors: TerminalColors): Theme | undefined {
   if (!background) return undefined;
   const accents = ansi.slice(1, 7).filter((rgb): rgb is Rgb => rgb !== undefined);
   const mode = appearance(background, foreground);
-  const candidates = THEME_DATA.flatMap((theme) => {
+  const candidates = themes.flatMap((theme) => {
     const value = candidate(theme, background, mode);
     return value ? [value] : [];
   });

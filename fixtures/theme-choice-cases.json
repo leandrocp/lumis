@@ -18,6 +18,7 @@
     "background": "#000000",
     "foreground": null,
     "ansi": null,
+    "expected_default": "oldworld_oled",
     "expected": "modus_vivendi"
   },
   {

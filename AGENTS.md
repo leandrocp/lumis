@@ -293,7 +293,7 @@ For generated files included in the checks, the generator formats its output so 
 - `benchmarks/shadcn_sidebar.tsx` — a vendored third-party file the showcase pins by SHA-256, so
   formatting it would break the pin. The other vendored showcase documents are not JavaScript and
   never matched the glob
-- `packages/javascript/themes/themes/` — 246 modules holding one long `JSON.stringify` line each; formatting them costs 28k lines for no readability, since nobody reads generated theme data
+- `packages/javascript/themes/themes/` and `packages/javascript/themes-copyleft/themes/` — generated modules holding one long `JSON.stringify` line each; nobody reads generated theme data
 - `lumis/langs/`, `lumis/src/generated/`, `lumis/src/tree-sitter-wasm.ts` — build output that is never committed. oxfmt reads only the `.gitignore` in its working directory, so paths ignored by a nested one have to be named here.
 
 This replaced a per-package `fmt:check` that named `src/` only. Every `test/`, `scripts/` and `examples/` directory in the repo had therefore never been formatted, and nobody could tell, because the check was green. When adding a formatter or a linter, make the default "everything" and subtract; never name a directory and hope the list is maintained.
@@ -439,6 +439,30 @@ Large parts of the repository are generated from shared inputs such as `language
 - Regenerate checked-in artifacts with the documented `mise run` workflows.
 - When generated or vendored files are added, removed, moved, or reclassified, update `.gitattributes` in the same change. For content-only updates, verify that its existing patterns still cover every affected path.
 - Keep Rust, JavaScript, Elixir, docs, fixtures, and generated metadata in sync.
+
+### Theme packs
+
+Theme payloads are distributed as separate default and optional copyleft packs.
+`fixtures/theme-packs.json` is the reviewed distribution policy; unknown license
+expressions fail generation. Do not infer permissive status from the absence of
+GPL in a license name. `themes/catalog.json` retains metadata for every theme,
+including unavailable themes, but unavailable entries must not carry color data
+in published JSON, CSS, modules, native bundles, or demos.
+
+- Generate packs and scoped notices with `mise run docs-gen-themes-md`; edit
+  source definitions and policy, not staged pack assets.
+- Preserve dependency-only activation. Rust uses the shared `lumis-themes`
+  feature-unification graph; Node and Elixir discover known manifests in
+  installed packages. Do not add user registration, configuration, install-time
+  mutations, or mandatory native compilation.
+- Browser bundles only contain imported modules. Keep optional per-theme
+  forwarding imports; do not promise discovery of an unimported dependency.
+- A theme revision must identify its real extraction source. Built-in Neovim
+  themes need verified Neovim binary and runtime provenance, not a placeholder
+  plugin revision. Never stamp a new revision onto old extracted data.
+- Validate isolated packaged consumers with default, added optional, and removed
+  optional dependencies, keeping rendering calls unchanged. Audit actual
+  archives and license bytes, not just runtime enumeration.
 
 ### The language catalog
 

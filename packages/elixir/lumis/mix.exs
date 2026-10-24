@@ -32,6 +32,7 @@ defmodule Lumis.MixProject do
     [
       preferred_envs: [
         docs: :docs,
+        "hex.build": :docs,
         "hex.publish": :docs,
         "test.rust": :test,
         "test.all": :test,
@@ -91,6 +92,8 @@ defmodule Lumis.MixProject do
 
   defp deps do
     [
+      theme_dependency(:lumis_themes, "themes"),
+      theme_dependency(:lumis_themes_copyleft, "themes-copyleft", only: :test),
       {:rustler, "~> 0.29", optional: true},
       {:rustler_precompiled, "~> 0.8"},
       {:nimble_options, "~> 1.0"},
@@ -100,6 +103,17 @@ defmodule Lumis.MixProject do
       {:makeup_syntect, ">= 0.0.0", only: :docs},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
+  end
+
+  defp theme_dependency(app, directory, options \\ []) do
+    path = Path.expand("../#{directory}", __DIR__)
+
+    options =
+      if Mix.env() in [:dev, :test] and File.exists?(Path.join(path, "mix.exs")),
+        do: [path: path] ++ options,
+        else: options
+
+    {app, "~> 0.1.0", options}
   end
 
   defp aliases do

@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "hex-lumis/v*"
+      - "hex-themes/v*"
+      - "hex-themes-copyleft/v*"
   workflow_dispatch:
     inputs:
       tag:
@@ -22,7 +24,9 @@ permissions:
 jobs:
   nif-lock:
     name: Verify packaged NIF lockfile
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    if: >-
+      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
+      startsWith(inputs.tag || github.ref_name, 'hex-lumis/v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -51,7 +55,9 @@ jobs:
 
   nif-release:
     needs: nif-lock
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    if: >-
+      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
+      startsWith(inputs.tag || github.ref_name, 'hex-lumis/v')
     uses: leandrocp/github-actions/.github/workflows/nif-release.yml@84f29a1e6b71de81fe806e553eb72b5e8aebe729
     with:
       locked: true
@@ -96,5 +102,47 @@ jobs:
 
       - name: Publish to Hex
         run: mix hex.publish --yes
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+
+  themes-publish:
+    name: Publish theme assets to Hex
+    if: >-
+      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
+      (startsWith(inputs.tag || github.ref_name, 'hex-themes/v') ||
+       startsWith(inputs.tag || github.ref_name, 'hex-themes-copyleft/v'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          persist-credentials: false
+
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1
+        with:
+          otp-version: "28"
+          elixir-version: "1.19"
+
+      - name: Determine theme package
+        id: pkg
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          component="${RELEASE_TAG%%/v*}"
+          case "$component" in
+            hex-themes | hex-themes-copyleft)
+              echo "directory=packages/elixir/${component#hex-}" >> "$GITHUB_OUTPUT"
+              ;;
+            *) exit 1 ;;
+          esac
+
+      - name: Install Hex
+        run: mix local.hex --force
+
+      - name: Publish theme package
+        working-directory: ${{ steps.pkg.outputs.directory }}
+        run: mix hex.publish package --yes
         env:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}

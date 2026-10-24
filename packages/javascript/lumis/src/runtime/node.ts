@@ -8,6 +8,7 @@ import { loadNativeBinding } from "../native-binding.js";
 import treeSitterWasmBinary from "../tree-sitter-wasm.js";
 import type { LanguageInfo } from "../types.js";
 import { importNodeBuiltin } from "./node-builtins.js";
+import { packageRoots } from "./package-roots.js";
 import {
   isUrlString,
   readCachedWasm,
@@ -17,7 +18,6 @@ import {
 } from "./node-cache.js";
 
 const BUNDLE_PACKAGE_NAMES = Object.keys(BUNDLES).map((name) => `@lumis-sh/wasm-bundle-${name}`);
-const packageRoots = new Set<string>();
 let installed:
   | {
       cwd: string;

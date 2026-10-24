@@ -11,24 +11,25 @@ const NO_LICENSE: &str = "NONE";
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct ThemeLicenses {
-    sources: BTreeMap<String, SourceLicense>,
+    pub(crate) sources: BTreeMap<String, SourceLicense>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct SourceLicense {
     pub(crate) license: String,
-    license_file: Option<String>,
-    license_revision: Option<String>,
+    pub(crate) license_file: Option<String>,
+    pub(crate) license_revision: Option<String>,
     #[serde(default)]
     copyright: Vec<String>,
     note: Option<String>,
 }
 
+#[derive(Clone)]
 pub(crate) struct ResolvedTheme<'a> {
     pub(crate) name: &'a str,
     pub(crate) url: &'a str,
-    revision: Option<String>,
+    pub(crate) revision: Option<String>,
     pub(crate) license: &'a SourceLicense,
 }
 
@@ -154,7 +155,7 @@ fn sync_license_text(
     url: &str,
     revision: &str,
     source: &SourceLicense,
-    check: bool,
+    _check: bool,
     fetch: bool,
 ) -> Result<()> {
     ensure!(
@@ -184,17 +185,6 @@ fn sync_license_text(
         )
     })?;
     ensure!(!bytes.is_empty(), "empty license: {}", path.display());
-    let packaged = Path::new("crates/lumis-core/themes/licenses").join(relative);
-    if check {
-        ensure!(
-            fs::read(&packaged).ok().as_deref() == Some(bytes.as_slice()),
-            "missing or stale {}; run `mise run docs-gen-themes-md`",
-            packaged.display()
-        );
-    } else {
-        fs::create_dir_all(packaged.parent().context("license parent missing")?)?;
-        fs::write(packaged, bytes)?;
-    }
     Ok(())
 }
 
@@ -266,6 +256,10 @@ pub(crate) fn render_notice(
     let notes: Vec<String> = licenses
         .sources
         .iter()
+        .filter(|(url, _)| {
+            themes.iter().any(|theme| theme.url == url.as_str())
+                || dependencies.contains_key(url.as_str())
+        })
         .filter_map(|(url, source)| {
             let note = source.note.as_deref()?;
             Some(format!("- {}: {note}", repo_link(url)))
@@ -280,7 +274,7 @@ pub(crate) fn render_notice(
     lines.join("\n")
 }
 
-fn dependency_users(definitions: &[ThemeDefinition]) -> BTreeMap<&str, BTreeSet<&str>> {
+pub(crate) fn dependency_users(definitions: &[ThemeDefinition]) -> BTreeMap<&str, BTreeSet<&str>> {
     let mut users: BTreeMap<&str, BTreeSet<&str>> = BTreeMap::new();
     for theme in definitions {
         for dependency in &theme.dependencies {
@@ -333,6 +327,7 @@ mod tests {
             name: "theme".to_string(),
             url: url.to_string(),
             dependencies: dependencies.iter().map(ToString::to_string).collect(),
+            builtin: false,
         }
     }
 

@@ -2,6 +2,10 @@
 
 Neovim themes for [Lumis Syntax Highlighter](https://lumis.sh)
 
+This default pack contains permissively licensed themes and is installed with
+`@lumis-sh/lumis`. Copyleft themes require `@lumis-sh/themes-copyleft`; their existing
+`@lumis-sh/themes/<name>` imports forward to that package. See the [theme guide](https://docs.lumis.sh/themes).
+
 ## Usage
 
 ### JS module

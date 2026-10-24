@@ -1,0 +1,17 @@
+[package]
+name = "lumis-themes-copyleft"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "Dependency-only activation of optional Lumis themes"
+include = ["/src/", "/LICENSE"]
+
+[dependencies]
+lumis-themes = { version = "0.1.0", path = "../lumis-themes", features = ["copyleft"] }
+
+[lints]
+workspace = true

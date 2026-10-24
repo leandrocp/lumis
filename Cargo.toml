@@ -4,6 +4,9 @@ members = [
     "crates/lumis",
     "crates/lumis-core",
     "crates/lumis-build",
+    "crates/lumis-themes",
+    "crates/lumis-themes-copyleft",
+    "crates/lumis-themes-copyleft-data",
     "crates/lumis-cli",
     "crates/lumis-wasm-runtime",
     "packages/elixir/lumis/native/lumis_nif",
@@ -64,6 +67,9 @@ struct_excessive_bools = "allow"
 lumis = { path = "crates/lumis" }
 lumis-core = { path = "crates/lumis-core" }
 lumis-build = { path = "crates/lumis-build" }
+lumis-themes = { path = "crates/lumis-themes" }
+lumis-themes-copyleft = { path = "crates/lumis-themes-copyleft" }
+lumis-themes-copyleft-data = { path = "crates/lumis-themes-copyleft-data" }
 lumis-wasm-runtime = { path = "crates/lumis-wasm-runtime" }
 # https://github.com/tree-sitter/tree-sitter/pull/6035
 tree-sitter = { git = "https://github.com/tree-sitter/tree-sitter", rev = "868eab666844fa42118af86e2893c104c50971cc" }

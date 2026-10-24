@@ -6,12 +6,21 @@ fn notices_ship_revision_specific_licenses_and_check_them_offline() {
     let root = std::env::temp_dir().join(format!("lumis-theme-licenses-{}", std::process::id()));
     fs::create_dir_all(root.join("themes")).unwrap();
     fs::create_dir_all(root.join("docs/content/reference")).unwrap();
-    fs::create_dir_all(root.join("crates/lumis-core/themes")).unwrap();
+    fs::create_dir_all(root.join("fixtures")).unwrap();
+    let mut policy: serde_json::Value =
+        serde_json::from_str(include_str!("../../../fixtures/theme-packs.json")).unwrap();
+    policy["unavailable_themes"] = serde_json::json!(["unlicensed"]);
+    fs::write(
+        root.join("fixtures/theme-packs.json"),
+        serde_json::to_vec(&policy).unwrap(),
+    )
+    .unwrap();
     fs::write(
         root.join("themes/themes.lua"),
         r#"return {
             { name = "first", url = "https://github.com/a/theme", dependencies = { "https://github.com/b/dependency" } },
             { name = "second", url = "https://github.com/a/theme" },
+            { name = "optional", url = "https://github.com/d/copyleft" },
             { name = "unlicensed", url = "https://github.com/c/none" },
         }"#,
     )
@@ -28,13 +37,21 @@ fn notices_ship_revision_specific_licenses_and_check_them_offline() {
         license_revision = "cccccccccccccccccccccccccccccccccccccccc"
         [sources."https://github.com/c/none"]
         license = "NONE"
+        [sources."https://github.com/d/copyleft"]
+        license = "GPL-3.0"
+        license_file = "LICENSE"
         "#,
     )
     .unwrap();
-    for (name, revision) in [("first", "a"), ("second", "b"), ("unlicensed", "d")] {
+    for (name, revision) in [
+        ("first", "a"),
+        ("second", "b"),
+        ("optional", "e"),
+        ("unlicensed", "d"),
+    ] {
         fs::write(
             root.join(format!("themes/{name}.json")),
-            format!(r#"{{"revision":"{}"}}"#, revision.repeat(40)),
+            serde_json::to_vec(&serde_json::json!({"name": name, "appearance":"dark", "revision":revision.repeat(40), "highlights":{"normal":{"fg":"#abcdef"}}})).unwrap(),
         )
         .unwrap();
     }
@@ -50,6 +67,10 @@ fn notices_ship_revision_specific_licenses_and_check_them_offline() {
         (
             format!("b/dependency/{}/LICENSE", "c".repeat(40)),
             b"dependency\n".as_slice(),
+        ),
+        (
+            format!("d/copyleft/{}/LICENSE", "e".repeat(40)),
+            b"optional license\n".as_slice(),
         ),
     ];
     for (file, bytes) in &files {
@@ -68,8 +89,17 @@ fn notices_ship_revision_specific_licenses_and_check_them_offline() {
     let generated = run(false);
     assert!(generated.status.success(), "{generated:?}");
     for (file, bytes) in &files {
+        let package = if file.starts_with("d/") {
+            "lumis-themes-copyleft-data"
+        } else {
+            "lumis-themes"
+        };
         assert_eq!(
-            fs::read(root.join("crates/lumis-core/themes/licenses").join(file)).unwrap(),
+            fs::read(
+                root.join(format!("crates/{package}/data/licenses"))
+                    .join(file)
+            )
+            .unwrap(),
             *bytes
         );
     }
@@ -92,7 +122,7 @@ fn notices_ship_revision_specific_licenses_and_check_them_offline() {
     fs::write(&original, files[0].1).unwrap();
 
     let packaged = root
-        .join("crates/lumis-core/themes/licenses")
+        .join("crates/lumis-themes/data/licenses")
         .join(&files[1].0);
     fs::write(&packaged, b"outdated").unwrap();
     let stale = run(true);

@@ -11,6 +11,9 @@ on:
     tags:
       - "cargo-lumis/v*"
       - "cargo-lumis-core/v*"
+      - "cargo-lumis-themes-copyleft-data/v*"
+      - "cargo-lumis-themes/v*"
+      - "cargo-lumis-themes-copyleft/v*"
       - "cargo-lumis-build/v*"
       - "cargo-lumis-wasm-runtime/v*"
       - "cargo-lumis-cli/v*"
@@ -50,6 +53,10 @@ jobs:
               crate="lumis-core"
               manifest="crates/lumis-core/Cargo.toml"
               ;;
+            cargo-lumis-themes-copyleft-data | cargo-lumis-themes | cargo-lumis-themes-copyleft)
+              crate="${component#cargo-}"
+              manifest="crates/$crate/Cargo.toml"
+              ;;
             cargo-lumis-build)
               crate="lumis-build"
               manifest="crates/lumis-build/Cargo.toml"
@@ -71,10 +78,36 @@ jobs:
           echo "manifest=$manifest" >> "$GITHUB_OUTPUT"
 
       - name: Publish to crates.io
-        run: cargo publish -p "$CRATE_NAME"
+        run: cargo publish --locked -p "$CRATE_NAME"
         env:
           CRATE_NAME: ${{ steps.crate.outputs.name }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  theme-companion:
+    name: Package standalone CLI theme companion
+    needs: publish
+    if: startsWith(inputs.tag || github.ref_name, 'cargo-lumis-themes-copyleft-data/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+          persist-credentials: false
+      - uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+        with:
+          install: false
+      - run: mise run themes-package-cli
+      - name: Upload companion archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --verify-tag --title "$RELEASE_TAG" --generate-notes
+          fi
+          gh release upload "$RELEASE_TAG" target/theme-packs/*
 
   align-npm-cli:
     name: Align npm CLI binary

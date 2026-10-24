@@ -2,7 +2,7 @@
 
 `lumis.sh` is built from this Vite app by the `lumis-website` Vercel project.
 The project uses `website/` as its root directory and `main` as its production
-branch. `vercel.json` defines the build, skips deploys without website changes,
+branch. `vercel.json` defines the build, skips deploys without website or theme-pack changes,
 redirects the former `/docs` entry to `docs.lumis.sh`, and negotiates Markdown
 responses for agents. Each HTML entry point has a matching file under `public/`;
 `pnpm run check:markdown` verifies the routes, response headers, alternate links,
@@ -16,6 +16,12 @@ the highlighting worker on load to warm up its first languages; the comparison
 and showcase pages never start it.
 
 `pnpm build` also runs TypeScript checks; use `pnpm types:check` to run them alone.
+
+The website links the checkout's default and optional npm theme packages so demos
+use the reviewed packs, not an older published catalog. `mise run website-build`
+builds both theme packages before this app; Vercel uses the same build order.
+`pnpm run check:themes` verifies every demo payload and
+rejects the four metadata-only themes. See [theme packs](https://docs.lumis.sh/themes).
 
 Agent discovery metadata lives under `public/.well-known/`: an ARD catalog,
 the Lumis Docs MCP Server Card, a digest-pinned Lumis skill index, and an

@@ -28,7 +28,13 @@ defmodule Lumis.ThemeClosestTest do
           ansi: fixture["ansi"]
         })
 
-      assert (theme && theme.name) == fixture["expected"]
+      expected =
+        case :code.priv_dir(:lumis_themes_copyleft) do
+          {:error, :bad_name} -> Map.get(fixture, "expected_default", fixture["expected"])
+          _ -> fixture["expected"]
+        end
+
+      assert (theme && theme.name) == expected
     end
   end
 

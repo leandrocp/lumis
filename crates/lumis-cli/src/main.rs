@@ -3,6 +3,7 @@ mod formatter_options;
 mod gen_theme;
 mod registry;
 mod terminal_colors;
+mod theme_packs;
 
 use anyhow::Result;
 use clap::{ArgAction, CommandFactory, Parser, Subcommand, ValueEnum};
@@ -46,6 +47,9 @@ struct Cli {
     /// Where to look for WASM parsers and theme JSON files
     #[arg(short = 'd', long, env("LUMIS_DATA_DIR"), global = true, help_heading = OPTSET_GLOBAL)]
     data_dir: Option<PathBuf>,
+
+    #[arg(long, hide = true, global = true)]
+    theme_pack: Vec<PathBuf>,
 
     /// Path to the configuration file
     #[arg(long, env("LUMIS_CONFIG"), global = true, help_heading = OPTSET_GLOBAL)]
@@ -646,6 +650,7 @@ impl Formatter {
 fn main() -> Result<()> {
     let cli = Cli::parse();
     let data_dir = lumis_wasm_runtime::store::resolve_data_dir(cli.data_dir);
+    theme_packs::load(&data_dir, &cli.theme_pack)?;
     lumis_wasm_runtime::set_compile_cache_dir(data_dir.clone());
     let config_path = match cli.config {
         Some(path) => path,
