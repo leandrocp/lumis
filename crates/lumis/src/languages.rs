@@ -84,7 +84,84 @@ pub use lumis_core::languages::{
 
 use lumis_core::highlights::HIGHLIGHT_NAMES;
 use lumis_wasm_runtime::tree_sitter_highlight::HighlightConfiguration;
+#[cfg(not(target_family = "wasm"))]
 use std::sync::LazyLock;
+#[cfg(target_family = "wasm")]
+use thread_config::LazyConfig as LazyLock;
+
+#[cfg(any(target_family = "wasm", test))]
+mod thread_config {
+    use super::HighlightConfiguration;
+    use std::{cell::RefCell, collections::HashMap, ops::Deref};
+
+    pub(super) struct LazyConfig<T> {
+        initialize: fn() -> T,
+    }
+
+    impl<T> LazyConfig<T> {
+        pub(super) const fn new(initialize: fn() -> T) -> Self {
+            Self { initialize }
+        }
+    }
+
+    thread_local! {
+        static CONFIGURATIONS: RefCell<HashMap<*const LazyConfig<HighlightConfiguration>, &'static HighlightConfiguration>> = RefCell::new(HashMap::new());
+    }
+
+    impl Deref for LazyConfig<HighlightConfiguration> {
+        type Target = HighlightConfiguration;
+
+        fn deref(&self) -> &Self::Target {
+            // Tree-sitter languages are not Send/Sync on WASM. Keep each configuration on
+            // its creating thread; leak it once to preserve LanguageConfig's static lifetime.
+            CONFIGURATIONS.with(|configurations| {
+                let key = std::ptr::from_ref(self);
+                let cached = configurations.borrow().get(&key).copied();
+                cached.unwrap_or_else(|| {
+                    let configuration = Box::leak(Box::new((self.initialize)()));
+                    configurations.borrow_mut().insert(key, configuration);
+                    configuration
+                })
+            })
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        static INITIALIZATIONS: AtomicUsize = AtomicUsize::new(0);
+        static CONFIG: LazyConfig<HighlightConfiguration> = LazyConfig::new(|| {
+            INITIALIZATIONS.fetch_add(1, Ordering::SeqCst);
+            HighlightConfiguration::new(
+                super::super::PLAIN_TEXT_CONFIG.language.clone(),
+                "plaintext",
+                "",
+                "",
+                "",
+            )
+            .unwrap()
+        });
+
+        #[test]
+        fn initializes_once_per_thread_and_keeps_references_alive() {
+            let first: &'static HighlightConfiguration = &CONFIG;
+            assert!(std::ptr::eq(first, &raw const *CONFIG));
+            assert_eq!(INITIALIZATIONS.load(Ordering::SeqCst), 1);
+            let other = std::thread::spawn(|| {
+                let config: &'static HighlightConfiguration = &CONFIG;
+                assert!(std::ptr::eq(config, &raw const *CONFIG));
+                std::ptr::from_ref(config) as usize
+            })
+            .join()
+            .unwrap();
+            assert_ne!(std::ptr::from_ref(first) as usize, other);
+            assert_eq!(INITIALIZATIONS.load(Ordering::SeqCst), 2);
+            assert_eq!(first.language_name, "plaintext");
+        }
+    }
+}
 
 unsafe extern "C" {
     fn tree_sitter_diff() -> *const ();

@@ -170,7 +170,9 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
 
       - name: Package Lumis and the crates released with it
-        run: cargo package -p lumis -p lumis-core -p lumis-build -p lumis-wasm-runtime --no-verify
+        run: >-
+          cargo package -p lumis -p lumis-core -p lumis-build -p lumis-wasm-runtime
+          -p lumis-themes -p lumis-themes-copyleft-data --no-verify
 
       - name: Test and audit the extracted package
         shell: bash
@@ -180,7 +182,7 @@ jobs:
           package_root="$RUNNER_TEMP/lumis-package"
           mkdir -p "$package_root"
 
-          for crate in lumis lumis-core lumis-build lumis-wasm-runtime; do
+          for crate in lumis lumis-core lumis-build lumis-wasm-runtime lumis-themes lumis-themes-copyleft-data; do
             archive="$(find target/package -maxdepth 1 -name "$crate-[0-9]*.crate" -print -quit)"
             test -n "$archive"
             tar -xzf "$archive" -C "$package_root"
@@ -197,7 +199,7 @@ jobs:
           # release adds core API. `mise run check-crate-deps` is what keeps each
           # `version` requirement honest.
           patches=()
-          for crate in lumis-core lumis-build lumis-wasm-runtime; do
+          for crate in lumis-core lumis-build lumis-wasm-runtime lumis-themes lumis-themes-copyleft-data; do
             sibling="$(find "$package_root" -mindepth 1 -maxdepth 1 -type d -name "$crate-[0-9]*" -print -quit)"
             test -n "$sibling"
             patches+=(--config "patch.crates-io.$crate.path=\"$sibling\"")

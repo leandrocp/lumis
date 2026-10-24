@@ -14,6 +14,7 @@ System.put_env(
 Mix.install(
   [
     {:lumis, path: Path.join(repo_dir, "packages/elixir/lumis")},
+    {:lumis_themes, path: Path.join(repo_dir, "packages/elixir/themes"), override: true},
     {:benchee, "~> 1.5"},
     {:benchee_json, "~> 1.0"},
     {:rustler, "~> 0.38"}

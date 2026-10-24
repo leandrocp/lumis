@@ -39,6 +39,7 @@ function dependency(directory, name) {
 }
 
 try {
+  const themes = pack("themes");
   const lumis = pack("lumis");
   const dependencies = { [lumisName]: `file:${lumis.tarball}` };
   for (const directory of integrations) {
@@ -78,12 +79,24 @@ try {
   mkdirSync(consumer);
   writeFileSync(
     join(consumer, "package.json"),
-    JSON.stringify({ private: true, type: "module", dependencies }),
+    JSON.stringify({
+      private: true,
+      type: "module",
+      // Pin the repository's pnpm so a different global pnpm cannot change peer resolution.
+      packageManager: readJson(join(javascriptDir, "../../package.json")).packageManager,
+      dependencies,
+    }),
   );
-  // Vite's rehype dependency must also come from this build, not the registry.
+  // Lumis's theme data and Vite's rehype dependency must also come from this
+  // build, not the registry.
   writeFileSync(
     join(consumer, "pnpm-workspace.yaml"),
-    `overrides:\n  '@lumis-sh/rehype-lumis': '${dependencies["@lumis-sh/rehype-lumis"]}'\n`,
+    [
+      "overrides:",
+      `  '${themes.manifest.name}': 'file:${themes.tarball}'`,
+      `  '@lumis-sh/rehype-lumis': '${dependencies["@lumis-sh/rehype-lumis"]}'`,
+      "",
+    ].join("\n"),
   );
   run(
     "pnpm",

@@ -13,7 +13,8 @@ import time
 
 BINARY = sys.argv[1]
 DATA_DIR = sys.argv[2]
-CASES = Path(__file__).resolve().parents[3] / "fixtures/theme-choice-cases.json"
+ROOT = Path(__file__).resolve().parents[3]
+CASES = ROOT / "fixtures/theme-choice-cases.json"
 DA1 = b"\x1b[c"
 SOURCE = b'fn main() { let greeting = "hello terminal"; }\n'
 
@@ -94,21 +95,42 @@ def run(directory, case, *, extra=(), piped=False, reply=True, term="xterm-256co
         os.close(slave)
 
 
+def pack_names(pack):
+    return {theme["name"] for theme in json.loads((ROOT / f"themes/packs/{pack}.json").read_text())["themes"]}
+
+
+def includes_copyleft(directory):
+    env = dict(os.environ, LUMIS_CONFIG=str(directory / "missing.toml"), LUMIS_DATA_DIR=DATA_DIR)
+    output = subprocess.run([BINARY, "themes", "list"], env=env, check=True,
+                            capture_output=True, text=True).stdout
+    # Data-directory theme files are listed as "<name> (file)" beside the built-in catalog.
+    listed = {line for line in output.splitlines() if line and not line.endswith(" (file)")}
+    default, copyleft = pack_names("default"), pack_names("copyleft")
+    assert len(default) > 200 and copyleft, (len(default), len(copyleft))
+    # Workspace builds unify `lumis-themes/copyleft` into the CLI; `-p lumis-cli` does not.
+    if listed == default:
+        return False
+    assert listed == default | copyleft, sorted(listed ^ (default | copyleft))
+    return True
+
+
 def main():
     cases = json.loads(CASES.read_text())
     assert len(cases) >= 20
     with tempfile.TemporaryDirectory(prefix="lumis-theme-choice-") as path:
         directory = Path(path)
+        full = includes_copyleft(directory)
         (directory / "source.txt").write_bytes(SOURCE)
         for case in cases:
             output, _, queried, _ = run(directory, case)
             assert queried, (case["name"], output)
-            if case["expected"] is None:
+            expected_theme = case["expected"] if full else case.get("expected_default", case["expected"])
+            if expected_theme is None:
                 assert b"theme: auto unavailable (" in output, (case["name"], output)
                 assert SOURCE.replace(b"\n", b"\r\n") in output, output
                 assert b"\x1b[38;2;" not in output, output
             else:
-                expected = f"theme: {case['expected']}\r\n".encode()
+                expected = f"theme: {expected_theme}\r\n".encode()
                 assert expected in output, (case["name"], output)
                 assert b"\x1b[38;2;" in output, output
 

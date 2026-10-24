@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { available as availableLanguages, get as getLanguage } from "../src/languages.js";
 import { available as availableThemes } from "../src/themes/index.js";
@@ -131,12 +131,18 @@ describe("availableThemes", () => {
     }
   });
 
-  it("matches the repository theme inventory", () => {
-    const expectedCount = readdirSync(resolve(import.meta.dirname, "../../../../themes")).filter(
-      (file) => file.endsWith(".json"),
-    ).length;
+  it("matches the default theme pack", () => {
+    const pack: { themes: { name: string }[] } = JSON.parse(
+      readFileSync(resolve(import.meta.dirname, "../../../../themes/packs/default.json"), "utf8"),
+    );
+    const expected = pack.themes.map((theme) => theme.name).sort();
 
-    expect(availableThemes()).toHaveLength(expectedCount);
+    expect(expected.length).toBeGreaterThan(200);
+    expect(
+      availableThemes()
+        .map((theme) => theme.name)
+        .sort(),
+    ).toEqual(expected);
   });
 
   it("returns fresh theme records", () => {

@@ -1,5 +1,7 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createServer, defineConfig, type Plugin, type ResolvedConfig } from "vite";
+import { createServer, defineConfig, normalizePath, type Plugin, type ResolvedConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 
 const siteUrl = new URL("https://lumis.sh/");
@@ -33,6 +35,34 @@ function sitemap(): Plugin {
         fileName: "sitemap.xml",
         source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>\n`,
       });
+    },
+  };
+}
+
+// The demos ship both packs' theme data in their chunks, so each pack's notice
+// and upstream license texts must ship beside them.
+function themeLicenses(): Plugin {
+  const packs = { default: "@lumis-sh/themes", copyleft: "@lumis-sh/themes-copyleft" };
+  return {
+    name: "lumis-theme-licenses",
+    apply: "build",
+    generateBundle() {
+      for (const [pack, name] of Object.entries(packs)) {
+        const root = fileURLToPath(new URL(`./node_modules/${name}/dist`, import.meta.url));
+        const files = [
+          join(root, "NOTICE.md"),
+          ...readdirSync(join(root, "licenses"), { recursive: true, withFileTypes: true })
+            .filter((entry) => entry.isFile())
+            .map((entry) => join(entry.parentPath, entry.name)),
+        ];
+        for (const file of files) {
+          this.emitFile({
+            type: "asset",
+            fileName: `theme-licenses/${pack}/${normalizePath(relative(root, file))}`,
+            source: readFileSync(file),
+          });
+        }
+      }
     },
   };
 }
@@ -85,7 +115,7 @@ function prerender(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [tailwindcss(), sitemap(), prerender()],
+  plugins: [tailwindcss(), sitemap(), themeLicenses(), prerender()],
   build: {
     rollupOptions: {
       input: Object.fromEntries(
