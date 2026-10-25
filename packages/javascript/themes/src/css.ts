@@ -17,10 +17,6 @@ export interface BuildCssOptions {
   containerStyle?: [string, string][];
 }
 
-function headerComment(theme: ThemeData): string {
-  return `/* ${theme.name}\n * revision: ${theme.revision ?? ""}\n * license: ${theme.license ?? "NOASSERTION"}\n */\n`;
-}
-
 /**
  * Build a CSS stylesheet for a theme.
  *
@@ -49,7 +45,9 @@ export function buildCss(theme: ThemeData, options: BuildCssOptions = {}): strin
   const containerSelector = options.containerSelector ?? ".lumis";
   const containerStyle = options.containerStyle ?? [];
 
-  const rules: string[] = [`${headerComment(theme)}${scopedSelector(scope, containerSelector)}`];
+  const rules: string[] = [
+    `/* ${theme.name}\n * revision: ${theme.revision ?? ""}\n */\n${scopedSelector(scope, containerSelector)}`,
+  ];
 
   const normal = theme.highlights["normal"];
   const scopeStyle = renderContainerStyle(normal, containerStyle, "\n  ");

@@ -811,7 +811,6 @@ fn show_theme(name: &str, data_dir: &Path) -> Result<()> {
         .ok_or_else(|| anyhow::anyhow!("unknown theme: {name}"))?;
 
     println!("{}: {}\n", theme.name, theme.appearance);
-    println!("  license: {}", theme.license);
     if let Some(fg) = theme.fg() {
         println!("  foreground: {fg}");
     }
@@ -962,8 +961,8 @@ pub(crate) fn resolve_language_id(name: &str) -> &str {
 // Returns `Result` so every `Commands` arm has one signature to dispatch to.
 #[allow(clippy::unnecessary_wraps)]
 fn list_themes(data_dir: &Path) -> Result<()> {
-    let mut themes: Vec<(String, String)> = lumis_core::themes::available_themes()
-        .map(|t| (t.name.clone(), t.license.clone()))
+    let mut themes: Vec<_> = lumis_core::themes::available_themes()
+        .map(|t| t.name.clone())
         .collect();
 
     // Add file themes from data dir
@@ -974,18 +973,15 @@ fn list_themes(data_dir: &Path) -> Result<()> {
             if path.extension().is_some_and(|ext| ext == "json") {
                 if let Some(stem) = path.file_stem() {
                     let name = format!("{} (file)", stem.to_string_lossy());
-                    let license = lumis_core::themes::from_file(&path)
-                        .map_or_else(|_| "NOASSERTION".to_string(), |theme| theme.license);
-                    themes.push((name, license));
+                    themes.push(name);
                 }
             }
         }
     }
 
     themes.sort();
-    let width = themes.iter().map(|(name, _)| name.len()).max().unwrap_or(0);
-    for (name, license) in themes {
-        println!("{name:<width$}  {license}");
+    for theme in themes {
+        println!("{theme}");
     }
 
     Ok(())

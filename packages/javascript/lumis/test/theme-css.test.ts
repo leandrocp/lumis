@@ -13,7 +13,6 @@ const sample: ThemeData = {
   name: "test",
   appearance: "dark",
   revision: "3e976b4",
-  license: "MIT",
   highlights: {
     normal: { fg: "red", bg: "green" },
     keyword: { fg: "blue", italic: true },
@@ -27,7 +26,6 @@ describe("buildCss", () => {
   it("renders the default stylesheet", () => {
     const expected = `/* test
  * revision: 3e976b4
- * license: MIT
  */
 .lumis {
   color: red;
@@ -74,7 +72,6 @@ describe("buildCss", () => {
   it("scopes selectors and applies container style", () => {
     const expected = `/* test
  * revision: 3e976b4
- * license: MIT
  */
 html[data-theme="dark"] .lumis {
   color: red;
