@@ -988,6 +988,48 @@ fn is_revision_only_theme_update(previous: &Value, current: &Value) -> bool {
     previous != current && without_revision(previous.clone()) == without_revision(current.clone())
 }
 
+fn write_theme_license(
+    detector: &lumis_build::license::LicenseDetector,
+    path: &Path,
+    url: &str,
+) -> Result<String> {
+    let license = theme_licenses::detect(detector, Path::new(theme_licenses::LICENSES_DIR), url)?;
+    let extracted = fs::read_to_string(path)
+        .with_context(|| format!("failed to read generated theme {}", path.display()))?;
+    let annotated = lumis_build::license::set_theme_license(&extracted, &license)
+        .with_context(|| format!("invalid generated theme JSON: {}", path.display()))?;
+    fs::write(path, &annotated)?;
+    Ok(annotated)
+}
+
+fn restore_revision_only_update(path: &Path, current_source: &str) -> Result<()> {
+    let previous = Command::new("git")
+        .args(["show", &format!("HEAD:{}", path.display())])
+        .output()
+        .with_context(|| format!("failed to read the previous version of {}", path.display()))?;
+
+    // A new theme has no version at HEAD and should always be kept.
+    if !previous.status.success() {
+        return Ok(());
+    }
+
+    let previous_source = String::from_utf8(previous.stdout)
+        .with_context(|| format!("previous theme is not UTF-8: {}", path.display()))?;
+    let previous_theme: Value = serde_json::from_str(&previous_source)
+        .with_context(|| format!("invalid previous theme JSON: {}", path.display()))?;
+    let current_theme: Value = serde_json::from_str(current_source)
+        .with_context(|| format!("invalid generated theme JSON: {}", path.display()))?;
+
+    if is_revision_only_theme_update(&previous_theme, &current_theme) {
+        fs::write(path, previous_source)?;
+        println!(
+            "Ignored revision-only theme update: {}",
+            path.file_stem().unwrap_or_default().to_string_lossy()
+        );
+    }
+    Ok(())
+}
+
 fn filter_theme_updates(name: &str) -> Result<()> {
     let mut theme_paths = if name.is_empty() {
         glob::glob("themes/*.json")?.collect::<Result<Vec<_>, _>>()?
@@ -1012,44 +1054,8 @@ fn filter_theme_updates(name: &str) -> Result<()> {
         let url = urls
             .get(theme_name.as_ref())
             .with_context(|| format!("{} has no entry in themes/themes.lua", path.display()))?;
-        let license =
-            theme_licenses::detect(&detector, Path::new(theme_licenses::LICENSES_DIR), url)?;
-        let extracted = fs::read_to_string(&path)
-            .with_context(|| format!("failed to read generated theme {}", path.display()))?;
-        fs::write(
-            &path,
-            lumis_build::license::set_theme_license(&extracted, &license)
-                .with_context(|| format!("invalid generated theme JSON: {}", path.display()))?,
-        )?;
-
-        let previous = Command::new("git")
-            .args(["show", &format!("HEAD:{}", path.display())])
-            .output()
-            .with_context(|| {
-                format!("failed to read the previous version of {}", path.display())
-            })?;
-
-        // A new theme has no version at HEAD and should always be kept.
-        if !previous.status.success() {
-            continue;
-        }
-
-        let previous_source = String::from_utf8(previous.stdout)
-            .with_context(|| format!("previous theme is not UTF-8: {}", path.display()))?;
-        let current_source = fs::read_to_string(&path)
-            .with_context(|| format!("failed to read generated theme {}", path.display()))?;
-        let previous_theme: Value = serde_json::from_str(&previous_source)
-            .with_context(|| format!("invalid previous theme JSON: {}", path.display()))?;
-        let current_theme: Value = serde_json::from_str(&current_source)
-            .with_context(|| format!("invalid generated theme JSON: {}", path.display()))?;
-
-        if is_revision_only_theme_update(&previous_theme, &current_theme) {
-            fs::write(&path, previous_source)?;
-            println!(
-                "Ignored revision-only theme update: {}",
-                path.file_stem().unwrap().to_string_lossy()
-            );
-        }
+        let current_source = write_theme_license(&detector, &path, url)?;
+        restore_revision_only_update(&path, &current_source)?;
     }
 
     Ok(())
