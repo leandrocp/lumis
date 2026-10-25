@@ -1,6 +1,6 @@
 use crate::ThemeDefinition;
 use anyhow::{ensure, Context, Result};
-use lumis_build::license::{is_copyleft, license_dir, LicenseDetector, NO_ASSERTION, NO_LICENSE};
+use lumis_build::license::{is_copyleft, is_identified, license_dir, LicenseDetector, NO_LICENSE};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -87,7 +87,7 @@ fn check_license(name: &str, recorded: Option<&str>, detected: &str) -> Option<S
     if recorded == NO_LICENSE {
         return Some(format!("{name} comes from a plugin without a license"));
     }
-    if recorded == NO_ASSERTION {
+    if !is_identified(recorded) {
         return Some(format!(
             "{name} has a license file that matches no known license"
         ));
@@ -234,6 +234,7 @@ fn license_link(theme: &ResolvedTheme<'_>, revision: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use lumis_build::license::NO_ASSERTION;
 
     #[test]
     fn accepts_a_permissive_license_its_files_hold() {
@@ -268,9 +269,11 @@ mod tests {
         assert!(check_license("t", Some(NO_LICENSE), NO_LICENSE)
             .unwrap()
             .contains("without a license"));
-        assert!(check_license("t", Some(NO_ASSERTION), NO_ASSERTION)
-            .unwrap()
-            .contains("matches no known license"));
+        for license in [NO_ASSERTION, "MIT AND NOASSERTION"] {
+            assert!(check_license("t", Some(license), license)
+                .unwrap()
+                .contains("matches no known license"));
+        }
     }
 
     #[test]

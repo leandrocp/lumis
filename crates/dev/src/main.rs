@@ -1194,6 +1194,11 @@ fn list_themes() -> Result<()> {
 fn gen_themes_md(check: bool) -> Result<()> {
     let mut entries = parse_themes_lua()?;
     entries.sort_by(|a, b| a.name.cmp(&b.name));
+    ensure!(
+        entries.len() > 200,
+        "themes/themes.lua lists only {} themes; parsing it likely failed",
+        entries.len()
+    );
 
     let themes = theme_licenses::resolve(
         &entries,

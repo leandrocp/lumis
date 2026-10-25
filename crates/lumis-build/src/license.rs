@@ -246,6 +246,21 @@ pub fn is_copyleft(expression: &str) -> bool {
     })
 }
 
+/// Whether every license in an SPDX expression is a known license, so that
+/// none is [`NO_LICENSE`] or [`NO_ASSERTION`]. An expression that does not
+/// parse is not.
+pub fn is_identified(expression: &str) -> bool {
+    spdx::Expression::parse_mode(expression, spdx::ParseMode::LAX).is_ok_and(|expression| {
+        expression.requirements().all(|requirement| {
+            requirement
+                .req
+                .license
+                .id()
+                .is_some_and(|id| id.name != NO_LICENSE && id.name != NO_ASSERTION)
+        })
+    })
+}
+
 fn read_license_files(dir: &Path) -> io::Result<Vec<String>> {
     let entries = match fs::read_dir(dir) {
         Ok(entries) => entries,
@@ -412,5 +427,15 @@ SOFTWARE.
         assert!(!is_copyleft("Apache-2.0 AND MIT"));
         assert!(!is_copyleft(NO_LICENSE));
         assert!(!is_copyleft(NO_ASSERTION));
+    }
+
+    #[test]
+    fn an_expression_with_any_unknown_license_is_not_identified() {
+        assert!(is_identified("MIT"));
+        assert!(is_identified("Apache-2.0 AND MIT"));
+        assert!(!is_identified(NO_LICENSE));
+        assert!(!is_identified(NO_ASSERTION));
+        assert!(!is_identified(&format!("MIT AND {NO_ASSERTION}")));
+        assert!(!is_identified("not a license"));
     }
 }
