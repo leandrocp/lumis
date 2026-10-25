@@ -165,13 +165,16 @@ fn read_license_files(dir: &Path) -> io::Result<Vec<String>> {
         Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(Vec::new()),
         Err(error) => return Err(error),
     };
-    let mut paths = entries
-        .map(|entry| entry.map(|entry| entry.path()))
-        .collect::<io::Result<Vec<_>>>()?;
+    let mut paths = Vec::new();
+    for entry in entries {
+        let entry = entry?;
+        if entry.file_type()?.is_file() {
+            paths.push(entry.path());
+        }
+    }
     paths.sort();
     paths
         .iter()
-        .filter(|path| path.is_file())
         .map(|path| fs::read(path).map(|bytes| String::from_utf8_lossy(&bytes).into_owned()))
         .collect()
 }
@@ -284,6 +287,7 @@ SOFTWARE.
         assert!(is_copyleft("GPL-3.0"));
         assert!(is_copyleft("LGPL-3.0"));
         assert!(is_copyleft("MIT AND GPL-2.0"));
+        assert!(is_copyleft(&format!("GPL-3.0 AND {NO_ASSERTION}")));
         assert!(!is_copyleft("Apache-2.0"));
         assert!(!is_copyleft("Apache-2.0 AND MIT"));
         assert!(!is_copyleft(NO_LICENSE));
