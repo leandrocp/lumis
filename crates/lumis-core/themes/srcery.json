@@ -2,6 +2,7 @@
   "name": "srcery",
   "appearance": "dark",
   "revision": "d4889a85c26702217838da941f921042c17b6397",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#ff8700"

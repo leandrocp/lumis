@@ -2,6 +2,7 @@
   "name": "gruvbox_dark_hard",
   "appearance": "dark",
   "revision": "154eb5ff5b96d0641307113fa385eaf0d36d9796",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#8ec07c"

@@ -2,6 +2,7 @@
   "name": "solarized_winter_light",
   "appearance": "light",
   "revision": "a8085e29883ddcfb39bd46197eb32ef00df05368",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#586e75",

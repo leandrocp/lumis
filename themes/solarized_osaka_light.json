@@ -2,6 +2,7 @@
   "name": "solarized_osaka_light",
   "appearance": "light",
   "revision": "a21176efde15fab21fabda0bf2ba123ed6d7332d",
+  "license": "Apache-2.0",
   "highlights": {
     "attribute": {
       "fg": "#db302d"

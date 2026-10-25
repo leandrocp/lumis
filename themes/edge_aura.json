@@ -2,6 +2,7 @@
   "name": "edge_aura",
   "appearance": "dark",
   "revision": "7ec78c21bd8f0b2b0b47043bb1e730c561647c72",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#deb974"

@@ -21,7 +21,7 @@ Theme names in this list are the IDs you use across Lumis:
 
 For usage examples, see [Themes](/themes) and [CSS Theme Files](/themes/css-files).
 
-Each theme keeps the license of the plugin it was extracted from. [`themes/NOTICE.md`](https://github.com/leandrocp/lumis/blob/main/themes/NOTICE.md) lists the pinned commit, license and copyright notice for every theme.
+Each theme keeps the license of the plugin it was extracted from. [`themes/NOTICE.md`](https://github.com/leandrocp/lumis/blob/main/themes/NOTICE.md) lists the pinned commit and license file of every theme.
 
 | Theme | Repository | License |
 |-------|------------|---------|
@@ -171,7 +171,7 @@ Each theme keeps the license of the plugin it was extracted from. [`themes/NOTIC
 | `nordfox` | [EdenEast/nightfox.nvim](https://github.com/EdenEast/nightfox.nvim) | MIT |
 | `nordic` | [AlexvZyl/nordic.nvim](https://github.com/AlexvZyl/nordic.nvim) | MIT |
 | `obscure` | [killitar/obscure.nvim](https://github.com/killitar/obscure.nvim) | Apache-2.0 |
-| `oceanic_next` | [mhartington/oceanic-next](https://github.com/mhartington/oceanic-next) | Apache-2.0 AND Vim |
+| `oceanic_next` | [mhartington/oceanic-next](https://github.com/mhartington/oceanic-next) | Apache-2.0 |
 | `ofirkai` | [ofirgall/ofirkai.nvim](https://github.com/ofirgall/ofirkai.nvim) | MIT |
 | `oldworld` | [dgox16/oldworld.nvim](https://github.com/dgox16/oldworld.nvim) | MIT |
 | `oldworld_cooler` | [dgox16/oldworld.nvim](https://github.com/dgox16/oldworld.nvim) | MIT |

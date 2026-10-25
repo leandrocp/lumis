@@ -1,144 +1,206 @@
 use crate::ThemeDefinition;
 use anyhow::{ensure, Context, Result};
-use serde::Deserialize;
+use lumis_build::license::{is_copyleft, is_identified, license_dir, LicenseDetector, NO_LICENSE};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-/// SPDX's value for a source that grants no license at all.
-const NO_LICENSE: &str = "NONE";
-
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub(crate) struct ThemeLicenses {
-    sources: BTreeMap<String, SourceLicense>,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub(crate) struct SourceLicense {
-    pub(crate) license: String,
-    license_file: Option<String>,
-    #[serde(default)]
-    copyright: Vec<String>,
-    note: Option<String>,
-}
+/// Where theme extraction copies each plugin's license files.
+pub(crate) const LICENSES_DIR: &str = "themes/licenses";
 
 pub(crate) struct ResolvedTheme<'a> {
     pub(crate) name: &'a str,
     pub(crate) url: &'a str,
     revision: Option<String>,
-    pub(crate) license: &'a SourceLicense,
+    pub(crate) license: String,
+    license_files: Vec<String>,
 }
 
-pub(crate) fn read(path: &str) -> Result<ThemeLicenses> {
-    let source = fs::read_to_string(path).with_context(|| format!("failed to read {path}"))?;
-    toml::from_str(&source).with_context(|| format!("failed to parse {path}"))
+/// Detects the license of a plugin from the files extraction copied for it.
+pub(crate) fn detect(detector: &LicenseDetector, licenses_dir: &Path, url: &str) -> Result<String> {
+    let dir = license_dir(licenses_dir, url).with_context(|| format!("invalid theme URL {url}"))?;
+    detector
+        .detect_dir(&dir)
+        .with_context(|| format!("failed to read {}", dir.display()))
 }
 
-/// Pairs every theme with its source's license and pinned revision, and fails
-/// on a source without a license entry or an entry no theme uses.
+/// Pairs every theme with its recorded license and pinned revision, and fails
+/// when a recorded license is not the one its license files hold, when a
+/// built-in theme is copyleft or has no license, or when a theme JSON or a
+/// license directory belongs to no theme.
 pub(crate) fn resolve<'a>(
-    themes: &'a [ThemeDefinition],
-    licenses: &'a ThemeLicenses,
+    definitions: &'a [ThemeDefinition],
     themes_dir: &Path,
+    licenses_dir: &Path,
 ) -> Result<Vec<ResolvedTheme<'a>>> {
-    validate(themes, licenses)?;
+    let detector = LicenseDetector::new().context("failed to load the SPDX license list")?;
+    let mut detected: BTreeMap<&str, String> = BTreeMap::new();
+    let mut problems = Vec::new();
+    let mut themes = Vec::new();
 
-    themes
-        .iter()
-        .map(|theme| {
-            Ok(ResolvedTheme {
-                name: &theme.name,
-                url: &theme.url,
-                revision: read_revision(&themes_dir.join(format!("{}.json", theme.name)))?,
-                license: &licenses.sources[&theme.url],
-            })
-        })
-        .collect()
+    for definition in definitions {
+        let path = themes_dir.join(format!("{}.json", definition.name));
+        let (revision, recorded) = read_theme_fields(&path)?;
+        let expected = if let Some(license) = detected.get(definition.url.as_str()) {
+            license.clone()
+        } else {
+            let license = detect(&detector, licenses_dir, &definition.url)?;
+            detected.insert(&definition.url, license.clone());
+            license
+        };
+        if let Some(problem) = check_license(&definition.name, recorded.as_deref(), &expected) {
+            problems.push(problem);
+        }
+        themes.push(ResolvedTheme {
+            name: &definition.name,
+            url: &definition.url,
+            revision,
+            license: recorded.unwrap_or(expected),
+            license_files: license_files(&license_dir(licenses_dir, &definition.url)?)?,
+        });
+    }
+
+    problems.extend(unlisted_themes(definitions, themes_dir)?);
+    problems.extend(orphaned_license_dirs(definitions, licenses_dir)?);
+
+    ensure!(
+        problems.is_empty(),
+        "theme licenses are not valid:\n- {}",
+        problems.join("\n- ")
+    );
+    Ok(themes)
 }
 
-fn validate(themes: &[ThemeDefinition], licenses: &ThemeLicenses) -> Result<()> {
-    let required: BTreeSet<&str> = themes
-        .iter()
-        .flat_map(|theme| std::iter::once(&theme.url).chain(&theme.dependencies))
-        .map(String::as_str)
-        .collect();
-    let recorded: BTreeSet<&str> = licenses.sources.keys().map(String::as_str).collect();
-
-    let missing: Vec<&str> = required.difference(&recorded).copied().collect();
-    ensure!(
-        missing.is_empty(),
-        "themes/licenses.toml has no entry for: {}",
-        missing.join(", ")
-    );
-
-    let unused: Vec<&str> = recorded.difference(&required).copied().collect();
-    ensure!(
-        unused.is_empty(),
-        "themes/licenses.toml has entries no theme uses: {}",
-        unused.join(", ")
-    );
-
-    let inconsistent: Vec<&str> = licenses
-        .sources
-        .iter()
-        .filter(|(_, source)| {
-            source.license.is_empty()
-                || (source.license == NO_LICENSE) != source.license_file.is_none()
-        })
-        .map(|(url, _)| url.as_str())
-        .collect();
-    ensure!(
-        inconsistent.is_empty(),
-        "themes/licenses.toml entries need a license and a license_file, or license = \"{NO_LICENSE}\" and no file: {}",
-        inconsistent.join(", ")
-    );
-
-    Ok(())
+/// The built-in theme set accepts only a license its files hold that is
+/// neither copyleft nor missing. `lumis gen-theme` applies none of this.
+fn check_license(name: &str, recorded: Option<&str>, detected: &str) -> Option<String> {
+    let Some(recorded) = recorded else {
+        return Some(format!(
+            "{name} has no license; run `mise run themes-gen {name}`"
+        ));
+    };
+    if recorded != detected {
+        return Some(format!(
+            "{name} records {recorded}, but its license files hold {detected}; run `mise run themes-gen {name}`"
+        ));
+    }
+    if recorded == NO_LICENSE {
+        return Some(format!("{name} comes from a plugin without a license"));
+    }
+    if !is_identified(recorded) {
+        return Some(format!(
+            "{name} has a license file that matches no known license"
+        ));
+    }
+    if is_copyleft(recorded) {
+        return Some(format!(
+            "{name} is {recorded}, a copyleft license Lumis cannot bundle"
+        ));
+    }
+    None
 }
 
-fn read_revision(path: &Path) -> Result<Option<String>> {
+fn read_theme_fields(path: &Path) -> Result<(Option<String>, Option<String>)> {
     let source =
         fs::read_to_string(path).with_context(|| format!("failed to read {}", path.display()))?;
     let theme: serde_json::Value = serde_json::from_str(&source)
         .with_context(|| format!("failed to parse {}", path.display()))?;
-    Ok(theme
-        .get("revision")
-        .and_then(serde_json::Value::as_str)
-        .map(str::to_string))
+    let field = |key: &str| {
+        theme
+            .get(key)
+            .and_then(serde_json::Value::as_str)
+            .map(str::to_string)
+    };
+    Ok((field("revision"), field("license")))
 }
 
-pub(crate) fn license_label(license: &str) -> &str {
-    if license == NO_LICENSE {
-        "None found"
-    } else {
-        license
+fn unlisted_themes(definitions: &[ThemeDefinition], themes_dir: &Path) -> Result<Vec<String>> {
+    let listed: BTreeSet<&str> = definitions.iter().map(|d| d.name.as_str()).collect();
+    let mut problems = Vec::new();
+    for entry in fs::read_dir(themes_dir)? {
+        let path = entry?.path();
+        if path
+            .extension()
+            .is_some_and(|extension| extension == "json")
+        {
+            let name = path.file_stem().unwrap_or_default().to_string_lossy();
+            if !listed.contains(name.as_ref()) {
+                problems.push(format!(
+                    "{} has no entry in themes/themes.lua",
+                    path.display()
+                ));
+            }
+        }
     }
+    problems.sort();
+    Ok(problems)
 }
 
-pub(crate) fn render_notice(
-    themes: &[ResolvedTheme<'_>],
+fn orphaned_license_dirs(
     definitions: &[ThemeDefinition],
-    licenses: &ThemeLicenses,
-) -> String {
+    licenses_dir: &Path,
+) -> Result<Vec<String>> {
+    let expected: BTreeSet<PathBuf> = definitions
+        .iter()
+        .map(|definition| license_dir(licenses_dir, &definition.url))
+        .collect::<Result<_, _>>()?;
+    let mut found = BTreeSet::new();
+    collect_file_dirs(licenses_dir, &mut found)?;
+    Ok(found
+        .difference(&expected)
+        .map(|dir| format!("{} belongs to no theme", dir.display()))
+        .collect())
+}
+
+fn collect_file_dirs(dir: &Path, found: &mut BTreeSet<PathBuf>) -> Result<()> {
+    let entries = match fs::read_dir(dir) {
+        Ok(entries) => entries,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+        Err(error) => return Err(error.into()),
+    };
+    for entry in entries {
+        let entry = entry?;
+        if entry.file_type()?.is_dir() {
+            collect_file_dirs(&entry.path(), found)?;
+        } else {
+            found.insert(dir.to_path_buf());
+        }
+    }
+    Ok(())
+}
+
+fn license_files(dir: &Path) -> Result<Vec<String>> {
+    let mut files = Vec::new();
+    if let Ok(entries) = fs::read_dir(dir) {
+        for entry in entries {
+            let entry = entry?;
+            if entry.file_type()?.is_file() {
+                files.push(entry.file_name().to_string_lossy().into_owned());
+            }
+        }
+    }
+    files.sort();
+    Ok(files)
+}
+
+pub(crate) fn render_notice(themes: &[ResolvedTheme<'_>]) -> String {
     let mut lines = vec![
         "# Theme Notices".to_string(),
         String::new(),
-        "> This file is auto-generated by `mise run docs-gen-themes-md` from `themes/themes.lua`, `themes/licenses.toml` and the revision recorded in each theme. Do not edit.".to_string(),
+        "> This file is auto-generated by `mise run docs-gen-themes-md` from `themes/themes.lua` and the revision and license recorded in each theme. Do not edit.".to_string(),
         String::new(),
-        "Lumis themes are color values extracted from the Neovim colorscheme plugins below, at the commit listed for each theme. Each plugin keeps its own license, which is not the license of Lumis. Copyright lines are reproduced from each plugin's license file; follow the license link for the full terms.".to_string(),
+        "Lumis themes are color values extracted from the Neovim colorscheme plugins below, at the commit listed for each theme. Each plugin keeps its own license, which is not the license of Lumis. The license is detected from the plugin's license file during extraction; follow the license link for the full terms and copyright notice.".to_string(),
         String::new(),
         "## Themes".to_string(),
         String::new(),
-        "| Theme | Source | Commit | License | Copyright |".to_string(),
-        "|-------|--------|--------|---------|-----------|".to_string(),
+        "| Theme | Source | Commit | License |".to_string(),
+        "|-------|--------|--------|---------|".to_string(),
     ];
 
     for theme in themes {
         let revision = theme.revision.as_deref();
         lines.push(format!(
-            "| `{}` | {} | {} | {} | {} |",
+            "| `{}` | {} | {} | {} |",
             theme.name,
             repo_link(theme.url),
             revision.map_or_else(
@@ -149,63 +211,12 @@ pub(crate) fn render_notice(
                     theme.url
                 )
             ),
-            license_link(theme.url, revision.unwrap_or("HEAD"), theme.license),
-            copyright_cell(theme.license),
+            license_link(theme, revision.unwrap_or("HEAD")),
         ));
-    }
-
-    let dependencies = dependency_users(definitions);
-    if !dependencies.is_empty() {
-        lines.extend([
-            String::new(),
-            "## Extraction dependencies".to_string(),
-            String::new(),
-            "Some themes are loaded through another plugin during extraction. These plugins are not pinned, so their licenses link to the default branch.".to_string(),
-            String::new(),
-            "| Plugin | Used by | License | Copyright |".to_string(),
-            "|--------|---------|---------|-----------|".to_string(),
-        ]);
-        for (url, users) in &dependencies {
-            let license = &licenses.sources[*url];
-            let users: Vec<String> = users.iter().map(|name| format!("`{name}`")).collect();
-            lines.push(format!(
-                "| {} | {} | {} | {} |",
-                repo_link(url),
-                users.join(", "),
-                license_link(url, "HEAD", license),
-                copyright_cell(license),
-            ));
-        }
-    }
-
-    let notes: Vec<String> = licenses
-        .sources
-        .iter()
-        .filter_map(|(url, source)| {
-            let note = source.note.as_deref()?;
-            Some(format!("- {}: {note}", repo_link(url)))
-        })
-        .collect();
-    if !notes.is_empty() {
-        lines.extend([String::new(), "## Notes".to_string(), String::new()]);
-        lines.extend(notes);
     }
 
     lines.push(String::new());
     lines.join("\n")
-}
-
-fn dependency_users(definitions: &[ThemeDefinition]) -> BTreeMap<&str, BTreeSet<&str>> {
-    let mut users: BTreeMap<&str, BTreeSet<&str>> = BTreeMap::new();
-    for theme in definitions {
-        for dependency in &theme.dependencies {
-            users
-                .entry(dependency.as_str())
-                .or_default()
-                .insert(&theme.name);
-        }
-    }
-    users
 }
 
 fn repo_link(url: &str) -> String {
@@ -213,108 +224,81 @@ fn repo_link(url: &str) -> String {
     format!("[{name}]({url})")
 }
 
-fn license_link(url: &str, revision: &str, license: &SourceLicense) -> String {
-    let label = license_label(&license.license);
-    match &license.license_file {
-        Some(file) => format!("[{label}]({url}/blob/{revision}/{file})"),
-        None => label.to_string(),
+fn license_link(theme: &ResolvedTheme<'_>, revision: &str) -> String {
+    match theme.license_files.first() {
+        Some(file) => format!("[{}]({}/blob/{revision}/{file})", theme.license, theme.url),
+        None => theme.license.clone(),
     }
-}
-
-fn copyright_cell(license: &SourceLicense) -> String {
-    if license.license == NO_LICENSE {
-        return "No license file".to_string();
-    }
-    if license.copyright.is_empty() {
-        return "Not stated in the license file".to_string();
-    }
-    license
-        .copyright
-        .iter()
-        .map(|line| line.replace('|', "\\|"))
-        .collect::<Vec<_>>()
-        .join("<br>")
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use lumis_build::license::NO_ASSERTION;
 
-    fn theme(url: &str, dependencies: &[&str]) -> ThemeDefinition {
-        ThemeDefinition {
-            name: "theme".to_string(),
-            url: url.to_string(),
-            dependencies: dependencies.iter().map(ToString::to_string).collect(),
+    #[test]
+    fn accepts_a_permissive_license_its_files_hold() {
+        assert_eq!(check_license("t", Some("MIT"), "MIT"), None);
+        assert_eq!(
+            check_license("t", Some("Apache-2.0 AND MIT"), "Apache-2.0 AND MIT"),
+            None
+        );
+    }
+
+    #[test]
+    fn rejects_a_theme_without_a_license_field() {
+        assert!(check_license("t", None, "MIT")
+            .unwrap()
+            .contains("has no license"));
+    }
+
+    #[test]
+    fn rejects_a_license_its_files_do_not_hold() {
+        assert!(check_license("t", Some("MIT"), "Apache-2.0")
+            .unwrap()
+            .contains("records MIT, but its license files hold Apache-2.0"));
+    }
+
+    #[test]
+    fn rejects_copyleft_and_missing_licenses() {
+        for license in ["GPL-3.0", "LGPL-3.0", "MIT AND GPL-2.0"] {
+            assert!(check_license("t", Some(license), license)
+                .unwrap()
+                .contains("copyleft"));
+        }
+        assert!(check_license("t", Some(NO_LICENSE), NO_LICENSE)
+            .unwrap()
+            .contains("without a license"));
+        for license in [NO_ASSERTION, "MIT AND NOASSERTION"] {
+            assert!(check_license("t", Some(license), license)
+                .unwrap()
+                .contains("matches no known license"));
         }
     }
 
-    fn licenses(source: &str) -> ThemeLicenses {
-        toml::from_str(source).unwrap()
-    }
-
-    const MIT_A: &str = r#"
-        [sources."https://github.com/a/a"]
-        license = "MIT"
-        license_file = "LICENSE"
-    "#;
-
     #[test]
-    fn accepts_a_licensed_source() {
-        validate(&[theme("https://github.com/a/a", &[])], &licenses(MIT_A)).unwrap();
-    }
+    fn reports_license_dirs_and_theme_files_no_theme_uses() {
+        let root =
+            std::env::temp_dir().join(format!("lumis-theme-licenses-{}", std::process::id()));
+        let licenses = root.join("licenses");
+        fs::create_dir_all(licenses.join("a").join("a")).unwrap();
+        fs::create_dir_all(licenses.join("gone").join("gone")).unwrap();
+        fs::write(licenses.join("a").join("a").join("LICENSE"), "x").unwrap();
+        fs::write(licenses.join("gone").join("gone").join("LICENSE"), "x").unwrap();
+        fs::write(root.join("a.json"), "{}").unwrap();
+        fs::write(root.join("stray.json"), "{}").unwrap();
+        let definitions = [ThemeDefinition {
+            name: "a".to_string(),
+            url: "https://github.com/a/a".to_string(),
+        }];
 
-    #[test]
-    fn rejects_a_theme_without_an_entry() {
-        let err = validate(&[theme("https://github.com/b/b", &[])], &licenses(MIT_A)).unwrap_err();
-        assert!(err
-            .to_string()
-            .contains("no entry for: https://github.com/b/b"));
-    }
+        let orphans = orphaned_license_dirs(&definitions, &licenses).unwrap();
+        let unlisted = unlisted_themes(&definitions, &root).unwrap();
+        fs::remove_dir_all(&root).unwrap();
 
-    #[test]
-    fn rejects_a_dependency_without_an_entry() {
-        let themes = [theme(
-            "https://github.com/a/a",
-            &["https://github.com/dep/dep"],
-        )];
-        let err = validate(&themes, &licenses(MIT_A)).unwrap_err();
-        assert!(err
-            .to_string()
-            .contains("no entry for: https://github.com/dep/dep"));
-    }
-
-    #[test]
-    fn rejects_an_entry_no_theme_uses() {
-        let source = format!(
-            "{MIT_A}\n[sources.\"https://github.com/gone/gone\"]\nlicense = \"MIT\"\nlicense_file = \"LICENSE\"\n"
-        );
-        let err =
-            validate(&[theme("https://github.com/a/a", &[])], &licenses(&source)).unwrap_err();
-        assert!(err
-            .to_string()
-            .contains("no theme uses: https://github.com/gone/gone"));
-    }
-
-    #[test]
-    fn rejects_a_license_without_a_file() {
-        let source = "[sources.\"https://github.com/a/a\"]\nlicense = \"MIT\"\n";
-        let err = validate(&[theme("https://github.com/a/a", &[])], &licenses(source)).unwrap_err();
-        assert!(err.to_string().contains("https://github.com/a/a"));
-    }
-
-    #[test]
-    fn copyright_cell_tells_a_missing_license_from_a_missing_copyright_line() {
-        let sources = licenses(
-            "[sources.\"https://github.com/a/a\"]\nlicense = \"MIT\"\nlicense_file = \"LICENSE\"\n\
-             [sources.\"https://github.com/b/b\"]\nlicense = \"NONE\"\n",
-        );
-        assert_eq!(
-            copyright_cell(&sources.sources["https://github.com/a/a"]),
-            "Not stated in the license file"
-        );
-        assert_eq!(
-            copyright_cell(&sources.sources["https://github.com/b/b"]),
-            "No license file"
-        );
+        assert_eq!(orphans.len(), 1);
+        assert!(orphans[0].contains("gone"));
+        assert_eq!(unlisted.len(), 1);
+        assert!(unlisted[0].contains("stray.json"));
     }
 }

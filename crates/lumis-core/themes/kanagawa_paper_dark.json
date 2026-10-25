@@ -2,6 +2,7 @@
   "name": "kanagawa_paper_dark",
   "appearance": "dark",
   "revision": "ecf19801a2673054c19421d82b766f7641688320",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#c4b28a"

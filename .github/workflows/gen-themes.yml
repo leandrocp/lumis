@@ -65,6 +65,7 @@ jobs:
               crates/lumis/css \
               packages/elixir/lumis/priv/static/css \
               packages/javascript/themes/themes \
+              ':!themes/licenses' \
               | awk '{ name = $0; sub(/^.*\//, "", name); sub(/\.(json|css|ts)$/, "", name); print name }' \
               | sort -u)
 
@@ -84,6 +85,8 @@ jobs:
           token: ${{ secrets.CI_TOKEN }}
           add-paths: |
             themes
+            THEMES.md
+            docs/content/reference/themes.md
             css
             crates/lumis-core/themes
             crates/lumis/css

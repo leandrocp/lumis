@@ -988,6 +988,48 @@ fn is_revision_only_theme_update(previous: &Value, current: &Value) -> bool {
     previous != current && without_revision(previous.clone()) == without_revision(current.clone())
 }
 
+fn write_theme_license(
+    detector: &lumis_build::license::LicenseDetector,
+    path: &Path,
+    url: &str,
+) -> Result<String> {
+    let license = theme_licenses::detect(detector, Path::new(theme_licenses::LICENSES_DIR), url)?;
+    let extracted = fs::read_to_string(path)
+        .with_context(|| format!("failed to read generated theme {}", path.display()))?;
+    let annotated = lumis_build::license::set_theme_license(&extracted, &license)
+        .with_context(|| format!("invalid generated theme JSON: {}", path.display()))?;
+    fs::write(path, &annotated)?;
+    Ok(annotated)
+}
+
+fn restore_revision_only_update(path: &Path, current_source: &str) -> Result<()> {
+    let previous = Command::new("git")
+        .args(["show", &format!("HEAD:{}", path.display())])
+        .output()
+        .with_context(|| format!("failed to read the previous version of {}", path.display()))?;
+
+    // A new theme has no version at HEAD and should always be kept.
+    if !previous.status.success() {
+        return Ok(());
+    }
+
+    let previous_source = String::from_utf8(previous.stdout)
+        .with_context(|| format!("previous theme is not UTF-8: {}", path.display()))?;
+    let previous_theme: Value = serde_json::from_str(&previous_source)
+        .with_context(|| format!("invalid previous theme JSON: {}", path.display()))?;
+    let current_theme: Value = serde_json::from_str(current_source)
+        .with_context(|| format!("invalid generated theme JSON: {}", path.display()))?;
+
+    if is_revision_only_theme_update(&previous_theme, &current_theme) {
+        fs::write(path, previous_source)?;
+        println!(
+            "Ignored revision-only theme update: {}",
+            path.file_stem().unwrap_or_default().to_string_lossy()
+        );
+    }
+    Ok(())
+}
+
 fn filter_theme_updates(name: &str) -> Result<()> {
     let mut theme_paths = if name.is_empty() {
         glob::glob("themes/*.json")?.collect::<Result<Vec<_>, _>>()?
@@ -996,39 +1038,24 @@ fn filter_theme_updates(name: &str) -> Result<()> {
     };
     theme_paths.sort();
 
+    let urls: BTreeMap<String, String> = parse_themes_lua()?
+        .into_iter()
+        .map(|theme| (theme.name, theme.url))
+        .collect();
+    let detector = lumis_build::license::LicenseDetector::new()
+        .context("failed to load the SPDX license list")?;
+
     for path in theme_paths {
         if !path.exists() {
             continue;
         }
 
-        let previous = Command::new("git")
-            .args(["show", &format!("HEAD:{}", path.display())])
-            .output()
-            .with_context(|| {
-                format!("failed to read the previous version of {}", path.display())
-            })?;
-
-        // A new theme has no version at HEAD and should always be kept.
-        if !previous.status.success() {
-            continue;
-        }
-
-        let previous_source = String::from_utf8(previous.stdout)
-            .with_context(|| format!("previous theme is not UTF-8: {}", path.display()))?;
-        let current_source = fs::read_to_string(&path)
-            .with_context(|| format!("failed to read generated theme {}", path.display()))?;
-        let previous_theme: Value = serde_json::from_str(&previous_source)
-            .with_context(|| format!("invalid previous theme JSON: {}", path.display()))?;
-        let current_theme: Value = serde_json::from_str(&current_source)
-            .with_context(|| format!("invalid generated theme JSON: {}", path.display()))?;
-
-        if is_revision_only_theme_update(&previous_theme, &current_theme) {
-            fs::write(&path, previous_source)?;
-            println!(
-                "Ignored revision-only theme update: {}",
-                path.file_stem().unwrap().to_string_lossy()
-            );
-        }
+        let theme_name = path.file_stem().unwrap_or_default().to_string_lossy();
+        let url = urls
+            .get(theme_name.as_ref())
+            .with_context(|| format!("{} has no entry in themes/themes.lua", path.display()))?;
+        let current_source = write_theme_license(&detector, &path, url)?;
+        restore_revision_only_update(&path, &current_source)?;
     }
 
     Ok(())
@@ -1090,7 +1117,6 @@ fn sync_css() -> Result<()> {
 struct ThemeDefinition {
     name: String,
     url: String,
-    dependencies: Vec<String>,
 }
 
 /// Extract theme definitions from themes/themes.lua using `full_moon` AST parsing.
@@ -1122,7 +1148,6 @@ fn parse_themes_lua() -> Result<Vec<ThemeDefinition>> {
 
         let mut name = None;
         let mut url = None;
-        let mut dependencies = Vec::new();
 
         for inner_field in inner.fields() {
             let Field::NameKey { key, value, .. } = inner_field else {
@@ -1132,26 +1157,12 @@ fn parse_themes_lua() -> Result<Vec<ThemeDefinition>> {
             match (key.token().to_string().as_str(), &**value) {
                 ("name", value) => name = lua_string_literal(value),
                 ("url", value) => url = lua_string_literal(value),
-                ("dependencies", Expression::TableConstructor(deps)) => {
-                    dependencies = deps
-                        .fields()
-                        .iter()
-                        .filter_map(|dep| match dep {
-                            Field::NoKey(value) => lua_string_literal(value),
-                            _ => None,
-                        })
-                        .collect();
-                }
                 _ => {}
             }
         }
 
         if let (Some(name), Some(url)) = (name, url) {
-            entries.push(ThemeDefinition {
-                name,
-                url,
-                dependencies,
-            });
+            entries.push(ThemeDefinition { name, url });
         }
     }
 
@@ -1183,9 +1194,17 @@ fn list_themes() -> Result<()> {
 fn gen_themes_md(check: bool) -> Result<()> {
     let mut entries = parse_themes_lua()?;
     entries.sort_by(|a, b| a.name.cmp(&b.name));
+    ensure!(
+        entries.len() > 200,
+        "themes/themes.lua lists only {} themes; parsing it likely failed",
+        entries.len()
+    );
 
-    let licenses = theme_licenses::read("themes/licenses.toml")?;
-    let themes = theme_licenses::resolve(&entries, &licenses, Path::new("themes"))?;
+    let themes = theme_licenses::resolve(
+        &entries,
+        Path::new("themes"),
+        Path::new(theme_licenses::LICENSES_DIR),
+    )?;
 
     let mut table_lines = vec![
         "| Theme | Repository | License |".to_string(),
@@ -1199,9 +1218,7 @@ fn gen_themes_md(check: bool) -> Result<()> {
             .unwrap_or(theme.url);
         table_lines.push(format!(
             "| `{}` | [{repo_name}]({}) | {} |",
-            theme.name,
-            theme.url,
-            theme_licenses::license_label(&theme.license.license)
+            theme.name, theme.url, theme.license
         ));
     }
 
@@ -1210,7 +1227,7 @@ fn gen_themes_md(check: bool) -> Result<()> {
         String::new(),
         "> This file is auto-generated by `mise run docs-gen-themes-md`. Do not edit.".to_string(),
         String::new(),
-        "Each theme keeps the license of the plugin it was extracted from. See [`themes/NOTICE.md`](themes/NOTICE.md) for the pinned commits and copyright notices.".to_string(),
+        "Each theme keeps the license of the plugin it was extracted from. See [`themes/NOTICE.md`](themes/NOTICE.md) for the pinned commits and license files.".to_string(),
         String::new(),
     ];
     themes_md.extend(table_lines.clone());
@@ -1242,13 +1259,13 @@ fn gen_themes_md(check: bool) -> Result<()> {
         "For usage examples, see [Themes](/themes) and [CSS Theme Files](/themes/css-files)."
             .to_string(),
         String::new(),
-        "Each theme keeps the license of the plugin it was extracted from. [`themes/NOTICE.md`](https://github.com/leandrocp/lumis/blob/main/themes/NOTICE.md) lists the pinned commit, license and copyright notice for every theme.".to_string(),
+        "Each theme keeps the license of the plugin it was extracted from. [`themes/NOTICE.md`](https://github.com/leandrocp/lumis/blob/main/themes/NOTICE.md) lists the pinned commit and license file of every theme.".to_string(),
         String::new(),
     ];
     docs_md.extend(table_lines);
     docs_md.push(String::new());
 
-    let notice = theme_licenses::render_notice(&themes, &entries, &licenses);
+    let notice = theme_licenses::render_notice(&themes);
 
     let outputs = [
         ("THEMES.md", themes_md.join("\n")),

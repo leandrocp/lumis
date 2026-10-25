@@ -2,6 +2,7 @@
   "name": "tokyonight_day",
   "appearance": "light",
   "revision": "cdc07ac78467a233fd62c493de29a17e0cf2b2b6",
+  "license": "Apache-2.0",
   "highlights": {
     "attribute": {
       "fg": "#007197"

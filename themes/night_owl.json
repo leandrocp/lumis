@@ -2,6 +2,7 @@
   "name": "night_owl",
   "appearance": "dark",
   "revision": "86ed124c2f7e118670649701288e024444bf91e5",
+  "license": "BSD-3-Clause",
   "highlights": {
     "attribute": {
       "fg": "#ff2c83"

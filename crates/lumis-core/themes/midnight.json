@@ -2,6 +2,7 @@
   "name": "midnight",
   "appearance": "dark",
   "revision": "fe062a6f2e5bd77cd8a260f61e6e12789eaf4f13",
+  "license": "Apache-2.0",
   "highlights": {
     "attribute": {
       "fg": "#ff7279"

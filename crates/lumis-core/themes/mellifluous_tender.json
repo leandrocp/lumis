@@ -2,6 +2,7 @@
   "name": "mellifluous_tender",
   "appearance": "dark",
   "revision": "ec0575bdb63594c5e7fba6eb9607b009aa1fb74e",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#73cef4"

@@ -892,7 +892,7 @@ mise run docs-gen-languages-md
 '''
 
 [tasks.'docs-gen-themes-md']
-description = "Generate THEMES.md and themes/NOTICE.md from themes definition and licenses"
+description = "Generate THEMES.md and themes/NOTICE.md from themes definition and the license recorded in each theme"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -900,7 +900,7 @@ cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- gen-the
 '''
 
 [tasks.'themes-check-notices']
-description = "Verify every theme source has a license entry and THEMES.md and themes/NOTICE.md are current"
+description = "Verify every theme license against its license files and that THEMES.md and themes/NOTICE.md are current"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -1208,6 +1208,7 @@ if [ -z "${usage_theme_name:-}" ]; then
     read -p "Do you want to proceed? (y/N) " reply
     [[ "$reply" =~ ^[Yy]$ ]] || { echo "Operation cancelled."; exit 0; }
     find themes -type f -name '*.json' -delete
+    rm -rf themes/licenses
     for name in $(cargo run --manifest-path crates/dev/Cargo.toml -- list-themes); do
         printf '\nGenerating %s...\n' "$name"
         nvim --clean --headless -V3 -u themes/init.lua -l themes/extract_theme.lua "$name"

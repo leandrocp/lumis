@@ -2,6 +2,7 @@
   "name": "monokai_pro_machine",
   "appearance": "dark",
   "revision": "a68e38b8e55d69a215d0f02598900a79c356da9d",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#a9dc76"

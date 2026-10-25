@@ -2,6 +2,7 @@
   "name": "monokai_nightasty_dark",
   "appearance": "dark",
   "revision": "5731bc3c01e6c94a709021e5ee31070840e47584",
+  "license": "Apache-2.0",
   "highlights": {
     "attribute": {
       "fg": "#fc1a70"

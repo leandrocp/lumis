@@ -2,6 +2,7 @@
   "name": "onenord_light",
   "appearance": "light",
   "revision": "5240bfb79bcab7e03508626c5283cfc417b79169",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#9f4aca"

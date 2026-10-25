@@ -2,6 +2,7 @@
   "name": "everforest_dark",
   "appearance": "dark",
   "revision": "a0e9edc57379e8feafc6ba207c26dbb12fc1b6d8",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#d699b6"

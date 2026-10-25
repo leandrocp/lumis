@@ -2,6 +2,7 @@
   "name": "onenord_dark",
   "appearance": "dark",
   "revision": "5240bfb79bcab7e03508626c5283cfc417b79169",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#b988b0"

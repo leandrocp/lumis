@@ -1387,7 +1387,7 @@ fn themes_generate_prints_json_to_stdout() {
     fs::create_dir_all(&capture_dir).unwrap();
     install_fake_nvim(&bin_dir);
 
-    cmd()
+    let output = cmd()
         .env("PATH", fake_nvim_path(&bin_dir))
         .env("LUMIS_FAKE_NVIM_CAPTURE_DIR", &capture_dir)
         .args([
@@ -1400,7 +1400,12 @@ fn themes_generate_prints_json_to_stdout() {
         ])
         .assert()
         .success()
-        .stdout(predicate::str::contains(r#""name":"tokyonight-night""#));
+        .get_output()
+        .stdout
+        .clone();
+    let generated: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(generated["name"], "tokyonight-night");
+    assert_eq!(generated["license"], "NONE");
 
     assert!(capture_dir.join("extract_theme.lua").exists());
     assert!(capture_dir.join("init.lua").exists());
@@ -1448,8 +1453,9 @@ fn themes_generate_supports_output_setup_and_appearance_options() {
         .success()
         .stderr(predicate::str::contains("Theme saved to"));
 
-    let generated = fs::read_to_string(&output_path).unwrap();
-    assert!(generated.contains(r#""appearance":"light""#));
+    let generated: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(&output_path).unwrap()).unwrap();
+    assert_eq!(generated["appearance"], "light");
 
     let themes_lua = fs::read_to_string(capture_dir.join("themes.lua")).unwrap();
     assert!(themes_lua.contains("vim.o.background = \"light\""));

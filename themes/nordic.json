@@ -2,6 +2,7 @@
   "name": "nordic",
   "appearance": "dark",
   "revision": "9fb62116b891184049c50ca6ffb0d3bc100a1a6e",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#bf616a"

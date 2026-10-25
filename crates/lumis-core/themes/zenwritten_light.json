@@ -2,6 +2,7 @@
   "name": "zenwritten_light",
   "appearance": "light",
   "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#353535",

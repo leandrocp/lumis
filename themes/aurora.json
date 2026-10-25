@@ -2,6 +2,7 @@
   "name": "aurora",
   "appearance": "dark",
   "revision": "c3879c696ba7298e35b01ec612aa32523b152778",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#7fdbca"

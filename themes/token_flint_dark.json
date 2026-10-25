@@ -2,6 +2,7 @@
   "name": "token_flint_dark",
   "appearance": "dark",
   "revision": "3454326ab2c1a025e157e559ef8c6e3e2be01ef2",
+  "license": "BSD-3-Clause",
   "highlights": {
     "attribute": {
       "fg": "#a2a9af"

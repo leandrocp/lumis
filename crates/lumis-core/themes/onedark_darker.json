@@ -2,6 +2,7 @@
   "name": "onedark_darker",
   "appearance": "dark",
   "revision": "df4792accde9db0043121f32628bcf8e645d9aea",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#48b0bd"

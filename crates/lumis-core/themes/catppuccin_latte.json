@@ -2,6 +2,7 @@
   "name": "catppuccin_latte",
   "appearance": "light",
   "revision": "edefef779ab08ce1a4a404713e3012b0d202bd35",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#fe640b"

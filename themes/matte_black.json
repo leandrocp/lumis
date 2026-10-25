@@ -2,6 +2,7 @@
   "name": "matte_black",
   "appearance": "dark",
   "revision": "a8a039f5d6189b28d76fa0221e64965efec7e996",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#d97706",

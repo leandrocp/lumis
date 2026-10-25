@@ -2,6 +2,7 @@
   "name": "molokai",
   "appearance": "dark",
   "revision": "720bacc534fa3b1566d75612986737088a4fb132",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#f92672"

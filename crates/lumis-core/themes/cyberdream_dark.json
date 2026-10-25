@@ -2,6 +2,7 @@
   "name": "cyberdream_dark",
   "appearance": "dark",
   "revision": "39e1fda12c0704e01029b286a4c7e77e33a0c5cd",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#5ef1ff"
