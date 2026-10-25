@@ -15,7 +15,7 @@ The [interactive showcase](https://lumis.sh/showcase/) runs each example in the 
 - **Template languages:** highlight both halves of ERB, EEx, HEEx, Vue, and Svelte templates.
 - **Highlighted lines:** mark ranges with custom CSS or a theme colour.
 - **Rainbow brackets:** colour bracket pairs by syntax-aware nesting depth.
-- **250+ Neovim themes:** use themes generated from their original colorschemes.
+- **200+ Neovim themes:** use themes generated from their original colorschemes.
 - **Linked CSS:** emit scope class names instead of inline styles.
 - **Custom headers:** wrap highlighted output with file names, toolbars, or copy buttons.
 - **Custom formatters:** consume the token stream and return any output format.

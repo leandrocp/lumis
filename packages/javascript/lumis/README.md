@@ -7,7 +7,7 @@ JavaScript / TypeScript package for [Lumis](https://lumis.sh). Works in Node.js,
 ## Features
 
 - **110+ Tree-sitter languages** - Fast, accurate, and updated syntax parsing
-- **250+ built-in Neovim themes** - Updated and curated themes from the Neovim community
+- **200+ built-in Neovim themes** - Updated and curated themes from the Neovim community
 - **Built-in formatters** - HTML (inline/linked), Terminal (ANSI), Multi-theme (light/dark), BBCode
 - **Custom formatters** - Build your own output
 - **Language auto-detection** - File extension, shebang, and emacs-mode support

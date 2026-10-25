@@ -232,7 +232,7 @@ defmodule Lumis.ApiParityTest do
     end
 
     test "closest_theme" do
-      assert %Lumis.Theme{name: "modus_vivendi"} = Lumis.Theme.closest(%{background: "#000000"})
+      assert %Lumis.Theme{name: "oldworld_oled"} = Lumis.Theme.closest(%{background: "#000000"})
       assert Lumis.Theme.closest(%{}) == nil
     end
 

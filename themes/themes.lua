@@ -6,31 +6,6 @@
 -- - config: Function to set up and activate the theme (required)
 -- - dependencies: Optional array of dependency URLs
 
-local function load_material(colorscheme)
-	require("material").setup({ async_loading = false })
-
-	local original_set_hl = vim.api.nvim_set_hl
-	vim.api.nvim_set_hl = function(namespace_id, name, value)
-		local link = type(value) == "table" and value.link or nil
-
-		-- material.nvim defines a lowercase "exception" legacy alias.
-		-- Highlight names are case-insensitive, so applying that self-link
-		-- clears the concrete Exception style depending on iteration order.
-		if type(link) == "string" and string.lower(name) == string.lower(link) then
-			return
-		end
-
-		return original_set_hl(namespace_id, name, value)
-	end
-
-	local success, err = pcall(vim.cmd.colorscheme, colorscheme)
-	vim.api.nvim_set_hl = original_set_hl
-
-	if not success then
-		error(err)
-	end
-end
-
 return {
 	{
 		url = "https://github.com/folke/lazy.nvim",
@@ -46,30 +21,6 @@ return {
 		config = function()
 			vim.o.background = "light"
 			vim.cmd([[colorscheme default]])
-		end,
-	},
-	{
-		url = "https://github.com/Shatur/neovim-ayu",
-		name = "ayu_dark",
-		config = function()
-			vim.o.background = "dark"
-			vim.cmd([[colorscheme ayu-dark]])
-		end,
-	},
-	{
-		url = "https://github.com/Shatur/neovim-ayu",
-		name = "ayu_light",
-		config = function()
-			vim.o.background = "light"
-			vim.cmd([[colorscheme ayu-light]])
-		end,
-	},
-	{
-		url = "https://github.com/Shatur/neovim-ayu",
-		name = "ayu_mirage",
-		config = function()
-			vim.o.background = "dark"
-			vim.cmd([[colorscheme ayu-mirage]])
 		end,
 	},
 	{
@@ -452,59 +403,6 @@ return {
 		end,
 	},
 	{
-		url = "https://github.com/marko-cerovac/material.nvim",
-		name = "material_darker",
-		config = function()
-			vim.o.background = "dark"
-			vim.g.material_style = "darker"
-			load_material("material-darker")
-		end,
-	},
-	{
-		url = "https://github.com/marko-cerovac/material.nvim",
-		name = "material_lighter",
-		config = function()
-			vim.o.background = "light"
-			vim.g.material_style = "lighter"
-			load_material("material-lighter")
-		end,
-	},
-	{
-		url = "https://github.com/marko-cerovac/material.nvim",
-		name = "material_oceanic",
-		config = function()
-			vim.o.background = "dark"
-			vim.g.material_style = "oceanic"
-			load_material("material-oceanic")
-		end,
-	},
-	{
-		url = "https://github.com/marko-cerovac/material.nvim",
-		name = "material_palenight",
-		config = function()
-			vim.o.background = "dark"
-			vim.g.material_style = "palenight"
-			load_material("material-palenight")
-		end,
-	},
-	{
-		url = "https://github.com/marko-cerovac/material.nvim",
-		name = "material_deep_ocean",
-		config = function()
-			vim.o.background = "dark"
-			vim.g.material_style = "deep ocean"
-			load_material("material-deep-ocean")
-		end,
-	},
-	{
-		url = "https://github.com/shaunsingh/nord.nvim",
-		name = "nord",
-		config = function()
-			vim.o.background = "dark"
-			vim.cmd([[colorscheme nord]])
-		end,
-	},
-	{
 		url = "https://github.com/navarasu/onedark.nvim",
 		name = "onedark_darker",
 		config = function()
@@ -725,22 +623,6 @@ return {
 		end,
 	},
 	{
-		url = "https://github.com/miikanissi/modus-themes.nvim",
-		name = "modus_operandi",
-		config = function()
-			vim.o.background = "light"
-			vim.cmd([[colorscheme modus_operandi]])
-		end,
-	},
-	{
-		url = "https://github.com/miikanissi/modus-themes.nvim",
-		name = "modus_vivendi",
-		config = function()
-			vim.o.background = "dark"
-			vim.cmd([[colorscheme modus_vivendi]])
-		end,
-	},
-	{
 		url = "https://github.com/glepnir/zephyr-nvim",
 		name = "zephyr_dark",
 		config = function()
@@ -883,34 +765,6 @@ return {
 		end,
 	},
 	{
-		url = "https://github.com/uloco/bluloco.nvim",
-		name = "bluloco_dark",
-		config = function()
-			vim.o.background = "dark"
-			require("bluloco").setup({ style = "dark" })
-			vim.cmd([[colorscheme bluloco-dark]])
-		end,
-		dependencies = { "https://github.com/rktjmp/lush.nvim" },
-	},
-	{
-		url = "https://github.com/uloco/bluloco.nvim",
-		name = "bluloco_light",
-		config = function()
-			vim.o.background = "light"
-			require("bluloco").setup({ style = "light" })
-			vim.cmd([[colorscheme bluloco-light]])
-		end,
-		dependencies = { "https://github.com/rktjmp/lush.nvim" },
-	},
-	{
-		url = "https://github.com/martinsione/darkplus.nvim",
-		name = "darkplus",
-		config = function()
-			vim.o.background = "dark"
-			vim.cmd([[colorscheme darkplus]])
-		end,
-	},
-	{
 		url = "https://github.com/kepano/flexoki-neovim",
 		name = "flexoki_dark",
 		config = function()
@@ -972,14 +826,6 @@ return {
 		config = function()
 			vim.o.background = "dark"
 			require("zenburn").setup()
-		end,
-	},
-	{
-		url = "https://github.com/shaunsingh/moonlight.nvim",
-		name = "moonlight",
-		config = function()
-			vim.o.background = "dark"
-			vim.cmd([[colorscheme moonlight]])
 		end,
 	},
 	{
@@ -1160,15 +1006,6 @@ return {
 		config = function()
 			vim.o.background = "light"
 			vim.cmd([[colorscheme solarized-osaka]])
-		end,
-	},
-	{
-		url = "https://github.com/olivercederborg/poimandres.nvim",
-		name = "poimandres",
-		config = function()
-			vim.o.background = "dark"
-			require("poimandres").setup()
-			vim.cmd([[colorscheme poimandres]])
 		end,
 	},
 	{
@@ -1852,46 +1689,6 @@ return {
 		end,
 	},
 	{
-		url = "https://github.com/AstroNvim/astrotheme",
-		name = "astrodark",
-		config = function()
-			vim.o.background = "dark"
-			local astrotheme = require("astrotheme")
-			astrotheme.setup({ palette = "astrodark" })
-			astrotheme.load("astrodark")
-		end,
-	},
-	{
-		url = "https://github.com/AstroNvim/astrotheme",
-		name = "astrolight",
-		config = function()
-			vim.o.background = "light"
-			local astrotheme = require("astrotheme")
-			astrotheme.setup({ palette = "astrolight" })
-			astrotheme.load("astrolight")
-		end,
-	},
-	{
-		url = "https://github.com/AstroNvim/astrotheme",
-		name = "astromars",
-		config = function()
-			vim.o.background = "dark"
-			local astrotheme = require("astrotheme")
-			astrotheme.setup({ palette = "astromars" })
-			astrotheme.load("astromars")
-		end,
-	},
-	{
-		url = "https://github.com/AstroNvim/astrotheme",
-		name = "astrojupiter",
-		config = function()
-			vim.o.background = "light"
-			local astrotheme = require("astrotheme")
-			astrotheme.setup({ palette = "astrojupiter" })
-			astrotheme.load("astrojupiter")
-		end,
-	},
-	{
 		url = "https://github.com/diegoulloao/neofusion.nvim",
 		name = "neofusion",
 		config = function()
@@ -1931,42 +1728,6 @@ return {
 		config = function()
 			vim.o.background = "light"
 			vim.cmd([[colorscheme monokai-nightasty]])
-		end,
-	},
-	{
-		url = "https://github.com/rafamadriz/neon",
-		name = "neon_default",
-		config = function()
-			vim.o.background = "dark"
-			vim.g.neon_style = "default"
-			vim.cmd([[colorscheme neon]])
-		end,
-	},
-	{
-		url = "https://github.com/rafamadriz/neon",
-		name = "neon_doom",
-		config = function()
-			vim.o.background = "dark"
-			vim.g.neon_style = "doom"
-			vim.cmd([[colorscheme neon]])
-		end,
-	},
-	{
-		url = "https://github.com/rafamadriz/neon",
-		name = "neon_dark",
-		config = function()
-			vim.o.background = "dark"
-			vim.g.neon_style = "dark"
-			vim.cmd([[colorscheme neon]])
-		end,
-	},
-	{
-		url = "https://github.com/rafamadriz/neon",
-		name = "neon_light",
-		config = function()
-			vim.o.background = "light"
-			vim.g.neon_style = "light"
-			vim.cmd([[colorscheme neon]])
 		end,
 	},
 	{
@@ -2040,14 +1801,6 @@ return {
 		end,
 	},
 	{
-		url = "https://github.com/yorumicolors/yorumi.nvim",
-		name = "yorumi",
-		config = function()
-			vim.o.background = "dark"
-			vim.cmd([[colorscheme yorumi]])
-		end,
-	},
-	{
 		url = "https://github.com/ray-x/aurora",
 		name = "aurora",
 		config = function()
@@ -2084,14 +1837,6 @@ return {
 				},
 			})
 			require("synthweave").load()
-		end,
-	},
-	{
-		url = "https://github.com/aktersnurra/no-clown-fiesta.nvim",
-		name = "no_clown_fiesta",
-		config = function()
-			vim.o.background = "dark"
-			vim.cmd([[colorscheme no-clown-fiesta]])
 		end,
 	},
 	{
@@ -2132,14 +1877,6 @@ return {
 		config = function()
 			vim.o.background = "dark"
 			vim.cmd([[colorscheme vesper]])
-		end,
-	},
-	{
-		url = "https://github.com/tiagovla/tokyodark.nvim",
-		name = "tokyodark",
-		config = function()
-			vim.o.background = "dark"
-			vim.cmd([[colorscheme tokyodark]])
 		end,
 	},
 	{

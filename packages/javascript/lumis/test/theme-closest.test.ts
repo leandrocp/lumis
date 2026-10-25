@@ -34,12 +34,12 @@ describe("closest", () => {
 
   it("returns a full theme without sharing mutable catalog state", () => {
     const first = closest({ background: "#000000" });
-    expect(first?.name).toBe("modus_vivendi");
+    expect(first?.name).toBe("oldworld_oled");
     expect(Object.keys(first?.highlights ?? {}).length).toBeGreaterThan(10);
     if (!first) throw new Error("missing expected theme");
     first.name = "changed";
     first.highlights.normal = { fg: "#000000" };
-    expect(closest({ background: "#000000" })?.name).toBe("modus_vivendi");
+    expect(closest({ background: "#000000" })?.name).toBe("oldworld_oled");
     expect(closest({ background: "#000000" })?.highlights.normal?.fg).not.toBe("#000000");
   });
 

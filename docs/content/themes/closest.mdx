@@ -16,7 +16,7 @@ when no suitable match exists.
 import * as themes from '@lumis-sh/lumis/themes';
 
 const theme = themes.closest({ background: '#000000' });
-console.log(theme?.name); // modus_vivendi
+console.log(theme?.name); // oldworld_oled
 ```
 
 This synchronous API works in Node and browsers. The `/themes` entry point
@@ -32,7 +32,7 @@ use lumis::themes::{self, TerminalColors};
 let mut colors = TerminalColors::default();
 colors.background = Some((0, 0, 0));
 let theme = themes::closest(&colors);
-assert_eq!(theme.map(|theme| theme.name.as_str()), Some("modus_vivendi"));
+assert_eq!(theme.map(|theme| theme.name.as_str()), Some("oldworld_oled"));
 ```
 
   </Tab>
@@ -40,7 +40,7 @@ assert_eq!(theme.map(|theme| theme.name.as_str()), Some("modus_vivendi"));
 
 ```elixir
 theme = Lumis.Theme.closest(%{background: "#000000"})
-theme.name #=> "modus_vivendi"
+theme.name #=> "oldworld_oled"
 ```
 
   </Tab>

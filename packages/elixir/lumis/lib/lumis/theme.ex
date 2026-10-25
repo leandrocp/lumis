@@ -177,7 +177,7 @@ defmodule Lumis.Theme do
   invalid colors or an ANSI palette other than 16 entries.
 
       Lumis.Theme.closest(%{background: "#000000"}).name
-      #=> "modus_vivendi"
+      #=> "oldworld_oled"
   """
   @spec closest(%{
           optional(:background) => String.t() | nil,
