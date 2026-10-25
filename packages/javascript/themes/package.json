@@ -44,7 +44,7 @@
   "packageManager": "pnpm@11.15.1",
   "scripts": {
     "build:themes": "tsx scripts/build-themes.ts --step=ts",
-    "build:assets": "tsx scripts/build-themes.ts --step=json && mkdir -p dist/css && cp ../../../css/*.css dist/css/ && cp ../../../themes/NOTICE.md dist/NOTICE.md",
+    "build:assets": "tsx scripts/build-themes.ts --step=json && mkdir -p dist/css && cp ../../../css/*.css dist/css/ && cp ../../../themes/NOTICE.md dist/NOTICE.md && rm -rf dist/licenses && cp -R ../../../themes/licenses dist/licenses",
     "build": "pnpm run build:themes && tsup && pnpm run build:assets",
     "lint": "oxlint -c ../../../.oxlintrc.json --type-aware --deny-warnings --report-unused-disable-directives --ignore-pattern 'examples/**' .",
     "prepack": "pnpm run build"

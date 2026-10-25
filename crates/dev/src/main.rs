@@ -1266,37 +1266,78 @@ fn gen_themes_md(check: bool) -> Result<()> {
     docs_md.push(String::new());
 
     let notice = theme_licenses::render_notice(&themes);
+    let bundle = theme_licenses::notice_bundle(&notice, Path::new(theme_licenses::LICENSES_DIR))?;
 
-    let outputs = [
-        ("THEMES.md", themes_md.join("\n")),
-        ("docs/content/reference/themes.md", docs_md.join("\n")),
-        ("themes/NOTICE.md", notice.clone()),
-        ("crates/lumis-core/themes/NOTICE.md", notice),
+    let mut outputs: Vec<(PathBuf, Vec<u8>)> = vec![
+        ("THEMES.md".into(), themes_md.join("\n").into_bytes()),
+        (
+            "docs/content/reference/themes.md".into(),
+            docs_md.join("\n").into_bytes(),
+        ),
+        ("themes/NOTICE.md".into(), notice.into_bytes()),
     ];
+    for copy in theme_licenses::NOTICE_COPIES {
+        for (path, content) in &bundle {
+            outputs.push((Path::new(copy).join(path), content.clone()));
+        }
+    }
 
     if check {
-        let stale: Vec<&str> = outputs
-            .iter()
-            .filter(|(path, content)| fs::read_to_string(path).ok().as_deref() != Some(content))
-            .map(|(path, _)| *path)
-            .collect();
-        ensure!(
-            stale.is_empty(),
-            "stale theme listings: {}; run `mise run docs-gen-themes-md`",
-            stale.join(", ")
-        );
+        check_theme_outputs(&outputs, &bundle)?;
         println!(
             "Verified theme listings and notices for {} themes",
             themes.len()
         );
     } else {
-        for (path, content) in &outputs {
-            fs::write(path, content)?;
-        }
+        write_theme_outputs(&outputs)?;
         println!(
-            "Generated THEMES.md and themes/NOTICE.md with {} themes",
-            themes.len()
+            "Generated THEMES.md and themes/NOTICE.md with {} themes, and copied the notice and license files to {}",
+            themes.len(),
+            theme_licenses::NOTICE_COPIES.join(", ")
         );
+    }
+    Ok(())
+}
+
+fn check_theme_outputs(
+    outputs: &[(PathBuf, Vec<u8>)],
+    bundle: &[(PathBuf, Vec<u8>)],
+) -> Result<()> {
+    let mut stale: Vec<PathBuf> = outputs
+        .iter()
+        .filter(|(path, content)| fs::read(path).ok().as_deref() != Some(content.as_slice()))
+        .map(|(path, _)| path.clone())
+        .collect();
+    for copy in theme_licenses::NOTICE_COPIES {
+        stale.extend(theme_licenses::extra_license_files(
+            Path::new(copy),
+            bundle,
+        )?);
+    }
+    let stale: Vec<String> = stale
+        .iter()
+        .map(|path| path.display().to_string())
+        .collect();
+    ensure!(
+        stale.is_empty(),
+        "stale theme listings: {}; run `mise run docs-gen-themes-md`",
+        stale.join(", ")
+    );
+    Ok(())
+}
+
+fn write_theme_outputs(outputs: &[(PathBuf, Vec<u8>)]) -> Result<()> {
+    for copy in theme_licenses::NOTICE_COPIES {
+        let licenses = Path::new(copy).join("licenses");
+        if licenses.exists() {
+            fs::remove_dir_all(&licenses)?;
+        }
+    }
+    for (path, content) in outputs {
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+        fs::write(path, content)?;
     }
     Ok(())
 }
