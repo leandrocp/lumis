@@ -2,13 +2,15 @@ defmodule Lumis.Theme do
   @moduledoc """
   A Neovim theme.
 
-  Contains the name, appearance, and a map of highlight `Lumis.Theme.Style`'s.
+  Contains the name, appearance, the SPDX license of the plugin it was extracted
+  from, and a map of highlight `Lumis.Theme.Style`'s. `license` is `"NOASSERTION"`
+  when it is not known.
 
   Lumis bundles the most popular themes from the Neovim community,
   you can see the full list with `Lumis.Theme.available/0` and
   then fetch one of the bundled themes with `Lumis.Theme.get/1`.
 
-  Or check out all the [available themes](https://docs.rs/lumis/latest/lumis/#themes-available).
+  Or check out all the [available themes](https://docs.lumis.sh/reference/themes).
 
   ## Example
 
@@ -16,6 +18,7 @@ defmodule Lumis.Theme do
          name: "github_light",
          appearance: :light,
          revision: "fe70a27afefa6e10db4a59262d31f259f702fd6a",
+         license: "MIT",
          highlights: %{
            "function.macro" => %Lumis.Theme.Style{
              fg: "#6639ba",
@@ -65,15 +68,16 @@ defmodule Lumis.Theme do
     ]
   ]
 
-  @typedoc "A Neovim theme with name, appearance (:light or :dark), revision, and highlight styles."
+  @typedoc "A Neovim theme with name, appearance (:light or :dark), revision, license, and highlight styles."
   @type t :: %Lumis.Theme{
           name: String.t(),
           appearance: appearance(),
           revision: String.t(),
+          license: String.t(),
           highlights: %{String.t() => Lumis.Theme.Style.t()}
         }
 
-  defstruct name: nil, appearance: nil, revision: nil, highlights: %{}
+  defstruct name: nil, appearance: nil, revision: nil, license: "NOASSERTION", highlights: %{}
 
   @doc """
   Returns every built-in theme's name and appearance, sorted by name.
@@ -111,6 +115,7 @@ defmodule Lumis.Theme do
 
       /* github_dark
        * revision: ...
+       * license: ...
        */
       .lumis {
         color: #e6edf3;
