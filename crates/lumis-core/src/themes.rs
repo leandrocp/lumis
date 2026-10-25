@@ -737,9 +737,10 @@ impl Css<'_> {
         let mut rules = Vec::new();
 
         rules.push(format!(
-            "/* {}\n * revision: {}\n */\n{}",
+            "/* {}\n * revision: {}\n * license: {}\n */\n{}",
             self.theme.name,
             self.theme.revision,
+            self.theme.license,
             self.scoped_selector(&self.container_selector),
         ));
 
@@ -1004,7 +1005,12 @@ mod tests {
         let with = r#"{"name": "t", "appearance": "dark", "revision": "abc", "license": "MIT", "highlights": {}}"#;
         let without = r#"{"name": "t", "appearance": "dark", "revision": "abc", "highlights": {}}"#;
 
-        assert_eq!(from_json(with).unwrap().license, "MIT");
+        let theme = from_json(with).unwrap();
+        assert_eq!(theme.license, "MIT");
+        assert!(CssBuilder::new(&theme)
+            .build()
+            .starts_with("/* t\n * revision: abc\n * license: MIT\n */\n"));
+
         assert_eq!(from_json(without).unwrap().license, "NOASSERTION");
         assert_eq!(Theme::default().license, "NOASSERTION");
         assert_eq!(get("dracula").unwrap().license, "MIT");
@@ -1062,6 +1068,7 @@ mod tests {
 
         let expected = r"/* test
  * revision: 3e976b4
+ * license: NOASSERTION
  */
 .lumis {
   color: red;
@@ -1218,6 +1225,7 @@ mod tests {
 
         let expected = r#"/* test
  * revision: 3e976b4
+ * license: NOASSERTION
  */
 html[data-theme="dark"] .lumis {
   color: red;
@@ -1267,6 +1275,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {}
 .l-keyword {
@@ -1304,6 +1313,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {}
 @layer lumis {
@@ -1336,6 +1346,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {
   color: red;
@@ -1380,6 +1391,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {
   color: red;
@@ -1420,6 +1432,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {
   color: red;
@@ -1473,6 +1486,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {
   color: red;
@@ -1519,6 +1533,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .app .lumis {
   color: red;
@@ -1556,6 +1571,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {}
 .l-keyword {

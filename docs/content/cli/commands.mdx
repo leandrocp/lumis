@@ -334,7 +334,14 @@ governs. Pinning belongs to a project and its own runtime; see
 lumis themes list
 ```
 
-Lists built-in themes and any custom themes found in the data directory.
+Lists built-in themes and any custom themes found in the data directory, one
+per line with its SPDX license. Custom themes are marked `(file)`, and a theme
+JSON without a `license` field lists as `NOASSERTION`:
+
+```text
+catppuccin_frappe   MIT
+my_theme (file)     NOASSERTION
+```
 
 ## `lumis themes show`
 
@@ -342,8 +349,8 @@ Lists built-in themes and any custom themes found in the data directory.
 lumis themes show catppuccin_frappe
 ```
 
-Prints a theme's appearance, foreground, background and how many highlight
-scopes it defines. Finds themes in the data directory as well as built-in ones.
+Prints a theme's appearance, license, foreground, background and how many
+highlight scopes it defines. Finds themes in the data directory as well as built-in ones.
 Exits non-zero on an unknown name.
 
 ## `lumis themes build-css`

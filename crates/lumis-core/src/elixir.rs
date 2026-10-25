@@ -457,6 +457,7 @@ pub struct ExTheme {
     pub name: String,
     pub appearance: ExAppearance,
     pub revision: String,
+    pub license: Option<String>,
     pub highlights: HashMap<String, ExStyle>,
 }
 
@@ -466,7 +467,7 @@ impl From<ExTheme> for themes::Theme {
             ExAppearance::Light => themes::Appearance::Light,
             ExAppearance::Dark => themes::Appearance::Dark,
         };
-        themes::Theme {
+        let mut converted = themes::Theme {
             name: theme.name,
             appearance,
             revision: theme.revision,
@@ -476,7 +477,11 @@ impl From<ExTheme> for themes::Theme {
                 .map(|(name, style)| (name, style.into()))
                 .collect(),
             ..Default::default()
+        };
+        if let Some(license) = theme.license {
+            converted.license = license;
         }
+        converted
     }
 }
 
@@ -524,6 +529,7 @@ impl<'a> From<&'a themes::Theme> for ExTheme {
             name: theme.name.clone(),
             appearance,
             revision: theme.revision.clone(),
+            license: Some(theme.license.clone()),
             highlights,
         }
     }
