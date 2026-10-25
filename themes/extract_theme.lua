@@ -330,9 +330,16 @@ local function is_license_file(name)
 	return lower:match("^licen[cs]e") ~= nil or lower:match("^copying") ~= nil or lower:match("^unlicense") ~= nil
 end
 
-local function copy_license_files(repo_url, plugin_path)
-	local owner, repo = parse_repo_parts(repo_url)
-	local dest = script_dir .. "/licenses/" .. (owner and (owner .. "/") or "") .. repo
+local function license_files_dest(theme)
+	if theme.license_dir then
+		return script_dir .. "/" .. theme.license_dir
+	end
+	local owner, repo = parse_repo_parts(theme.url)
+	return script_dir .. "/licenses/" .. (owner and (owner .. "/") or "") .. repo
+end
+
+local function copy_license_files(theme, plugin_path)
+	local dest = license_files_dest(theme)
 	vim.fn.delete(dest, "rf")
 
 	for _, entry in ipairs(vim.fn.readdir(plugin_path)) do
@@ -711,7 +718,7 @@ else
 	print("⚠️  No config function found for theme\n")
 end
 
-copy_license_files(theme.url, pack_dir .. "/" .. plugin_name)
+copy_license_files(theme, pack_dir .. "/" .. plugin_name)
 extract_colorscheme_colors(theme)
 
 vim.cmd("quit!")

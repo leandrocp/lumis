@@ -5,6 +5,7 @@
 -- - name: Theme identifier used for file naming (required)
 -- - config: Function to set up and activate the theme (required)
 -- - dependencies: Optional array of dependency URLs
+-- - license_dir: Where to copy the license files, relative to this directory (default: licenses/<owner>/<repo>)
 
 return {
 	{
