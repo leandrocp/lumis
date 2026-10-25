@@ -1,6 +1,9 @@
 //! Build-time helpers shared by every Lumis runtime.
 //!
-//! The only consumer today is query preprocessing in `crates/dev`, which rewrites
+//! The `license` feature adds the `license` module, which identifies the license of a
+//! theme plugin during theme extraction.
+//!
+//! Query preprocessing in `crates/dev` rewrites
 //! Neovim's `#lua-match?` predicates into Tree-sitter's built-in `#match?`
 //! predicates so that Rust, the CLI, Elixir, JavaScript, and the browser all read
 //! byte-identical `.scm` files.
@@ -32,6 +35,9 @@
 //!   emitted where Lua actually reads one.
 
 use std::fmt;
+
+#[cfg(feature = "license")]
+pub mod license;
 
 /// A Lua pattern construct that has no portable regular-expression translation.
 ///

@@ -12,8 +12,16 @@ keywords = ["tree-sitter", "lua", "regex", "build"]
 categories = ["development-tools::build-utils"]
 include = ["/src/", "/CHANGELOG.md", "/README.md", "/LICENSE"]
 
+[features]
+# Identify a license from its text. Adds the SPDX License List to the build.
+license = ["dep:spdx"]
+
+[dependencies]
+spdx = { version = "0.13.6", features = ["detection-inline-cache"], optional = true }
+
 [dev-dependencies]
 regex = "1"
+spdx = { version = "0.13.6", features = ["text"] }
 
 [lints]
 workspace = true
