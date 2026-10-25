@@ -185,15 +185,20 @@ fn list_themes_uses_data_dir_from_env() {
     let tmp = tempfile::tempdir().unwrap();
     write_file(
         &tmp.path().join("themes/custom.json"),
-        r#"{"name":"custom","appearance":"dark","revision":"test","highlights":{}}"#,
+        r#"{"name":"custom","appearance":"dark","revision":"test","license":"ISC","highlights":{}}"#,
     );
 
-    cmd()
+    let output = cmd()
         .env("LUMIS_DATA_DIR", tmp.path())
         .args(["themes", "list"])
         .assert()
-        .success()
-        .stdout(predicate::str::contains("custom (file)"));
+        .success();
+    let stdout = String::from_utf8(output.get_output().stdout.clone()).unwrap();
+    let custom = stdout
+        .lines()
+        .find(|line| line.starts_with("custom (file)"))
+        .expect("the file theme is listed");
+    assert!(custom.ends_with("  ISC"), "{custom}");
 }
 
 /// The format was unpinned, so nothing would have noticed it changing. One
@@ -211,10 +216,21 @@ fn list_languages_prints_an_id_then_its_globs() {
 }
 
 #[test]
-fn list_themes_prints_one_sorted_name_per_line() {
-    let output = cmd().args(["themes", "list"]).assert().success();
+fn list_themes_prints_one_sorted_name_and_license_per_line() {
+    let tmp = tempfile::tempdir().unwrap();
+    let output = cmd()
+        .env("LUMIS_DATA_DIR", tmp.path())
+        .args(["themes", "list"])
+        .assert()
+        .success();
     let stdout = String::from_utf8(output.get_output().stdout.clone()).unwrap();
-    let names: Vec<&str> = stdout.lines().collect();
+    let rows: Vec<Vec<&str>> = stdout
+        .lines()
+        .map(|line| line.split_whitespace().collect())
+        .collect();
+    assert!(rows.iter().all(|row| row.len() == 2), "{stdout}");
+    assert!(rows.contains(&vec!["dracula", "MIT"]));
+    let names: Vec<&str> = rows.iter().map(|row| row[0]).collect();
 
     assert!(
         names.len() > 200,
@@ -265,6 +281,7 @@ fn themes_show_prints_appearance_and_colors() {
         .assert()
         .success()
         .stdout(predicate::str::contains("dracula: dark"))
+        .stdout(predicate::str::contains("license: MIT"))
         .stdout(predicate::str::contains("background: #282a36"));
 }
 

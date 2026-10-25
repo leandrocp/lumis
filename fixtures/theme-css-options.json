@@ -59,7 +59,7 @@
     {
       "name": "defaults",
       "options": {},
-      "css": "/* css-contract\n * revision: test\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n}\n.l-keyword {\n  color: #123456;\n  font-style: italic;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n@layer lumis {\n  pre.lumis > code {\n    display: block;\n    width: fit-content;\n    min-width: 100%;\n    overflow-wrap: anywhere;\n  }\n  pre.lumis > code > span.l-line {\n    display: inline-block;\n    width: 100%;\n    min-height: 1lh;\n    vertical-align: top;\n  }\n  .l-line-number {\n    -webkit-user-select: none;\n    user-select: none;\n  }\n}\n"
+      "css": "/* css-contract\n * revision: test\n * license: NOASSERTION\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n}\n.l-keyword {\n  color: #123456;\n  font-style: italic;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n@layer lumis {\n  pre.lumis > code {\n    display: block;\n    width: fit-content;\n    min-width: 100%;\n    overflow-wrap: anywhere;\n  }\n  pre.lumis > code > span.l-line {\n    display: inline-block;\n    width: 100%;\n    min-height: 1lh;\n    vertical-align: top;\n  }\n  .l-line-number {\n    -webkit-user-select: none;\n    user-select: none;\n  }\n}\n"
     },
     {
       "name": "explicit-defaults",
@@ -70,21 +70,21 @@
         "container_selector": ".lumis",
         "container_style": []
       },
-      "css": "/* css-contract\n * revision: test\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n}\n.l-keyword {\n  color: #123456;\n  font-style: italic;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n@layer lumis {\n  pre.lumis > code {\n    display: block;\n    width: fit-content;\n    min-width: 100%;\n    overflow-wrap: anywhere;\n  }\n  pre.lumis > code > span.l-line {\n    display: inline-block;\n    width: 100%;\n    min-height: 1lh;\n    vertical-align: top;\n  }\n  .l-line-number {\n    -webkit-user-select: none;\n    user-select: none;\n  }\n}\n"
+      "css": "/* css-contract\n * revision: test\n * license: NOASSERTION\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n}\n.l-keyword {\n  color: #123456;\n  font-style: italic;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n@layer lumis {\n  pre.lumis > code {\n    display: block;\n    width: fit-content;\n    min-width: 100%;\n    overflow-wrap: anywhere;\n  }\n  pre.lumis > code > span.l-line {\n    display: inline-block;\n    width: 100%;\n    min-height: 1lh;\n    vertical-align: top;\n  }\n  .l-line-number {\n    -webkit-user-select: none;\n    user-select: none;\n  }\n}\n"
     },
     {
       "name": "colors-only",
       "options": {
         "layout": false
       },
-      "css": "/* css-contract\n * revision: test\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n}\n.l-keyword {\n  color: #123456;\n  font-style: italic;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n"
+      "css": "/* css-contract\n * revision: test\n * license: NOASSERTION\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n}\n.l-keyword {\n  color: #123456;\n  font-style: italic;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n"
     },
     {
       "name": "no-italic",
       "options": {
         "enable_italic": false
       },
-      "css": "/* css-contract\n * revision: test\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n}\n.l-keyword {\n  color: #123456;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n@layer lumis {\n  pre.lumis > code {\n    display: block;\n    width: fit-content;\n    min-width: 100%;\n    overflow-wrap: anywhere;\n  }\n  pre.lumis > code > span.l-line {\n    display: inline-block;\n    width: 100%;\n    min-height: 1lh;\n    vertical-align: top;\n  }\n  .l-line-number {\n    -webkit-user-select: none;\n    user-select: none;\n  }\n}\n"
+      "css": "/* css-contract\n * revision: test\n * license: NOASSERTION\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n}\n.l-keyword {\n  color: #123456;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n@layer lumis {\n  pre.lumis > code {\n    display: block;\n    width: fit-content;\n    min-width: 100%;\n    overflow-wrap: anywhere;\n  }\n  pre.lumis > code > span.l-line {\n    display: inline-block;\n    width: 100%;\n    min-height: 1lh;\n    vertical-align: top;\n  }\n  .l-line-number {\n    -webkit-user-select: none;\n    user-select: none;\n  }\n}\n"
     },
     {
       "name": "custom-layout",
@@ -107,7 +107,7 @@
           ]
         ]
       },
-      "css": "/* css-contract\n * revision: test\n */\n.docs .code {\n  color: #111111;\n  background-color: var(--code-bg);\n  padding: 1rem;\n}\n.docs .l-keyword {\n  color: #123456;\n}\n.docs .l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.docs .l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n@layer lumis {\n  .docs pre.lumis > code {\n    display: block;\n    width: fit-content;\n    min-width: 100%;\n    overflow-wrap: anywhere;\n  }\n  .docs pre.lumis > code > span.l-line {\n    display: inline-block;\n    width: 100%;\n    min-height: 1lh;\n    vertical-align: top;\n  }\n  .docs .l-line-number {\n    -webkit-user-select: none;\n    user-select: none;\n  }\n}\n"
+      "css": "/* css-contract\n * revision: test\n * license: NOASSERTION\n */\n.docs .code {\n  color: #111111;\n  background-color: var(--code-bg);\n  padding: 1rem;\n}\n.docs .l-keyword {\n  color: #123456;\n}\n.docs .l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.docs .l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n@layer lumis {\n  .docs pre.lumis > code {\n    display: block;\n    width: fit-content;\n    min-width: 100%;\n    overflow-wrap: anywhere;\n  }\n  .docs pre.lumis > code > span.l-line {\n    display: inline-block;\n    width: 100%;\n    min-height: 1lh;\n    vertical-align: top;\n  }\n  .docs .l-line-number {\n    -webkit-user-select: none;\n    user-select: none;\n  }\n}\n"
     },
     {
       "name": "custom-colors-only",
@@ -131,7 +131,7 @@
         ],
         "layout": false
       },
-      "css": "/* css-contract\n * revision: test\n */\n.docs .code {\n  color: #111111;\n  background-color: var(--code-bg);\n  padding: 1rem;\n}\n.docs .l-keyword {\n  color: #123456;\n}\n.docs .l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.docs .l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n"
+      "css": "/* css-contract\n * revision: test\n * license: NOASSERTION\n */\n.docs .code {\n  color: #111111;\n  background-color: var(--code-bg);\n  padding: 1rem;\n}\n.docs .l-keyword {\n  color: #123456;\n}\n.docs .l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.docs .l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n"
     },
     {
       "name": "custom-property-with-equals",
@@ -144,7 +144,7 @@
           ]
         ]
       },
-      "css": "/* css-contract\n * revision: test\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n  --code-label: \"a=b\";\n}\n.l-keyword {\n  color: #123456;\n  font-style: italic;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n"
+      "css": "/* css-contract\n * revision: test\n * license: NOASSERTION\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n  --code-label: \"a=b\";\n}\n.l-keyword {\n  color: #123456;\n  font-style: italic;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n"
     }
   ]
 }

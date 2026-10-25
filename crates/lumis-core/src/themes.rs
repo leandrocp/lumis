@@ -162,7 +162,7 @@ impl std::fmt::Display for Appearance {
 ///     highlights
 /// );
 /// ```
-#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct Theme {
     /// The name of the theme.
     pub name: String,
@@ -170,6 +170,11 @@ pub struct Theme {
     pub appearance: Appearance,
     /// The commit of the theme plugin
     pub revision: String,
+    /// The SPDX license expression of the theme plugin, such as `MIT`.
+    /// `NONE` means the plugin has no license file and `NOASSERTION` that its
+    /// license is unknown, which is also the value when a theme JSON omits it.
+    #[serde(default = "unknown_license")]
+    pub license: String,
     /// A map of highlight scope names to their styles.
     pub highlights: BTreeMap<String, Style>,
 }
@@ -498,7 +503,28 @@ static RAINBOW_BRACKET_FALLBACKS: std::sync::LazyLock<BTreeMap<&'static str, Sty
         ])
     });
 
+/// The SPDX value for a license that is not known.
+const NO_ASSERTION: &str = "NOASSERTION";
+
+fn unknown_license() -> String {
+    NO_ASSERTION.to_string()
+}
+
+impl Default for Theme {
+    fn default() -> Self {
+        Theme {
+            name: String::new(),
+            appearance: Appearance::default(),
+            revision: String::new(),
+            license: unknown_license(),
+            highlights: BTreeMap::new(),
+        }
+    }
+}
+
 impl Theme {
+    /// Creates a theme whose license is `NOASSERTION`. Set
+    /// [`Theme::license`] when the license is known.
     pub fn new(
         name: String,
         appearance: Appearance,
@@ -510,6 +536,7 @@ impl Theme {
             appearance,
             revision,
             highlights,
+            ..Theme::default()
         }
     }
 
@@ -710,9 +737,10 @@ impl Css<'_> {
         let mut rules = Vec::new();
 
         rules.push(format!(
-            "/* {}\n * revision: {}\n */\n{}",
+            "/* {}\n * revision: {}\n * license: {}\n */\n{}",
             self.theme.name,
             self.theme.revision,
+            self.theme.license,
             self.scoped_selector(&self.container_selector),
         ));
 
@@ -973,6 +1001,22 @@ mod tests {
     }
 
     #[test]
+    fn license_is_read_from_json_and_unknown_when_absent() {
+        let with = r#"{"name": "t", "appearance": "dark", "revision": "abc", "license": "MIT", "highlights": {}}"#;
+        let without = r#"{"name": "t", "appearance": "dark", "revision": "abc", "highlights": {}}"#;
+
+        let theme = from_json(with).unwrap();
+        assert_eq!(theme.license, "MIT");
+        assert!(CssBuilder::new(&theme)
+            .build()
+            .starts_with("/* t\n * revision: abc\n * license: MIT\n */\n"));
+
+        assert_eq!(from_json(without).unwrap().license, "NOASSERTION");
+        assert_eq!(Theme::default().license, "NOASSERTION");
+        assert_eq!(get("dracula").unwrap().license, "MIT");
+    }
+
+    #[test]
     fn test_from_json() {
         let json = r#"{"name": "test", "appearance": "dark", "revision": "3e976b4", "highlights": {"keyword": {"fg": "blue"}}}"#;
         let theme = from_json(json).unwrap();
@@ -1024,6 +1068,7 @@ mod tests {
 
         let expected = r"/* test
  * revision: 3e976b4
+ * license: NOASSERTION
  */
 .lumis {
   color: red;
@@ -1180,6 +1225,7 @@ mod tests {
 
         let expected = r#"/* test
  * revision: 3e976b4
+ * license: NOASSERTION
  */
 html[data-theme="dark"] .lumis {
   color: red;
@@ -1229,6 +1275,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {}
 .l-keyword {
@@ -1266,6 +1313,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {}
 @layer lumis {
@@ -1298,6 +1346,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {
   color: red;
@@ -1342,6 +1391,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {
   color: red;
@@ -1382,6 +1432,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {
   color: red;
@@ -1435,6 +1486,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {
   color: red;
@@ -1481,6 +1533,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .app .lumis {
   color: red;
@@ -1518,6 +1571,7 @@ html[data-theme="dark"] .l-keyword {
 
         let expected = r"/* test
  * revision: abc
+ * license: NOASSERTION
  */
 .lumis {}
 .l-keyword {

@@ -111,6 +111,7 @@ defmodule Lumis.Theme do
 
       /* github_dark
        * revision: ...
+       * license: ...
        */
       .lumis {
         color: #e6edf3;
