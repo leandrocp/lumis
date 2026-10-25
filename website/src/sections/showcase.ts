@@ -11,7 +11,7 @@ import catppuccinFrappe from "@lumis-sh/themes/catppuccin_frappe";
 import catppuccinLatte from "@lumis-sh/themes/catppuccin_latte";
 import dracula from "@lumis-sh/themes/dracula";
 import githubLight from "@lumis-sh/themes/github_light";
-import nord from "@lumis-sh/themes/nord";
+import nordic from "@lumis-sh/themes/nordic";
 import tokyonightMoon from "@lumis-sh/themes/tokyonight_moon";
 import cssLanguage from "@lumis-sh/wasm-css";
 import elixirLanguage from "@lumis-sh/wasm-elixir";
@@ -283,24 +283,24 @@ const output = hl.highlight(template, htmlMultiThemes({
   },
   {
     id: "themes",
-    title: "250+ Neovim themes",
+    title: "200+ Neovim themes",
     blurb:
       "Each theme is generated from the colorscheme itself, so it looks like the editor it came from.",
     tags: ["htmlInline", "Elixir"],
     source: `${REPO}/packages/javascript/lumis/examples/theme-gallery.html`,
     code: `import dracula from '@lumis-sh/themes/dracula'
-import nord from '@lumis-sh/themes/nord'
+import nordic from '@lumis-sh/themes/nordic'
 import githubLight from '@lumis-sh/themes/github_light'
 import tokyonightMoon from '@lumis-sh/themes/tokyonight_moon'
 
-for (const theme of [dracula, nord, githubLight, tokyonightMoon]) {
+for (const theme of [dracula, nordic, githubLight, tokyonightMoon]) {
   render(hl.highlight(source, htmlInline({ language: elixir, theme })))
 }`,
     async run() {
       const hl = await highlighterFor(elixirLanguage);
       const themes = [
         { label: "dracula", theme: dracula },
-        { label: "nord", theme: nord },
+        { label: "nordic", theme: nordic },
         { label: "github_light", theme: githubLight },
         { label: "tokyonight_moon", theme: tokyonightMoon },
       ];

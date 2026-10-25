@@ -12,7 +12,7 @@ export function renderStats() {
             <p class="mt-1 font-mono text-xs text-zinc-500">Compiled Tree-sitter grammars containing highlights and injections.</p>
           </div>
           <div class="bg-white px-6 py-8 dark:bg-[#09090b]">
-            <p class="font-mono text-2xl font-bold tabular-nums text-zinc-900 dark:text-white">250+ <span class="text-amber-400">Themes</span></p>
+            <p class="font-mono text-2xl font-bold tabular-nums text-zinc-900 dark:text-white">200+ <span class="text-amber-400">Themes</span></p>
             <p class="mt-1 font-mono text-xs text-zinc-500">Neovim colorschemes btw. Pick one of the built-in themes or bring your own.</p>
           </div>
           <div class="bg-white px-6 py-8 dark:bg-[#09090b]">
