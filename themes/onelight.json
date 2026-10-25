@@ -2,6 +2,7 @@
   "name": "onelight",
   "appearance": "light",
   "revision": "24c806cb85c1f84d9faaff457cf7aa87c685a070",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#9a77cf"

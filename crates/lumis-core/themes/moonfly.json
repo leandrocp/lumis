@@ -2,6 +2,7 @@
   "name": "moonfly",
   "appearance": "dark",
   "revision": "2c883835f5b7b380a0a9e80695c420f7efebdfe4",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#74b2ff"

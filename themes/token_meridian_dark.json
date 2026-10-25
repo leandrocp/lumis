@@ -2,6 +2,7 @@
   "name": "token_meridian_dark",
   "appearance": "dark",
   "revision": "19acc041465c89739778a6054da8039b68798251",
+  "license": "BSD-3-Clause",
   "highlights": {
     "attribute": {
       "fg": "#d9a86e"

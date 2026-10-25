@@ -14,10 +14,13 @@ include = ["/src/", "/CHANGELOG.md", "/README.md", "/LICENSE"]
 
 [features]
 # Identify a license from its text. Adds the SPDX License List to the build.
-license = ["dep:spdx"]
+license = ["dep:spdx", "dep:serde", "dep:serde_json", "dep:url"]
 
 [dependencies]
+serde = { version = "1", optional = true }
+serde_json = { version = "1", features = ["raw_value"], optional = true }
 spdx = { version = "0.13.6", features = ["detection-inline-cache"], optional = true }
+url = { version = "2", optional = true }
 
 [dev-dependencies]
 regex = "1"

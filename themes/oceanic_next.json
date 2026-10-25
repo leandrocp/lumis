@@ -2,6 +2,7 @@
   "name": "oceanic_next",
   "appearance": "dark",
   "revision": "09833f72d5ba23de2e8bcae18f479f326f5f677a",
+  "license": "Apache-2.0",
   "highlights": {
     "attribute": {
       "fg": "#ec5f67"

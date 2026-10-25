@@ -2,6 +2,7 @@
   "name": "eldritch",
   "appearance": "dark",
   "revision": "c9131a5a11f00a2f428f563a4eb2c4aeb680d963",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#10a1bd"

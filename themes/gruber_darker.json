@@ -2,6 +2,7 @@
   "name": "gruber_darker",
   "appearance": "dark",
   "revision": "50fa4e583099729fcaaadc73a5afb74f7a91a625",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#95a99f"

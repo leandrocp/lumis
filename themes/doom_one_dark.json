@@ -2,6 +2,7 @@
   "name": "doom_one_dark",
   "appearance": "dark",
   "revision": "beae92173315c7282f6897e666cfd67fbf0f3ac9",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#ffa8ff"

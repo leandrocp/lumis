@@ -2,6 +2,7 @@
   "name": "monokai",
   "appearance": "dark",
   "revision": "759be78d722e306e4a3aac9cc0738f1be86a1ab8",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#a6e22e"

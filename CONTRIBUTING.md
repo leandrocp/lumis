@@ -444,7 +444,6 @@ These files drive code generation, builds, detection metadata, and theme extract
 | [`highlights.toml`](highlights.toml) | Tree-sitter highlight scope names |
 | [`languages.toml`](languages.toml) | Parser metadata, query sources, language bundles, feature flags |
 | [`themes/themes.lua`](themes/themes.lua) | Theme definitions from Neovim colorscheme sources |
-| [`themes/licenses.toml`](themes/licenses.toml) | License and copyright of every theme source, rendered into `themes/NOTICE.md` |
 
 ### highlights.toml
 
@@ -1051,18 +1050,6 @@ Themes are extracted from Neovim colorscheme plugins. Each theme is a JSON file 
 }
 ```
 
-1. Record the plugin's license in `themes/licenses.toml`, read from the license
-   file at the commit the theme will be extracted from. Add an entry for each
-   `dependencies` URL too. A plugin without a license is recorded as
-   `license = "NONE"`.
-
-```toml
-[sources."https://github.com/author/theme-repo"]
-license = "MIT"
-license_file = "LICENSE"
-copyright = ["Copyright (c) 2024 Author"]
-```
-
 1. Generate the JSON file and sync package outputs:
 
 ```sh
@@ -1101,10 +1088,19 @@ identical theme data, so revision-only changes do not create update PRs.
 
 ### Theme licenses
 
-`mise run docs-gen-themes-md` writes `THEMES.md`, the docs reference page and
-`themes/NOTICE.md`, which lists each theme's source, pinned commit, license and
-copyright. `crates/lumis-core` and `@lumis-sh/themes` ship a copy of the notice.
-`mise run themes-check-notices` fails when a theme or dependency URL has no entry
-in `themes/licenses.toml`, when an entry is no longer used, or when a generated
-file is stale. A revision bump does not re-read the license, so check the
-license file again when an update PR moves a theme to a new commit.
+Nobody records a theme's license by hand. Extraction copies the plugin's
+`LICENSE*`, `COPYING*` and `UNLICENSE*` files from the checkout it extracts
+colors from into `themes/licenses/<owner>/<repo>/`, and `mise run themes-gen`
+writes the license detected in them into the theme JSON as an SPDX expression:
+`NONE` when the plugin has no license file and `NOASSERTION` when its file
+matches no known license. Detection is `lumis_build::license`, and
+`lumis themes generate` records the license the same way.
+
+Built-in themes must have a license that is neither copyleft nor `NONE` or
+`NOASSERTION`; a theme that fails cannot be added. User themes from
+`lumis themes generate` keep any license. `mise run themes-check-notices`
+detects every license again and fails when a theme's `license` disagrees with
+its license files, when a built-in theme breaks that rule, when a license
+directory or theme JSON belongs to no theme in `themes/themes.lua`, or when
+`THEMES.md`, the docs reference page or `themes/NOTICE.md` is stale.
+`crates/lumis-core` and `@lumis-sh/themes` ship a copy of the notice.

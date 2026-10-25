@@ -2,6 +2,7 @@
   "name": "xcode_light",
   "appearance": "light",
   "revision": "c57b4df378952382eb0c8aa93614d1d70f35798a",
+  "license": "ISC",
   "highlights": {
     "attribute": {
       "fg": "#78492a"

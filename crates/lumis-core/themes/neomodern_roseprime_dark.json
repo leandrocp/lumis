@@ -2,6 +2,7 @@
   "name": "neomodern_roseprime_dark",
   "appearance": "dark",
   "revision": "d41469578922a23d75a0d9e8deef1e34837230a6",
+  "license": "Apache-2.0",
   "highlights": {
     "attribute": {
       "fg": "#c4959c"

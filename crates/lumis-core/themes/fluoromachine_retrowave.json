@@ -2,6 +2,7 @@
   "name": "fluoromachine_retrowave",
   "appearance": "dark",
   "revision": "a279f667168e742df059caf1f1f4daf1de24f4f8",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#72f1b8",

@@ -2,6 +2,7 @@
   "name": "ofirkai",
   "appearance": "dark",
   "revision": "f51d56db89a36674b39395efce5dc431778ef343",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#f92672"

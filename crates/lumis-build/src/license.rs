@@ -25,7 +25,7 @@
 use spdx::detection::{LicenseEntry, Store, TextData};
 use std::fs;
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// SPDX's value for a plugin without a license file.
 pub const NO_LICENSE: &str = "NONE";
@@ -145,8 +145,95 @@ fn best_score(entry: &LicenseEntry, score: impl Fn(&TextData) -> f32) -> f32 {
         })
 }
 
-/// Whether any license in an SPDX expression is copyleft. An expression that
-/// does not parse, including [`NO_LICENSE`] and [`NO_ASSERTION`], is not.
+/// The directory theme extraction copies a plugin's license files into:
+/// `<root>/<owner>/<repo>` for a GitHub repository, `<root>/<repo>` otherwise.
+/// `themes/extract_theme.lua` writes the same layout.
+pub fn license_dir(root: &Path, repo_url: &str) -> Result<PathBuf, url::ParseError> {
+    let url = url::Url::parse(repo_url)?;
+    let segments: Vec<&str> = url
+        .path_segments()
+        .map(|segments| segments.filter(|segment| !segment.is_empty()).collect())
+        .unwrap_or_default();
+    let mut dir = root.to_path_buf();
+    match segments.as_slice() {
+        [owner, repo] if url.host_str() == Some("github.com") => {
+            dir.push(owner);
+            dir.push(repo.strip_suffix(".git").unwrap_or(repo));
+        }
+        [.., repo] => dir.push(repo),
+        [] => {}
+    }
+    Ok(dir)
+}
+
+/// Sets `license` in a theme JSON document, after `revision` when it is new.
+/// Every other field keeps its position and its exact text.
+pub fn set_theme_license(theme_json: &str, license: &str) -> io::Result<String> {
+    let OrderedObject(fields) = serde_json::from_str(theme_json)?;
+    let license_value = serde_json::value::to_raw_value(license)?;
+    let mut annotated = Vec::with_capacity(fields.len() + 1);
+    for (key, value) in fields {
+        if key == "license" {
+            continue;
+        }
+        let after = key == "revision";
+        annotated.push((key, value));
+        if after {
+            annotated.push(("license".to_string(), license_value.clone()));
+        }
+    }
+    if !annotated.iter().any(|(key, _)| key == "license") {
+        annotated.push(("license".to_string(), license_value));
+    }
+    let mut json = serde_json::to_string_pretty(&OrderedObject(annotated))?;
+    json.push('\n');
+    Ok(json)
+}
+
+/// A JSON object in document order, each value as written. Reading into
+/// `serde_json::Value` would sort the keys and reformat every value.
+struct OrderedObject(Vec<(String, Box<serde_json::value::RawValue>)>);
+
+impl<'de> serde::Deserialize<'de> for OrderedObject {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        struct Fields;
+
+        impl<'de> serde::de::Visitor<'de> for Fields {
+            type Value = OrderedObject;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("a theme JSON object")
+            }
+
+            fn visit_map<A: serde::de::MapAccess<'de>>(
+                self,
+                mut map: A,
+            ) -> Result<OrderedObject, A::Error> {
+                let mut fields = Vec::new();
+                while let Some(field) = map.next_entry()? {
+                    fields.push(field);
+                }
+                Ok(OrderedObject(fields))
+            }
+        }
+
+        deserializer.deserialize_map(Fields)
+    }
+}
+
+impl serde::Serialize for OrderedObject {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeMap;
+        let mut map = serializer.serialize_map(Some(self.0.len()))?;
+        for (key, value) in &self.0 {
+            map.serialize_entry(key, value)?;
+        }
+        map.end()
+    }
+}
+
+/// Whether any license in an SPDX expression is copyleft. [`NO_LICENSE`],
+/// [`NO_ASSERTION`] and an expression that does not parse are not.
 pub fn is_copyleft(expression: &str) -> bool {
     spdx::Expression::parse_mode(expression, spdx::ParseMode::LAX).is_ok_and(|expression| {
         expression.requirements().any(|requirement| {
@@ -280,6 +367,39 @@ SOFTWARE.
         let apache = license_text("Apache-2.0");
         assert_eq!(detector.detect(&[apache, MIT]), "Apache-2.0 AND MIT");
         assert_eq!(detector.detect(&[MIT, MIT]), "MIT");
+    }
+
+    #[test]
+    fn license_dir_mirrors_extraction() {
+        let root = Path::new("licenses");
+        assert_eq!(
+            license_dir(root, "https://github.com/folke/tokyonight.nvim").unwrap(),
+            root.join("folke").join("tokyonight.nvim")
+        );
+        assert_eq!(
+            license_dir(root, "https://github.com/owner/repo.git").unwrap(),
+            root.join("owner").join("repo")
+        );
+        assert_eq!(
+            license_dir(root, "https://gitlab.com/group/sub/theme").unwrap(),
+            root.join("theme")
+        );
+    }
+
+    #[test]
+    fn license_is_set_after_revision_and_key_order_is_kept() {
+        let theme = "{\n  \"name\": \"x\",\n  \"appearance\": \"dark\",\n  \"revision\": \"abc\",\n  \"highlights\": {\n    \"comment\": {\n      \"fg\": \"#ffffff\",\n      \"bg\": \"#000000\"\n    }\n  }\n}\n";
+        let expected = theme.replace(
+            "\"revision\": \"abc\",\n",
+            "\"revision\": \"abc\",\n  \"license\": \"MIT\",\n",
+        );
+        let annotated = set_theme_license(theme, "MIT").unwrap();
+        assert_eq!(annotated, expected);
+        assert_eq!(set_theme_license(&annotated, "MIT").unwrap(), expected);
+        assert_eq!(
+            set_theme_license(&annotated, "Apache-2.0").unwrap(),
+            expected.replace("MIT", "Apache-2.0")
+        );
     }
 
     #[test]

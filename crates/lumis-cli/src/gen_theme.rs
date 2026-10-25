@@ -1,5 +1,7 @@
 use anyhow::{Context, Result};
+use lumis_build::license;
 use std::fs;
+use std::path::Path;
 use std::process::Command;
 use tempfile::TempDir;
 
@@ -26,6 +28,7 @@ pub(crate) fn generate_theme(
         "Failed to read generated JSON at {}",
         json_path.display()
     ))?;
+    let json_content = with_detected_license(temp_path, url, &json_content)?;
 
     if let Some(output_path) = output {
         fs::write(output_path, &json_content)
@@ -36,6 +39,18 @@ pub(crate) fn generate_theme(
     }
 
     Ok(())
+}
+
+/// Records the license of the plugin the theme came from, whatever it is:
+/// a theme generated here is the user's to redistribute or not.
+fn with_detected_license(temp_path: &Path, url: &str, json: &str) -> Result<String> {
+    let dir = license::license_dir(&temp_path.join("licenses"), url)
+        .with_context(|| format!("Invalid theme URL {url}"))?;
+    let detected = license::LicenseDetector::new()
+        .context("Failed to load the SPDX license list")?
+        .detect_dir(&dir)
+        .with_context(|| format!("Failed to read license files in {}", dir.display()))?;
+    license::set_theme_license(json, &detected).context("Generated theme JSON is invalid")
 }
 
 fn create_init_lua(temp_path: &std::path::Path) -> Result<()> {

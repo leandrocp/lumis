@@ -31,7 +31,7 @@ lumis-stress-languages = [
 
 [dependencies]
 lumis = { path = "../lumis", default-features = false }
-lumis-build = { path = "../lumis-build" }
+lumis-build = { path = "../lumis-build", features = ["license"] }
 lumis-wasm-runtime = { path = "../lumis-wasm-runtime", default-features = false }
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
@@ -52,6 +52,14 @@ tree-sitter = "0.27.1"
 tree-sitter-tsquery = "0.8.0"
 ureq = "3"
 xz2 = "0.1"
+
+# License detection compares every theme's license files with the whole SPDX
+# License List, which takes minutes unoptimized and seconds optimized.
+[profile.dev.package.spdx]
+opt-level = 3
+
+[profile.dev.package.lumis-build]
+opt-level = 3
 
 [lints.rust]
 rust_2018_idioms = { level = "warn", priority = -1 }

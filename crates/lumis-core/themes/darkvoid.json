@@ -2,6 +2,7 @@
   "name": "darkvoid",
   "appearance": "dark",
   "revision": "45be993a5617e05811b6b293c05e6aded7003cc9",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#b1b1b1"

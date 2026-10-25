@@ -3,6 +3,8 @@ export interface ThemeData {
   name: string;
   appearance: "light" | "dark";
   revision?: string;
+  /** SPDX license expression of the plugin the theme was extracted from. */
+  license?: string;
   highlights: Record<string, StyleEntry>;
 }
 

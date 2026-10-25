@@ -2,6 +2,7 @@
   "name": "oxocarbon_light",
   "appearance": "light",
   "revision": "cd6523a0836d6e8ee823d343149fd06c7b71fdde",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#ffab91"

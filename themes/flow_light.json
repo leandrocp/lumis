@@ -2,6 +2,7 @@
   "name": "flow_light",
   "appearance": "light",
   "revision": "4863b14263a77f8efb79068f7078b6261c9cbda2",
+  "license": "Apache-2.0",
   "highlights": {
     "attribute": {
       "fg": "#5ebaa3"

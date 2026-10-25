@@ -2,6 +2,7 @@
   "name": "adwaita_light",
   "appearance": "light",
   "revision": "c607954f7b2cf56b24e921db0dab4749f3430a22",
+  "license": "MIT",
   "highlights": {
     "attribute": {
       "fg": "#e66100"
