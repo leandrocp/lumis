@@ -29,6 +29,8 @@ include = [
     "/queries/processed/**/injections.scm",
     "/queries/processed/**/locals.scm",
     "/css/*.css",
+    "/css/NOTICE.md",
+    "/css/licenses/**",
     "/themes/*.json",
     "/LICENSE",
     "/README.md",

@@ -28,7 +28,7 @@ Use `buildCss(theme, options)` to build a stylesheet you can inline or scope. Th
 
 ## License
 
-The package is MIT. Each theme keeps the license of the Neovim plugin it was extracted from; `dist/NOTICE.md` lists the source, pinned commit and license of every theme, and each theme records its license in a `license` field.
+The package is MIT. Each theme keeps the license of the Neovim plugin it was extracted from; `dist/NOTICE.md` lists the source, pinned commit and license of every theme, `dist/licenses/` holds each plugin's license file, and each theme records its license in a `license` field.
 
 ## Browse
 

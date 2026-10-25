@@ -32,6 +32,11 @@ queries/processed/** linguist-generated
 # Generated themes and formatter output.
 crates/lumis-core/themes/*.json linguist-generated
 crates/lumis-core/themes/NOTICE.md linguist-generated
+crates/lumis-core/themes/licenses/** linguist-generated
+crates/lumis/css/NOTICE.md linguist-generated
+crates/lumis/css/licenses/** linguist-generated
+packages/elixir/lumis/priv/static/css/NOTICE.md linguist-generated
+packages/elixir/lumis/priv/static/css/licenses/** linguist-generated
 themes/licenses/** linguist-generated
 crates/lumis/css/*.css linguist-generated
 css/*.css linguist-generated

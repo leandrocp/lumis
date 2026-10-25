@@ -1102,5 +1102,10 @@ Built-in themes must have a license that is neither copyleft nor `NONE` or
 detects every license again and fails when a theme's `license` disagrees with
 its license files, when a built-in theme breaks that rule, when a license
 directory or theme JSON belongs to no theme in `themes/themes.lua`, or when
-`THEMES.md`, the docs reference page or `themes/NOTICE.md` is stale.
-`crates/lumis-core` and `@lumis-sh/themes` ship a copy of the notice.
+`THEMES.md`, the docs reference page, `themes/NOTICE.md` or one of its copies
+is stale. The notice links each license to its file under `licenses/` next to
+it, so every package that ships theme data ships both: `mise run
+docs-gen-themes-md` writes `NOTICE.md` and `licenses/` into
+`crates/lumis-core/themes`, `crates/lumis/css` and the Elixir
+`priv/static/css`, and `@lumis-sh/themes` copies them into `dist/` when it
+builds.
