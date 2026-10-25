@@ -85,6 +85,7 @@ fn main() {
         name: "my_custom_theme".to_string(),
         appearance: Appearance::Dark,
         revision: "1.0".to_string(),
+        license: "MIT".to_string(),
         highlights,
     };
 

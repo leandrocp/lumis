@@ -475,6 +475,7 @@ impl From<ExTheme> for themes::Theme {
                 .into_iter()
                 .map(|(name, style)| (name, style.into()))
                 .collect(),
+            ..Default::default()
         }
     }
 }

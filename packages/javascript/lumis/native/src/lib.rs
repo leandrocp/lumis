@@ -77,17 +77,22 @@ struct JsTheme {
     appearance: Appearance,
     #[serde(default)]
     revision: String,
+    license: Option<String>,
     highlights: BTreeMap<String, Style>,
 }
 
 impl From<JsTheme> for Theme {
     fn from(value: JsTheme) -> Self {
-        Self {
-            name: value.name,
-            appearance: value.appearance,
-            revision: value.revision,
-            highlights: value.highlights,
+        let mut theme = Theme::new(
+            value.name,
+            value.appearance,
+            value.revision,
+            value.highlights,
+        );
+        if let Some(license) = value.license {
+            theme.license = license;
         }
+        theme
     }
 }
 
