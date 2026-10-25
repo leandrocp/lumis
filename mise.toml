@@ -246,6 +246,7 @@ run = '''
 set -euo pipefail
 echo "Running Rust tests..."
 cargo test --workspace
+cargo test -p lumis-build --features license --lib license
 echo ""
 echo "Running Elixir tests..."
 mise run test-elixir

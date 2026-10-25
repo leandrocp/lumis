@@ -90,6 +90,9 @@ jobs:
       - name: Every predicate compiles under the regex crate
         run: cargo test -p lumis-build
 
+      - name: License detection
+        run: cargo test -p lumis-build --features license --lib license
+
       - name: Every predicate compiles under RegExp
         run: pnpm --filter @lumis-sh/lumis exec vitest run test/query-patterns.test.ts
 
