@@ -85,6 +85,8 @@ jobs:
           token: ${{ secrets.CI_TOKEN }}
           add-paths: |
             themes
+            THEMES.md
+            docs/content/reference/themes.md
             css
             crates/lumis-core/themes
             crates/lumis/css
