@@ -467,18 +467,18 @@ globs = [
 
 [parsers.markdown]
 git = "https://github.com/tree-sitter-grammars/tree-sitter-markdown.git"
-rev = "f969cd3ae3f9fbd4e43205431d0ae286014c05b5"
+rev = "41ff24a6c775492c543b09228aeb98d1cd2b3a0f"
 crate = "tree-sitter-md"
-version = "0.5.3"
+version = "0.5.4"
 location = "tree-sitter-markdown"
 globs = ["*.md", "*.markdown", "*.mdown", "*.mkd", ".MD", "README", "LICENSE"]
 requires = ["markdown_inline"]
 
 [parsers.markdown_inline]
 git = "https://github.com/tree-sitter-grammars/tree-sitter-markdown.git"
-rev = "f969cd3ae3f9fbd4e43205431d0ae286014c05b5"
+rev = "41ff24a6c775492c543b09228aeb98d1cd2b3a0f"
 crate = "tree-sitter-md"
-version = "0.5.3"
+version = "0.5.4"
 location = "tree-sitter-markdown-inline"
 wasm_name = "tree-sitter-markdown_inline"
 variant = "MarkdownInline"
@@ -489,9 +489,9 @@ display_name = "Markdown Inline"
 # extra injection rules in queries/upstream/mdx/injections.scm.
 [parsers.mdx]
 git = "https://github.com/tree-sitter-grammars/tree-sitter-markdown.git"
-rev = "f969cd3ae3f9fbd4e43205431d0ae286014c05b5"
+rev = "41ff24a6c775492c543b09228aeb98d1cd2b3a0f"
 crate = "tree-sitter-md"
-version = "0.5.3"
+version = "0.5.4"
 location = "tree-sitter-markdown"
 wasm_name = "tree-sitter-markdown"
 display_name = "MDX"
