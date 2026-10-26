@@ -86,6 +86,11 @@ export async function setupComparison(root: HTMLElement) {
     return;
   }
 
+  manifest.documents.sort(
+    (a, b) =>
+      Number(b.id === "readme") - Number(a.id === "readme") || a.label.localeCompare(b.label, "en"),
+  );
+
   // Switching either tab reloads the frame, so the frame reports where it is and
   // the next page is asked to resume there. Positions are kept per document,
   // because the same offset in a different file is not the same place, while the
