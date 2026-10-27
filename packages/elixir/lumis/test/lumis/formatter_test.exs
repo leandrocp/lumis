@@ -96,9 +96,37 @@ defmodule Lumis.FormatterTest do
     def render(_source, _events, _options), do: raise(ArgumentError, "cannot render")
   end
 
-  test "an exception raised in render/3 propagates out of highlight/2" do
-    assert_raise ArgumentError, "cannot render", fn ->
-      Lumis.highlight("x = 1", formatter: {RaisingFormatter, language: "elixir"})
+  defmodule NotIodataFormatter do
+    @moduledoc false
+    @behaviour Lumis.Formatter
+
+    @impl true
+    def render(_source, _events, _options), do: :not_iodata
+  end
+
+  describe "a formatter that fails" do
+    test "makes highlight/2 return a :render error naming it" do
+      assert {:error, %Lumis.RenderError{reason: :render, detail: detail}} =
+               Lumis.highlight("x = 1", formatter: {RaisingFormatter, language: "elixir"})
+
+      assert detail =~ "Lumis.FormatterTest.RaisingFormatter.render/3"
+      assert detail =~ "(ArgumentError) cannot render"
+    end
+
+    test "makes highlight!/2 raise" do
+      error =
+        assert_raise Lumis.HighlightError, fn ->
+          Lumis.highlight!("x = 1", formatter: {RaisingFormatter, language: "elixir"})
+        end
+
+      assert %Lumis.RenderError{reason: :render} = error.error
+    end
+
+    test "includes returning something other than iodata" do
+      assert {:error, %Lumis.RenderError{reason: :render, detail: detail}} =
+               Lumis.highlight("x = 1", formatter: {NotIodataFormatter, language: "elixir"})
+
+      assert detail =~ "NotIodataFormatter.render/3"
     end
   end
 end

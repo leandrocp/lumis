@@ -35,10 +35,11 @@ defmodule Lumis.Formatter do
 
   ## Failure
 
-  `render/3` has no error return. An exception it raises propagates out of
-  `Lumis.highlight/2` and `Lumis.highlight!/2` unchanged, rather than becoming
-  `{:error, %Lumis.RenderError{}}`, so the stack trace still points at the
-  formatter.
+  `render/3` signals failure by raising. `Lumis.highlight/2` returns that as
+  `{:error, %Lumis.RenderError{reason: :render}}`, the same as a built-in
+  formatter failing, with the formatter module and the exception in `:detail`.
+  Returning something that is not iodata fails the same way.
+  `Lumis.highlight!/2` raises `Lumis.HighlightError` instead.
   """
 
   @typedoc "A syntax, caller-provided annotation, or Lumis decoration event."

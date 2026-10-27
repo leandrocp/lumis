@@ -245,8 +245,9 @@ Lumis.highlight!("defmodule App do\nend",
 `render/3` returns iodata, so there is no need to flatten it into a binary;
 Lumis does that once at the end. `options` also carries `:budget_exhausted`:
 `:time` or `:matches` when a [limit](/advanced/budget) bound the highlight, and
-`nil` otherwise. An exception raised in `render/3` propagates out of
-`Lumis.highlight/2` unchanged rather than becoming an `{:error, _}` tuple. When the result is not one string, such as a
+`nil` otherwise. To fail, raise: `Lumis.highlight/2` returns
+`{:error, %Lumis.RenderError{reason: :render}}` naming the formatter and the
+exception, and `Lumis.highlight!/2` raises. When the result is not one string, such as a
 list of rendered lines, `Lumis.highlight_events/3` returns the same event stream
 without a formatter.
 

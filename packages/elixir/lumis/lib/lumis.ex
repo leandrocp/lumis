@@ -1321,12 +1321,26 @@ defmodule Lumis do
           |> Keyword.put(:language, language)
           |> Keyword.put(:budget_exhausted, budget)
 
-        output =
-          formatter.render(source, events, formatter_options)
-          |> IO.iodata_to_binary()
-
-        {:ok, output}
+        render_custom(formatter, source, events, formatter_options)
     end
+  end
+
+  # A raise in caller code, or a return that is not iodata, is the same
+  # `:render` failure a built-in formatter reports, so `highlight/2` keeps its
+  # `{:error, _}` contract and only `highlight!/2` raises.
+  defp render_custom(formatter, source, events, formatter_options) do
+    output =
+      formatter.render(source, events, formatter_options)
+      |> IO.iodata_to_binary()
+
+    {:ok, output}
+  rescue
+    exception ->
+      detail =
+        "#{inspect(formatter)}.render/3 failed: " <>
+          Exception.format_banner(:error, exception, __STACKTRACE__)
+
+      {:error, %Lumis.RenderError{reason: :render, detail: detail}}
   end
 
   defp normalize_formatter_language(options) do

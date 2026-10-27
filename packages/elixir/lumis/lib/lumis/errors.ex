@@ -149,7 +149,9 @@ defmodule Lumis.RenderError do
     * `:formatter` — the formatter could not be built, most often an unknown
       theme name
     * `:annotation` — an annotation could not be composed onto the source
-    * `:render` — the formatter failed while writing its output
+    * `:render` — the formatter failed while writing its output, including a
+      custom formatter's `render/3` raising or returning something other than
+      iodata
     * `:highlight` — the highlighter itself failed
     * `:parse` — the parser failed without cancellation or an exhausted time limit
     * `:invalid_match_limit` — `budget: [match_limit: _]` was outside `1..65536`
