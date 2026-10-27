@@ -105,8 +105,8 @@ defmodule Lumis.FormatterTest do
   end
 
   describe "a formatter that fails" do
-    test "makes highlight/2 return a :render error naming it" do
-      assert {:error, %Lumis.RenderError{reason: :render, detail: detail}} =
+    test "makes highlight/2 return a :custom_formatter error naming it" do
+      assert {:error, %Lumis.RenderError{reason: :custom_formatter, detail: detail}} =
                Lumis.highlight("x = 1", formatter: {RaisingFormatter, language: "elixir"})
 
       assert detail =~ "Lumis.FormatterTest.RaisingFormatter.render/3"
@@ -119,11 +119,15 @@ defmodule Lumis.FormatterTest do
           Lumis.highlight!("x = 1", formatter: {RaisingFormatter, language: "elixir"})
         end
 
-      assert %Lumis.RenderError{reason: :render} = error.error
+      assert %Lumis.RenderError{reason: :custom_formatter} = error.error
+
+      assert Exception.message(error.error) ==
+               "custom formatter failed in Lumis.FormatterTest.RaisingFormatter.render/3: " <>
+                 "** (ArgumentError) cannot render"
     end
 
     test "includes returning something other than iodata" do
-      assert {:error, %Lumis.RenderError{reason: :render, detail: detail}} =
+      assert {:error, %Lumis.RenderError{reason: :custom_formatter, detail: detail}} =
                Lumis.highlight("x = 1", formatter: {NotIodataFormatter, language: "elixir"})
 
       assert detail =~ "NotIodataFormatter.render/3"

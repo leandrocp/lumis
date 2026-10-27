@@ -36,8 +36,8 @@ defmodule Lumis.Formatter do
   ## Failure
 
   `render/3` signals failure by raising. `Lumis.highlight/2` returns that as
-  `{:error, %Lumis.RenderError{reason: :render}}`, the same as a built-in
-  formatter failing, with the formatter module and the exception in `:detail`.
+  `{:error, %Lumis.RenderError{reason: :custom_formatter}}`, with the formatter
+  module and the exception in `:detail`.
   Returning something that is not iodata fails the same way.
   `Lumis.highlight!/2` raises `Lumis.HighlightError` instead.
   """

@@ -1325,9 +1325,9 @@ defmodule Lumis do
     end
   end
 
-  # A raise in caller code, or a return that is not iodata, is the same
-  # `:render` failure a built-in formatter reports, so `highlight/2` keeps its
-  # `{:error, _}` contract and only `highlight!/2` raises.
+  # A raise in caller code, or a return that is not iodata, comes back as an
+  # error so `highlight/2` keeps its `{:error, _}` contract and only
+  # `highlight!/2` raises.
   defp render_custom(formatter, source, events, formatter_options) do
     output =
       formatter.render(source, events, formatter_options)
@@ -1337,10 +1337,10 @@ defmodule Lumis do
   rescue
     exception ->
       detail =
-        "#{inspect(formatter)}.render/3 failed: " <>
+        "#{inspect(formatter)}.render/3: " <>
           Exception.format_banner(:error, exception, __STACKTRACE__)
 
-      {:error, %Lumis.RenderError{reason: :render, detail: detail}}
+      {:error, %Lumis.RenderError{reason: :custom_formatter, detail: detail}}
   end
 
   defp normalize_formatter_language(options) do

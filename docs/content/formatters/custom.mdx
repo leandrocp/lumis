@@ -246,10 +246,10 @@ Lumis.highlight!("defmodule App do\nend",
 Lumis does that once at the end. `options` also carries `:budget_exhausted`:
 `:time` or `:matches` when a [limit](/advanced/budget) bound the highlight, and
 `nil` otherwise. To fail, raise: `Lumis.highlight/2` returns
-`{:error, %Lumis.RenderError{reason: :render}}` naming the formatter and the
-exception, and `Lumis.highlight!/2` raises. When the result is not one string, such as a
-list of rendered lines, `Lumis.highlight_events/3` returns the same event stream
-without a formatter.
+`{:error, %Lumis.RenderError{reason: :custom_formatter}}` naming the formatter
+and the exception, and `Lumis.highlight!/2` raises. When the result is not one
+string, such as a list of rendered lines, `Lumis.highlight_events/3` returns the
+same event stream without a formatter.
 
 For line-based output, reach for `render_lines_from_events/3` rather than
 splitting rendered markup on newlines. The results contain no line terminators;
