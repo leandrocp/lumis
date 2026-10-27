@@ -172,6 +172,8 @@ unsafe extern "C" {
     fn tree_sitter_tcl() -> *const ();
     #[cfg(feature = "lang-terraform")]
     fn tree_sitter_terraform() -> *const ();
+    #[cfg(feature = "lang-tlaplus")]
+    fn tree_sitter_tlaplus() -> *const ();
     #[cfg(feature = "lang-toon")]
     fn tree_sitter_toon() -> *const ();
     #[cfg(feature = "lang-nushell")]
@@ -409,6 +411,8 @@ impl LanguageConfig for Language {
             Language::Tcl => &TCL_CONFIG,
             #[cfg(feature = "lang-terraform")]
             Language::Terraform => &TERRAFORM_CONFIG,
+            #[cfg(feature = "lang-tlaplus")]
+            Language::TLAPlus => &TLAPLUS_CONFIG,
             #[cfg(feature = "lang-toon")]
             Language::Toon => &TOON_CONFIG,
             #[cfg(feature = "lang-toml")]
@@ -1999,6 +2003,21 @@ static TERRAFORM_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     config
 });
 
+#[cfg(feature = "lang-tlaplus")]
+static TLAPLUS_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_tlaplus) };
+    let mut config = HighlightConfiguration::new(
+        tree_sitter::Language::new(language_fn),
+        "tlaplus",
+        TLAPLUS_HIGHLIGHTS,
+        TLAPLUS_INJECTIONS,
+        TLAPLUS_LOCALS,
+    )
+    .expect("failed to create tlaplus highlight configuration");
+    config.configure(&HIGHLIGHT_NAMES);
+    config
+});
+
 #[cfg(feature = "lang-toon")]
 static TOON_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_toon) };
@@ -2626,6 +2645,8 @@ mod tests {
         test_tcl_config_loads => (Language::Tcl, "Tcl", "tcl.tcl");
         #[cfg(feature = "lang-terraform")]
         test_terraform_config_loads => (Language::Terraform, "Terraform", "terraform.tf");
+        #[cfg(feature = "lang-tlaplus")]
+        test_tlaplus_config_loads => (Language::TLAPlus, "TLA+", "tlaplus.tla");
         #[cfg(feature = "lang-toml")]
         test_toml_config_loads => (Language::Toml, "TOML", "toml.toml");
         #[cfg(feature = "lang-tsx")]
