@@ -150,6 +150,7 @@ all-languages = [
     "lang-systemverilog",
     "lang-tcl",
     "lang-terraform",
+    "lang-tlaplus",
     "lang-toon",
     "lang-toml",
     "lang-tsx",
@@ -277,6 +278,7 @@ lang-swift = ["dep:tree-sitter-swift", "lumis-core/lang-swift"]
 lang-systemverilog = ["dep:tree-sitter-systemverilog", "lumis-core/lang-systemverilog"]
 lang-tcl = ["lumis-core/lang-tcl"]
 lang-terraform = ["lumis-core/lang-terraform"]
+lang-tlaplus = ["lumis-core/lang-tlaplus"]
 lang-toon = ["lumis-core/lang-toon"]
 lang-toml = ["dep:tree-sitter-toml-ng", "lumis-core/lang-toml"]
 lang-tsx = ["dep:tree-sitter-typescript", "lumis-core/lang-tsx"]

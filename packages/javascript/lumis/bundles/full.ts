@@ -78,6 +78,7 @@ export const bundledLanguages: LanguageBundle = {
   surface: lazy("surface", [], () => import("../langs/surface.js")),
   svelte: lazy("svelte", [], () => import("../langs/svelte.js")),
   swift: lazy("swift", [], () => import("../langs/swift.js")),
+  tlaplus: lazy("tlaplus", ["tla", "tla+", "pluscal"], () => import("../langs/tlaplus.js")),
   toml: lazy("toml", [], () => import("../langs/toml.js")),
   tsx: lazy("tsx", [], () => import("../langs/tsx.js")),
   typescript: lazy("typescript", ["ts"], () => import("../langs/typescript.js")),

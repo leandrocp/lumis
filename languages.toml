@@ -683,6 +683,16 @@ globs = ["*.swift"]
 emacs = ["swift"]
 shebang = ["swift"]
 
+[parsers.tlaplus]
+git = "https://github.com/tlaplus-community/tree-sitter-tlaplus.git"
+rev = "add40814fda369f6efd989977b2c498aaddde984"
+version = "0.0.0"
+variant = "TLAPlus"
+display_name = "TLA+"
+aliases = ["tla", "tla+", "pluscal"]
+globs = ["*.tla"]
+emacs = ["tla", "tla+"]
+
 [parsers.toml]
 git = "https://github.com/tree-sitter-grammars/tree-sitter-toml.git"
 rev = "64b56832c2cffe41758f28e05c756a3a98d16f41"
