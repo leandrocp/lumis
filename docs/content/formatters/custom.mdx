@@ -106,6 +106,13 @@ impl Formatter for MinimalHtmlFormatter {
 }
 ```
 
+`render` writes into `output` and returns `io::Result<()>`. An `Err` comes back
+from `write_highlight()` and `write_highlight_with_options()`; `highlight()`
+panics with it. When a time or match limit bound the highlight, Lumis calls
+`render_budgeted()` instead, with the
+[`BudgetExhausted`](/advanced/budget) that applied. Its default calls `render()`,
+so override it only to record the fact in your output.
+
 <span id="javascript" />
 
 ## JavaScript / TypeScript
@@ -167,6 +174,11 @@ const formatter: Formatter = {
 
 const html = hl.highlight('fn main() {}', formatter)
 ```
+
+`render` returns the document as a string. Its optional third argument,
+`budget`, is `'time'` or `'matches'` when a [limit](/advanced/budget) bound the
+highlight, and `undefined` otherwise. An error thrown inside `render` propagates
+out of `highlight()` unchanged.
 
 ## Elixir
 
@@ -231,7 +243,10 @@ Lumis.highlight!("defmodule App do\nend",
 ```
 
 `render/3` returns iodata, so there is no need to flatten it into a binary;
-Lumis does that once at the end. When the result is not one string, such as a
+Lumis does that once at the end. `options` also carries `:budget_exhausted`:
+`:time` or `:matches` when a [limit](/advanced/budget) bound the highlight, and
+`nil` otherwise. An exception raised in `render/3` propagates out of
+`Lumis.highlight/2` unchanged rather than becoming an `{:error, _}` tuple. When the result is not one string, such as a
 list of rendered lines, `Lumis.highlight_events/3` returns the same event stream
 without a formatter.
 

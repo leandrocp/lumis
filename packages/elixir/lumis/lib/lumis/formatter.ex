@@ -25,6 +25,20 @@ defmodule Lumis.Formatter do
       def render(source, events, options) do
         Lumis.Formatter.HTML.open_code_tag(Keyword.fetch!(options, :language))
       end
+
+  It also receives `:budget_exhausted`, which names the limit that bound the
+  highlight: `nil` when none did, `:time` when the time limit ran out and the
+  events are the whole source as plain text, or `:matches` when the match limit
+  dropped some scopes. The built-in HTML formatters put it in
+  `data-lumis-budget` on the `<pre>`; a formatter with nowhere to put it can
+  ignore it.
+
+  ## Failure
+
+  `render/3` has no error return. An exception it raises propagates out of
+  `Lumis.highlight/2` and `Lumis.highlight!/2` unchanged, rather than becoming
+  `{:error, %Lumis.RenderError{}}`, so the stack trace still points at the
+  formatter.
   """
 
   @typedoc "A syntax, caller-provided annotation, or Lumis decoration event."

@@ -14,7 +14,7 @@ defmodule Lumis.FormatterTest do
   @bash "#!/usr/bin/env bash\nID=1\n"
 
   setup_all do
-    :ok = Lumis.Languages.load(~w(elixir bash))
+    :ok = Lumis.Languages.load(~w(elixir bash json))
     :ok
   end
 
@@ -49,6 +49,56 @@ defmodule Lumis.FormatterTest do
 
     test "is plaintext when nothing matches" do
       assert language_of("nothing identifies this\n") == "plaintext"
+    end
+  end
+
+  defmodule BudgetFormatter do
+    @moduledoc false
+    @behaviour Lumis.Formatter
+
+    @impl true
+    def render(_source, _events, options) do
+      send(self(), {:budget_exhausted, Keyword.fetch!(options, :budget_exhausted)})
+      []
+    end
+  end
+
+  describe "the :budget_exhausted a formatter receives" do
+    @ordinary "defmodule A do\n  def b, do: (1 + (2 * 3))\nend\n"
+
+    defp budget_exhausted(source, language, budget) do
+      Lumis.highlight!(source, formatter: {BudgetFormatter, language: language}, budget: budget)
+      assert_received {:budget_exhausted, exhausted}
+      exhausted
+    end
+
+    test "is nil when no limit bound the render" do
+      assert budget_exhausted(@ordinary, "elixir", time_limit: 0) == nil
+    end
+
+    test "is :matches when the match limit bound the query" do
+      assert budget_exhausted(@ordinary, "elixir", match_limit: 1) == :matches
+    end
+
+    test "is :time when the time limit ran out" do
+      # 200k unclosed brackets cannot highlight in 50 ms on any machine.
+      pathological = String.duplicate("[", 200_000)
+
+      assert budget_exhausted(pathological, "json", time_limit: 50) == :time
+    end
+  end
+
+  defmodule RaisingFormatter do
+    @moduledoc false
+    @behaviour Lumis.Formatter
+
+    @impl true
+    def render(_source, _events, _options), do: raise(ArgumentError, "cannot render")
+  end
+
+  test "an exception raised in render/3 propagates out of highlight/2" do
+    assert_raise ArgumentError, "cannot render", fn ->
+      Lumis.highlight("x = 1", formatter: {RaisingFormatter, language: "elixir"})
     end
   end
 end
