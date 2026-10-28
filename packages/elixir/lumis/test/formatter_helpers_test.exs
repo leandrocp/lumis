@@ -156,7 +156,7 @@ defmodule Lumis.FormatterHelpersTest do
         "escape_attr" => HTML.escape_attr(html["escapeText"]),
         "escape_braces" => HTML.escape_braces(html["bracedText"]),
         "scope_to_class" => HTML.scope_to_class(html["linkedScope"]),
-        "style_to_css" => HTML.style_to_css(style, italic: true),
+        "style_to_css" => HTML.style_to_css(style),
         "text_decoration" => HTML.text_decoration(style.text_decoration),
         "sanitize_theme_name" => HTML.sanitize_theme_name(html["themeName"]),
         "open_span" =>

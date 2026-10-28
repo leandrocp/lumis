@@ -923,6 +923,9 @@ impl Style {
         }
     }
 
+    /// Renders this style as CSS declarations joined by `separator`.
+    ///
+    /// Pass `true` for `enable_italic` to preserve this style's italics.
     pub fn css(&self, enable_italic: bool, separator: &str) -> String {
         let mut rules = Vec::new();
 
@@ -995,6 +998,9 @@ mod tests {
         assert_eq!(visited.len(), 6);
         assert!(visited.values().all(|count| *count == 1));
         assert!(case.theme.highlights["markup.raw.block"].italic);
+        assert!(CssBuilder::new(&mapped)
+            .build()
+            .contains("text-decoration: line-through;"));
         assert_eq!(
             CssBuilder::new(&mapped).build(),
             CssBuilder::new(&case.expected).build()

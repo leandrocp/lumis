@@ -9,7 +9,7 @@
       "markup.raw.block": { "fg": "#654321", "italic": true, "underline": "wavy" },
       "markup.raw.block.markdown": { "fg": "#987654", "italic": true },
       "markup.italic": { "italic": true },
-      "comment": { "fg": "#888888", "italic": true, "strikethrough": true },
+      "comment": { "fg": "#888888", "italic": true, "underline": "none", "strikethrough": true },
       "highlighted": { "bg": "#ffff00", "bold": true }
     }
   },
@@ -23,7 +23,7 @@
       "markup.raw.block": { "fg": "#654321", "italic": false, "underline": "wavy" },
       "markup.raw.block.markdown": { "fg": "#987654", "italic": true },
       "markup.italic": { "italic": true },
-      "comment": { "fg": "#888888", "italic": true, "strikethrough": true },
+      "comment": { "fg": "#888888", "italic": true, "underline": "none", "strikethrough": true },
       "highlighted": {}
     }
   }

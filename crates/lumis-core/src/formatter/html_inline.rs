@@ -99,6 +99,10 @@ impl HtmlInlineBuilder {
 }
 
 impl HtmlInline {
+    /// Creates a block formatter with explicit options.
+    ///
+    /// Pass `true` for `italic` to respect the theme's styles. Use
+    /// [`Theme::map_styles`] to customize individual scopes.
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         language: Language,

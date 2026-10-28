@@ -190,6 +190,10 @@ impl Default for HtmlMultiThemes {
 }
 
 impl HtmlMultiThemes {
+    /// Creates a block formatter with explicit options for multiple themes.
+    ///
+    /// Pass `true` for `italic` to respect each theme's styles. Use
+    /// [`Theme::map_styles`] to customize individual scopes.
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         language: Language,

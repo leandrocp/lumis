@@ -3,9 +3,8 @@ defmodule Lumis.FormatterOptionsTest do
   Elixir's half of the cross-runtime formatter option check.
 
   `fixtures/formatter-options.json` lists the options every covered runtime must accept.
-  `Lumis.formatter_type/1` returns the validated defaults for a formatter, so
-  unlike the other runtimes this can read the option names straight off the
-  schema rather than naming them again.
+  `Lumis.formatter_type/1` returns validated options, including defaults.
+  Deprecated options are supplied explicitly because defaults omit them.
   """
   use ExUnit.Case, async: false
 
@@ -16,8 +15,14 @@ defmodule Lumis.FormatterOptionsTest do
   # JSON gives the compiler a literal type precise enough to warn on `Map.keys/1`.
   defp manifest, do: @manifest_path |> File.read!() |> Jason.decode!()
 
-  defp accepted_options(formatter) do
-    {:ok, {^formatter, opts}} = Lumis.formatter_type(formatter)
+  defp accepted_options(formatter, options \\ []) do
+    options =
+      if formatter in [:html_inline, :html_multi_themes],
+        do: Keyword.put(options, :italic, true),
+        else: options
+
+    {{:ok, {^formatter, opts}}, _warning} =
+      ExUnit.CaptureIO.with_io(:stderr, fn -> Lumis.formatter_type({formatter, options}) end)
 
     opts
     |> Keyword.keys()
@@ -50,12 +55,8 @@ defmodule Lumis.FormatterOptionsTest do
   end
 
   test "html_multi_themes accepts every option in the manifest" do
-    {:ok, {:html_multi_themes, opts}} =
-      Lumis.formatter_type({:html_multi_themes, themes: [light: "github_light"]})
-
-    accepted = opts |> Keyword.keys() |> Enum.map(&Atom.to_string/1) |> Enum.sort()
-
-    assert accepted == manifest_options("html_multi_themes")
+    assert accepted_options(:html_multi_themes, themes: [light: "github_light"]) ==
+             manifest_options("html_multi_themes")
   end
 
   test "italic honors the theme by default and warns only for explicit overrides" do
@@ -65,7 +66,7 @@ defmodule Lumis.FormatterOptionsTest do
         ] do
       assert ExUnit.CaptureIO.capture_io(:stderr, fn ->
                assert {:ok, {^formatter, options}} = Lumis.formatter_type({formatter, required})
-               assert options[:italic] == true
+               refute Keyword.has_key?(options, :italic)
              end) == ""
 
       for italic <- [false, true] do
@@ -81,6 +82,24 @@ defmodule Lumis.FormatterOptionsTest do
         assert warning =~ "Lumis.Theme.map_styles/2"
       end
     end
+  end
+
+  test "generated options can be reused without italic deprecation warnings" do
+    theme = %{
+      Lumis.Theme.get("github_light")
+      | highlights: %{"string" => %Lumis.Theme.Style{italic: true}}
+    }
+
+    assert ExUnit.CaptureIO.capture_io(:stderr, fn ->
+             assert Lumis.highlight!("plain text", Lumis.default_options()) =~ "plain text"
+
+             options =
+               Lumis.validate_options!(formatter: {:html_inline, language: "json", theme: theme})
+
+             html = Lumis.highlight!(~s(["hello"]), options)
+             assert html =~ "font-style: italic;"
+             assert Lumis.validate_options!(options) == options
+           end) == ""
   end
 
   test "no waiver outlives its reason" do

@@ -74,7 +74,7 @@ function getSpanStyle(
 }
 
 function getUnderlineDecoration(style: HighlightStyle): string | undefined {
-  if (style.underline == null || style.underline === false) {
+  if (style.underline == null || style.underline === false || style.underline === "none") {
     return undefined;
   }
 

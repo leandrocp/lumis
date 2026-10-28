@@ -14,6 +14,6 @@ export interface StyleEntry {
   bg?: string;
   bold?: boolean;
   italic?: boolean;
-  underline?: boolean | "solid" | "wavy" | "double" | "dotted" | "dashed" | "undercurl";
+  underline?: boolean | "none" | "solid" | "wavy" | "double" | "dotted" | "dashed" | "undercurl";
   strikethrough?: boolean;
 }
