@@ -801,9 +801,9 @@ checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
 
 [[package]]
 name = "lumis-core"
-version = "4.1.0"
+version = "5.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "280f08e459afb86720148b2d5f0525aee9efecff13dc0de2ecfe9a29bab0ec9c"
+checksum = "59699071cbca022a41799e4eb0dd9ab1fd2800783527c22a9b90e30da231622b"
 dependencies = [
  "derive_builder",
  "glob",
@@ -820,9 +820,9 @@ dependencies = [
 
 [[package]]
 name = "lumis-wasm-runtime"
-version = "0.5.2"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af7d7f39144507a5e53f8e5d74480deaa5105d1f75af76d4a08d32e064f63592"
+checksum = "a50fcf7c70e76449f0b7a68780a7fa38c8b368a8b6088e87d5b1b617a28902c9"
 dependencies = [
  "etcetera",
  "lumis-core",
