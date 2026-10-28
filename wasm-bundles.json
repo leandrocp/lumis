@@ -225,7 +225,7 @@
       }
     },
     "full": {
-      "version": "0.1.6",
+      "version": "0.1.7",
       "dependencies": {
         "lumis_wasm_angular": "~> 0.26.0",
         "lumis_wasm_arduino": "~> 0.26.0",
@@ -269,6 +269,7 @@
         "lumis_wasm_hcl": "~> 0.26.0",
         "lumis_wasm_heex": "~> 0.26.0",
         "lumis_wasm_html": "~> 0.26.0",
+        "lumis_wasm_htmldjango": "~> 0.26.0",
         "lumis_wasm_http": "~> 0.26.0",
         "lumis_wasm_hurl": "~> 0.26.0",
         "lumis_wasm_iex": "~> 0.26.0",
@@ -320,6 +321,7 @@
         "lumis_wasm_scala": "~> 0.26.0",
         "lumis_wasm_scheme": "~> 0.26.0",
         "lumis_wasm_scss": "~> 0.26.0",
+        "lumis_wasm_slim": "~> 0.26.0",
         "lumis_wasm_solidity": "~> 0.26.0",
         "lumis_wasm_sql": "~> 0.26.0",
         "lumis_wasm_surface": "~> 0.26.0",
@@ -327,6 +329,7 @@
         "lumis_wasm_swift": "~> 0.26.0",
         "lumis_wasm_tcl": "~> 0.26.0",
         "lumis_wasm_terraform": "~> 0.26.0",
+        "lumis_wasm_tlaplus": "~> 0.26.0",
         "lumis_wasm_toml": "~> 0.26.0",
         "lumis_wasm_toon": "~> 0.26.0",
         "lumis_wasm_tsx": "~> 0.26.0",
