@@ -35,6 +35,8 @@ fn manifest_matches_build_css_flags() {
         .as_array()
         .unwrap()
         .iter()
+        // The shared CSS cases exercise this hidden compatibility flag.
+        .filter(|option| option["name"] != "enable_italic")
         .map(|option| format!("--{}", option["cli"].as_str().unwrap()))
         .collect();
     assert_eq!(actual, expected.iter().map(String::as_str).collect());

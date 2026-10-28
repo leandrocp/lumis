@@ -1,8 +1,8 @@
 //! The CLI's half of the cross-runtime formatter option check.
 //!
 //! `fixtures/formatter-options.json` lists the options every covered runtime must
-//! accept. This reads `lumis highlight --help`, so it checks the flags clap
-//! actually parses rather than a list maintained beside them.
+//! accept. Visible flags are checked through `lumis highlight --help`; hidden
+//! compatibility flags are exercised directly.
 //!
 //! Options are `snake_case` in the manifest and kebab-case behind `--` here.
 //! An option that needs more than one flag records that in `spelling.cli`.
@@ -78,7 +78,13 @@ fn highlight_accepts_every_option_in_the_manifest() {
                 let present = help
                     .split_whitespace()
                     .any(|token| token.trim_end_matches(&[',', '<'][..]) == flag);
-                if !present {
+                if flag == "--italic" {
+                    assert!(!present, "deprecated --italic must stay hidden from help");
+                    cargo_bin_cmd!("lumis")
+                        .args(["highlight", &flag, "--help"])
+                        .assert()
+                        .success();
+                } else if !present {
                     missing.insert(flag);
                 }
             }
