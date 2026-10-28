@@ -10,6 +10,7 @@
     "terminal-output",
     "wrap-output-with-custom-html",
     "custom-theme-from-json",
+    "customize-theme-styles",
     "injected-languages-html-css-js",
     "phoenix-liveview-rendering",
     "stream-output-to-a-file-rust",
