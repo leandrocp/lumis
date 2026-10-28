@@ -375,7 +375,7 @@
       }
     },
     "web-extra": {
-      "version": "0.1.3",
+      "version": "0.1.4",
       "dependencies": {
         "lumis_wasm_angular": "~> 0.26.0",
         "lumis_wasm_astro": "~> 0.26.0",
@@ -386,11 +386,13 @@
         "lumis_wasm_glimmer": "~> 0.26.0",
         "lumis_wasm_graphql": "~> 0.26.0",
         "lumis_wasm_heex": "~> 0.26.0",
+        "lumis_wasm_htmldjango": "~> 0.26.0",
         "lumis_wasm_markdown": "~> 0.26.0",
         "lumis_wasm_markdown_inline": "~> 0.26.0",
         "lumis_wasm_php": "~> 0.26.0",
         "lumis_wasm_prisma": "~> 0.26.0",
         "lumis_wasm_scss": "~> 0.26.0",
+        "lumis_wasm_slim": "~> 0.26.0",
         "lumis_wasm_surface": "~> 0.26.0",
         "lumis_wasm_svelte": "~> 0.26.0",
         "lumis_wasm_vue": "~> 0.26.0",
