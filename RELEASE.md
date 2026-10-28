@@ -13,6 +13,38 @@ Merging a release pull request ships that package. Nothing else does.
 
 Not merged is not released.
 
+### Choose a different bump
+
+For an already-published package, add exactly one of `release:patch`,
+`release:minor`, or `release:major` to its release pull request to override the
+automatic bump. Adding or removing a selection regenerates the release PR from
+`main`. The label stays on the PR, so later Cargo releases and other pushes to
+`main` do not reset the selection. Remove it to return to automatic bumping.
+Conflicting selections fail preparation.
+
+A patch selection declares that this package has no breaking API change. Its
+release notes omit breaking markers inherited from shared implementation commits;
+other packages keep their own classification. Review that decision again if more
+changes land before the release merges. A minor or major selection changes the
+version without removing breaking markers.
+
+```sh
+gh pr edit 123 --add-label release:patch
+```
+
+Bundles keep their registry-based patch versioning and do not accept these
+overrides. A first release keeps the version its manifest already declares.
+
+To reproduce a selection locally, save the open PR metadata and pass it through
+the same tasks CI uses:
+
+```sh
+gh pr list --repo leandrocp/lumis --base main --state open --limit 1000 --json headRefName,labels,isCrossRepository > /tmp/lumis-release-prs.json
+mise run release-bump-overrides /tmp/lumis-release-prs.json > /tmp/lumis-release-overrides.json
+mise run release-plan --overrides /tmp/lumis-release-overrides.json
+mise run release-prepare npm-lumis 0.10.1 --bump patch
+```
+
 ## Publish order
 
 ```

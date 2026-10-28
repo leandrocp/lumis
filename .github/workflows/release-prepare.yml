@@ -1,18 +1,27 @@
 name: Prepare Releases
 
 concurrency:
-  group: ${{ github.workflow }}
+  group: >-
+    ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' &&
+      (github.event.pull_request.head.repo.full_name != github.repository ||
+       !startsWith(github.event.pull_request.head.ref, 'release/') ||
+       !contains(fromJSON('["release:patch", "release:minor", "release:major"]'), github.event.label.name)) &&
+      github.run_id || 'main' }}
   cancel-in-progress: true
 
 on:
   push:
     branches: [main]
+  pull_request_target:
+    branches: [main]
+    types: [labeled, unlabeled]
   workflow_dispatch:
 
 # The branches and the pull requests are pushed with CI_TOKEN, and checkout keeps
 # no credentials, so GITHUB_TOKEN only ever reads this repository.
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   # Deliberately not skipped on `chore(release):` commits, unlike the branch
@@ -20,15 +29,21 @@ jobs:
   # the most: the package that just landed leaves it, and every other open pull
   # request has to be rebuilt on top of the merge.
   plan:
+    if: >-
+      github.event_name != 'pull_request_target' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+       startsWith(github.event.pull_request.head.ref, 'release/') &&
+       contains(fromJSON('["release:patch", "release:minor", "release:major"]'), github.event.label.name))
     runs-on: ubuntu-latest
     outputs:
       releases: ${{ steps.plan.outputs.releases }}
+      source: ${{ steps.plan.outputs.source }}
     steps:
       # `mise run release-plan` reads every package tag and every commit since
       # it, so the whole history has to be here.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.sha }}
+          ref: ${{ github.event_name == 'push' && github.sha || 'main' }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -55,12 +70,19 @@ jobs:
 
       - name: Plan releases
         id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mise run release-plan | tee "$RUNNER_TEMP/plan.txt"
-          releases="$(jq -Rc -s '
+          echo "source=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          gh pr list --repo "$GITHUB_REPOSITORY" --base main --state open --limit 1000 \
+            --json headRefName,labels,isCrossRepository > "$RUNNER_TEMP/pulls.json"
+          mise run release-bump-overrides "$RUNNER_TEMP/pulls.json" > "$RUNNER_TEMP/overrides.json"
+          mise run release-plan --overrides "$RUNNER_TEMP/overrides.json" | tee "$RUNNER_TEMP/plan.txt"
+          releases="$(jq -Rc -s --slurpfile overrides "$RUNNER_TEMP/overrides.json" '
             split("\n")
-            | map(select(length > 0) | split(" ") | {package: .[0], version: .[1]})
+            | map(select(length > 0) | split(" ") | .[0] as $package
+              | {package: $package, version: .[1], bump: ($overrides[0][$package] // "auto")})
           ' "$RUNNER_TEMP/plan.txt")"
           echo "Planned releases: $releases"
           echo "releases=$releases" >> "$GITHUB_OUTPUT"
@@ -106,7 +128,7 @@ jobs:
       # the changelog `git-cliff` writes.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.sha }}
+          ref: ${{ needs.plan.outputs.source }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -137,9 +159,10 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           PACKAGE: ${{ matrix.release.package }}
           VERSION: ${{ matrix.release.version }}
+          BUMP: ${{ matrix.release.bump }}
         run: |
           set -euo pipefail
-          mise run release-prepare "$PACKAGE" "$VERSION"
+          mise run release-prepare "$PACKAGE" "$VERSION" --bump "$BUMP"
           git status --short
 
       - name: Create Pull Request
