@@ -1,0 +1,185 @@
+---
+title: Customize Theme Styles
+description: Keep fenced code upright, preserve Markdown emphasis, and change a theme's background with map_styles.
+keywords:
+  - lumis map_styles
+  - lumis mapStyles
+  - disable italic
+  - customize theme
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+Some themes make Markdown's `markup.raw.block` scope italic, so a whole fenced
+code block inherits that style. Transform the theme before rendering to remove
+italics from code fences while keeping emphasis elsewhere.
+
+These examples also change the block background. They preserve every other
+style field and include language-specific scopes such as
+`markup.raw.block.markdown`.
+
+## Build a customized stylesheet
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
+
+```ts
+import githubLight from '@lumis-sh/themes/github_light';
+import { buildCss } from '@lumis-sh/themes';
+import { mapStyles } from '@lumis-sh/lumis/themes';
+
+const theme = mapStyles(githubLight, (scope, style) => {
+  if (scope === 'markup.raw.block' || scope.startsWith('markup.raw.block.')) {
+    return { ...style, italic: false };
+  }
+  if (scope === 'normal') {
+    return { ...style, bg: '#fafafa' };
+  }
+  return style;
+});
+
+const css = buildCss(theme);
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::themes;
+
+let theme = themes::get("github_light").unwrap()
+    .map_styles(|scope, mut style| {
+        if scope == "markup.raw.block" || scope.starts_with("markup.raw.block.") {
+            style.italic = false;
+        }
+        if scope == "normal" {
+            style.bg = Some("#fafafa".into());
+        }
+        style
+    });
+
+let css = themes::CssBuilder::new(&theme).build();
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+alias Lumis.Theme
+
+theme =
+  Theme.get("github_light")
+  |> Theme.map_styles(fn
+    "markup.raw.block", style -> %{style | italic: false}
+    "markup.raw.block." <> _language, style -> %{style | italic: false}
+    "normal", style -> %{style | bg: "#fafafa"}
+    _scope, style -> style
+  end)
+
+css = Theme.build_css!(theme)
+```
+
+  </Tab>
+</Tabs>
+
+Save `css` as your stylesheet and load it alongside
+[linked HTML](/recipes/linked-html-css-theme-file). Use this stylesheet instead
+of the prebuilt `github_light.css`; changing a theme object does not change the
+bundled CSS file.
+
+## Use the same theme for inline HTML
+
+The `theme` above can also render self-contained HTML. These examples highlight
+Markdown source, not convert Markdown into a rendered document.
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
+
+```ts
+import { highlight } from '@lumis-sh/lumis';
+import { htmlInline } from '@lumis-sh/lumis/formatters';
+import markdown from '@lumis-sh/wasm-markdown';
+
+const html = await highlight(
+  '*Emphasis*\n\n```javascript\nconst answer = 42;\n```\n',
+  htmlInline({ language: markdown, theme, italic: true }),
+);
+```
+
+Install `@lumis-sh/wasm-javascript` as well to highlight the fenced block's
+contents. In a browser, [load injected languages](/recipes/injected-languages-html-css-js)
+before highlighting.
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::{highlight, languages::Language, HtmlInlineBuilder};
+
+let html = highlight(
+    "*Emphasis*\n\n```javascript\nconst answer = 42;\n```\n",
+    HtmlInlineBuilder::new()
+        .language(Language::Markdown)
+        .theme(Some(theme.clone()))
+        .italic(true)
+        .build()
+        .unwrap(),
+);
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+html =
+  Lumis.highlight!(
+    "*Emphasis*\n\n```javascript\nconst answer = 42;\n```\n",
+    formatter: {:html_inline, language: "markdown", theme: theme, italic: true}
+  )
+```
+
+  </Tab>
+</Tabs>
+
+Inline HTML still needs `italic: true` to emit the italic styles that remain in
+the theme; its default is `false`. The transformation controls which scopes
+retain italics. The same theme works in terminal output and custom formatters;
+for multi-theme HTML, transform each theme before passing it to the formatter.
+
+## Remove italics everywhere
+
+To remove all italic styles rather than only code-fence italics, replace the
+callback with one that clears `italic` on every entry:
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
+
+```ts
+const upright = mapStyles(theme, (_scope, style) => ({ ...style, italic: false }));
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+let upright = theme.map_styles(|_, mut style| {
+    style.italic = false;
+    style
+});
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+upright = Theme.map_styles(theme, fn _scope, style -> %{style | italic: false} end)
+```
+
+  </Tab>
+</Tabs>
+
+Mapping visits existing styles only and replaces each style with the callback's
+result. It does not add scopes or reset inherited CSS: clearing a code-fence
+style does not remove independently italic comments inside that fence, or an
+italic style applied by your page. See the [theme transformation contract](/themes#transform-theme-styles)
+for ownership and fallback behavior.
