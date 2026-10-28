@@ -27,6 +27,10 @@ fn manifest() -> Manifest {
     serde_json::from_str(include_str!("../../../fixtures/theme-css-options.json")).unwrap()
 }
 
+#[allow(
+    deprecated,
+    reason = "exercise every supported option, including legacy ones"
+)]
 fn build(theme: &themes::Theme, options: &BTreeMap<String, Value>) -> String {
     let mut builder = CssBuilder::new(theme);
     for (name, value) in options {

@@ -36,7 +36,7 @@ export default {
     let html = highlight(code, formatter);
 
     let theme = themes::get("github_light").expect("github_light theme should be available");
-    let css = themes::CssBuilder::new(&theme).enable_italic(true).build();
+    let css = themes::CssBuilder::new(&theme).build();
 
     println!("<!-- Include this CSS in your HTML -->");
     println!("<style>\n{css}\n</style>\n");

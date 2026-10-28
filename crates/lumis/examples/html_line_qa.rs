@@ -28,6 +28,7 @@ struct Case {
     source: String,
 }
 
+#[allow(deprecated, reason = "theme italics still require explicit opt-in")]
 fn formatter(manifest: &Manifest, name: &str, numbered: bool) -> Box<dyn Formatter> {
     let theme = themes::get(&manifest.theme).expect("QA theme exists");
     let lines = manifest.highlight_lines.iter().map(|&n| n..=n).collect();

@@ -30,6 +30,7 @@ it("pins CSS option names and defaults in both directions", () => {
     path.pathname,
     readFileSync(path, "utf8"),
     ts.ScriptTarget.Latest,
+    true,
   );
   const declaration = source.statements.find(
     (node): node is ts.InterfaceDeclaration =>
@@ -39,6 +40,10 @@ it("pins CSS option names and defaults in both directions", () => {
   expect(declaration?.members.map((member) => member.name?.getText(source)).sort()).toEqual(
     Object.keys(defaults).sort(),
   );
+  const italic = declaration?.members.find(
+    (member) => member.name?.getText(source) === "enableItalic",
+  );
+  expect(italic && ts.getJSDocDeprecatedTag(italic)?.comment).toContain("mapStyles");
 });
 
 it("renders the shared CSS cases", () => {

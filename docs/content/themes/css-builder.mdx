@@ -26,7 +26,7 @@ The npm API uses camelCase. Rust and Elixir use snake_case.
 | `containerSelector` / `container_selector` | `".lumis"` | Set the selector for the code block container rule. |
 | `containerStyle` / `container_style` | none | Add declarations to the container selector. Use this for layout-related CSS such as `padding`, `border-radius`, or `overflow-x`. If a property already exists, the new value replaces it. |
 | `layout` | `true` | Include the built-in line layout rules in `@layer lumis`. Set to `false` when your app supplies its own layout. |
-| `enableItalic` / `enable_italic` | `true` | Drop italic declarations when set to `false`. |
+| `enableItalic` / `enable_italic` | `true` | Deprecated; still drops italic declarations when set to `false`. |
 
 `containerStyle` / `container_style` is a list of `(property, value)` pairs. For example, `background-color: var(--code-background)` replaces the theme background, while `padding: 1rem` adds a new declaration.
 
@@ -72,7 +72,7 @@ lumis themes build-css catppuccin_frappe --no-layout > theme.css
 
 Use your own rules for [line layout](/themes/css-files#line-layout) when disabling it.
 
-## Use all options together
+## Combine scoping and container styles
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
   <Tab value="JavaScript / TypeScript">
@@ -89,7 +89,6 @@ const css = buildCss(frappe, {
     ['border-radius', '0.5rem'],
     ['padding', '1rem'],
   ],
-  enableItalic: false,
   layout: false,
 })
 ```
@@ -110,7 +109,6 @@ let css = themes::CssBuilder::new(&theme)
         ("border-radius", "0.5rem"),
         ("padding", "1rem"),
     ])
-    .enable_italic(false)
     .layout(false)
     .build();
 ```
@@ -128,7 +126,6 @@ css =
       {"border-radius", "0.5rem"},
       {"padding", "1rem"}
     ],
-    enable_italic: false,
     layout: false
   )
 ```
@@ -143,7 +140,7 @@ lumis themes build-css catppuccin_frappe \
   --container-style 'background-color=var(--code-background)' \
   --container-style 'border-radius=0.5rem' \
   --container-style 'padding=1rem' \
-  --no-italic --no-layout > theme.css
+  --no-layout > theme.css
 ```
 
   </Tab>

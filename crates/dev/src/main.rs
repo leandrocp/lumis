@@ -966,9 +966,7 @@ fn gen_css() -> Result<()> {
     themes.sort_by(|a, b| a.name.cmp(&b.name));
 
     for theme in themes {
-        let css = lumis::themes::CssBuilder::new(theme)
-            .enable_italic(true)
-            .build();
+        let css = lumis::themes::CssBuilder::new(theme).build();
         let css_path = css_dir.join(format!("{}.css", theme.name));
         fs::write(&css_path, css)?;
         println!("{}", css_path.display());

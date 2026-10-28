@@ -565,6 +565,7 @@ impl Theme {
     }
 
     #[deprecated(since = "2.0.0", note = "use themes::CssBuilder instead")]
+    #[allow(deprecated, reason = "preserve the legacy css method's argument")]
     pub fn css(&self, enable_italic: bool) -> String {
         CssBuilder::new(self).enable_italic(enable_italic).build()
     }
@@ -669,7 +670,7 @@ struct Css<'a> {
     #[builder(default = "true")]
     layout: bool,
     /// Whether italic theme styles should be emitted. Defaults to `true`.
-    #[builder(default = "true")]
+    #[builder(default = "true", setter(custom))]
     enable_italic: bool,
     /// Parent selector prepended to every generated selector. Defaults to `""`.
     #[builder(default, setter(into))]
@@ -689,6 +690,15 @@ impl<'a> CssBuilder<'a> {
             theme: Some(theme),
             ..CssBuilder::empty()
         }
+    }
+
+    /// Controls italic emission. The default remains `true`.
+    #[deprecated(
+        note = "use Theme::map_styles to clear style.italic on the desired scopes before building CSS"
+    )]
+    pub fn enable_italic(&mut self, enable_italic: bool) -> &mut Self {
+        self.enable_italic = Some(enable_italic);
+        self
     }
 
     /// Set extra declarations appended to the container code block rule.
@@ -1190,10 +1200,7 @@ mod tests {
 }
 ";
 
-        assert_eq!(
-            CssBuilder::new(&theme).enable_italic(true).build(),
-            expected
-        );
+        assert_eq!(CssBuilder::new(&theme).build(), expected);
     }
 
     #[test]
@@ -1289,6 +1296,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(deprecated, reason = "verify legacy italic suppression")]
     fn test_css_builder_can_disable_italic() {
         let json = r#"{"name": "test", "appearance": "dark", "revision": "3e976b4", "highlights": {"keyword": {"fg": "blue", "italic": true}}}"#;
         let theme = from_json(json).unwrap();
@@ -1548,6 +1556,7 @@ html[data-theme="dark"] .l-keyword {
     }
 
     #[test]
+    #[allow(deprecated, reason = "verify legacy italic suppression")]
     fn test_css_builder_omits_rules_that_render_no_declarations() {
         // `comment` only carries italic, so disabling italic leaves it with nothing to emit, while
         // `function` keeps its color and must still be present.
@@ -1695,6 +1704,7 @@ html[data-theme="dark"] .l-keyword {
     }
 
     #[test]
+    #[allow(deprecated, reason = "verify legacy builder mutation")]
     fn test_css_builder_build_does_not_consume_and_setters_mutate_in_place() {
         let json = r#"{"name": "test", "appearance": "dark", "revision": "abc", "highlights": {"keyword": {"fg": "blue", "italic": true}}}"#;
         let theme = from_json(json).unwrap();

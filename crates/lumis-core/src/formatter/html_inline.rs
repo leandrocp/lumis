@@ -62,6 +62,7 @@ pub struct HtmlInline {
     pre_class: Option<String>,
     pre_attrs: crate::formatter::html::HtmlAttrs,
     code_attrs: crate::formatter::html::HtmlAttrs,
+    #[builder(setter(custom))]
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<HighlightLines>,
@@ -78,6 +79,15 @@ impl HtmlInlineBuilder {
 
     pub fn language(&mut self, language: Language) -> &mut Self {
         self.language = Some(language);
+        self
+    }
+
+    /// Controls italic emission. The default remains `false`.
+    #[deprecated(
+        note = "customize italics with Theme::map_styles; keep italic(true) to emit retained theme italics while the default remains false"
+    )]
+    pub fn italic(&mut self, italic: bool) -> &mut Self {
+        self.italic = Some(italic);
         self
     }
 

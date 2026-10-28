@@ -731,7 +731,7 @@ export interface HtmlInlineOptions {
   preAttrs?: HtmlAttrs;
   /** Attributes merged into the nested `<code>` tag. */
   codeAttrs?: HtmlAttrs;
-  /** Use italic styles from the theme. */
+  /** @deprecated Customize italics with mapStyles. Keep `true` to emit retained theme italics; the default remains `false`. */
   italic?: boolean;
   /** Add `data-highlight` attributes with scope names. */
   includeHighlights?: boolean;
@@ -807,6 +807,7 @@ export interface HtmlMultiThemesOptions {
   preAttrs?: HtmlAttrs;
   /** Attributes merged into the nested `<code>` tag. */
   codeAttrs?: HtmlAttrs;
+  /** @deprecated Customize italics with mapStyles. Keep `true` to emit retained theme italics; the default remains `false`. */
   italic?: boolean;
   includeHighlights?: boolean;
   highlightLines?: HighlightLinesInline;

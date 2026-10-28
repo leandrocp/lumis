@@ -304,6 +304,7 @@ impl ExFormatterOption {
                     close_tag: h.close_tag,
                 });
 
+                #[allow(deprecated, reason = "preserve the caller's legacy italic option")]
                 let mut formatter = HtmlInlineBuilder::new()
                     .language(language)
                     .structure(structure.into())
@@ -380,6 +381,7 @@ impl ExFormatterOption {
                 });
 
                 let mut builder = HtmlMultiThemesBuilder::new();
+                #[allow(deprecated, reason = "preserve the caller's legacy italic option")]
                 builder
                     .language(language)
                     .structure(structure.into())

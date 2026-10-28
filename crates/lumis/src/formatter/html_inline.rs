@@ -223,6 +223,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(deprecated, reason = "verify the legacy italic setter still works")]
     fn test_builder_pattern() {
         let theme = themes::get("github_light").unwrap();
         let formatter = HtmlInlineBuilder::new()

@@ -511,7 +511,12 @@ defmodule Lumis do
       pre_class: [type: {:or, [:string, nil]}, default: nil],
       pre_attrs: @html_attrs_schema,
       code_attrs: @html_attrs_schema,
-      italic: [type: :boolean, default: false],
+      italic: [
+        type: :boolean,
+        default: false,
+        deprecated:
+          "Customize italics with Lumis.Theme.map_styles/2. Keep true to emit retained theme italics; the default remains false."
+      ],
       include_highlights: [type: :boolean, default: false],
       highlight_lines: [
         type:
@@ -540,6 +545,12 @@ defmodule Lumis do
         default: nil
       ]
     ]
+
+    # NimbleOptions also warns for defaults, even when the caller supplied nothing.
+    schema =
+      if Keyword.has_key?(options, :italic),
+        do: schema,
+        else: Keyword.update!(schema, :italic, &Keyword.delete(&1, :deprecated))
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->
@@ -629,7 +640,12 @@ defmodule Lumis do
       pre_class: [type: {:or, [:string, nil]}, default: nil],
       pre_attrs: @html_attrs_schema,
       code_attrs: @html_attrs_schema,
-      italic: [type: :boolean, default: false],
+      italic: [
+        type: :boolean,
+        default: false,
+        deprecated:
+          "Customize italics with Lumis.Theme.map_styles/2. Keep true to emit retained theme italics; the default remains false."
+      ],
       include_highlights: [type: :boolean, default: false],
       highlight_lines: [
         type:
@@ -658,6 +674,11 @@ defmodule Lumis do
         default: nil
       ]
     ]
+
+    schema =
+      if Keyword.has_key?(options, :italic),
+        do: schema,
+        else: Keyword.update!(schema, :italic, &Keyword.delete(&1, :deprecated))
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->

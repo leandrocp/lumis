@@ -274,7 +274,7 @@ fn html_attrs(attrs: &[HtmlAttr], removed: &[HtmlAttr]) -> lumis_core::formatter
 #[derive(clap::Args)]
 #[command(next_help_heading = OPTSET_STYLED)]
 struct StyledArgs {
-    /// Apply italic styles from the theme
+    /// Apply italic styles from the theme (deprecated; still required to emit theme italics)
     #[arg(long)]
     italic: bool,
 
@@ -517,7 +517,7 @@ struct ThemeCssArgs {
     #[arg(long)]
     no_layout: bool,
 
-    /// Omit italic theme declarations
+    /// Omit italic theme declarations (deprecated; customize the theme's italic styles instead)
     #[arg(long)]
     no_italic: bool,
 
@@ -825,6 +825,7 @@ fn show_theme(name: &str, data_dir: &Path) -> Result<()> {
 fn build_theme_css(args: ThemeCssArgs, data_dir: &Path) -> Result<()> {
     let theme = resolve_theme(Some(args.theme.clone()), Some(data_dir), false, false)
         .ok_or_else(|| anyhow::anyhow!("unknown theme: {}", args.theme))?;
+    #[allow(deprecated, reason = "preserve --no-italic behavior")]
     let css = lumis_core::themes::CssBuilder::new(&theme)
         .layout(!args.no_layout)
         .enable_italic(!args.no_italic)
@@ -1835,6 +1836,7 @@ fn render_html_multi_themes(
 
     print_verbose_separator(verbose);
     let mut builder = lumis_core::formatter::HtmlMultiThemesBuilder::new();
+    #[allow(deprecated, reason = "preserve --italic behavior")]
     builder
         .language(lang)
         .structure(structure)
@@ -1916,6 +1918,7 @@ fn render_output(
             let theme_obj = resolve_theme(theme.clone(), Some(reg.data_dir()), verbose, false);
             print_verbose_separator(verbose);
             let mut builder = lumis_core::formatter::HtmlInlineBuilder::new();
+            #[allow(deprecated, reason = "preserve --italic behavior")]
             builder
                 .language(lang)
                 .structure(structure)

@@ -694,6 +694,7 @@ fn render_events(
     match formatter.kind.as_str() {
         "html-inline" => {
             let options: HtmlInlineOptions = serde_json::from_value(formatter.options)?;
+            #[allow(deprecated, reason = "preserve the caller's legacy italic option")]
             HtmlInlineBuilder::new()
                 .language(language)
                 .structure(options.structure.into())

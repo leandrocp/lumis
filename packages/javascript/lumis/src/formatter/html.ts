@@ -174,7 +174,12 @@ export function textDecoration(style: HighlightStyle): string {
  */
 export function styleToCss(
   style: HighlightStyle | undefined,
-  options: { italic?: boolean; separator?: string; compact?: boolean } = {},
+  options: {
+    /** @deprecated Customize italics with mapStyles. Keep `true` to emit retained theme italics; the default remains `false`. */
+    italic?: boolean;
+    separator?: string;
+    compact?: boolean;
+  } = {},
 ): string {
   if (!style) return "";
 
@@ -612,6 +617,7 @@ export interface SpanInlineOptions {
   language: LanguageRef;
   scope: string;
   theme?: Theme;
+  /** @deprecated Customize italics with mapStyles. Keep `true` to emit retained theme italics; the default remains `false`. */
   italic?: boolean;
   includeHighlights?: boolean;
 }
@@ -699,6 +705,7 @@ export interface SpanMultiThemesOptions {
   defaultTheme?: string;
   /** Defaults to `"--lumis"`. */
   cssVariablePrefix?: string;
+  /** @deprecated Customize italics with mapStyles. Keep `true` to emit retained theme italics; the default remains `false`. */
   italic?: boolean;
   includeHighlights?: boolean;
 }

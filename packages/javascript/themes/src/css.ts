@@ -4,7 +4,7 @@ import type { StyleEntry, ThemeData } from "./types.js";
 export interface BuildCssOptions {
   /** Include the built-in line layout rules. Defaults to `true`; disable for your own layout. */
   layout?: boolean;
-  /** Whether italic theme styles should be emitted. Defaults to `true`. */
+  /** @deprecated Clear style.italic with mapStyles from `@lumis-sh/lumis/themes` before building CSS. Defaults to `true`. */
   enableItalic?: boolean;
   /** Parent selector prepended to every generated selector. Defaults to `""`. */
   scope?: string;

@@ -159,7 +159,8 @@ defmodule Lumis.Formatter.HTML do
     * `:language` — the language whose specialized scopes to prefer, e.g.
       `comment.elixir` over `comment`. Defaults to `"plaintext"`.
     * `:italic` (default `false`) — emit `font-style: italic` for a style that
-      asks for it
+      asks for it. Deprecated: customize styles with `Lumis.Theme.map_styles/2`;
+      keep `true` to emit retained italics while the default remains `false`.
     * `:include_highlights` (default `false`) — add `data-highlight="<scope>"`
 
   """
@@ -235,7 +236,8 @@ defmodule Lumis.Formatter.HTML do
     * `:language` — the language whose specialized scopes to prefer, e.g.
       `comment.elixir` over `comment`. Defaults to `"plaintext"`.
     * `:italic` (default `false`) — emit `font-style: italic` for a style that
-      asks for it
+      asks for it. Deprecated: customize styles with `Lumis.Theme.map_styles/2`;
+      keep `true` to emit retained italics while the default remains `false`.
     * `:include_highlights` (default `false`) — add `data-highlight="<scope>"`
 
   """
@@ -490,7 +492,8 @@ defmodule Lumis.Formatter.HTML do
   ## Options
 
     * `:italic` (default `false`) — emit `font-style: italic` for a style that
-      asks for it
+      asks for it. Deprecated: customize styles with `Lumis.Theme.map_styles/2`;
+      keep `true` to emit retained italics while the default remains `false`.
     * `:separator` (default `" "`) — what goes between declarations
 
   ## Example
