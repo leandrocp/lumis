@@ -185,3 +185,25 @@ result. It does not add scopes or reset inherited CSS: clearing a code-fence
 style does not remove independently italic comments inside that fence, or an
 italic style applied by your page. See the [theme transformation contract](/themes#transform-theme-styles)
 for ownership and fallback behavior.
+
+## Use a customized theme in the CLI
+
+The CLI loads a theme from a JSON file. Customize the theme with map styles in
+any runtime, save the result as JSON, and pass the file to `--theme`:
+
+```ts
+import { writeFileSync } from 'node:fs';
+import frappe from '@lumis-sh/themes/catppuccin_frappe';
+import { mapStyles } from '@lumis-sh/lumis/themes';
+
+const upright = mapStyles(frappe, (_scope, style) => ({ ...style, italic: false }));
+
+writeFileSync('catppuccin_frappe_upright.json', JSON.stringify(upright));
+```
+
+```bash
+lumis highlight main.rs -f html-inline --theme ./catppuccin_frappe_upright.json
+```
+
+See [Local custom themes](/cli/behavior#local-custom-themes) for every CLI
+command that accepts a theme file.
