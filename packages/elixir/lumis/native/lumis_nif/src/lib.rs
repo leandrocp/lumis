@@ -1340,7 +1340,7 @@ fn html_span_attrs(
     italic: bool,
     include_highlights: bool,
 ) -> HashMap<&'static str, String> {
-    let theme = theme.map(themes::Theme::from);
+    let theme = theme.map(|theme| legacy_italic(themes::Theme::from(theme), italic));
     let language = Language::guess(Some(language), "");
 
     lumis_core::highlights::HIGHLIGHT_NAMES
@@ -1350,7 +1350,6 @@ fn html_span_attrs(
                 Some(language),
                 scope,
                 theme.as_ref(),
-                italic,
                 include_highlights,
             );
             (*scope, attrs)
@@ -1471,7 +1470,20 @@ fn html_text_decoration(text_decoration: ExTextDecoration) -> &'static str {
 
 #[cfg_attr(not(test), rustler::nif)]
 fn html_style_to_css(style: ExStyle, italic: bool, separator: &str) -> String {
-    themes::Style::from(style).css(italic, separator)
+    let mut style = themes::Style::from(style);
+    style.italic &= italic;
+    style.css(separator)
+}
+
+/// Applies Elixir's deprecated `italic: false` by clearing the theme's italics.
+fn legacy_italic(theme: themes::Theme, italic: bool) -> themes::Theme {
+    if italic {
+        return theme;
+    }
+    theme.map_styles(|_, mut style| {
+        style.italic = false;
+        style
+    })
 }
 
 #[cfg_attr(not(test), rustler::nif)]
@@ -1506,7 +1518,7 @@ fn html_multi_themes_span_attrs(
 ) -> HashMap<&'static str, String> {
     let themes_map: HashMap<String, themes::Theme> = themes_map
         .into_iter()
-        .map(|(name, theme)| (name, themes::Theme::from(theme)))
+        .map(|(name, theme)| (name, legacy_italic(themes::Theme::from(theme), italic)))
         .collect();
     let language = Language::guess(Some(language), "");
 
@@ -1519,7 +1531,6 @@ fn html_multi_themes_span_attrs(
                 &themes_map,
                 default_theme.as_deref(),
                 css_variable_prefix,
-                italic,
                 include_highlights,
             );
             (*scope, attrs)

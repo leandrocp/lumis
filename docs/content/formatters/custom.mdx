@@ -88,10 +88,9 @@ impl Formatter for MinimalHtmlFormatter {
                         "{}",
                         span_inline(
                             text,
-                            Some(self.language.id_name()),
+                            Some(self.language),
                             scope,
                             self.theme.as_ref(),
-                            false,
                             false
                         )
                     )?;
@@ -429,7 +428,6 @@ highlight_iter_with_options(
                 Some(language),
                 scope,
                 self.theme.as_ref(),
-                false,
                 false
             )
         )

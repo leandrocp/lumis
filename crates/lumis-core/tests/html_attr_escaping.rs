@@ -102,7 +102,6 @@ fn render(manifest: &Manifest, case: &Case) -> String {
             Some(language(case)),
             &case.scope,
             case.theme.as_ref().map(|key| theme(manifest, key)).as_ref(),
-            false,
             case.include_highlights,
         ),
         Helper::SpanMultiThemes => {
@@ -119,7 +118,6 @@ fn render(manifest: &Manifest, case: &Case) -> String {
                 &themes,
                 case.default_theme.as_deref(),
                 "--lumis",
-                false,
                 case.include_highlights,
             )
         }

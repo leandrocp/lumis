@@ -61,7 +61,7 @@ fn italic_options_honor_the_theme_by_default_and_keep_explicit_overrides() {
             render(&multi.build().unwrap()),
         ] {
             assert_eq!(
-                html.contains("style=\"font-style:"),
+                html.contains("italic"),
                 italic != Some(false),
                 "italic={italic:?}: {html}"
             );

@@ -146,7 +146,7 @@ Use the nested `highlight_events_with_options()` API when you need
 `Decoration::RainbowBracket { depth }` with the real, unwrapped zero-based
 depth.
 
-## [CSS generation from themes](https://docs.rs/lumis/latest/lumis/themes/struct.Theme.html)
+## [CSS generation from themes](https://docs.rs/lumis/latest/lumis/themes/struct.CssBuilder.html)
 
 Rust can generate linked CSS directly.
 
@@ -154,7 +154,7 @@ Rust can generate linked CSS directly.
 use lumis::themes;
 
 let theme = themes::get("catppuccin_latte").unwrap();
-let css = theme.css(true);
+let css = themes::CssBuilder::new(&theme).build();
 ```
 
 Useful when serving CSS from Rust without the JS themes package.

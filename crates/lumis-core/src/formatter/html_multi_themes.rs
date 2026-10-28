@@ -192,7 +192,7 @@ impl Default for HtmlMultiThemes {
 impl HtmlMultiThemes {
     /// Creates a block formatter with explicit options for multiple themes.
     ///
-    /// Pass `true` for `italic` to respect each theme's styles. Use
+    /// Each theme's styles are rendered as they are. Use
     /// [`Theme::map_styles`] to customize individual scopes.
     #[allow(clippy::too_many_arguments)]
     pub fn new(
@@ -201,7 +201,6 @@ impl HtmlMultiThemes {
         default_theme: Option<DefaultTheme>,
         css_variable_prefix: String,
         pre_class: Option<String>,
-        italic: bool,
         include_highlights: bool,
         highlight_lines: Option<HighlightLines>,
         line_numbers: bool,
@@ -216,7 +215,7 @@ impl HtmlMultiThemes {
             pre_class,
             pre_attrs: Vec::new(),
             code_attrs: Vec::new(),
-            italic,
+            italic: true,
             include_highlights,
             highlight_lines,
             stepped_highlight_lines: Vec::new(),
@@ -294,7 +293,7 @@ impl HtmlMultiThemes {
                 Some(DefaultTheme::Theme(default_name)) => {
                     let theme = self.themes.get(default_name)?;
                     let highlighted_style = theme.get_style("highlighted")?;
-                    Some(highlighted_style.css(self.italic, " "))
+                    Some(highlighted_style.css(" "))
                 }
                 Some(DefaultTheme::LightDark) => self.light_dark_highlight_style(),
                 None => None,
@@ -327,7 +326,6 @@ impl HtmlMultiThemes {
             &self.themes,
             self.default_theme_name(),
             &self.css_variable_prefix,
-            self.italic,
             self.include_highlights,
         )
     }
@@ -346,7 +344,6 @@ impl HtmlMultiThemes {
                 &self.themes,
                 self.default_theme_name(),
                 &self.css_variable_prefix,
-                self.italic,
                 false,
             ),
         )
@@ -386,6 +383,19 @@ impl HtmlMultiThemes {
         output: &mut dyn Write,
         exhausted: Option<super::BudgetExhausted>,
     ) -> io::Result<()> {
+        if !self.italic {
+            let upright = Self {
+                themes: self
+                    .themes
+                    .iter()
+                    .map(|(name, theme)| (name.clone(), theme.clone().without_italics()))
+                    .collect(),
+                italic: true,
+                ..self.clone()
+            };
+            return upright.write(source, events, output, exhausted);
+        }
+
         if self.structure == crate::formatter::html::HtmlStructure::Inline {
             return crate::formatter::html::write_html_spans(
                 output,
@@ -482,7 +492,6 @@ mod tests {
             "--lumis".to_string(),
             Some("custom-pre".to_string()),
             false,
-            false,
             None,
             false,
             None,
@@ -537,7 +546,6 @@ mod tests {
             Some(default_theme),
             "--lumis".to_string(),
             None,
-            false,
             false,
             Some(HighlightLines {
                 lines: std::iter::once(1..=1).collect(),

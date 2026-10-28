@@ -53,7 +53,6 @@ pub fn open_tag(output: &mut dyn Write, name: &str, attrs: &HtmlAttrs) -> io::Re
 /// * `scope` - The tree-sitter scope name (e.g., "keyword")
 /// * `language` - Optional language for specialized scope lookup
 /// * `theme` - Optional theme for style lookup
-/// * `italic` - Pass `true` to respect the theme's italic styles
 /// * `include_highlights` - Whether to include `data-highlight` attribute
 ///
 /// # Example
@@ -62,7 +61,7 @@ pub fn open_tag(output: &mut dyn Write, name: &str, attrs: &HtmlAttrs) -> io::Re
 /// use lumis::{html, languages::Language, themes};
 ///
 /// let theme = themes::get("dracula").ok();
-/// let span = html::span_inline("fn", Some(Language::Rust), "keyword", theme.as_ref(), true, true);
+/// let span = html::span_inline("fn", Some(Language::Rust), "keyword", theme.as_ref(), true);
 /// assert_eq!(span, r#"<span data-highlight="keyword" style="color: #ff79c6;">fn</span>"#);
 /// ```
 ///
@@ -71,24 +70,16 @@ pub fn open_tag(output: &mut dyn Write, name: &str, attrs: &HtmlAttrs) -> io::Re
 /// ```rust
 /// use lumis::html;
 ///
-/// assert_eq!(html::span_inline("fn", None, "keyword", None, true, false), "<span>fn</span>");
+/// assert_eq!(html::span_inline("fn", None, "keyword", None, false), "<span>fn</span>");
 /// ```
 pub fn span_inline(
     text: &str,
     language: Option<Language>,
     scope: &str,
     theme: Option<&Theme>,
-    italic: bool,
     include_highlights: bool,
 ) -> String {
-    lumis_core::formatter::html::span_inline(
-        text,
-        language,
-        scope,
-        theme,
-        italic,
-        include_highlights,
-    )
+    lumis_core::formatter::html::span_inline(text, language, scope, theme, include_highlights)
 }
 
 /// Generate HTML attributes for a span with inline CSS styles.
@@ -102,23 +93,16 @@ pub fn span_inline(
 /// use lumis::{html, languages::Language, themes};
 ///
 /// let theme = themes::get("dracula").ok();
-/// let attrs = html::span_inline_attrs(Some(Language::Rust), "keyword", theme.as_ref(), true, true);
+/// let attrs = html::span_inline_attrs(Some(Language::Rust), "keyword", theme.as_ref(), true);
 /// assert_eq!(attrs, r#"data-highlight="keyword" style="color: #ff79c6;""#);
 /// ```
 pub fn span_inline_attrs(
     language: Option<Language>,
     scope: &str,
     theme: Option<&Theme>,
-    italic: bool,
     include_highlights: bool,
 ) -> String {
-    lumis_core::formatter::html::span_inline_attrs(
-        language,
-        scope,
-        theme,
-        italic,
-        include_highlights,
-    )
+    lumis_core::formatter::html::span_inline_attrs(language, scope, theme, include_highlights)
 }
 
 /// Generate an HTML `<span>` element with CSS class.
@@ -218,7 +202,7 @@ pub fn text_decoration(td: &TextDecoration) -> &'static str {
 /// let mut theme_map = HashMap::new();
 /// theme_map.insert("dark".to_string(), themes::get("dracula").unwrap());
 ///
-/// let attrs = html::span_multi_themes_attrs("keyword", None, &theme_map, None, "--hl", true, false);
+/// let attrs = html::span_multi_themes_attrs("keyword", None, &theme_map, None, "--hl", false);
 /// assert_eq!(attrs, r#"style="--hl-dark:#ff79c6; --hl-dark-font-style:normal; --hl-dark-font-weight:normal; --hl-dark-text-decoration:none;""#);
 /// ```
 pub fn span_multi_themes_attrs(
@@ -227,7 +211,6 @@ pub fn span_multi_themes_attrs(
     themes: &std::collections::HashMap<String, Theme>,
     default_theme: Option<&str>,
     css_variable_prefix: &str,
-    italic: bool,
     include_highlights: bool,
 ) -> String {
     lumis_core::formatter::html::span_multi_themes_attrs(
@@ -236,7 +219,6 @@ pub fn span_multi_themes_attrs(
         themes,
         default_theme,
         css_variable_prefix,
-        italic,
         include_highlights,
     )
 }
@@ -255,7 +237,6 @@ pub fn span_multi_themes_attrs(
 /// * `themes` - Map of theme name to Theme
 /// * `default_theme` - Optional name of the default theme (gets inline styles)
 /// * `css_variable_prefix` - CSS variable prefix (e.g., "--lumis")
-/// * `italic` - Pass `true` to respect the theme's italic styles
 /// * `include_highlights` - Whether to include data-highlight attribute
 ///
 /// # Example
@@ -274,16 +255,14 @@ pub fn span_multi_themes_attrs(
 ///     &theme_map,
 ///     None,
 ///     "--hl",
-///     true,
 ///     false,
 /// );
 /// assert_eq!(span, r#"<span style="--hl-dark:#ff79c6; --hl-dark-font-style:normal; --hl-dark-font-weight:normal; --hl-dark-text-decoration:none;">fn</span>"#);
 ///
 /// // With data-highlight attribute
-/// let span = html::span_multi_themes("fn", "keyword", None, &theme_map, None, "--hl", true, true);
+/// let span = html::span_multi_themes("fn", "keyword", None, &theme_map, None, "--hl", true);
 /// assert_eq!(span, r#"<span data-highlight="keyword" style="--hl-dark:#ff79c6; --hl-dark-font-style:normal; --hl-dark-font-weight:normal; --hl-dark-text-decoration:none;">fn</span>"#);
 /// ```
-#[allow(clippy::too_many_arguments)]
 pub fn span_multi_themes(
     text: &str,
     scope: &str,
@@ -291,7 +270,6 @@ pub fn span_multi_themes(
     themes: &std::collections::HashMap<String, Theme>,
     default_theme: Option<&str>,
     css_variable_prefix: &str,
-    italic: bool,
     include_highlights: bool,
 ) -> String {
     lumis_core::formatter::html::span_multi_themes(
@@ -301,7 +279,6 @@ pub fn span_multi_themes(
         themes,
         default_theme,
         css_variable_prefix,
-        italic,
         include_highlights,
     )
 }
@@ -872,14 +849,7 @@ mod tests {
     #[test]
     fn test_span_inline_with_theme_and_scope() {
         let theme = crate::themes::get("dracula").unwrap();
-        let result = span_inline(
-            "fn",
-            Some(Language::Rust),
-            "keyword",
-            Some(&theme),
-            false,
-            true,
-        );
+        let result = span_inline("fn", Some(Language::Rust), "keyword", Some(&theme), true);
         assert_str_eq!(
             result,
             r#"<span data-highlight="keyword" style="color: #ff79c6;">fn</span>"#
@@ -888,7 +858,7 @@ mod tests {
 
     #[test]
     fn test_span_inline_no_theme() {
-        let result = span_inline("text", None, "text", None, false, false);
+        let result = span_inline("text", None, "text", None, false);
         assert_str_eq!(result, "<span>text</span>");
     }
 
@@ -901,7 +871,6 @@ mod tests {
             &std::collections::HashMap::new(),
             None,
             "--lumis",
-            false,
             false,
         );
         assert_str_eq!(result, "<span>&lt;b&gt;</span>");

@@ -564,10 +564,13 @@ impl Theme {
         }
     }
 
-    #[deprecated(since = "2.0.0", note = "use themes::CssBuilder instead")]
-    #[allow(deprecated, reason = "preserve the legacy css method's argument")]
-    pub fn css(&self, enable_italic: bool) -> String {
-        CssBuilder::new(self).enable_italic(enable_italic).build()
+    /// The same theme with italics cleared on every scope, for the deprecated
+    /// switches that suppress them.
+    pub(crate) fn without_italics(self) -> Self {
+        self.map_styles(|_, mut style| {
+            style.italic = false;
+            style
+        })
     }
 
     /// Get style for a scope.
@@ -795,7 +798,15 @@ impl Css<'_> {
                 continue;
             }
 
-            let style_css = style.css(self.enable_italic, "\n  ");
+            let style_css = if self.enable_italic || !style.italic {
+                style.css("\n  ")
+            } else {
+                Style {
+                    italic: false,
+                    ..style.clone()
+                }
+                .css("\n  ")
+            };
 
             if !style_css.is_empty() {
                 rules.push(format!(
@@ -925,8 +936,9 @@ impl Style {
 
     /// Renders this style as CSS declarations joined by `separator`.
     ///
-    /// Pass `true` for `enable_italic` to preserve this style's italics.
-    pub fn css(&self, enable_italic: bool, separator: &str) -> String {
+    /// Clear [`Style::italic`], for example with [`Theme::map_styles`], to
+    /// render it upright.
+    pub fn css(&self, separator: &str) -> String {
         let mut rules = Vec::new();
 
         if let Some(fg) = &self.fg {
@@ -941,7 +953,7 @@ impl Style {
             rules.push("font-weight: bold;".to_string());
         }
 
-        if enable_italic && self.italic {
+        if self.italic {
             rules.push("font-style: italic;".to_string());
         }
 
@@ -1154,7 +1166,7 @@ mod tests {
         };
 
         assert_eq!(
-            style.css(true, " "),
+            style.css(" "),
             "color: blue; font-style: italic; text-decoration: underline;"
         );
     }

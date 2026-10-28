@@ -22,7 +22,6 @@ pub fn span_inline_attrs(
     language: Option<Language>,
     scope: &str,
     theme: Option<&Theme>,
-    italic: bool,
     include_highlights: bool,
 ) -> String {
     let mut attrs = String::new();
@@ -45,13 +44,13 @@ pub fn span_inline_attrs(
                 && (style.fg.is_some()
                     || style.bg.is_some()
                     || style.bold
-                    || (italic && style.italic)
+                    || style.italic
                     || has_decoration)
             {
                 attrs.push(' ');
             }
 
-            let css = style.css(italic, " ");
+            let css = style.css(" ");
             if !css.is_empty() {
                 let _ = write!(attrs, "style=\"{}\"", escape_attr(&css));
             }
@@ -67,11 +66,10 @@ pub fn span_inline(
     language: Option<Language>,
     scope: &str,
     theme: Option<&Theme>,
-    italic: bool,
     include_highlights: bool,
 ) -> String {
     let escaped = escape(text);
-    let attrs = span_inline_attrs(language, scope, theme, italic, include_highlights);
+    let attrs = span_inline_attrs(language, scope, theme, include_highlights);
 
     format!("{}{}</span>", open_span(&attrs), escaped)
 }
@@ -205,17 +203,15 @@ struct LightDarkProperty<'a> {
 fn light_dark_properties<'a>(
     light_style: &'a Style,
     dark_style: &'a Style,
-    italic: bool,
-) -> Vec<LightDarkProperty<'a>> {
-    let mut properties = vec![LightDarkProperty {
-        property: "font-weight",
-        light: if light_style.bold { "bold" } else { "normal" },
-        dark: if dark_style.bold { "bold" } else { "normal" },
-        initial: "normal",
-    }];
-
-    if italic {
-        properties.push(LightDarkProperty {
+) -> [LightDarkProperty<'a>; 3] {
+    [
+        LightDarkProperty {
+            property: "font-weight",
+            light: if light_style.bold { "bold" } else { "normal" },
+            dark: if dark_style.bold { "bold" } else { "normal" },
+            initial: "normal",
+        },
+        LightDarkProperty {
             property: "font-style",
             light: if light_style.italic {
                 "italic"
@@ -228,17 +224,14 @@ fn light_dark_properties<'a>(
                 "normal"
             },
             initial: "normal",
-        });
-    }
-
-    properties.push(LightDarkProperty {
-        property: "text-decoration",
-        light: text_decoration(&light_style.text_decoration),
-        dark: text_decoration(&dark_style.text_decoration),
-        initial: "none",
-    });
-
-    properties
+        },
+        LightDarkProperty {
+            property: "text-decoration",
+            light: text_decoration(&light_style.text_decoration),
+            dark: text_decoration(&dark_style.text_decoration),
+            initial: "none",
+        },
+    ]
 }
 
 /// [CSS Color 5][spec] defines `light-dark()` over colors, so only `color` and
@@ -261,7 +254,6 @@ fn push_light_dark_inline_styles(
     css_variable_prefix: &str,
     light_style: &Style,
     dark_style: &Style,
-    italic: bool,
 ) {
     if let (Some(light_fg), Some(dark_fg)) = (&light_style.fg, &dark_style.fg) {
         inline_styles.push(format!("color: light-dark({light_fg}, {dark_fg});"));
@@ -272,7 +264,7 @@ fn push_light_dark_inline_styles(
         ));
     }
 
-    let properties = light_dark_properties(light_style, dark_style, italic);
+    let properties = light_dark_properties(light_style, dark_style);
 
     for property in &properties {
         if property.light == property.dark && property.light != property.initial {
@@ -300,7 +292,7 @@ fn push_light_dark_inline_styles(
     }
 }
 
-fn push_default_inline_styles(inline_styles: &mut Vec<String>, style: &Style, italic: bool) {
+fn push_default_inline_styles(inline_styles: &mut Vec<String>, style: &Style) {
     if let Some(fg) = &style.fg {
         inline_styles.push(format!("color:{fg};"));
     }
@@ -310,7 +302,7 @@ fn push_default_inline_styles(inline_styles: &mut Vec<String>, style: &Style, it
     if style.bold {
         inline_styles.push("font-weight:bold;".to_string());
     }
-    if italic && style.italic {
+    if style.italic {
         inline_styles.push("font-style:italic;".to_string());
     }
 
@@ -337,14 +329,12 @@ fn push_other_theme_css_vars(
     }
 }
 
-#[allow(clippy::too_many_arguments)]
 pub fn span_multi_themes_attrs(
     scope: &str,
     language: Option<Language>,
     themes: &std::collections::HashMap<String, Theme>,
     default_theme: Option<&str>,
     css_variable_prefix: &str,
-    italic: bool,
     include_highlights: bool,
 ) -> String {
     if themes.is_empty() {
@@ -363,7 +353,6 @@ pub fn span_multi_themes_attrs(
         themes,
         default_theme,
         css_variable_prefix,
-        italic,
         include_highlights,
     )
 }
@@ -378,7 +367,6 @@ pub(crate) fn multi_themes_attrs(
     themes: &std::collections::HashMap<String, Theme>,
     default_theme: Option<&str>,
     css_variable_prefix: &str,
-    italic: bool,
     include_highlights: bool,
 ) -> String {
     if themes.is_empty() {
@@ -396,7 +384,6 @@ pub(crate) fn multi_themes_attrs(
                 themes,
                 style_of,
                 css_variable_prefix,
-                italic,
             );
         }
         Some(default_name) => push_named_default_styles(
@@ -406,7 +393,6 @@ pub(crate) fn multi_themes_attrs(
             style_of,
             css_variable_prefix,
             default_name,
-            italic,
         ),
         None => {
             push_other_theme_css_vars(&mut css_vars, themes, style_of, css_variable_prefix, None);
@@ -429,7 +415,6 @@ fn push_light_dark_styles(
     themes: &std::collections::HashMap<String, Theme>,
     style_of: StyleOf<'_>,
     css_variable_prefix: &str,
-    italic: bool,
 ) {
     let (Some(light_theme), Some(dark_theme)) = (themes.get("light"), themes.get("dark")) else {
         return;
@@ -445,7 +430,6 @@ fn push_light_dark_styles(
         css_variable_prefix,
         &light_style,
         &dark_style,
-        italic,
     );
 }
 
@@ -458,14 +442,13 @@ fn push_named_default_styles(
     style_of: StyleOf<'_>,
     css_variable_prefix: &str,
     default_name: &str,
-    italic: bool,
 ) {
     let Some(default_theme_obj) = themes.get(default_name) else {
         return;
     };
 
     if let Some(style) = style_of(default_theme_obj) {
-        push_default_inline_styles(inline_styles, &style, italic);
+        push_default_inline_styles(inline_styles, &style);
         push_default_theme_css_vars(css_vars, css_variable_prefix, default_name, &style);
     }
 
@@ -506,7 +489,6 @@ fn render_style_attrs(
 }
 
 /// Generate an HTML `<span>` element with CSS variables for multiple themes.
-#[allow(clippy::too_many_arguments)]
 pub fn span_multi_themes(
     text: &str,
     scope: &str,
@@ -514,7 +496,6 @@ pub fn span_multi_themes(
     themes: &std::collections::HashMap<String, Theme>,
     default_theme: Option<&str>,
     css_variable_prefix: &str,
-    italic: bool,
     include_highlights: bool,
 ) -> String {
     let escaped = escape(text);
@@ -525,7 +506,6 @@ pub fn span_multi_themes(
         themes,
         default_theme,
         css_variable_prefix,
-        italic,
         include_highlights,
     );
 
@@ -2024,7 +2004,7 @@ mod tests {
     #[test]
     fn test_span_inline_without_attributes() {
         assert_eq!(
-            span_inline("<b>", None, "string", None, false, false),
+            span_inline("<b>", None, "string", None, false),
             "<span>&lt;b&gt;</span>"
         );
     }
@@ -2039,7 +2019,6 @@ mod tests {
                 &std::collections::HashMap::new(),
                 None,
                 "--lumis",
-                false,
                 false,
             ),
             "<span>&lt;b&gt;</span>"
@@ -2279,14 +2258,7 @@ mod tests {
     #[test]
     fn test_span_inline_escapes_theme_colors() {
         assert_str_eq!(
-            span_inline(
-                "fn",
-                None,
-                "keyword",
-                Some(&quote_bearing_theme()),
-                false,
-                false
-            ),
+            span_inline("fn", None, "keyword", Some(&quote_bearing_theme()), false),
             r#"<span style="color: red&quot; onmouseover=&quot;alert(1);">fn</span>"#
         );
     }
@@ -2296,9 +2268,7 @@ mod tests {
         let mut themes = std::collections::HashMap::new();
         themes.insert("dark".to_string(), quote_bearing_theme());
 
-        let result = span_multi_themes(
-            "fn", "keyword", None, &themes, None, "--lumis", false, false,
-        );
+        let result = span_multi_themes("fn", "keyword", None, &themes, None, "--lumis", false);
 
         assert_str_eq!(
             result,
@@ -2354,14 +2324,13 @@ mod tests {
         std::collections::HashMap::from([("light".to_string(), light), ("dark".to_string(), dark)])
     }
 
-    fn light_dark_style(scope: &str, italic: bool) -> String {
+    fn light_dark_style(scope: &str) -> String {
         let attrs = span_multi_themes_attrs(
             scope,
             None,
             &light_dark_themes(),
             Some("light-dark()"),
             "--lumis",
-            italic,
             false,
         );
 
@@ -2417,7 +2386,7 @@ mod tests {
     #[test]
     fn light_dark_emits_only_declarations_a_browser_keeps() {
         for scope in ["normal", "keyword", "comment", "string"] {
-            for (property, value) in css_declarations(&light_dark_style(scope, true)) {
+            for (property, value) in css_declarations(&light_dark_style(scope)) {
                 assert_valid_declaration(property, value);
             }
         }
@@ -2428,7 +2397,7 @@ mod tests {
     #[test]
     fn light_dark_writes_a_shared_non_color_property_as_a_plain_declaration() {
         assert_str_eq!(
-            light_dark_style("keyword", true),
+            light_dark_style("keyword"),
             "color: light-dark(#d73a49, #ff7b72); font-weight: bold;"
         );
     }
@@ -2436,7 +2405,7 @@ mod tests {
     #[test]
     fn light_dark_drops_a_non_color_property_both_themes_leave_at_its_initial_value() {
         assert_str_eq!(
-            light_dark_style("normal", true),
+            light_dark_style("normal"),
             "color: light-dark(#111111, #eeeeee); background-color: light-dark(#ffffff, #000000);"
         );
     }
@@ -2447,22 +2416,14 @@ mod tests {
     #[test]
     fn light_dark_leaves_a_disputed_non_color_property_to_variables_alone() {
         assert_str_eq!(
-            light_dark_style("comment", true),
+            light_dark_style("comment"),
             "color: light-dark(#6a737d, #8b949e); \
              --lumis-dark-font-style:normal; --lumis-light-font-style:italic;"
         );
         assert_str_eq!(
-            light_dark_style("string", true),
+            light_dark_style("string"),
             "color: light-dark(#032f62, #a5d6ff); \
              --lumis-dark-text-decoration:line-through; --lumis-light-text-decoration:underline;"
-        );
-    }
-
-    #[test]
-    fn light_dark_leaves_font_style_alone_when_italics_are_off() {
-        assert_str_eq!(
-            light_dark_style("comment", false),
-            "color: light-dark(#6a737d, #8b949e);"
         );
     }
 
