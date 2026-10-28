@@ -23,7 +23,7 @@
       }
     },
     "full": {
-      "version": "0.1.5",
+      "version": "0.1.6",
       "bundleFormat": 3,
       "dependencies": {
         "@lumis-sh/wasm-angular": "^0.26.0",
@@ -68,6 +68,7 @@
         "@lumis-sh/wasm-hcl": "^0.26.0",
         "@lumis-sh/wasm-heex": "^0.26.0",
         "@lumis-sh/wasm-html": "^0.26.0",
+        "@lumis-sh/wasm-htmldjango": "^0.26.0",
         "@lumis-sh/wasm-http": "^0.26.0",
         "@lumis-sh/wasm-hurl": "^0.26.0",
         "@lumis-sh/wasm-iex": "^0.26.0",
@@ -119,6 +120,7 @@
         "@lumis-sh/wasm-scala": "^0.26.0",
         "@lumis-sh/wasm-scheme": "^0.26.0",
         "@lumis-sh/wasm-scss": "^0.26.0",
+        "@lumis-sh/wasm-slim": "^0.26.0",
         "@lumis-sh/wasm-solidity": "^0.26.0",
         "@lumis-sh/wasm-sql": "^0.26.0",
         "@lumis-sh/wasm-surface": "^0.26.0",
@@ -126,6 +128,7 @@
         "@lumis-sh/wasm-swift": "^0.26.0",
         "@lumis-sh/wasm-tcl": "^0.26.0",
         "@lumis-sh/wasm-terraform": "^0.26.0",
+        "@lumis-sh/wasm-tlaplus": "^0.26.0",
         "@lumis-sh/wasm-toml": "^0.26.0",
         "@lumis-sh/wasm-toon": "^0.26.0",
         "@lumis-sh/wasm-tsx": "^0.26.0",
