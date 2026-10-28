@@ -95,7 +95,8 @@ The terminal and BBCode formatters have no attribute channel, so they report
 nothing. They still degrade the same way — plain text on the time limit, missing
 scopes on the match limit — the caller just has no way to tell. Event-stream
 APIs return events only, so they carry no marker either; the rendering entry
-points are where it appears.
+points are where it appears. A [custom formatter](/formatters/custom) is told
+which limit applied and decides for itself what to do with it.
 
 ## Setting the limits
 

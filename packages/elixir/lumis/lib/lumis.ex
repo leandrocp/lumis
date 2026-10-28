@@ -1219,7 +1219,7 @@ defmodule Lumis do
   defp describe_highlight_result({:degraded, output, _failure}), do: {:ok, output}
 
   defp describe_highlight_result({:degraded, language, events, _failure}),
-    do: {:ok, language, events}
+    do: {:ok, language, events, nil}
 
   defp describe_highlight_result({:error, {:render, fields}}) do
     {:error, struct!(Lumis.RenderError, fields)}
@@ -1308,22 +1308,39 @@ defmodule Lumis do
   defp render_with_custom_formatter(source, formatter, formatter_options, options) do
     language = Keyword.get(formatter_options, :language)
 
-    case highlight_events_with_language(source, language, options) do
+    case highlight_events_for_render(source, language, options) do
       {:error, _reason} = error ->
         error
 
-      {:ok, language, events} ->
+      {:ok, language, events, budget} ->
         # `:language` is whatever the caller named, which is nothing when they
         # let Lumis detect it. A formatter has to label its output, so it is
         # handed the language highlighting actually used.
-        formatter_options = Keyword.put(formatter_options, :language, language)
+        formatter_options =
+          formatter_options
+          |> Keyword.put(:language, language)
+          |> Keyword.put(:budget_exhausted, budget)
 
-        output =
-          formatter.render(source, events, formatter_options)
-          |> IO.iodata_to_binary()
-
-        {:ok, output}
+        render_custom(formatter, source, events, formatter_options)
     end
+  end
+
+  # A raise in caller code, or a return that is not iodata, comes back as an
+  # error so `highlight/2` keeps its `{:error, _}` contract and only
+  # `highlight!/2` raises.
+  defp render_custom(formatter, source, events, formatter_options) do
+    output =
+      formatter.render(source, events, formatter_options)
+      |> IO.iodata_to_binary()
+
+    {:ok, output}
+  rescue
+    exception ->
+      detail =
+        "#{inspect(formatter)}.render/3: " <>
+          Exception.format_banner(:error, exception, __STACKTRACE__)
+
+      {:error, %Lumis.RenderError{reason: :custom_formatter, detail: detail}}
   end
 
   defp normalize_formatter_language(options) do
@@ -1531,7 +1548,8 @@ defmodule Lumis do
       when is_binary(source) and (is_binary(language) or is_nil(language)) and is_list(options) do
     options = NimbleOptions.validate!(options, @highlight_options)
 
-    with {:ok, _language, events} <- highlight_events_with_language(source, language, options) do
+    with {:ok, _language, events, _budget} <-
+           highlight_events_for_render(source, language, options) do
       {:ok, events}
     end
   end
@@ -1548,7 +1566,7 @@ defmodule Lumis do
     end
   end
 
-  defp highlight_events_with_language(source, language, options) do
+  defp highlight_events_for_render(source, language, options) do
     Lumis.Application.configure_store()
 
     result =

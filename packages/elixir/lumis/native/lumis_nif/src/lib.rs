@@ -883,9 +883,7 @@ pub(crate) fn highlight_events<'a>(
     let annotations = decode_annotations(options.annotations)?;
     let formatter = EventFormatter::new(language);
 
-    // An event stream has nowhere to carry the budget, so it is dropped here
-    // and only the rendering entry point above reports it.
-    let (highlighted, degraded) = match syntax_events(
+    let (Highlighted { events, budget }, degraded) = match syntax_events(
         env,
         source,
         language,
@@ -899,7 +897,6 @@ pub(crate) fn highlight_events<'a>(
         Ok(highlighted) => highlighted,
         Err(failure) => return Ok(failure),
     };
-    let events = highlighted.events;
     let events = match compose_annotations(source, &events, &annotations) {
         Ok(events) => events,
         Err(annotation_error) => {
@@ -924,10 +921,15 @@ pub(crate) fn highlight_events<'a>(
     // The resolved language rides along because detection happened here. A
     // formatter needs it to label its output, and asking Elixir to guess again
     // would run detection over the whole source a second time to reach an answer
-    // this call already has.
+    // this call already has. The budget rides along for the same reason: only a
+    // custom formatter's `render/3` reads it, and `Lumis.highlight_events/3`
+    // drops it.
+    let budget = budget
+        .map(|exhausted| Atom::from_str(env, exhausted.as_str()))
+        .transpose()?;
     match degraded {
         Some(failure) => Ok((degraded_atom(), language.id_name(), events, failure).encode(env)),
-        None => Ok((ok(), language.id_name(), events).encode(env)),
+        None => Ok((ok(), language.id_name(), events, budget).encode(env)),
     }
 }
 

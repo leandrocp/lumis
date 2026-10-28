@@ -150,6 +150,8 @@ defmodule Lumis.RenderError do
       theme name
     * `:annotation` — an annotation could not be composed onto the source
     * `:render` — the formatter failed while writing its output
+    * `:custom_formatter` — a custom formatter's `render/3` raised or returned
+      something other than iodata
     * `:highlight` — the highlighter itself failed
     * `:parse` — the parser failed without cancellation or an exhausted time limit
     * `:invalid_match_limit` — `budget: [match_limit: _]` was outside `1..65536`
@@ -167,6 +169,9 @@ defmodule Lumis.RenderError do
   @impl true
   def message(%__MODULE__{reason: :formatter, detail: detail}),
     do: "invalid formatter: #{detail}"
+
+  def message(%__MODULE__{reason: :custom_formatter, detail: detail}),
+    do: "custom formatter failed in #{detail}"
 
   def message(%__MODULE__{reason: :annotation, detail: detail}),
     do: "invalid annotation: #{detail}"
