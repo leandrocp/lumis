@@ -144,11 +144,31 @@ directory holding both is self-sufficient offline.
 
 ## Local custom themes
 
-Themes placed in the data directory can be discovered by `lumis themes list` and used by name.
+Pass a JSON path directly to use a theme without installing it:
 
-That is useful when you generate themes with `lumis themes generate` and want to keep using them locally.
+```sh
+lumis highlight main.rs --theme ./my-theme.json
+lumis themes show ./my-theme.json
+lumis themes build-css ./my-theme.json > my-theme.css
+```
 
-See [CLI Commands](/cli/commands#lumis-themes-generate) for theme generation flags and [CLI](/usage/cli) for highlight workflow examples.
+Paths are relative to the current working directory unless absolute. A missing
+or malformed explicit file produces an error rather than silently rendering
+without a theme.
+
+For short-name lookup, Lumis checks built-in names and then
+`<data-dir>/themes/<name>.json`. `lumis themes list` discovers JSON files in that
+folder and marks them `(file)`. The name is the filename stem: `my-theme.json`
+is selected with `--theme my-theme`, regardless of the JSON's `name` field.
+Use an explicit path to select a file whose stem matches a built-in theme.
+
+The same lookup applies to `themes show`, `themes build-css`, and every
+`--themes key:theme` pair in multi-theme HTML, so
+`--themes dark:./my-theme.json` selects the same file as `--theme ./my-theme.json`.
+
+See [Generate a theme from a Neovim colorscheme](/recipes/generate-theme-from-neovim-colorscheme)
+for generation, loading examples, and license considerations, or
+[CLI](/usage/cli) for highlight workflow examples.
 
 ## Nested languages and parser availability
 

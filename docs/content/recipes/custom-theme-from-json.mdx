@@ -5,18 +5,27 @@ description: Load a custom Lumis theme from JSON and use it for highlighting.
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
+Use a theme JSON file produced by the
+[Neovim colorscheme generation recipe](/recipes/generate-theme-from-neovim-colorscheme),
+or your own theme definition. Keep its source license and notices with it.
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
   <Tab value="JavaScript / TypeScript">
 
 ```js
-const response = await fetch('/my_theme.json')
-const theme = await response.json()
+import theme from './my_theme.json' with { type: 'json' };
+import { highlight } from '@lumis-sh/lumis';
+import { htmlInline } from '@lumis-sh/lumis/formatters';
+import javascript from '@lumis-sh/wasm-javascript';
+
 const html = await highlight(
   'const x = 1',
-  htmlInline({language: javascript, theme}),
-)
+  htmlInline({ language: javascript, theme }),
+);
 ```
+
+Use Node.js JSON modules or a bundler with JSON import support. Install
+`@lumis-sh/lumis` and `@lumis-sh/wasm-javascript` for this example.
 
   </Tab>
   <Tab value="Rust">
@@ -31,19 +40,17 @@ let theme = themes::from_file("my_theme.json").unwrap();
   <Tab value="Elixir">
 
 ```elixir
-theme_json = ~s({
-  "name": "my_theme",
-  "appearance": "dark",
-  "highlights": {"comment": {"fg": "#808080"}}
-})
-
+theme_json = File.read!("my_theme.json")
 {:ok, theme} = Lumis.Theme.from_json(theme_json)
 
-Lumis.highlight!(source,
+Lumis.highlight!("# a comment",
   formatter:
     {:html_inline, language: "elixir", theme: theme}
 )
 ```
+
+Install the `:lumis_wasm_elixir` parser dependency for this example.
+`Lumis.Theme.from_file/1` combines reading and parsing when you have a file path.
 
   </Tab>
 </Tabs>

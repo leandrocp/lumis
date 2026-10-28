@@ -4,7 +4,7 @@ mod gen_theme;
 mod registry;
 mod terminal_colors;
 
-use anyhow::Result;
+use anyhow::{Context as _, Result};
 use clap::{ArgAction, CommandFactory, Parser, Subcommand, ValueEnum};
 use formatter_options::{
     OPTSET_GLOBAL, OPTSET_HTML, OPTSET_LINE_NUMBERS, OPTSET_MULTI_THEME, OPTSET_STYLED,
@@ -110,7 +110,7 @@ struct HighlightArgs {
     #[arg(short = 'f', long)]
     formatter: Option<Formatter>,
 
-    /// Theme name, e.g. dracula, `github_dark`, or auto
+    /// Theme name, JSON file path, or auto
     #[arg(short = 't', long)]
     theme: Option<String>,
 
@@ -289,7 +289,7 @@ struct StyledArgs {
 #[derive(clap::Args)]
 #[command(next_help_heading = OPTSET_MULTI_THEME)]
 struct MultiThemeArgs {
-    /// Theme pair as `name:theme_id`, can be repeated
+    /// Theme pair as `name:theme_id_or_json_path`, can be repeated
     #[arg(long)]
     themes: Vec<String>,
 
@@ -470,7 +470,7 @@ enum ThemesCommands {
         after_help = "Examples:\n  lumis themes show dracula\n  lumis themes show github_light"
     )]
     Show {
-        /// Theme name, e.g. dracula
+        /// Theme name or JSON file path
         theme: String,
     },
 
@@ -482,7 +482,7 @@ enum ThemesCommands {
 
     /// Extract a theme from a Neovim colorscheme Git repo
     #[command(
-        after_help = "Examples:\n  lumis themes generate -u https://github.com/catppuccin/nvim -c catppuccin-mocha\n  lumis themes generate -u https://github.com/folke/tokyonight.nvim -c tokyonight-night -o tokyonight.json"
+        after_help = "Examples:\n  lumis themes generate -u https://github.com/catppuccin/nvim -c catppuccin-mocha\n  lumis themes generate -u https://github.com/folke/tokyonight.nvim -c tokyonight-night -o tokyonight.json\n\nGenerate and use themes not bundled with Lumis:\n  https://docs.lumis.sh/recipes/generate-theme-from-neovim-colorscheme"
     )]
     Generate {
         /// Git repository URL
@@ -509,7 +509,7 @@ enum ThemesCommands {
 
 #[derive(clap::Args)]
 struct ThemeCssArgs {
-    /// Built-in theme name or a custom theme in the data directory
+    /// Theme name or JSON file path
     theme: String,
 
     /// Omit the built-in line layout rules
@@ -805,7 +805,7 @@ fn show_language(name: &str) -> Result<()> {
 }
 
 fn show_theme(name: &str, data_dir: &Path) -> Result<()> {
-    let theme = resolve_theme(Some(name.to_string()), Some(data_dir), false, false)
+    let theme = resolve_theme(Some(name.to_string()), Some(data_dir), false, false)?
         .ok_or_else(|| anyhow::anyhow!("unknown theme: {name}"))?;
 
     println!("{}: {}\n", theme.name, theme.appearance);
@@ -821,7 +821,7 @@ fn show_theme(name: &str, data_dir: &Path) -> Result<()> {
 }
 
 fn build_theme_css(args: ThemeCssArgs, data_dir: &Path) -> Result<()> {
-    let theme = resolve_theme(Some(args.theme.clone()), Some(data_dir), false, false)
+    let theme = resolve_theme(Some(args.theme.clone()), Some(data_dir), false, false)?
         .ok_or_else(|| anyhow::anyhow!("unknown theme: {}", args.theme))?;
     #[allow(deprecated, reason = "preserve --no-italic behavior")]
     let css = lumis_core::themes::CssBuilder::new(&theme)
@@ -1012,24 +1012,34 @@ fn resolve_theme(
     data_dir: Option<&Path>,
     verbose: bool,
     terminal_output: bool,
-) -> Option<lumis_core::themes::Theme> {
+) -> Result<Option<lumis_core::themes::Theme>> {
     let name = match name.as_deref() {
         None | Some("auto") => match guess_terminal_theme(terminal_output) {
             Ok(theme) => theme.name.clone(),
             Err(reason) => {
                 eprintln!("theme: auto unavailable ({reason}); rendering without a theme; use --theme <name> to choose one");
-                return None;
+                return Ok(None);
             }
         },
         Some(name) => name.to_string(),
     };
+
+    let path = Path::new(&name);
+    if path.extension().is_some_and(|ext| ext == "json") || path.components().count() > 1 {
+        let theme = lumis_core::themes::from_file(path)
+            .with_context(|| format!("Failed to load theme from {}", path.display()))?;
+        if verbose {
+            eprintln!("theme: {} ({})", theme.name, path.display());
+        }
+        return Ok(Some(theme));
+    }
 
     // Try built-in theme first
     if let Ok(theme) = lumis_core::themes::get(&name) {
         if verbose {
             eprintln!("theme: {}", theme.name);
         }
-        return Some(theme);
+        return Ok(Some(theme));
     }
 
     // Try file theme from data dir
@@ -1039,7 +1049,7 @@ fn resolve_theme(
             if verbose {
                 eprintln!("theme: {}", theme.name);
             }
-            return Some(theme);
+            return Ok(Some(theme));
         }
     }
 
@@ -1047,7 +1057,7 @@ fn resolve_theme(
         eprintln!("theme: {name} not found");
     }
 
-    None
+    Ok(None)
 }
 
 fn guess_terminal_theme(terminal_output: bool) -> Result<&'static lumis_core::themes::Theme> {
@@ -1813,20 +1823,17 @@ fn render_html_multi_themes(
 
     let mut theme_map = std::collections::HashMap::new();
     for theme_spec in themes {
-        let parts: Vec<&str> = theme_spec.split(':').collect();
-        if parts.len() != 2 {
-            return Err(anyhow::anyhow!(
-                "Invalid theme format '{theme_spec}', expected 'name:theme_id'"
-            ));
-        }
-        let theme_name = parts[0];
-        let theme_id = parts[1];
+        let (theme_name, theme_id) = theme_spec.split_once(':').ok_or_else(|| {
+            anyhow::anyhow!(
+                "Invalid theme format '{theme_spec}', expected 'name:theme_id_or_json_path'"
+            )
+        })?;
         let theme = resolve_theme(
             Some(theme_id.to_string()),
             Some(reg.data_dir()),
             verbose,
             false,
-        )
+        )?
         .ok_or_else(|| anyhow::anyhow!("Theme '{theme_id}' not found"))?;
         theme_map.insert(theme_name.to_string(), theme);
     }
@@ -1907,7 +1914,7 @@ fn render_output(
 
     match chosen {
         Formatter::HtmlInline => {
-            let theme_obj = resolve_theme(theme.clone(), Some(reg.data_dir()), verbose, false);
+            let theme_obj = resolve_theme(theme.clone(), Some(reg.data_dir()), verbose, false)?;
             print_verbose_separator(verbose);
             let mut builder = lumis_core::formatter::HtmlInlineBuilder::new();
             builder
@@ -1971,7 +1978,7 @@ fn render_output(
         }
 
         Formatter::Terminal => {
-            let theme_obj = resolve_theme(theme.clone(), Some(reg.data_dir()), verbose, true);
+            let theme_obj = resolve_theme(theme.clone(), Some(reg.data_dir()), verbose, true)?;
             print_verbose_separator(verbose);
             let mut builder = lumis_core::formatter::TerminalBuilder::new();
             builder

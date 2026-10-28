@@ -46,6 +46,10 @@ const html: string = await highlight(
 
 `highlight()` uses a shared default runtime, so loaded languages and global WASM resolver changes are process-wide.
 
+For a theme outside the bundled collection, follow
+[Generate a theme from a Neovim colorscheme](/recipes/generate-theme-from-neovim-colorscheme)
+and import the resulting JSON as the formatter's `theme` object.
+
 ## For reusable highlighters
 
 Use [`createHighlighter()`](https://www.npmjs.com/package/@lumis-sh/lumis) when you want instance isolation, explicit setup, lazy loading, or repeated synchronous `hl.highlight()` calls after initialization.

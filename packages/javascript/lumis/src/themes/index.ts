@@ -1,3 +1,12 @@
+/**
+ * Discover and transform themes for highlighting.
+ *
+ * To generate and load a theme outside the bundled collection, see
+ * {@link https://docs.lumis.sh/recipes/generate-theme-from-neovim-colorscheme | Generate a theme from a Neovim colorscheme},
+ * including source-license and redistribution considerations.
+ *
+ * @module
+ */
 import { THEME_DATA } from "../generated/theme-data.js";
 import type { HighlightStyle, Theme } from "../types.js";
 
