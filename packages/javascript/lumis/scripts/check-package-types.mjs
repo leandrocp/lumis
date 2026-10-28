@@ -19,13 +19,16 @@ const entries = {
 const assertions = `
 const metadata: languages.LanguageInfo | undefined = languages.get("main.rs");
 const theme: themes.Theme | undefined = themes.get("dracula");
+const mapped = themes.mapStyles({ name: "custom", appearance: "light", highlights: {} },
+  (_scope, style) => ({ ...style, italic: false }));
+const css: Promise<string> = import("@lumis-sh/themes").then(({ buildCss }) => buildCss(mapped));
 const formatter: root.Formatter = formatters.htmlInline({ language: "rust", theme });
 const render: typeof root.highlight = node.highlight;
 const load: typeof languages.load = nodeLanguages.load;
 const wasm: typeof languages.withWasm = root.withWasm;
 const bundled: root.LanguageBundle = web.bundledLanguages;
 const language: root.LanguagePackageHandle = rust.default;
-void [metadata, formatter, render, load, wasm, bundled, language, html, ansi];
+void [metadata, formatter, render, load, wasm, bundled, language, html, ansi, css];
 // @ts-expect-error An unresolved lookup is not a LanguageInfo.
 const required: languages.LanguageInfo = languages.get("unknown");
 `;

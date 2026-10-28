@@ -161,6 +161,7 @@ fn exercised_entry_points() -> BTreeSet<&'static str> {
     exercise_theme_entry_points();
 
     [
+        "themes::Theme::map_styles",
         "themes::closest",
         "themes::get",
         "themes::available",
@@ -204,6 +205,8 @@ fn exercise_language_entry_points() {
 }
 
 fn exercise_theme_entry_points() {
+    let theme = themes::get("dracula").unwrap();
+    assert_eq!(theme.clone().map_styles(|_, style| style), theme);
     assert_eq!(
         themes::available().count(),
         themes::available_themes().count()

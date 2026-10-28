@@ -10,6 +10,14 @@ const cases = JSON.parse(
 );
 
 for (const [format, themes] of Object.entries({ esm, cjs })) {
+  await test(`${format} maps styles through the published themes entry point`, () => {
+    const original = themes.get("github_light");
+    const mapped = themes.mapStyles(original, (_scope, style) => ({ ...style, italic: false }));
+    assert.ok(Object.values(original.highlights).some((style) => style.italic));
+    assert.ok(Object.values(mapped.highlights).every((style) => style.italic === false));
+    assert.equal(mapped.name, original.name);
+  });
+
   await test(`${format} exposes closest through the published themes entry point`, () => {
     assert.ok(cases.length >= 20);
     for (const fixture of cases) {

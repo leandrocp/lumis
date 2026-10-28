@@ -64,6 +64,132 @@ lumis themes list
   </Tab>
 </Tabs>
 
+## Transform theme styles
+
+Use `mapStyles` / `map_styles` to change colors, backgrounds, or text decorations
+before rendering. The callback receives each existing scope name and its complete
+style once, and returns the style to use instead. It does not merge a partial
+patch. Keep the other fields with a spread or struct update.
+
+For a complete example, see [Customize theme styles](/recipes/customize-theme-styles).
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
+
+```ts
+import githubLight from '@lumis-sh/themes/github_light';
+import { mapStyles } from '@lumis-sh/lumis/themes';
+import { buildCss } from '@lumis-sh/themes';
+
+const theme = mapStyles(githubLight, (scope, style) => {
+  switch (scope) {
+    case 'markup.raw.block':
+      return { ...style, italic: false };
+    case 'normal':
+      return { ...style, bg: '#ffffff' };
+    case 'highlighted':
+      return { ...style, bg: '#fff3bf' };
+    default:
+      return style;
+  }
+});
+
+const css = buildCss(theme);
+```
+
+The original theme is unchanged. The returned theme has its own style objects,
+including for entries whose callback returns the style unchanged.
+
+To disable italics across the whole theme:
+
+```ts
+const upright = mapStyles(githubLight, (_scope, style) => ({
+  ...style,
+  italic: false,
+}));
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::themes;
+
+let theme = themes::get("github_light").unwrap()
+    .map_styles(|scope, mut style| {
+        match scope {
+            "markup.raw.block" => style.italic = false,
+            "normal" => style.bg = Some("#ffffff".into()),
+            "highlighted" => style.bg = Some("#fff3bf".into()),
+            _ => {}
+        }
+        style
+    });
+
+let css = themes::CssBuilder::new(&theme).build();
+```
+
+`map_styles` consumes and returns the theme. Call `.clone()` first to retain the
+original. The callback accepts owned styles and can capture mutable state.
+
+To disable italics across the whole theme:
+
+```rust
+let upright = theme.map_styles(|_, mut style| {
+    style.italic = false;
+    style
+});
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+alias Lumis.Theme
+
+theme =
+  Theme.get("github_light")
+  |> Theme.map_styles(fn
+    "markup.raw.block", style -> %{style | italic: false}
+    "normal", style -> %{style | bg: "#ffffff"}
+    "highlighted", style -> %{style | bg: "#fff3bf"}
+    _scope, style -> style
+  end)
+
+css = Theme.build_css!(theme)
+```
+
+The callback returns a `Lumis.Theme.Style` struct. The original theme is unchanged.
+
+To disable italics across the whole theme:
+
+```elixir
+upright = Theme.map_styles(theme, fn _scope, style -> %{style | italic: false} end)
+```
+
+  </Tab>
+</Tabs>
+
+Pass the result wherever a theme is accepted: inline HTML, each theme in
+multi-theme HTML, terminal output, or custom formatters. For linked HTML, build
+CSS from the modified theme and use that stylesheet instead of the prebuilt one.
+Inline HTML still requires `italic: true` to emit italic styles that remain in
+the theme; its default is `false`.
+
+Transformations preserve scope names, the theme name, appearance, revision, and
+license. They visit only existing entries, including language-specific entries,
+in an unspecified order. They do not add missing scopes or expand fallback
+styles. An exact match for `markup.raw.block` does not also change an existing
+`markup.raw.block.markdown` entry. Match those explicitly when needed.
+
+Setting a style's `italic` to `false` removes that scope's contribution; it does
+not cancel italics inherited from an enclosing highlight or the surrounding
+page. Independently italic comments inside a code fence can remain italic.
+
+You can compose transformations by passing the result to another call. An empty
+theme stays empty and never calls the callback. Callback errors propagate to the
+caller. The API does not convert colors or turn a dark palette into a light one.
+
 ## Load a custom theme from JSON
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>

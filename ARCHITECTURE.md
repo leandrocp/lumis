@@ -519,3 +519,11 @@ aliases. Language modules share the root runtime; importing the root does not
 pull in the full theme catalog. `fixtures/api.json` records the canonical names,
 runtime-specific operations, and aliases. The external Java binding retains its
 separate enum API until that repository adopts these operations.
+
+`Theme::map_styles`, `Lumis.Theme.map_styles/2`, and JavaScript's `mapStyles`
+transform existing theme entries before formatting. Rust defines the contract;
+callbacks execute in their caller's runtime, since an Elixir or browser callback
+cannot be passed to the Rust closure. `fixtures/theme-map-styles.json` pins the
+same transformation in all three runtimes, including exact scope matching,
+complete style replacement, and unchanged metadata. No renderer applies a second
+transformation or changes its existing style-resolution rules.

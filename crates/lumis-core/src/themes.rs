@@ -523,6 +523,30 @@ impl Default for Theme {
 }
 
 impl Theme {
+    /// Transform every existing scope's style, consuming and returning the theme.
+    ///
+    /// The callback receives the scope name and its complete style once per entry,
+    /// in an unspecified order. Its return value replaces that style; scope names
+    /// and theme metadata stay unchanged. No fallback scopes are materialized.
+    /// Clone the theme first to keep the original.
+    ///
+    /// ```
+    /// use lumis_core::themes;
+    ///
+    /// let theme = themes::get("github_light").unwrap().map_styles(|_, mut style| {
+    ///     style.italic = false;
+    ///     style
+    /// });
+    /// assert!(theme.highlights.values().all(|style| !style.italic));
+    /// ```
+    #[must_use]
+    pub fn map_styles(mut self, mut transform: impl FnMut(&str, Style) -> Style) -> Self {
+        for (scope, style) in &mut self.highlights {
+            *style = transform(scope, std::mem::take(style));
+        }
+        self
+    }
+
     /// Creates a theme whose license is `NOASSERTION`. Set
     /// [`Theme::license`] when the license is known.
     pub fn new(
@@ -934,6 +958,63 @@ include!(concat!(env!("OUT_DIR"), "/theme_data.rs"));
 mod tests {
     use super::*;
     use std::path::Path;
+
+    #[test]
+    fn map_styles_matches_shared_contract() {
+        #[derive(Deserialize)]
+        struct Case {
+            theme: Theme,
+            expected: Theme,
+        }
+        let case: Case =
+            serde_json::from_str(include_str!("../../../fixtures/theme-map-styles.json")).unwrap();
+        assert_eq!(case.theme.highlights.len(), 6);
+        let mut visited = BTreeMap::new();
+        let mapped = case.theme.clone().map_styles(|scope, mut style| {
+            *visited.entry(scope.to_owned()).or_insert(0) += 1;
+            match scope {
+                "markup.raw.block" => style.italic = false,
+                "normal" => style.bg = Some("#ffffff".into()),
+                "highlighted" => return Style::default(),
+                _ => {}
+            }
+            style
+        });
+        assert_eq!(mapped, case.expected);
+        assert_eq!(visited.len(), 6);
+        assert!(visited.values().all(|count| *count == 1));
+        assert!(case.theme.highlights["markup.raw.block"].italic);
+        assert_eq!(
+            CssBuilder::new(&mapped).build(),
+            CssBuilder::new(&case.expected).build()
+        );
+    }
+
+    #[test]
+    fn map_styles_composes_and_handles_empty_themes() {
+        let theme = get("github_light").unwrap().map_styles(|_, mut style| {
+            style.italic = false;
+            style
+        });
+        assert!(!CssBuilder::new(&theme)
+            .build()
+            .contains("font-style: italic"));
+        let theme = theme.map_styles(|scope, mut style| {
+            style.italic = scope == "markup.italic";
+            style
+        });
+        assert_eq!(
+            CssBuilder::new(&theme)
+                .build()
+                .matches("font-style: italic")
+                .count(),
+            1
+        );
+        assert_eq!(
+            Theme::default().map_styles(|_, _| panic!("empty theme has no styles")),
+            Theme::default()
+        );
+    }
 
     #[test]
     fn test_available_themes() {

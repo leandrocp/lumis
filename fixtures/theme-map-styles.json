@@ -1,0 +1,30 @@
+{
+  "theme": {
+    "name": "mapped-theme",
+    "appearance": "light",
+    "revision": "fixture",
+    "license": "MIT",
+    "highlights": {
+      "normal": { "fg": "#123456", "bg": "#eeeeee" },
+      "markup.raw.block": { "fg": "#654321", "italic": true, "underline": "wavy" },
+      "markup.raw.block.markdown": { "fg": "#987654", "italic": true },
+      "markup.italic": { "italic": true },
+      "comment": { "fg": "#888888", "italic": true, "strikethrough": true },
+      "highlighted": { "bg": "#ffff00", "bold": true }
+    }
+  },
+  "expected": {
+    "name": "mapped-theme",
+    "appearance": "light",
+    "revision": "fixture",
+    "license": "MIT",
+    "highlights": {
+      "normal": { "fg": "#123456", "bg": "#ffffff" },
+      "markup.raw.block": { "fg": "#654321", "italic": false, "underline": "wavy" },
+      "markup.raw.block.markdown": { "fg": "#987654", "italic": true },
+      "markup.italic": { "italic": true },
+      "comment": { "fg": "#888888", "italic": true, "strikethrough": true },
+      "highlighted": {}
+    }
+  }
+}

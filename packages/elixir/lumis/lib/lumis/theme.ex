@@ -204,6 +204,31 @@ defmodule Lumis.Theme do
     end
   end
 
+  @doc """
+  Returns a theme with each existing scope's style transformed by `fun`.
+
+  The callback receives the scope name and its complete style once per entry,
+  in an unspecified order. It must return a `Lumis.Theme.Style` struct, which
+  replaces that style. Scope names and theme metadata stay unchanged; missing
+  scopes are not added and fallback styles are not expanded.
+
+      theme =
+        Lumis.Theme.get("github_light")
+        |> Lumis.Theme.map_styles(fn _scope, style -> %{style | italic: false} end)
+
+      Lumis.Theme.build_css!(theme)
+  """
+  @spec map_styles(t(), (String.t(), Lumis.Theme.Style.t() -> Lumis.Theme.Style.t())) :: t()
+  def map_styles(%__MODULE__{} = theme, fun) when is_function(fun, 2) do
+    highlights =
+      Map.new(theme.highlights, fn {scope, style} ->
+        %{__struct__: Lumis.Theme.Style} = mapped = fun.(scope, style)
+        {scope, mapped}
+      end)
+
+    %{theme | highlights: highlights}
+  end
+
   defp do_build_css(name, options) when is_binary(name) do
     Lumis.Native.theme_css_from_name(name, options)
   end

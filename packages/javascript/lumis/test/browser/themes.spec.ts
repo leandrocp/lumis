@@ -15,3 +15,28 @@ test("the published themes module matches the shared corpus in a browser", async
   );
   expect(errors).toEqual([]);
 });
+
+test("mapped themes preserve emphasis while removing code-fence italics in both HTML forms", async ({
+  page,
+}) => {
+  await page.goto("/themes.html");
+  for (const [name, raw, emphasis] of [
+    ["original", "italic", "italic"],
+    ["selective", "normal", "italic"],
+    ["upright", "normal", "normal"],
+  ]) {
+    await expect(page.locator(`#${name} .linked .l-markup-raw-block`)).toHaveCSS("font-style", raw);
+    await expect(page.locator(`#${name} .linked .l-markup-italic`)).toHaveCSS(
+      "font-style",
+      emphasis,
+    );
+    await expect(page.locator(`#${name} .inline [data-highlight="markup.raw.block"]`)).toHaveCSS(
+      "font-style",
+      raw,
+    );
+    await expect(page.locator(`#${name} .inline [data-highlight="markup.italic"]`)).toHaveCSS(
+      "font-style",
+      emphasis,
+    );
+  }
+});

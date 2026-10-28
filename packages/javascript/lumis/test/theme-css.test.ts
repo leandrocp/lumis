@@ -6,6 +6,7 @@ import githubLight from "@lumis-sh/themes/github_light";
 import { describe, expect, it } from "vitest";
 import { scopeToClass } from "../src/formatter/html.js";
 import { HIGHLIGHT_NAMES } from "../src/highlights.js";
+import { mapStyles, type Theme } from "../src/themes/index.js";
 
 const require = createRequire(import.meta.url);
 
@@ -22,6 +23,53 @@ const sample: ThemeData = {
     "tag.attribute": { bg: "gray", bold: true },
   },
 };
+
+describe("mapStyles", () => {
+  it("matches the shared contract without changing or aliasing the original", () => {
+    const fixture: { theme: Theme; expected: Theme } = JSON.parse(
+      readFileSync(new URL("../../../../fixtures/theme-map-styles.json", import.meta.url), "utf8"),
+    );
+    const original = structuredClone(fixture.theme);
+    const visited: string[] = [];
+    expect(Object.keys(original.highlights)).toHaveLength(6);
+    const mapped = mapStyles(original, (scope, style) => {
+      visited.push(scope);
+      switch (scope) {
+        case "markup.raw.block":
+          return { ...style, italic: false };
+        case "normal":
+          return { ...style, bg: "#ffffff" };
+        case "highlighted":
+          return {};
+        default:
+          return style;
+      }
+    });
+    expect(mapped).toEqual(fixture.expected);
+    expect(visited.sort()).toEqual(Object.keys(original.highlights).sort());
+    expect(buildCss(mapped)).toBe(buildCss(fixture.expected));
+    for (const style of Object.values(mapped.highlights)) style.fg = "#000000";
+    expect(original).toEqual(fixture.theme);
+  });
+
+  it("composes transformations, supports boolean underline, and handles empty themes", () => {
+    const theme = mapStyles(githubLight, (_scope, style) => ({ ...style, italic: false }));
+    expect(buildCss(theme)).not.toContain("font-style: italic");
+    const mapped = mapStyles(theme, (scope, style) => ({
+      ...style,
+      italic: scope === "markup.italic",
+      underline: scope === "markup.italic",
+    }));
+    const css = buildCss(mapped);
+    expect(css.split("font-style: italic")).toHaveLength(2);
+    expect(css.split("text-decoration: underline")).toHaveLength(2);
+    expect(
+      mapStyles({ ...theme, highlights: {} }, () => {
+        throw new Error("empty theme has no styles");
+      }),
+    ).toEqual({ ...theme, highlights: {} });
+  });
+});
 
 describe("buildCss", () => {
   it("renders the default stylesheet", () => {
