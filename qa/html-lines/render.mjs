@@ -13,7 +13,6 @@ export function renderCases(highlighter, language, theme) {
         const options = {
           language,
           lineNumbers,
-          italic: true,
           highlightLines: { lines: manifest.highlightLines, class: "l-highlighted" },
         };
         const formatters = new Map([
