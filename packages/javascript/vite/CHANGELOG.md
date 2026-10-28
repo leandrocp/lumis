@@ -1,3 +1,5 @@
+## [0.2.2](https://github.com/leandrocp/lumis/compare/npm-vite/v0.2.1...npm-vite/v0.2.2) (2026-10-28)
+
 ## [0.2.1](https://github.com/leandrocp/lumis/compare/npm-vite/v0.2.0...npm-vite/v0.2.1) (2026-10-23)
 
 ### Features
