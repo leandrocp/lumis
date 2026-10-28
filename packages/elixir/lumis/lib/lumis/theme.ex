@@ -12,6 +12,10 @@ defmodule Lumis.Theme do
 
   Or check out all the [available themes](https://docs.lumis.sh/reference/themes).
 
+  To generate and load a theme outside the bundled collection, see
+  [Generate a theme from a Neovim colorscheme](https://docs.lumis.sh/recipes/generate-theme-from-neovim-colorscheme),
+  including source-license and redistribution considerations.
+
   ## Example
 
       %Lumis.Theme{

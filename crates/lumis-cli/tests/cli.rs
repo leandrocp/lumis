@@ -302,6 +302,97 @@ fn themes_show_finds_a_theme_from_the_data_dir() {
 }
 
 #[test]
+fn theme_files_work_across_commands_and_formatters() {
+    let tmp = tempfile::tempdir().unwrap();
+    let theme_path = tmp.path().join("custom themes/dracula.json");
+    write_file(
+        &theme_path,
+        r##"{"name":"file-theme","appearance":"dark","revision":"test","license":"GPL-2.0","highlights":{"normal":{"fg":"#123456","bg":"#654321"}}}"##,
+    );
+    let path = theme_path.to_str().unwrap();
+
+    for (args, expected) in [
+        (vec!["themes", "show", path], "foreground: #123456"),
+        (vec!["themes", "build-css", path], "#654321"),
+        (
+            vec![
+                "highlight",
+                "-l",
+                "plaintext",
+                "-f",
+                "html-inline",
+                "-t",
+                path,
+            ],
+            "#123456",
+        ),
+    ] {
+        cmd()
+            .args(args)
+            .write_stdin("hello <world>")
+            .assert()
+            .success()
+            .stdout(predicate::str::contains(expected));
+    }
+
+    cmd()
+        .args([
+            "highlight",
+            "-l",
+            "plaintext",
+            "-f",
+            "html-multi-themes",
+            "--themes",
+        ])
+        .arg(format!("dark:{path}"))
+        .write_stdin("hello <world>")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("#123456"));
+
+    cmd()
+        .current_dir(tmp.path().join("custom themes"))
+        .args(["themes", "show", "dracula.json"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("file-theme: dark"));
+}
+
+#[test]
+fn explicit_theme_file_errors_are_not_silenced() {
+    let tmp = tempfile::tempdir().unwrap();
+    write_file(&tmp.path().join("invalid.json"), "not a theme");
+    for (file, expected) in [
+        ("missing.json", "theme file not found"),
+        ("invalid.json", "invalid theme json"),
+    ] {
+        for args in [
+            vec!["themes", "show", file],
+            vec!["themes", "build-css", file],
+            vec![
+                "highlight",
+                "-l",
+                "plaintext",
+                "-f",
+                "html-inline",
+                "-t",
+                file,
+            ],
+            vec!["highlight", "-l", "plaintext", "-t", file],
+        ] {
+            cmd()
+                .current_dir(tmp.path())
+                .args(args)
+                .write_stdin("hello")
+                .assert()
+                .failure()
+                .stdout("")
+                .stderr(predicate::str::contains(expected));
+        }
+    }
+}
+
+#[test]
 fn themes_show_rejects_an_unknown_theme() {
     cmd()
         .args(["themes", "show", "not-a-theme"])

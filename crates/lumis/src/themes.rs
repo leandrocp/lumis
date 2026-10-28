@@ -62,6 +62,10 @@
 //!
 //! # Custom Themes
 //!
+//! To generate a JSON theme from a colorscheme outside the bundled collection,
+//! see [Generate a theme from a Neovim colorscheme](https://docs.lumis.sh/recipes/generate-theme-from-neovim-colorscheme),
+//! including source-license and redistribution considerations.
+//!
 //! Create custom themes by loading from JSON files or building programmatically:
 //!
 //! ```rust,no_run

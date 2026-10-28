@@ -25,6 +25,40 @@ return {
 		end,
 	},
 	{
+		url = "https://github.com/fcancelinha/nordern.nvim",
+		name = "nordern",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme nordern]])
+		end,
+	},
+	{
+		url = "https://github.com/nordtheme/vim",
+		name = "nord",
+		config = function()
+			vim.o.background = "dark"
+			vim.g.nord_italic = 1
+			vim.cmd([[colorscheme nord]])
+
+			-- Nord defines legacy TS groups, not their modern capture names.
+			for capture, group in pairs({
+				["@attribute"] = "TSAnnotation",
+				["@constant.builtin"] = "TSConstBuiltin",
+				["@constructor"] = "TSConstructor",
+				["@function.builtin"] = "TSFuncBuiltin",
+				["@function.macro"] = "TSFuncMacro",
+				["@markup.italic"] = "TSEmphasis",
+				["@markup.strong"] = "TSStrong",
+				["@markup.underline"] = "TSUnderline",
+				["@string.regexp"] = "TSStringRegex",
+				["@variable"] = "TSVariable",
+				["@variable.builtin"] = "TSVariableBuiltin",
+			}) do
+				vim.api.nvim_set_hl(0, capture, { link = group })
+			end
+		end,
+	},
+	{
 		url = "https://github.com/AlexvZyl/nordic.nvim",
 		name = "nordic",
 		config = function()
