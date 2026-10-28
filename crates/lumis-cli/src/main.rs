@@ -1912,7 +1912,7 @@ fn render_output(
     let header = header_element(&args);
     let structure = structure.map(Into::into).unwrap_or_default();
 
-    match chosen {
+    let output = match chosen {
         Formatter::HtmlInline => {
             let theme_obj = resolve_theme(theme.clone(), Some(reg.data_dir()), verbose, false)?;
             print_verbose_separator(verbose);
@@ -1932,31 +1932,28 @@ fn render_output(
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
             let mut output = Vec::new();
             fmt.render_budgeted_or(source, events, &mut output, budget)?;
-            print!("{}", String::from_utf8(output)?);
+            output
         }
 
-        Formatter::HtmlMultiThemes => {
-            let output = render_html_multi_themes(
-                reg,
-                source,
-                events,
-                budget,
-                lang,
-                structure,
-                themes,
-                default_theme.as_deref(),
-                css_variable_prefix.as_deref(),
-                pre_class.clone(),
-                html_attrs(pre_attrs, no_pre_attrs),
-                html_attrs(code_attrs, no_code_attrs),
-                include_highlights,
-                highlight_lines,
-                line_numbers,
-                header,
-                verbose,
-            )?;
-            print!("{}", String::from_utf8(output)?);
-        }
+        Formatter::HtmlMultiThemes => render_html_multi_themes(
+            reg,
+            source,
+            events,
+            budget,
+            lang,
+            structure,
+            themes,
+            default_theme.as_deref(),
+            css_variable_prefix.as_deref(),
+            pre_class.clone(),
+            html_attrs(pre_attrs, no_pre_attrs),
+            html_attrs(code_attrs, no_code_attrs),
+            include_highlights,
+            highlight_lines,
+            line_numbers,
+            header,
+            verbose,
+        )?,
 
         Formatter::HtmlLinked => {
             print_verbose_separator(verbose);
@@ -1974,7 +1971,7 @@ fn render_output(
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
             let mut output = Vec::new();
             fmt.render_budgeted_or(source, events, &mut output, budget)?;
-            print!("{}", String::from_utf8(output)?);
+            output
         }
 
         Formatter::Terminal => {
@@ -1992,7 +1989,7 @@ fn render_output(
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
             let mut output = Vec::new();
             fmt.render_budgeted_or(source, events, &mut output, budget)?;
-            print!("{}", String::from_utf8(output)?);
+            output
         }
 
         Formatter::BbcodeScoped => {
@@ -2001,9 +1998,10 @@ fn render_output(
                 lumis_core::formatter::BBCodeScoped::new(lang, bbcode_highlight_lines(&args)?);
             let mut output = Vec::new();
             fmt.render_budgeted_or(source, events, &mut output, budget)?;
-            print!("{}", String::from_utf8(output)?);
+            output
         }
-    }
+    };
+    print!("{}", String::from_utf8(output)?);
 
     Ok(())
 }
