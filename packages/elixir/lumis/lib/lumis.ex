@@ -899,20 +899,18 @@ defmodule Lumis do
 
   defp convert_themes_keyword_list(themes, opts) do
     themes
-    |> Enum.reduce_while({:ok, %{}}, fn {id, theme_value}, {:ok, acc} ->
-      theme_id = to_string(id)
-
+    |> Enum.reduce_while({:ok, []}, fn {id, theme_value}, {:ok, acc} ->
       case resolve_theme(theme_value) do
         {:ok, theme_struct} ->
-          {:cont, {:ok, Map.put(acc, theme_id, theme_struct)}}
+          {:cont, {:ok, [{id, theme_struct} | acc]}}
 
         {:error, reason} ->
           {:halt, {:error, "failed to resolve theme #{inspect(id)}: #{reason}"}}
       end
     end)
     |> case do
-      {:ok, themes_map} ->
-        {:ok, Keyword.put(opts, :themes, themes_map)}
+      {:ok, resolved_themes} ->
+        {:ok, Keyword.put(opts, :themes, Enum.reverse(resolved_themes))}
 
       {:error, _} = error ->
         error
@@ -1238,6 +1236,9 @@ defmodule Lumis do
   It ensures that all options are valid and properly typed before being passed to the
   highlighting functions.
 
+  Multi-theme names resolve to `Lumis.Theme` structs while `:themes` remains a
+  keyword list with the original identifiers.
+
   ## Examples
 
       iex> options = Lumis.validate_options!(formatter: {:html_inline, language: "elixir"})
@@ -1445,7 +1446,11 @@ defmodule Lumis do
   end
 
   defp convert_formatter_for_nif(:html_multi_themes, opts) do
-    opts = opts |> convert_attrs_for_nif() |> Map.put_new(:italic, true)
+    opts =
+      opts
+      |> convert_attrs_for_nif()
+      |> Map.put_new(:italic, true)
+      |> Map.update!(:themes, &Map.new(&1, fn {id, theme} -> {Atom.to_string(id), theme} end))
 
     {:html_multi_themes,
      Map.take(opts, [
