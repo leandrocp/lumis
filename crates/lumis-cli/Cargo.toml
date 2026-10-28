@@ -34,7 +34,7 @@ doc = false
 
 [dependencies]
 lumis-core = { path = "../lumis-core", version = "5.0.0", features = ["all-languages"] }
-lumis-build = { path = "../lumis-build", version = "1.1.0", features = ["license"] }
+lumis-build = { path = "../lumis-build", version = "1.2.0", features = ["license"] }
 lumis-wasm-runtime = { path = "../lumis-wasm-runtime", version = "0.5.2" }
 tree-sitter = { version = "^0.27.1", features = ["wasm"] }
 clap = { version = "4", features = ["derive", "env"] }
