@@ -1,3 +1,10 @@
+## [0.5.3](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.5.2...cargo-lumis-wasm-runtime/v0.5.3) (2026-10-28)
+
+### Features
+
+- **languages:** Add Slim and Django templates in [\#1860](https://github.com/leandrocp/lumis/pull/1860)
+- **languages:** Add TLA+ and PlusCal support in [\#1888](https://github.com/leandrocp/lumis/pull/1888)
+
 ## [0.5.2](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.5.1...cargo-lumis-wasm-runtime/v0.5.2) (2026-10-23)
 
 ### Features
