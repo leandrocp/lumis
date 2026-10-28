@@ -7,7 +7,7 @@
     "render": "node render.mjs"
   },
   "dependencies": {
-    "@lumis-sh/lumis": "^0.9.5",
+    "@lumis-sh/lumis": "^0.10.0",
     "@lumis-sh/themes": "^0.4.2",
     "@lumis-sh/wasm-elixir": "^0.26.8"
   }
