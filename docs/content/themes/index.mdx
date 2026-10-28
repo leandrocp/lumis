@@ -190,10 +190,23 @@ caller. The API does not convert colors or turn a dark palette into a light one.
 
 ## Load a custom theme from JSON
 
+Generate the file with the [Neovim colorscheme recipe](/recipes/generate-theme-from-neovim-colorscheme),
+then load it in your runtime:
+
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
   <Tab value="JavaScript / TypeScript">
 
-Custom theme JSON loading is not currently exposed by `@lumis-sh/themes` as a runtime helper.
+Import your generated JSON as a theme object; no loader helper is needed:
+
+```js
+import theme from './my-theme.json' with { type: 'json' };
+import { htmlInline } from '@lumis-sh/lumis/formatters';
+import javascript from '@lumis-sh/wasm-javascript';
+
+const formatter = htmlInline({ language: javascript, theme });
+```
+
+Use Node.js JSON modules or a bundler with JSON import support.
 
   </Tab>
   <Tab value="Rust">
@@ -219,57 +232,32 @@ Lumis.highlight!("const x = 1",
   </Tab>
   <Tab value="Java">
 
-Custom theme JSON loading is not currently exposed by `lumis4j`.
+The external [Lumis4J binding](/usage/java) documents enum-based theme selection.
+Check its documentation for custom theme support in your version.
 
   </Tab>
   <Tab value="CLI">
 
 ```bash
-# generate a theme JSON file
-lumis themes generate \
-  --url https://github.com/catppuccin/nvim \
-  --colorscheme catppuccin-mocha \
-  --output catppuccin-mocha.json
-
-# move it into the Lumis data dir so
-# `lumis themes list` can discover it
-mkdir -p ~/.local/share/lumis/themes
-cp catppuccin-mocha.json ~/.local/share/lumis/themes/
-
-# then use the theme by name
-lumis highlight index.js --theme my-custom-theme
+lumis highlight index.js --theme ./my-theme.json
+lumis themes show ./my-theme.json
+lumis themes build-css ./my-theme.json > my-theme.css
 ```
 
-```text
-Replace `my-custom-theme` with the JSON theme's
-`name` field.
-```
-
-See [CLI Commands](/cli/commands#lumis-themes-generate) for the full `lumis themes generate` options.
+You can also place the file in the data directory's `themes/` folder and use its
+filename stem, not its JSON `name` field. See
+[local custom themes](/cli/behavior#local-custom-themes).
 
   </Tab>
 </Tabs>
 
 ## Generate a theme from a Neovim colorscheme
 
-The CLI can extract a theme directly from a Git repository.
-
-```bash
-lumis themes generate \
-  --url https://github.com/catppuccin/nvim \
-  --colorscheme catppuccin-mocha \
-  --output catppuccin-mocha.json
-```
-
-You can also pass custom setup code or mark the theme as light mode:
-
-```bash
-lumis themes generate \
-  --url https://github.com/projekt0n/github-nvim-theme \
-  --colorscheme github_light \
-  --appearance light \
-  --output github-light.json
-```
+Follow [Generate a theme from a Neovim colorscheme](/recipes/generate-theme-from-neovim-colorscheme)
+for prerequisites, a runnable example using a theme outside the bundled collection,
+and source-license and redistribution considerations. Generation requires Neovim
+with `vim.pack`; it preserves the detected source license rather than relicensing
+the theme.
 
 ## CSS theme files
 

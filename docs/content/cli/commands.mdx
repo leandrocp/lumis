@@ -85,7 +85,7 @@ Accepted by `html-inline` and `terminal`:
 
 | Flag | Short | Description |
 | --- | --- | --- |
-| `--theme <name>` | `-t` | Theme name (e.g., `catppuccin_latte`, `catppuccin_frappe`) or `auto` |
+| `--theme <name-or-path>` | `-t` | Built-in name, data-directory filename stem, JSON file path (e.g., `./my-theme.json`), or `auto` |
 
 Accepted by every formatter except `bbcode-scoped`, which has nothing to render a
 number into:
@@ -131,7 +131,7 @@ Accepted by `html-multi-themes`:
 
 | Flag | Short | Description |
 | --- | --- | --- |
-| `--themes <key:theme>` | | Theme pair (repeatable, e.g., `--themes light:catppuccin_latte --themes dark:catppuccin_frappe`) |
+| `--themes <key:theme>` | | Theme pair; each theme accepts a name or JSON path (repeatable, e.g., `--themes light:catppuccin_latte --themes dark:./my-theme.json`) |
 | `--default-theme <id>` | | Which `--themes` entry gets inline styles |
 | `--css-variable-prefix <prefix>` | | Prefix for CSS custom properties (default: `--lumis`). A value starting with `-` needs the `=` form: `--css-variable-prefix=--shiki` |
 
@@ -342,15 +342,19 @@ catppuccin_frappe   MIT
 my_theme (file)     NOASSERTION
 ```
 
+Custom theme lookup uses the filename stem, not the JSON's `name` field.
+
 ## `lumis themes show`
 
 ```bash
 lumis themes show catppuccin_frappe
+lumis themes show ./my-theme.json
 ```
 
 Prints a theme's appearance, license, foreground, background and how many
-highlight scopes it defines. Finds themes in the data directory as well as built-in ones.
-Exits non-zero on an unknown name.
+highlight scopes it defines. Accepts a built-in name, data-directory filename
+stem, or explicit JSON path. Exits non-zero on an unknown name or a missing or
+malformed explicit file.
 
 ## `lumis themes build-css`
 
@@ -359,6 +363,7 @@ Write CSS for a built-in or local theme to stdout. Redirect it to save a file:
 ```sh
 lumis themes build-css catppuccin_frappe > theme.css
 lumis themes build-css catppuccin_frappe --no-layout > colors.css
+lumis themes build-css ./my-theme.json > my-theme.css
 ```
 
 | Flag | Default | Behavior |
@@ -369,13 +374,18 @@ lumis themes build-css catppuccin_frappe --no-layout > colors.css
 | `--container-style <property=value>` | None | Add or replace a container declaration; repeat for more properties. |
 
 The command uses the same [CSS builder](/themes/css-builder) as the libraries.
+Theme lookup is shared with `--theme`, `themes show`, and multi-theme HTML's
+`--themes` entries; see [local custom themes](/cli/behavior#local-custom-themes).
 Theme styles and supplied container declarations remain when layout is disabled.
 Quote values containing spaces, for example `--container-style 'padding=1rem 2rem'`.
 CSS custom properties work too: `--container-style '--code-bg=#111'`.
 
 ## `lumis themes generate`
 
-Extract a theme from a Neovim colorscheme Git repository.
+Extract a theme from a Neovim colorscheme Git repository. Requires Git and
+Neovim with the built-in `vim.pack` plugin manager on `PATH`. See the
+[generation recipe](/recipes/generate-theme-from-neovim-colorscheme) for a complete
+example, runtime loading, and source-license and redistribution considerations.
 
 | Flag | Short | Description |
 | --- | --- | --- |

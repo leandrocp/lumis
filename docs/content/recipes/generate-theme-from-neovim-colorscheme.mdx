@@ -3,16 +3,173 @@ title: Generate a theme from a Neovim colorscheme
 description: Generate a Lumis theme JSON file from an upstream Neovim colorscheme.
 ---
 
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
+You can generate a theme even when it is not in Lumis's bundled collection.
+This recipe uses [`shaunsingh/nord.nvim`](https://github.com/shaunsingh/nord.nvim),
+whose source includes a [GPL version 2 license](https://github.com/shaunsingh/nord.nvim/blob/master/LICENSE).
+Generation does not add it to the bundled collection or change its source license.
+A bundled theme with the same name may come from a different plugin; use the
+generated file explicitly to select this source.
+
+## Prerequisites
+
+Install the [Lumis CLI](/cli/install), Git, and a Neovim version that provides
+the built-in [`vim.pack` plugin manager](https://neovim.io/doc/user/pack/#_plugin-manager).
+All three commands must be on `PATH`. Check Neovim before extracting:
+
+```sh
+nvim --headless --clean -c 'lua assert(vim.pack, "Neovim with vim.pack is required")' -c qa
+```
+
+The CLI starts a clean Neovim session in a temporary directory and installs the
+plugin there. It does not use your Neovim configuration or install the plugin
+into your normal Neovim data directory. Installation needs network access to
+the plugin repository. Only generate from repositories and setup code you trust:
+Neovim executes the plugin's Lua code.
+
+## Generate the JSON
 
 ```bash
 lumis themes generate \
-  --url https://github.com/folke/tokyonight.nvim \
-  --colorscheme tokyonight-night \
-  --output tokyonight.json
+  --url https://github.com/shaunsingh/nord.nvim \
+  --colorscheme nord \
+  --appearance dark \
+  --output nord.json
 ```
 
-The generated theme has a `license` field with the colorscheme's license as an
-SPDX expression, read from the plugin's license file: `NONE` when the plugin
-has no license file and `NOASSERTION` when the file matches no known license.
-Check it before redistributing the theme.
+`--colorscheme` is the name Neovim loads, not necessarily the repository name.
+`--appearance` defaults to `dark`; use `light` for a light colorscheme.
+If the plugin needs configuration before it loads, pass Lua with `--setup`, for
+example `--setup 'vim.g.nord_italic = false'`. Without `--output`, JSON goes to
+stdout. See the [command reference](/cli/commands#lumis-themes-generate) for all flags.
+
+The JSON contains the theme's name, appearance, source revision, detected license,
+and highlight styles. Keep it with your application; generation is a build step,
+not something you need to run for each highlight.
+
+## Load the generated theme
+
+Run these examples from the directory containing `nord.json`. Library callers
+load the file themselves and pass the resulting theme to a formatter; they do
+not look it up in the CLI's data directory.
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
+
+With Node.js JSON modules (or a bundler that supports JSON imports):
+
+```js
+import nord from './nord.json' with { type: 'json' };
+import { highlight } from '@lumis-sh/lumis';
+import { htmlInline } from '@lumis-sh/lumis/formatters';
+import javascript from '@lumis-sh/wasm-javascript';
+
+const html = await highlight(
+  'const x = 1',
+  htmlInline({ language: javascript, theme: nord }),
+);
+```
+
+Install `@lumis-sh/lumis` and `@lumis-sh/wasm-javascript` first. The generated
+JSON already has the theme object shape; no `@lumis-sh/themes` loader or bundled
+theme import is needed. For linked HTML, generate a stylesheet with
+[`buildCss`](/themes/css-builder) from the same object.
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::{highlight, themes, HtmlInlineBuilder, languages::Language};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let theme = themes::from_file("nord.json")?;
+    let formatter = HtmlInlineBuilder::new()
+        .language(Language::Rust)
+        .theme(Some(theme))
+        .build()?;
+    let html = highlight("fn main() {}", formatter);
+    println!("{html}");
+    Ok(())
+}
+```
+
+Enable the `lang-rust` Cargo feature for this example. Use
+`themes::from_json` instead when you already have the JSON as a string.
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+{:ok, theme} = Lumis.Theme.from_file("nord.json")
+
+html = Lumis.highlight!("const x = 1",
+  formatter: {:html_inline, language: "javascript", theme: theme}
+)
+```
+
+Install the `:lumis_wasm_javascript` parser dependency for this example.
+`Lumis.Theme.from_json/1` accepts a JSON string instead of a file path.
+
+  </Tab>
+  <Tab value="Java">
+
+The community-maintained [Lumis4J binding](/usage/java) has its own API and
+releases. Its documented theme selection uses enum constants; this recipe does
+not assume a custom JSON loader exists. Check the
+[Lumis4J documentation](https://github.com/roastedroot/lumis4j#readme) for your version.
+You can use the CLI tab to render HTML with the generated theme in a build step.
+
+  </Tab>
+  <Tab value="CLI">
+
+Use the file directly, without installing it into a data directory:
+
+```sh
+printf 'const x = 1\n' | lumis highlight -l javascript -f html-inline --theme ./nord.json > highlighted.html
+lumis themes show ./nord.json
+lumis themes build-css ./nord.json > nord.css
+```
+
+The same theme lookup accepts file paths for `--theme`, `themes show`,
+`themes build-css`, and each `--themes key:theme` entry in multi-theme HTML.
+A missing or malformed explicit file is an error, not a fallback to a built-in
+theme or unstyled output.
+
+To reuse a short name, put the file in the data directory's `themes/` folder:
+
+```sh
+mkdir -p ./lumis-data/themes
+cp nord.json ./lumis-data/themes/my-nord.json
+lumis --data-dir ./lumis-data themes list
+printf 'const x = 1\n' | lumis --data-dir ./lumis-data highlight -l javascript --theme my-nord
+```
+
+The lookup name is the **filename stem**, `my-nord`, not the JSON's `name` field.
+See [local custom themes](/cli/behavior#local-custom-themes) for lookup behavior.
+
+  </Tab>
+</Tabs>
+
+## Keep the source license and notices
+
+The `license` field records an SPDX expression detected from the plugin's license
+files. `NONE` means no license file was found; `NOASSERTION` means detection did
+not identify a known license. Neither is permission to redistribute. Check the
+upstream license and notices at the recorded revision, rather than relying only
+on automatic detection.
+
+Extraction does not relicense a colorscheme under Lumis's license. Keep the
+source license, copyright notices, repository URL, and revision with the theme.
+The JSON's SPDX field is not a replacement for the full license text or notices;
+the generation command writes JSON, not a redistribution-ready license bundle.
+
+Before distributing generated JSON, CSS, or a package containing them, review
+the source license's requirements for your intended use. For this GPL example,
+consider the applicable notice, license-copy, modification, corresponding-source,
+and copyleft obligations. Their application to an extracted theme and to a larger
+distribution depends on what is included and how it is distributed; generation
+alone does not settle those questions. If those obligations are unclear or do not
+fit your distribution, seek appropriate advice or choose a differently licensed
+source. The [bundled theme reference](/reference/themes) lists each bundled
+theme's license.

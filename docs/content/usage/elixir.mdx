@@ -251,6 +251,10 @@ See [Light/Dark Mode](/recipes/light-dark) for three approaches to theme switchi
 
 ## Custom themes
 
+Generate a JSON file with the
+[Neovim colorscheme recipe](/recipes/generate-theme-from-neovim-colorscheme),
+then load it as a theme struct:
+
 ```elixir
 {:ok, theme} = Lumis.Theme.from_file("/path/to/theme.json")
 {:ok, theme} = Lumis.Theme.from_json(theme_json)
