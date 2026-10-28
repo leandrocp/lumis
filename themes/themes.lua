@@ -37,6 +37,7 @@ return {
 		name = "nord",
 		config = function()
 			vim.o.background = "dark"
+			vim.g.nord_italic = 1
 			vim.cmd([[colorscheme nord]])
 
 			-- Nord defines legacy TS groups, not their modern capture names.

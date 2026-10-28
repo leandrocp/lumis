@@ -176,6 +176,9 @@
     "markup.heading.6": {
       "fg": "#d8dee9"
     },
+    "markup.italic": {
+      "italic": true
+    },
     "markup.link": {
       "underline": true
     },

@@ -178,6 +178,9 @@
 .l-markup-heading-6 {
   color: #d8dee9;
 }
+.l-markup-italic {
+  font-style: italic;
+}
 .l-markup-link {
   text-decoration: underline;
 }
