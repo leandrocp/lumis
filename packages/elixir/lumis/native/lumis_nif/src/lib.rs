@@ -1225,6 +1225,10 @@ fn theme_css_from_theme(theme: ExTheme, options: ExCssOptions) -> String {
 fn build_theme_css(theme: &themes::Theme, options: ExCssOptions) -> String {
     let mut builder = themes::CssBuilder::new(theme);
 
+    #[allow(
+        deprecated,
+        reason = "preserve the caller's legacy enable_italic option"
+    )]
     builder
         .layout(options.layout)
         .enable_italic(options.enable_italic)

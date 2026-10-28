@@ -36,6 +36,21 @@ function resolvedSymbol(checker, symbol) {
   );
 }
 
+function checkItalicDeprecations(checker, module, fileName, names) {
+  const exported = checker.getExportsOfModule(module);
+  for (const name of names) {
+    const symbol = resolvedSymbol(
+      checker,
+      exported.find((entry) => entry.name === name),
+    );
+    const property = symbol && checker.getDeclaredTypeOfSymbol(symbol).getProperty("italic");
+    const deprecated = property?.getJsDocTags(checker).find((tag) => tag.name === "deprecated");
+    if (!deprecated?.text?.some((part) => part.text.includes("mapStyles"))) {
+      throw new Error(`${fileName}: ${name}.italic must retain its mapStyles deprecation`);
+    }
+  }
+}
+
 const options = {
   strict: true,
   skipLibCheck: false,
@@ -82,6 +97,22 @@ for (const extension of [".d.ts", ".d.cts"]) {
     }
     if (module && /^index(?:\.browser)?\.d\.(?:c)?ts$/u.test(path.basename(fileName))) {
       checkDeprecations(checker, module, fileName);
+    }
+    if (module && /^formatters\.d\.(?:c)?ts$/u.test(path.basename(fileName))) {
+      checkItalicDeprecations(checker, module, fileName, [
+        "HtmlInlineOptions",
+        "HtmlMultiThemesOptions",
+      ]);
+    }
+    if (
+      module &&
+      path.dirname(fileName) === path.join(distDir, "formatters") &&
+      /^html\.d\.(?:c)?ts$/u.test(path.basename(fileName))
+    ) {
+      checkItalicDeprecations(checker, module, fileName, [
+        "SpanInlineOptions",
+        "SpanMultiThemesOptions",
+      ]);
     }
   }
 }

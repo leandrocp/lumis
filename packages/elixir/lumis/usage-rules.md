@@ -171,7 +171,6 @@ Lumis.highlight!(code,
     pre_class: "my-code",
     pre_attrs: [id: "example"],
     code_attrs: [title: "Highlighted Elixir"],
-    italic: true,
     include_highlights: false
   ]}
 )
@@ -183,7 +182,6 @@ Available options for `:html_inline`:
 - `:pre_class` - CSS class to add to the `<pre>` tag
 - `:pre_attrs` - Attributes merged into the `<pre>` tag; `true` writes the bare boolean form, `false` drops a default
 - `:code_attrs` - Attributes merged into the `<code>` tag; `true` writes the bare boolean form, `false` drops a default
-- `:italic` - Enable italic styles (default: `false`)
 - `:include_highlights` - Add `data-highlight` attributes for debugging (default: `false`)
 - `:highlight_lines` - Highlight specific lines (see Line Highlighting section)
 - `:line_numbers` - Open each line with a line number gutter (see Line Numbers section)
@@ -242,7 +240,7 @@ css =
   )
 ```
 
-Options: `:scope`, `:container_selector`, `:container_style`, and `:enable_italic`. Use `:container_style` for declarations on the container selector, such as `padding`, `border-radius`, or a replacement `background-color`.
+Options: `:scope`, `:container_selector`, `:container_style`, and `:layout`. Use `:container_style` for declarations on the container selector, such as `padding`, `border-radius`, or a replacement `background-color`.
 
 ### HTML Multi-Themes
 
@@ -350,7 +348,6 @@ Available options for `:html_multi_themes`:
 - `:pre_class` - CSS class to add to the `<pre>` tag
 - `:pre_attrs` - Attributes merged into the `<pre>` tag; `true` writes the bare boolean form, `false` drops a default
 - `:code_attrs` - Attributes merged into the `<code>` tag; `true` writes the bare boolean form, `false` drops a default
-- `:italic` - Enable italic styles (default: `false`)
 - `:include_highlights` - Add `data-highlight` attributes for debugging (default: `false`)
 - `:highlight_lines` - Highlight specific lines (same options as `:html_inline`)
 - `:line_numbers` - Open each line with a line number gutter (see Line Numbers section)

@@ -62,6 +62,7 @@ pub struct HtmlInline {
     pre_class: Option<String>,
     pre_attrs: crate::formatter::html::HtmlAttrs,
     code_attrs: crate::formatter::html::HtmlAttrs,
+    #[builder(setter(custom))]
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<HighlightLines>,
@@ -78,6 +79,16 @@ impl HtmlInlineBuilder {
 
     pub fn language(&mut self, language: Language) -> &mut Self {
         self.language = Some(language);
+        self
+    }
+
+    #[doc(hidden)]
+    #[deprecated(
+        since = "4.2.0",
+        note = "customize theme styles with Theme::map_styles instead"
+    )]
+    pub fn italic(&mut self, italic: bool) -> &mut Self {
+        self.italic = Some(italic);
         self
     }
 
@@ -206,7 +217,7 @@ impl Default for HtmlInline {
             pre_class: None,
             pre_attrs: Vec::new(),
             code_attrs: Vec::new(),
-            italic: false,
+            italic: true,
             include_highlights: false,
             highlight_lines: None,
             stepped_highlight_lines: Vec::new(),

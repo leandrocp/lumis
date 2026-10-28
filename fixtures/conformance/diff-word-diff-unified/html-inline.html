@@ -1,20 +1,20 @@
-<pre class="lumis" style="color: #f8f8f2; background-color: #282a36;"><code class="language-diff" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #ffc0b9;"><span style="color: #50fa7b;">---</span> <span style="color: #50fa7b;">a/config.py</span></span></span>
-<span class="l-line" data-line="2"><span style="color: #b3f6c0;"><span style="color: #50fa7b;">+++</span> <span style="color: #50fa7b;">b/config.py</span></span></span>
+<pre class="lumis" style="color: #f8f8f2; background-color: #282a36;"><code class="language-diff" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #ffc0b9;"><span style="color: #50fa7b; font-style: italic;">---</span> <span style="color: #50fa7b; font-style: italic;">a/config.py</span></span></span>
+<span class="l-line" data-line="2"><span style="color: #b3f6c0;"><span style="color: #50fa7b; font-style: italic;">+++</span> <span style="color: #50fa7b; font-style: italic;">b/config.py</span></span></span>
 <span class="l-line" data-line="3"><span style="color: #8be9fd;">@@ -1,14 +1,15 @@</span></span>
 <span class="l-line" data-line="4"> import os</span>
-<span class="l-line" data-line="5"><span style="color: #ffc0b9;"><span style="color: #50fa7b;">-</span>TIMEOUT = int(os.environ.get(&quot;<span style="background-color: #623733;">TIMEOUT</span>&quot;, &quot;<span style="background-color: #623733;">30</span>&quot;))</span></span>
-<span class="l-line" data-line="6"><span style="color: #b3f6c0;"><span style="color: #50fa7b;">+</span>TIMEOUT = int(os.environ.get(&quot;<span style="background-color: #2a4e33;">APP_TIMEOUT</span>&quot;, &quot;<span style="background-color: #2a4e33;">60</span>&quot;))</span></span>
-<span class="l-line" data-line="7"><span style="color: #ffc0b9;"><span style="color: #50fa7b;">-</span>one(<span style="background-color: #623733;">1</span>)</span></span>
-<span class="l-line" data-line="8"><span style="color: #ffc0b9;"><span style="color: #50fa7b;">-</span>two(2)</span></span>
-<span class="l-line" data-line="9"><span style="color: #b3f6c0;"><span style="color: #50fa7b;">+</span>one(<span style="background-color: #2a4e33;">10</span>)</span></span>
-<span class="l-line" data-line="10"><span style="color: #b3f6c0;"><span style="color: #50fa7b;">+</span>inserted_line = True</span></span>
-<span class="l-line" data-line="11"><span style="color: #b3f6c0;"><span style="color: #50fa7b;">+</span>two(2)</span></span>
-<span class="l-line" data-line="12"><span style="color: #ffc0b9;"><span style="color: #50fa7b;">-</span>alpha beta gamma</span></span>
-<span class="l-line" data-line="13"><span style="color: #b3f6c0;"><span style="color: #50fa7b;">+</span>delta epsilon zeta</span></span>
-<span class="l-line" data-line="14"><span style="color: #b3f6c0;"><span style="color: #50fa7b;">+</span>new_before(1)</span></span>
-<span class="l-line" data-line="15"><span style="color: #ffc0b9;"><span style="color: #50fa7b;">-</span>old_after(1)</span></span>
-<span class="l-line" data-line="16"><span style="color: #ffc0b9;"><span style="color: #50fa7b;">-</span>x = 1</span></span>
+<span class="l-line" data-line="5"><span style="color: #ffc0b9;"><span style="color: #50fa7b; font-style: italic;">-</span>TIMEOUT = int(os.environ.get(&quot;<span style="background-color: #623733;">TIMEOUT</span>&quot;, &quot;<span style="background-color: #623733;">30</span>&quot;))</span></span>
+<span class="l-line" data-line="6"><span style="color: #b3f6c0;"><span style="color: #50fa7b; font-style: italic;">+</span>TIMEOUT = int(os.environ.get(&quot;<span style="background-color: #2a4e33;">APP_TIMEOUT</span>&quot;, &quot;<span style="background-color: #2a4e33;">60</span>&quot;))</span></span>
+<span class="l-line" data-line="7"><span style="color: #ffc0b9;"><span style="color: #50fa7b; font-style: italic;">-</span>one(<span style="background-color: #623733;">1</span>)</span></span>
+<span class="l-line" data-line="8"><span style="color: #ffc0b9;"><span style="color: #50fa7b; font-style: italic;">-</span>two(2)</span></span>
+<span class="l-line" data-line="9"><span style="color: #b3f6c0;"><span style="color: #50fa7b; font-style: italic;">+</span>one(<span style="background-color: #2a4e33;">10</span>)</span></span>
+<span class="l-line" data-line="10"><span style="color: #b3f6c0;"><span style="color: #50fa7b; font-style: italic;">+</span>inserted_line = True</span></span>
+<span class="l-line" data-line="11"><span style="color: #b3f6c0;"><span style="color: #50fa7b; font-style: italic;">+</span>two(2)</span></span>
+<span class="l-line" data-line="12"><span style="color: #ffc0b9;"><span style="color: #50fa7b; font-style: italic;">-</span>alpha beta gamma</span></span>
+<span class="l-line" data-line="13"><span style="color: #b3f6c0;"><span style="color: #50fa7b; font-style: italic;">+</span>delta epsilon zeta</span></span>
+<span class="l-line" data-line="14"><span style="color: #b3f6c0;"><span style="color: #50fa7b; font-style: italic;">+</span>new_before(1)</span></span>
+<span class="l-line" data-line="15"><span style="color: #ffc0b9;"><span style="color: #50fa7b; font-style: italic;">-</span>old_after(1)</span></span>
+<span class="l-line" data-line="16"><span style="color: #ffc0b9;"><span style="color: #50fa7b; font-style: italic;">-</span>x = 1</span></span>
 <span class="l-line" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;" data-line="17"></span>
-<span class="l-line" data-line="18"><span style="color: #b3f6c0;"><span style="color: #50fa7b;">+</span>x = 2</span></span>
-<span class="l-line" data-line="19"><span style="color: #ffc0b9;"><span style="color: #50fa7b;">-</span>name = &quot;<span style="background-color: #623733;">café</span>&quot;</span></span>
-<span class="l-line" data-line="20"><span style="color: #b3f6c0;"><span style="color: #50fa7b;">+</span>name = &quot;<span style="background-color: #2a4e33;">crème brûlée</span>&quot;</span></span></code></pre>
+<span class="l-line" data-line="18"><span style="color: #b3f6c0;"><span style="color: #50fa7b; font-style: italic;">+</span>x = 2</span></span>
+<span class="l-line" data-line="19"><span style="color: #ffc0b9;"><span style="color: #50fa7b; font-style: italic;">-</span>name = &quot;<span style="background-color: #623733;">café</span>&quot;</span></span>
+<span class="l-line" data-line="20"><span style="color: #b3f6c0;"><span style="color: #50fa7b; font-style: italic;">+</span>name = &quot;<span style="background-color: #2a4e33;">crème brûlée</span>&quot;</span></span></code></pre>

@@ -234,7 +234,6 @@ mod tests {
             .language(Language::Rust)
             .themes(themes)
             .default_theme("light")
-            .italic(true)
             .build()
             .unwrap();
 
@@ -251,6 +250,7 @@ mod tests {
         assert!(html.contains("--lumis-dark-text-decoration:"));
     }
 
+    #[allow(deprecated, reason = "test both legacy italic settings")]
     fn lightdark_html(light: &str, dark: &str, source: &str, italic: bool) -> String {
         let mut themes = HashMap::new();
         themes.insert("light".to_string(), crate::themes::get(light).unwrap());
@@ -348,7 +348,6 @@ mod tests {
             .language(Language::Rust)
             .themes(themes)
             .default_theme("light")
-            .italic(true)
             .build()
             .unwrap();
 

@@ -174,14 +174,19 @@ export function textDecoration(style: HighlightStyle): string {
  */
 export function styleToCss(
   style: HighlightStyle | undefined,
-  options: { italic?: boolean; separator?: string; compact?: boolean } = {},
+  options: {
+    /** @deprecated Customize theme styles with mapStyles instead. */
+    italic?: boolean;
+    separator?: string;
+    compact?: boolean;
+  } = {},
 ): string {
   if (!style) return "";
 
   const separator = options.separator ?? " ";
   const compact = options.compact ?? false;
 
-  return styleDeclarations(style, Boolean(options.italic))
+  return styleDeclarations(style, options.italic ?? true)
     .map(([property, value]) => (compact ? `${property}:${value};` : `${property}: ${value};`))
     .join(separator);
 }
@@ -417,7 +422,8 @@ export interface OpenPreTagOptions {
 /** Build the attributes used by inline and linked `<pre>` tags. */
 export function preAttrs(options: OpenPreTagOptions = {}): HtmlAttrs {
   const className = options.preClass ? `lumis ${options.preClass}` : "lumis";
-  const style = styleToCss(getThemeStyle(options.theme, "normal"));
+  const normal = getThemeStyle(options.theme, "normal");
+  const style = styleToCss({ fg: normal?.fg, bg: normal?.bg });
 
   return mergeAttrs(
     {
@@ -612,6 +618,7 @@ export interface SpanInlineOptions {
   language: LanguageRef;
   scope: string;
   theme?: Theme;
+  /** @deprecated Customize theme styles with mapStyles instead. */
   italic?: boolean;
   includeHighlights?: boolean;
 }
@@ -699,6 +706,7 @@ export interface SpanMultiThemesOptions {
   defaultTheme?: string;
   /** Defaults to `"--lumis"`. */
   cssVariablePrefix?: string;
+  /** @deprecated Customize theme styles with mapStyles instead. */
   italic?: boolean;
   includeHighlights?: boolean;
 }
@@ -786,7 +794,7 @@ interface LightDarkProperty {
 function lightDarkProperties(
   lightStyle: HighlightStyle,
   darkStyle: HighlightStyle,
-  italic?: boolean,
+  italic = true,
 ): LightDarkProperty[] {
   const properties: LightDarkProperty[] = [
     {

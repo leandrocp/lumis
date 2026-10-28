@@ -43,7 +43,6 @@ fn formatter(manifest: &Manifest, name: &str, numbered: bool) -> Box<dyn Formatt
                 .theme(Some(theme))
                 .highlight_lines(Some(highlights))
                 .line_numbers(numbered)
-                .italic(true)
                 .build()
                 .expect("inline formatter"),
         ),
@@ -65,7 +64,6 @@ fn formatter(manifest: &Manifest, name: &str, numbered: bool) -> Box<dyn Formatt
                 .default_theme("dark")
                 .highlight_lines(Some(highlights))
                 .line_numbers(numbered)
-                .italic(true)
                 .build()
                 .expect("multi-theme formatter"),
         ),

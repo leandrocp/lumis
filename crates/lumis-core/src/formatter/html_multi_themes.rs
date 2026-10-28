@@ -52,6 +52,7 @@ pub struct HtmlMultiThemes {
     pre_class: Option<String>,
     pre_attrs: crate::formatter::html::HtmlAttrs,
     code_attrs: crate::formatter::html::HtmlAttrs,
+    #[builder(setter(custom))]
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<HighlightLines>,
@@ -68,6 +69,16 @@ impl HtmlMultiThemesBuilder {
 
     pub fn language(&mut self, language: Language) -> &mut Self {
         self.language = Some(language);
+        self
+    }
+
+    #[doc(hidden)]
+    #[deprecated(
+        since = "4.2.0",
+        note = "customize theme styles with Theme::map_styles instead"
+    )]
+    pub fn italic(&mut self, italic: bool) -> &mut Self {
+        self.italic = Some(italic);
         self
     }
 
@@ -94,7 +105,7 @@ impl HtmlMultiThemesBuilder {
             pre_class: self.pre_class.take().flatten(),
             pre_attrs: self.pre_attrs.take().unwrap_or_default(),
             code_attrs: self.code_attrs.take().unwrap_or_default(),
-            italic: self.italic.take().unwrap_or(false),
+            italic: self.italic.take().unwrap_or(true),
             include_highlights: self.include_highlights.take().unwrap_or(false),
             highlight_lines: self.highlight_lines.take().flatten(),
             stepped_highlight_lines: Vec::new(),
@@ -168,7 +179,7 @@ impl Default for HtmlMultiThemes {
             pre_class: None,
             pre_attrs: Vec::new(),
             code_attrs: Vec::new(),
-            italic: false,
+            italic: true,
             include_highlights: false,
             highlight_lines: None,
             stepped_highlight_lines: Vec::new(),

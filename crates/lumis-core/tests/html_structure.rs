@@ -35,6 +35,40 @@ fn render(formatter: &dyn Formatter<()>) -> String {
     String::from_utf8(output).unwrap()
 }
 
+#[test]
+#[allow(
+    deprecated,
+    reason = "pin theme-driven defaults and legacy explicit overrides"
+)]
+fn italic_options_honor_the_theme_by_default_and_keep_explicit_overrides() {
+    let theme = themes::from_json(
+        r#"{"name":"test","appearance":"light","revision":"abc","highlights":{"string":{"italic":true}}}"#,
+    )
+    .unwrap();
+    for italic in [None, Some(false), Some(true)] {
+        let mut inline = HtmlInlineBuilder::new();
+        inline.theme(Some(theme.clone()));
+        let mut multi = HtmlMultiThemesBuilder::new();
+        multi
+            .themes(HashMap::from([("light".to_string(), theme.clone())]))
+            .default_theme("light");
+        if let Some(italic) = italic {
+            inline.italic(italic);
+            multi.italic(italic);
+        }
+        for html in [
+            render(&inline.build().unwrap()),
+            render(&multi.build().unwrap()),
+        ] {
+            assert_eq!(
+                html.contains("style=\"font-style:"),
+                italic != Some(false),
+                "italic={italic:?}: {html}"
+            );
+        }
+    }
+}
+
 fn render_budgeted(formatter: &dyn Formatter<()>) -> String {
     let mut output = Vec::new();
     formatter

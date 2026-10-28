@@ -541,6 +541,14 @@
       }
     },
     {
+      // Implementations and compatibility tests must retain the italic options.
+      // Line suppressions fail the non-type-aware root pass as unused.
+      "files": ["**/packages/javascript/lumis/**", "**/packages/javascript/themes/**"],
+      "rules": {
+        "typescript/no-deprecated": ["error", { "allow": ["italic", "enableItalic"] }]
+      }
+    },
+    {
       // Compatibility exports/tests intentionally exercise deprecated names.
       // The shared formatter-helper corpus checks that these exports remain deprecated.
       "files": [

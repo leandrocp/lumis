@@ -185,6 +185,10 @@ fn formatter_fields() -> BTreeMap<&'static str, BTreeSet<String>> {
 /// the manifest without adding it here fails
 /// `manifest_matches_the_setters_exercised_here`; adding it here without a Rust
 /// setter fails to compile.
+#[allow(
+    deprecated,
+    reason = "exercise every supported option, including legacy ones"
+)]
 fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
     let mut exercised: BTreeMap<&'static str, BTreeSet<&'static str>> = BTreeMap::new();
 

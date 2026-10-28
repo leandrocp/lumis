@@ -714,7 +714,7 @@ export type HtmlStructure = "block" | "inline";
  * Options for {@link htmlInline}.
  *
  * ```ts
- * htmlInline({ language: javascript, theme: dracula, preClass: 'my-code', italic: true })
+ * htmlInline({ language: javascript, theme: dracula, preClass: 'my-code' })
  * ```
  */
 export interface HtmlInlineOptions {
@@ -731,7 +731,7 @@ export interface HtmlInlineOptions {
   preAttrs?: HtmlAttrs;
   /** Attributes merged into the nested `<code>` tag. */
   codeAttrs?: HtmlAttrs;
-  /** Use italic styles from the theme. */
+  /** @deprecated Customize theme styles with mapStyles instead. */
   italic?: boolean;
   /** Add `data-highlight` attributes with scope names. */
   includeHighlights?: boolean;
@@ -807,6 +807,7 @@ export interface HtmlMultiThemesOptions {
   preAttrs?: HtmlAttrs;
   /** Attributes merged into the nested `<code>` tag. */
   codeAttrs?: HtmlAttrs;
+  /** @deprecated Customize theme styles with mapStyles instead. */
   italic?: boolean;
   includeHighlights?: boolean;
   highlightLines?: HighlightLinesInline;

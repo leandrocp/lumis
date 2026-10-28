@@ -94,8 +94,8 @@ bundled CSS file.
 
 ## Use the same theme for inline HTML
 
-The `theme` above can also render self-contained HTML. These examples highlight
-Markdown source, not convert Markdown into a rendered document.
+Inline HTML respects the theme's styles, including italics. These examples
+highlight Markdown source, not convert Markdown into a rendered document.
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
   <Tab value="JavaScript / TypeScript">
@@ -107,7 +107,7 @@ import markdown from '@lumis-sh/wasm-markdown';
 
 const html = await highlight(
   '*Emphasis*\n\n```javascript\nconst answer = 42;\n```\n',
-  htmlInline({ language: markdown, theme, italic: true }),
+  htmlInline({ language: markdown, theme }),
 );
 ```
 
@@ -126,7 +126,6 @@ let html = highlight(
     HtmlInlineBuilder::new()
         .language(Language::Markdown)
         .theme(Some(theme.clone()))
-        .italic(true)
         .build()
         .unwrap(),
 );
@@ -139,17 +138,15 @@ let html = highlight(
 html =
   Lumis.highlight!(
     "*Emphasis*\n\n```javascript\nconst answer = 42;\n```\n",
-    formatter: {:html_inline, language: "markdown", theme: theme, italic: true}
+    formatter: {:html_inline, language: "markdown", theme: theme}
   )
 ```
 
   </Tab>
 </Tabs>
 
-Inline HTML still needs `italic: true` to emit the italic styles that remain in
-the theme; its default is `false`. The transformation controls which scopes
-retain italics. The same theme works in terminal output and custom formatters;
-for multi-theme HTML, transform each theme before passing it to the formatter.
+The same theme works in terminal output and custom formatters. For multi-theme
+HTML, transform each theme before passing it to the formatter.
 
 ## Remove italics everywhere
 

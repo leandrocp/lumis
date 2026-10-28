@@ -34,7 +34,7 @@ for (const [name, theme] of Object.entries({ original, selective, upright })) {
       .map(([scope, text]) =>
         mode === "linked"
           ? spanLinked(text, scope)
-          : spanInline(text, { scope, theme, italic: true, includeHighlights: true }),
+          : spanInline(text, { scope, theme, includeHighlights: true }),
       )
       .join("\n");
     section.append(label, pre);

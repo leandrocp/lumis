@@ -37,7 +37,6 @@
 //!     .language(Language::Rust)
 //!     .theme(Some(theme))
 //!     .pre_class(Some("code-block".to_string()))
-//!     .italic(false)
 //!     .include_highlights(false)
 //!     .build()
 //!     .unwrap();

@@ -7,7 +7,7 @@ defmodule Lumis.FormatterOptionsTest do
   unlike the other runtimes this can read the option names straight off the
   schema rather than naming them again.
   """
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   @manifest_path Path.expand("../../../../fixtures/formatter-options.json", __DIR__)
   @external_resource @manifest_path
@@ -56,6 +56,31 @@ defmodule Lumis.FormatterOptionsTest do
     accepted = opts |> Keyword.keys() |> Enum.map(&Atom.to_string/1) |> Enum.sort()
 
     assert accepted == manifest_options("html_multi_themes")
+  end
+
+  test "italic honors the theme by default and warns only for explicit overrides" do
+    for {formatter, required} <- [
+          {:html_inline, []},
+          {:html_multi_themes, [themes: [light: "github_light"]]}
+        ] do
+      assert ExUnit.CaptureIO.capture_io(:stderr, fn ->
+               assert {:ok, {^formatter, options}} = Lumis.formatter_type({formatter, required})
+               assert options[:italic] == true
+             end) == ""
+
+      for italic <- [false, true] do
+        warning =
+          ExUnit.CaptureIO.capture_io(:stderr, fn ->
+            assert {:ok, {^formatter, options}} =
+                     Lumis.formatter_type({formatter, Keyword.put(required, :italic, italic)})
+
+            assert options[:italic] == italic
+          end)
+
+        assert warning =~ "deprecated"
+        assert warning =~ "Lumis.Theme.map_styles/2"
+      end
+    end
   end
 
   test "no waiver outlives its reason" do

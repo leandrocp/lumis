@@ -1,5 +1,5 @@
 defmodule Lumis.ThemeCssOptionsTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   @manifest_path Path.expand("../../../../fixtures/theme-css-options.json", __DIR__)
   @external_resource @manifest_path
@@ -40,6 +40,25 @@ defmodule Lumis.ThemeCssOptionsTest do
     for entry <- manifest["cases"] do
       assert Lumis.Theme.build_css!(theme, options(entry["options"])) == entry["css"],
              entry["name"]
+    end
+  end
+
+  test "enable_italic warns only when supplied and preserves CSS output" do
+    {:ok, theme} = manifest()["theme"] |> Jason.encode!() |> Lumis.Theme.from_json()
+
+    assert ExUnit.CaptureIO.capture_io(:stderr, fn ->
+             assert Lumis.Theme.build_css!(theme) =~ "font-style: italic;"
+           end) == ""
+
+    for enabled <- [false, true] do
+      warning =
+        ExUnit.CaptureIO.capture_io(:stderr, fn ->
+          css = Lumis.Theme.build_css!(theme, enable_italic: enabled)
+          assert String.contains?(css, "font-style: italic;") == enabled
+        end)
+
+      assert warning =~ "deprecated"
+      assert warning =~ "Lumis.Theme.map_styles/2"
     end
   end
 

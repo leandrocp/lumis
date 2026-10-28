@@ -90,7 +90,9 @@ describe("formatter shared helpers", () => {
     });
   });
 
-  it("formats CSS declarations with optional italic handling", () => {
+  it("respects theme italics by default and accepts legacy overrides", () => {
+    expect(styleToCss({ fg: "#fff", italic: true })).toBe("color: #fff; font-style: italic;");
+    expect(styleToCss({ fg: "#fff", italic: false })).toBe("color: #fff;");
     expect(styleToCss({ fg: "#fff", italic: true }, { italic: false })).toBe("color: #fff;");
     expect(styleToCss({ fg: "#fff", italic: true }, { italic: true })).toBe(
       "color: #fff; font-style: italic;",
@@ -156,7 +158,19 @@ describe("formatter shared helpers", () => {
   it("merges authored pre attributes after generated attributes", () => {
     const attrs = preAttrs({
       preClass: "custom",
-      theme,
+      theme: {
+        ...theme,
+        highlights: {
+          ...theme.highlights,
+          normal: {
+            ...theme.highlights.normal,
+            italic: true,
+            bold: true,
+            underline: "double",
+            strikethrough: true,
+          },
+        },
+      },
       attrs: {
         class: "custom authored",
         style: "outline: 1px solid red",

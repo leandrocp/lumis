@@ -152,7 +152,7 @@ impl Default for ExFormatterOption {
             pre_class: None,
             pre_attrs: Vec::new(),
             code_attrs: Vec::new(),
-            italic: false,
+            italic: true,
             include_highlights: false,
             highlight_lines: None,
             line_numbers: false,
@@ -304,6 +304,7 @@ impl ExFormatterOption {
                     close_tag: h.close_tag,
                 });
 
+                #[allow(deprecated, reason = "preserve the caller's legacy italic option")]
                 let mut formatter = HtmlInlineBuilder::new()
                     .language(language)
                     .structure(structure.into())
@@ -380,6 +381,7 @@ impl ExFormatterOption {
                 });
 
                 let mut builder = HtmlMultiThemesBuilder::new();
+                #[allow(deprecated, reason = "preserve the caller's legacy italic option")]
                 builder
                     .language(language)
                     .structure(structure.into())
@@ -848,7 +850,7 @@ struct Settings {
     pre_class: Option<String>,
     pre_attrs: Vec<(String, ExAttrValue)>,
     code_attrs: Vec<(String, ExAttrValue)>,
-    italic: bool,
+    italic: Option<bool>,
     include_highlights: bool,
     highlight_lines: Option<ExHtmlInlineHighlightLines>,
     line_numbers: bool,
@@ -919,7 +921,7 @@ impl ExFormatterOption {
                 pre_class,
                 pre_attrs,
                 code_attrs,
-                italic,
+                italic: Some(italic),
                 include_highlights,
                 highlight_lines,
                 line_numbers,
@@ -960,7 +962,7 @@ impl ExFormatterOption {
                 pre_class,
                 pre_attrs,
                 code_attrs,
-                italic,
+                italic: Some(italic),
                 include_highlights,
                 highlight_lines,
                 line_numbers,
@@ -994,7 +996,7 @@ impl Settings {
             pre_class: self.pre_class,
             pre_attrs: self.pre_attrs,
             code_attrs: self.code_attrs,
-            italic: self.italic,
+            italic: self.italic.unwrap_or(true),
             include_highlights: self.include_highlights,
             highlight_lines: self.highlight_lines,
             line_numbers: self.line_numbers,
@@ -1059,7 +1061,7 @@ fn html_inline(fields: &mut Fields<'_>) -> Decoded<ExFormatterOption> {
         pre_class: fields.optional("pre_class", string)?,
         pre_attrs: fields.optional("pre_attrs", attrs)?.unwrap_or_default(),
         code_attrs: fields.optional("code_attrs", attrs)?.unwrap_or_default(),
-        italic: fields.flag("italic")?,
+        italic: fields.optional("italic", boolean)?.unwrap_or(true),
         include_highlights: fields.flag("include_highlights")?,
         highlight_lines: fields.optional("highlight_lines", inline_highlight_lines)?,
         line_numbers: fields.flag("line_numbers")?,
@@ -1092,7 +1094,7 @@ fn html_multi_themes(fields: &mut Fields<'_>) -> Decoded<ExFormatterOption> {
         pre_class: fields.optional("pre_class", string)?,
         pre_attrs: fields.optional("pre_attrs", attrs)?.unwrap_or_default(),
         code_attrs: fields.optional("code_attrs", attrs)?.unwrap_or_default(),
-        italic: fields.flag("italic")?,
+        italic: fields.optional("italic", boolean)?.unwrap_or(true),
         include_highlights: fields.flag("include_highlights")?,
         highlight_lines: fields.optional("highlight_lines", inline_highlight_lines)?,
         line_numbers: fields.flag("line_numbers")?,

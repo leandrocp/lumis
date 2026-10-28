@@ -48,7 +48,9 @@ defmodule Lumis.Theme do
     enable_italic: [
       type: :boolean,
       default: true,
-      doc: "Whether italic theme styles should be emitted."
+      deprecated:
+        "Clear style.italic with Lumis.Theme.map_styles/2 before building CSS. The default remains true.",
+      doc: false
     ],
     scope: [
       type: :string,
@@ -238,8 +240,15 @@ defmodule Lumis.Theme do
   end
 
   defp build_css_options(options) do
+    # NimbleOptions also warns for defaults, even when the caller supplied nothing.
+    schema =
+      if Keyword.has_key?(options, :enable_italic),
+        do: @css_options_schema,
+        else:
+          Keyword.update!(@css_options_schema, :enable_italic, &Keyword.delete(&1, :deprecated))
+
     options
-    |> NimbleOptions.validate(@css_options_schema)
+    |> NimbleOptions.validate(schema)
     |> case do
       {:ok, options} -> {:ok, Map.new(options)}
       {:error, error} -> {:error, error}

@@ -147,7 +147,7 @@ struct HtmlInlineOptions {
     pre_class: Option<String>,
     pre_attrs: Vec<(String, JsAttrValue)>,
     code_attrs: Vec<(String, JsAttrValue)>,
-    italic: bool,
+    italic: Option<bool>,
     include_highlights: bool,
     highlight_lines: Option<JsHighlightLines>,
     line_numbers: bool,
@@ -694,6 +694,7 @@ fn render_events(
     match formatter.kind.as_str() {
         "html-inline" => {
             let options: HtmlInlineOptions = serde_json::from_value(formatter.options)?;
+            #[allow(deprecated, reason = "preserve the caller's legacy italic option")]
             HtmlInlineBuilder::new()
                 .language(language)
                 .structure(options.structure.into())
@@ -701,7 +702,7 @@ fn render_events(
                 .pre_class(options.pre_class)
                 .pre_attrs(attr_values(options.pre_attrs))
                 .code_attrs(attr_values(options.code_attrs))
-                .italic(options.italic)
+                .italic(options.italic.unwrap_or(true))
                 .include_highlights(options.include_highlights)
                 .highlight_lines(options.highlight_lines.map(inline_highlight_lines))
                 .line_numbers(options.line_numbers)
