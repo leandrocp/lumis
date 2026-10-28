@@ -1,3 +1,9 @@
+## [0.6.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.5.3...cargo-lumis-wasm-runtime/v0.6.0) (2026-10-28)
+
+### Dependencies
+
+- **Breaking:** Update public event and decoration types to lumis-core 6.0.0.
+
 ## [0.5.3](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.5.2...cargo-lumis-wasm-runtime/v0.5.3) (2026-10-28)
 
 ### Features
