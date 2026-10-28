@@ -10,7 +10,7 @@
   "dependencies": {
     "@lumis-sh/lumis": "^0.9.5",
     "@lumis-sh/markdown-it-lumis": "^0.3.1",
-    "@lumis-sh/themes": "^0.4.1",
+    "@lumis-sh/themes": "^0.4.2",
     "@lumis-sh/wasm-javascript": "^0.26.4",
     "@lumis-sh/wasm-rust": "^0.26.5",
     "vitepress": "^1.6.4"
