@@ -1,3 +1,10 @@
+## [0.4.3](https://github.com/leandrocp/lumis/compare/npm-themes/v0.4.2...npm-themes/v0.4.3) (2026-10-28)
+
+### Features
+
+- **cli:** Load custom theme files and document generation in [\#1912](https://github.com/leandrocp/lumis/pull/1912)
+- **themes:** Add MIT Nord and Nordern colorschemes in [\#1911](https://github.com/leandrocp/lumis/pull/1911)
+
 ## [0.4.2](https://github.com/leandrocp/lumis/compare/npm-themes/v0.4.1...npm-themes/v0.4.2) (2026-10-28)
 
 ### Features
