@@ -78,7 +78,12 @@ try {
   mkdirSync(consumer);
   writeFileSync(
     join(consumer, "package.json"),
-    JSON.stringify({ private: true, type: "module", dependencies }),
+    JSON.stringify({
+      private: true,
+      type: "module",
+      packageManager: readJson(join(javascriptDir, "../../package.json")).packageManager,
+      dependencies,
+    }),
   );
   // Vite's rehype dependency must also come from this build, not the registry.
   writeFileSync(
