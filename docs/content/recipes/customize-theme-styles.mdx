@@ -153,7 +153,7 @@ HTML, transform each theme before passing it to the formatter.
 To remove all italic styles rather than only code-fence italics, replace the
 callback with one that clears `italic` on every entry:
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
   <Tab value="JavaScript / TypeScript">
 
 ```ts
@@ -176,6 +176,24 @@ let upright = theme.map_styles(|_, mut style| {
 ```elixir
 upright = Theme.map_styles(theme, fn _scope, style -> %{style | italic: false} end)
 ```
+
+  </Tab>
+  <Tab value="CLI">
+
+The CLI reads custom themes from the data directory. Save an upright copy of
+the theme's JSON there under a new name, then use that name:
+
+```bash
+mkdir -p ~/.local/share/lumis/themes
+curl -fsSL https://unpkg.com/@lumis-sh/themes/dist/json/catppuccin_frappe.json |
+  jq '.name = "catppuccin_frappe_upright" | .highlights |= map_values(del(.italic))' \
+  > ~/.local/share/lumis/themes/catppuccin_frappe_upright.json
+lumis highlight main.rs -f html-inline --theme catppuccin_frappe_upright
+```
+
+The copy works with every formatter, `--themes`, and `lumis themes build-css`.
+See [Data directory](/cli/behavior#data-directory) for where custom themes
+live on each platform.
 
   </Tab>
 </Tabs>
