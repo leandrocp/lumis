@@ -1,3 +1,11 @@
+## [0.10.6](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.5...hex-lumis/v0.10.6) (2026-10-28)
+
+### Features
+
+- **formatters:** Drop italic arguments from Rust HTML helpers in [\#1909](https://github.com/leandrocp/lumis/pull/1909)
+- **cli:** Load custom theme files and document generation in [\#1912](https://github.com/leandrocp/lumis/pull/1912)
+- **themes:** Add MIT Nord and Nordern colorschemes in [\#1911](https://github.com/leandrocp/lumis/pull/1911)
+
 ## [0.10.5](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.4...hex-lumis/v0.10.5) (2026-10-28)
 
 ### Features
