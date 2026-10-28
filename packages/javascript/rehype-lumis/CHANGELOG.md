@@ -1,3 +1,5 @@
+## [0.3.1](https://github.com/leandrocp/lumis/compare/npm-rehype-lumis/v0.3.2...npm-rehype-lumis/v0.3.1) (2026-10-28)
+
 ## [0.3.2](https://github.com/leandrocp/lumis/compare/npm-rehype-lumis/v0.3.1...npm-rehype-lumis/v0.3.2) (2026-10-28)
 
 ## [0.3.1](https://github.com/leandrocp/lumis/compare/npm-rehype-lumis/v0.3.0...npm-rehype-lumis/v0.3.1) (2026-10-23)
