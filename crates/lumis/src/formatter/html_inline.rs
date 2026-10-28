@@ -133,16 +133,7 @@ mod tests {
     #[test]
     fn test_no_attrs() {
         let code = "@lang :rust";
-        let formatter = HtmlInline::new(
-            Language::Elixir,
-            None,
-            None,
-            false,
-            false,
-            None,
-            false,
-            None,
-        );
+        let formatter = HtmlInline::new(Language::Elixir, None, None, false, None, false, None);
         let result = crate::highlight(code, formatter);
         let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span><span>@<span><span>lang <span>:rust</span></span></span></span></span></span></code></pre>"#;
         assert_str_eq!(result, expected);
@@ -150,13 +141,15 @@ mod tests {
 
     #[test]
     fn test_unstyled_scope_opens_a_bare_span() {
-        let theme = themes::get("dracula").unwrap();
+        let theme = themes::get("dracula").unwrap().map_styles(|_, mut style| {
+            style.italic = false;
+            style
+        });
         let code = "# *italic*";
         let formatter = HtmlInline::new(
             Language::Markdown,
             Some(theme),
             None,
-            false,
             false,
             None,
             false,
@@ -166,7 +159,7 @@ mod tests {
 
         assert!(
             result.contains("<span>*italic*</span>"),
-            "a scope dracula does not define must open a bare `<span>`: {result}"
+            "a scope whose style has no declarations must open a bare `<span>`: {result}"
         );
         assert!(
             !result.contains("<span >"),
@@ -188,7 +181,6 @@ mod tests {
             None,
             Some("test-pre-class".to_string()),
             false,
-            false,
             None,
             false,
             None,
@@ -207,7 +199,6 @@ mod tests {
             Language::PlainText,
             Some(theme),
             Some("test-pre-class".to_string()),
-            false,
             false,
             None,
             false,
@@ -263,7 +254,6 @@ mod tests {
             Some(theme),
             None,
             false,
-            false,
             Some(highlight_lines),
             false,
             None,
@@ -293,7 +283,6 @@ mod tests {
             Language::PlainText,
             None,
             None,
-            false,
             false,
             Some(highlight_lines),
             false,
@@ -325,7 +314,6 @@ mod tests {
             None,
             None,
             false,
-            false,
             Some(highlight_lines),
             false,
             None,
@@ -353,7 +341,6 @@ mod tests {
             None,
             None,
             false,
-            false,
             Some(highlight_lines),
             false,
             None,
@@ -380,7 +367,6 @@ mod tests {
             None,
             None,
             false,
-            false,
             None,
             false,
             Some(header),
@@ -404,7 +390,6 @@ mod tests {
             Language::Rust,
             None,
             Some("custom-class".to_string()),
-            false,
             false,
             None,
             false,

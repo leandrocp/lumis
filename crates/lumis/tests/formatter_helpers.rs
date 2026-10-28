@@ -395,15 +395,13 @@ fn exercised_helpers(
     let lines = line_ranges(input);
     let events = highlight_events(input);
     let class_suffix = format!(" {}", input.line.class);
-    let inline_attrs =
-        html::span_inline_attrs(Some(language), &input.scope, Some(&theme), false, false);
+    let inline_attrs = html::span_inline_attrs(Some(language), &input.scope, Some(&theme), false);
     let multi_theme_attrs = html::span_multi_themes_attrs(
         &input.scope,
         Some(language),
         &themes,
         None,
         "--lumis",
-        false,
         false,
     );
     let pre_attrs = html::pre_attrs(Some(&input.pre_class), Some(&theme), &[]);
@@ -420,7 +418,7 @@ fn exercised_helpers(
                 ("escape_attr", html::escape_attr(&input.escape_text)),
                 ("escape_braces", html::escape_braces(&input.braced_text)),
                 ("scope_to_class", html::scope_to_class(&input.linked_scope)),
-                ("themes::Style::css", Style::css(&style, true, " ")),
+                ("themes::Style::css", Style::css(&style, " ")),
                 (
                     "text_decoration",
                     html::text_decoration(&style.text_decoration).to_string(),
@@ -441,7 +439,6 @@ fn exercised_helpers(
                         Some(language),
                         &input.scope,
                         Some(&theme),
-                        false,
                         false,
                     ),
                 ),
@@ -466,7 +463,6 @@ fn exercised_helpers(
                         &themes,
                         None,
                         "--lumis",
-                        false,
                         false,
                     ),
                 ),

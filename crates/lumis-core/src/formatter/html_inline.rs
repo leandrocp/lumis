@@ -101,14 +101,12 @@ impl HtmlInlineBuilder {
 impl HtmlInline {
     /// Creates a block formatter with explicit options.
     ///
-    /// Pass `true` for `italic` to respect the theme's styles. Use
+    /// The theme's styles are rendered as they are. Use
     /// [`Theme::map_styles`] to customize individual scopes.
-    #[allow(clippy::too_many_arguments)]
     pub fn new(
         language: Language,
         theme: Option<Theme>,
         pre_class: Option<String>,
-        italic: bool,
         include_highlights: bool,
         highlight_lines: Option<HighlightLines>,
         line_numbers: bool,
@@ -121,7 +119,7 @@ impl HtmlInline {
             pre_class,
             pre_attrs: Vec::new(),
             code_attrs: Vec::new(),
-            italic,
+            italic: true,
             include_highlights,
             highlight_lines,
             stepped_highlight_lines: Vec::new(),
@@ -173,7 +171,7 @@ impl HtmlInline {
             Some(HighlightLinesStyle::Theme) => {
                 let theme = self.theme.as_ref()?;
                 let highlighted_style = theme.get_style("highlighted")?;
-                Some(highlighted_style.css(self.italic, " "))
+                Some(highlighted_style.css(" "))
             }
             Some(HighlightLinesStyle::Style(style_string)) => Some(style_string.clone()),
             None => None,
@@ -190,7 +188,6 @@ impl HtmlInline {
             lang,
             scope,
             self.theme.as_ref(),
-            self.italic,
             self.include_highlights,
         )
     }
@@ -206,7 +203,6 @@ impl HtmlInline {
             None,
             scope,
             self.theme.as_ref(),
-            self.italic,
             false,
         ))
     }
@@ -264,6 +260,15 @@ impl HtmlInline {
         output: &mut dyn Write,
         exhausted: Option<super::BudgetExhausted>,
     ) -> io::Result<()> {
+        if !self.italic {
+            let upright = Self {
+                theme: self.theme.clone().map(Theme::without_italics),
+                italic: true,
+                ..self.clone()
+            };
+            return upright.write(source, events, output, exhausted);
+        }
+
         if self.structure == crate::formatter::html::HtmlStructure::Inline {
             return crate::formatter::html::write_html_spans(
                 output,

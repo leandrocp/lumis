@@ -43,8 +43,7 @@ impl Formatter for CustomHtmlFormatter {
                 } => {
                     let scope = lumis::highlights::HIGHLIGHT_NAMES[*scope_index];
                     let language = language.parse().ok();
-                    let attrs =
-                        html::span_inline_attrs(language, scope, self.theme.as_ref(), false, true);
+                    let attrs = html::span_inline_attrs(language, scope, self.theme.as_ref(), true);
                     write!(output, "<span {attrs}>")?;
                 }
                 HighlightEvent::End => output.write_all(b"</span>")?,
