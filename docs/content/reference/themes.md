@@ -167,7 +167,9 @@ Each theme keeps the license of the plugin it was extracted from. [`themes/NOTIC
 | `night_owl` | [oxfist/night-owl.nvim](https://github.com/oxfist/night-owl.nvim) | BSD-3-Clause |
 | `nightfly` | [bluz71/vim-nightfly-colors](https://github.com/bluz71/vim-nightfly-colors) | MIT |
 | `nightfox` | [EdenEast/nightfox.nvim](https://github.com/EdenEast/nightfox.nvim) | MIT |
+| `nord` | [nordtheme/vim](https://github.com/nordtheme/vim) | MIT |
 | `nordbones` | [zenbones-theme/zenbones.nvim](https://github.com/zenbones-theme/zenbones.nvim) | MIT |
+| `nordern` | [fcancelinha/nordern.nvim](https://github.com/fcancelinha/nordern.nvim) | MIT |
 | `nordfox` | [EdenEast/nightfox.nvim](https://github.com/EdenEast/nightfox.nvim) | MIT |
 | `nordic` | [AlexvZyl/nordic.nvim](https://github.com/AlexvZyl/nordic.nvim) | MIT |
 | `obscure` | [killitar/obscure.nvim](https://github.com/killitar/obscure.nvim) | Apache-2.0 |
