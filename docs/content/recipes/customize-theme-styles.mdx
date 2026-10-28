@@ -29,7 +29,10 @@ import { buildCss } from '@lumis-sh/themes';
 import { mapStyles } from '@lumis-sh/lumis/themes';
 
 const theme = mapStyles(githubLight, (scope, style) => {
-  if (scope === 'markup.raw.block' || scope.startsWith('markup.raw.block.')) {
+  if (
+    scope === 'markup.raw.block' ||
+    scope.startsWith('markup.raw.block.')
+  ) {
     return { ...style, italic: false };
   }
   if (scope === 'normal') {
@@ -49,7 +52,9 @@ use lumis::themes;
 
 let theme = themes::get("github_light").unwrap()
     .map_styles(|scope, mut style| {
-        if scope == "markup.raw.block" || scope.starts_with("markup.raw.block.") {
+        if scope == "markup.raw.block"
+            || scope.starts_with("markup.raw.block.")
+        {
             style.italic = false;
         }
         if scope == "normal" {
