@@ -1,3 +1,20 @@
+## [0.10.5](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.4...hex-lumis/v0.10.5) (2026-10-28)
+
+### Features
+
+- **elixir:** Tell custom formatters which budget bound the render in [\#1889](https://github.com/leandrocp/lumis/pull/1889)
+- **themes:** Transform styles across Rust, Elixir and JavaScript
+- **themes:** Transform styles across Rust, Elixir and JavaScript in [\#1890](https://github.com/leandrocp/lumis/pull/1890)
+
+### Bug Fixes
+
+- **themes:** Remove copyleft and unlicensed themes in [\#1874](https://github.com/leandrocp/lumis/pull/1874)
+- **themes:** Name each theme's license in CSS and listings in [\#1881](https://github.com/leandrocp/lumis/pull/1881)
+- **themes:** Ship the theme notice and license files in every package in [\#1882](https://github.com/leandrocp/lumis/pull/1882)
+- **formatters:** Respect theme italics and deprecate rendering switches in [\#1891](https://github.com/leandrocp/lumis/pull/1891)
+- Address theme italic review follow-ups in [\#1892](https://github.com/leandrocp/lumis/pull/1892)
+- **elixir:** Preserve reusable multi-theme options in [\#1893](https://github.com/leandrocp/lumis/pull/1893)
+
 ## [0.10.4](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.3...hex-lumis/v0.10.4) (2026-10-23)
 
 ### Features
