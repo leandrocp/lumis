@@ -1414,6 +1414,33 @@ done
 echo "added $added, already present $present ($unvalidated never published through it), not published $unpublished"
 '''
 
+[tasks.'release-cliff-config']
+description = "Resolve git-cliff configuration with package-specific commit corrections"
+usage = '''
+arg "<package>"
+'''
+run = '''
+python3 - <<'PYTHON'
+import json
+import os
+from pathlib import Path
+import tomllib
+
+package = os.environ["usage_package"]
+config = tomllib.loads(Path("cliff.toml").read_text())
+if package in ("npm-lumis", "hex-lumis"):
+    config["git"]["commit_preprocessors"].insert(0, {
+        "pattern": r"\Afeat\(formatters\)!: drop italic arguments from Rust HTML helpers \(#1909\)[\s\S]*\z",
+        "replace": "feat(formatters): adapt to updated Rust HTML helpers (#1909)",
+    })
+
+path = Path("tmp/release-config") / f"{package}.yaml"
+path.parent.mkdir(parents=True, exist_ok=True)
+path.write_text(json.dumps(config, indent=2) + "\n")
+print(path)
+PYTHON
+'''
+
 [tasks.'release-needed']
 description = "List packages with release-worthy path-scoped commits since their latest release tag"
 run = '''
@@ -1433,7 +1460,8 @@ while IFS= read -r entry; do
         include_args+=(--include-path "$path" --include-path "$path/**/*")
     done
 
-    commits="$(git-cliff --config cliff.toml --tag-pattern "$package/v[0-9].*" --unreleased --context "${include_args[@]}" |
+    config="$(mise run release-cliff-config "$package")"
+    commits="$(git-cliff --config "$config" --tag-pattern "$package/v[0-9].*" --unreleased --context "${include_args[@]}" |
         jq -r '.[].commits[] | "\(.id[0:7]) \(.raw_message | split("\n")[0])"')"
 
     if [ -z "$commits" ]; then
@@ -1541,7 +1569,8 @@ while IFS= read -r entry; do
         include_args+=(--include-path "$path" --include-path "$path/**/*")
     done
 
-    next="$(git-cliff --config cliff.toml --tag-pattern "$package/v[0-9].*" --unreleased --bumped-version "${include_args[@]}")"
+    config="$(mise run release-cliff-config "$package")"
+    next="$(git-cliff --config "$config" --tag-pattern "$package/v[0-9].*" --unreleased --bumped-version "${include_args[@]}")"
     next="${next#*/v}"
 
     if [ "$next" = "$current" ]; then
@@ -1666,7 +1695,8 @@ if [ "$package" = "npm-cli" ]; then
     done
 fi
 
-notes="$(git-cliff --config cliff.toml --body-file "$template" --github-repo leandrocp/lumis --tag-pattern "$package/v[0-9].*" --tag "$package/v$version" --strip header --unreleased "${include_args[@]}")"
+config="$(mise run release-cliff-config "$package")"
+notes="$(git-cliff --config "$config" --body-file "$template" --github-repo leandrocp/lumis --tag-pattern "$package/v[0-9].*" --tag "$package/v$version" --strip header --unreleased "${include_args[@]}")"
 prepared_changelog="$(mktemp "$changelog.XXXXXX")"
 trap 'rm -f "$prepared_changelog"' EXIT
 printf '%s\n' "$notes" > "$prepared_changelog"

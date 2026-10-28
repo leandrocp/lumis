@@ -131,13 +131,20 @@ credits. The task inserts a blank line between the new release and existing
 changelog history, preserving the history verbatim. Commit filters, package tag
 patterns, and version-bump rules remain local to Lumis.
 
+`release-cliff-config <package>` applies package-specific commit corrections for
+planning and changelog generation. A shared Rust change is breaking for a binding
+only when that binding's public API breaks. The correction for #1909 keeps its
+Rust breaking marker but treats the JavaScript and Elixir releases as patches;
+their public APIs did not change. Other breaking commits keep their markers.
+
 To update the template, change `revision` in the `release-template` task to a
 published commit of `github-actions` and update the link above. Preview a package
 before preparing its release:
 
 ```sh
 template="$(mise run release-template)"
-mise exec -- git-cliff --config cliff.toml --body-file "$template" --github-repo leandrocp/lumis --tag-pattern 'npm-themes/v[0-9].*' --include-path 'packages/javascript/themes/**/*' --unreleased
+config="$(mise run release-cliff-config npm-themes)"
+mise exec -- git-cliff --config "$config" --body-file "$template" --github-repo leandrocp/lumis --tag-pattern 'npm-themes/v[0-9].*' --include-path 'packages/javascript/themes/**/*' --unreleased
 ```
 
 ## No pull request for a package?
