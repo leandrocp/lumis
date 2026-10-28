@@ -152,7 +152,7 @@ impl Default for ExFormatterOption {
             pre_class: None,
             pre_attrs: Vec::new(),
             code_attrs: Vec::new(),
-            italic: false,
+            italic: true,
             include_highlights: false,
             highlight_lines: None,
             line_numbers: false,

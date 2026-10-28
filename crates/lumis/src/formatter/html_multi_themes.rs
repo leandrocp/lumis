@@ -219,7 +219,6 @@ mod tests {
     }
 
     #[test]
-    #[allow(deprecated, reason = "theme italics still require explicit opt-in")]
     fn test_theme_mode_generates_font_css_variables() {
         let mut themes = HashMap::new();
         themes.insert(
@@ -235,7 +234,6 @@ mod tests {
             .language(Language::Rust)
             .themes(themes)
             .default_theme("light")
-            .italic(true)
             .build()
             .unwrap();
 
@@ -335,7 +333,6 @@ mod tests {
     }
 
     #[test]
-    #[allow(deprecated, reason = "theme italics still require explicit opt-in")]
     fn test_font_style_values_are_correct() {
         let mut themes = HashMap::new();
         themes.insert(
@@ -351,7 +348,6 @@ mod tests {
             .language(Language::Rust)
             .themes(themes)
             .default_theme("light")
-            .italic(true)
             .build()
             .unwrap();
 

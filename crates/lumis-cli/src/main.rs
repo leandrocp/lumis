@@ -274,8 +274,7 @@ fn html_attrs(attrs: &[HtmlAttr], removed: &[HtmlAttr]) -> lumis_core::formatter
 #[derive(clap::Args)]
 #[command(next_help_heading = OPTSET_STYLED)]
 struct StyledArgs {
-    /// Apply italic styles from the theme (deprecated; still required to emit theme italics)
-    #[arg(long)]
+    #[arg(long, hide = true)]
     italic: bool,
 
     /// Add data-highlight attributes naming each scope
@@ -517,8 +516,7 @@ struct ThemeCssArgs {
     #[arg(long)]
     no_layout: bool,
 
-    /// Omit italic theme declarations (deprecated; customize the theme's italic styles instead)
-    #[arg(long)]
+    #[arg(long, hide = true)]
     no_italic: bool,
 
     /// Parent selector prepended to every generated selector
@@ -1801,7 +1799,6 @@ fn render_html_multi_themes(
     pre_class: Option<String>,
     pre_attrs: lumis_core::formatter::html::HtmlAttrs,
     code_attrs: lumis_core::formatter::html::HtmlAttrs,
-    italic: bool,
     include_highlights: bool,
     highlight_lines: Option<lumis_core::formatter::html_inline::HighlightLines>,
     line_numbers: bool,
@@ -1836,7 +1833,6 @@ fn render_html_multi_themes(
 
     print_verbose_separator(verbose);
     let mut builder = lumis_core::formatter::HtmlMultiThemesBuilder::new();
-    #[allow(deprecated, reason = "preserve --italic behavior")]
     builder
         .language(lang)
         .structure(structure)
@@ -1849,7 +1845,6 @@ fn render_html_multi_themes(
         .pre_class(pre_class)
         .pre_attrs(pre_attrs)
         .code_attrs(code_attrs)
-        .italic(italic)
         .include_highlights(include_highlights)
         .highlight_lines(highlight_lines)
         .line_numbers(line_numbers)
@@ -1893,12 +1888,9 @@ fn render_output(
                 ref no_code_attrs,
                 ..
             },
-        styled:
-            StyledArgs {
-                italic,
-                include_highlights,
-                ..
-            },
+        styled: StyledArgs {
+            include_highlights, ..
+        },
         multi_theme:
             MultiThemeArgs {
                 ref themes,
@@ -1918,7 +1910,6 @@ fn render_output(
             let theme_obj = resolve_theme(theme.clone(), Some(reg.data_dir()), verbose, false);
             print_verbose_separator(verbose);
             let mut builder = lumis_core::formatter::HtmlInlineBuilder::new();
-            #[allow(deprecated, reason = "preserve --italic behavior")]
             builder
                 .language(lang)
                 .structure(structure)
@@ -1926,7 +1917,6 @@ fn render_output(
                 .pre_class(pre_class.clone())
                 .pre_attrs(html_attrs(pre_attrs, no_pre_attrs))
                 .code_attrs(html_attrs(code_attrs, no_code_attrs))
-                .italic(italic)
                 .include_highlights(include_highlights)
                 .highlight_lines(highlight_lines)
                 .line_numbers(line_numbers)
@@ -1952,7 +1942,6 @@ fn render_output(
                 pre_class.clone(),
                 html_attrs(pre_attrs, no_pre_attrs),
                 html_attrs(code_attrs, no_code_attrs),
-                italic,
                 include_highlights,
                 highlight_lines,
                 line_numbers,

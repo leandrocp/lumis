@@ -91,12 +91,10 @@ fn main() {
 
     let lang = Language::guess(Some("rust"), code);
 
-    #[allow(deprecated, reason = "theme italics still require explicit opt-in")]
     let formatter = HtmlInlineBuilder::new()
         .language(lang)
         .theme(Some(custom_theme))
         .pre_class(Some("my-code-block".to_string()))
-        .italic(true)
         .build()
         .expect("Failed to build formatter");
 

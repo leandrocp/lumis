@@ -353,14 +353,45 @@ defmodule Lumis.Formatter.HTMLTest do
       assert HTML.open_span(attrs, "keyword") =~ HTML.style_to_css(style)
     end
 
-    test "style_to_css/2 honours :italic and :separator" do
+    test "style_to_css/2 honors theme italics and :separator" do
       style = %Lumis.Theme.Style{fg: "#ff79c6", italic: true}
 
-      assert HTML.style_to_css(style) == "color: #ff79c6;"
-      assert HTML.style_to_css(style, italic: true) == "color: #ff79c6; font-style: italic;"
+      assert HTML.style_to_css(style) == "color: #ff79c6; font-style: italic;"
 
-      assert HTML.style_to_css(style, italic: true, separator: "\n") ==
+      assert HTML.style_to_css(style, separator: "\n") ==
                "color: #ff79c6;\nfont-style: italic;"
+    end
+
+    test "helpers warn only for explicit italic overrides" do
+      style = %Lumis.Theme.Style{italic: true}
+      theme = %{Lumis.Theme.get("github_light") | highlights: %{"markup.italic" => style}}
+
+      for render <- [
+            &HTML.style_to_css(style, &1),
+            fn options -> HTML.span_attrs([theme: theme] ++ options)["markup.italic"] end,
+            fn options ->
+              HTML.span_multi_themes_attrs(
+                [themes: [light: theme], default_theme: "light"] ++ options
+              )["markup.italic"]
+            end
+          ] do
+        assert ExUnit.CaptureIO.capture_io(:stderr, fn ->
+                 assert render.([]) =~ "font-style:"
+               end) == ""
+
+        for italic <- [false, true] do
+          warning =
+            ExUnit.CaptureIO.capture_io(:stderr, fn ->
+              css = render.(italic: italic)
+
+              assert String.contains?(css, [~s(style="font-style:italic;), "font-style: italic;"]) ==
+                       italic
+            end)
+
+          assert warning =~ ":italic is deprecated"
+          assert warning =~ "Lumis.Theme.map_styles/2"
+        end
+      end
     end
   end
 

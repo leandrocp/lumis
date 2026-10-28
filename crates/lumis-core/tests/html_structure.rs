@@ -38,9 +38,9 @@ fn render(formatter: &dyn Formatter<()>) -> String {
 #[test]
 #[allow(
     deprecated,
-    reason = "pin legacy italic options and their unchanged defaults"
+    reason = "pin theme-driven defaults and legacy explicit overrides"
 )]
-fn italic_options_keep_their_defaults_and_explicit_values() {
+fn italic_options_honor_the_theme_by_default_and_keep_explicit_overrides() {
     let theme = themes::from_json(
         r#"{"name":"test","appearance":"light","revision":"abc","highlights":{"string":{"italic":true}}}"#,
     )
@@ -62,7 +62,7 @@ fn italic_options_keep_their_defaults_and_explicit_values() {
         ] {
             assert_eq!(
                 html.contains("style=\"font-style:"),
-                italic == Some(true),
+                italic != Some(false),
                 "italic={italic:?}: {html}"
             );
         }

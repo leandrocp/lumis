@@ -203,7 +203,7 @@ defmodule Lumis.LumisTest do
              [
                language: nil,
                header: nil,
-               italic: false,
+               italic: true,
                theme: nil,
                code_attrs: [],
                pre_attrs: [],
@@ -224,7 +224,7 @@ defmodule Lumis.LumisTest do
       assert Keyword.equal?(
                [
                  language: nil,
-                 italic: false,
+                 italic: true,
                  theme: nil,
                  code_attrs: [],
                  pre_attrs: [],
@@ -1361,7 +1361,7 @@ defmodule Lumis.LumisTest do
                  highlight_lines: nil,
                  line_numbers: false,
                  include_highlights: false,
-                 italic: false,
+                 italic: true,
                  code_attrs: [],
                  pre_attrs: [],
                  structure: :block,
@@ -1389,7 +1389,7 @@ defmodule Lumis.LumisTest do
                  highlight_lines: nil,
                  line_numbers: false,
                  include_highlights: false,
-                 italic: false,
+                 italic: true,
                  code_attrs: [],
                  pre_attrs: [],
                  structure: :block,
@@ -1440,7 +1440,7 @@ defmodule Lumis.LumisTest do
                       line_numbers: false,
                       highlight_lines: nil,
                       include_highlights: false,
-                      italic: false,
+                      italic: true,
                       code_attrs: [],
                       pre_attrs: [],
                       pre_class: nil,
@@ -1481,7 +1481,7 @@ defmodule Lumis.LumisTest do
                  highlight_lines: nil,
                  line_numbers: false,
                  include_highlights: false,
-                 italic: false,
+                 italic: true,
                  code_attrs: [],
                  pre_attrs: [],
                  structure: :block,
@@ -1514,7 +1514,7 @@ defmodule Lumis.LumisTest do
                    highlight_lines: nil,
                    line_numbers: false,
                    include_highlights: false,
-                   italic: false,
+                   italic: true,
                    code_attrs: [],
                    pre_attrs: [],
                    structure: :block,
@@ -1641,7 +1641,7 @@ defmodule Lumis.LumisTest do
                     highlight_lines: nil,
                     line_numbers: false,
                     include_highlights: false,
-                    italic: false,
+                    italic: true,
                     pre_class: nil,
                     theme: {:string, "onedark"}
                   }}
@@ -1675,7 +1675,7 @@ defmodule Lumis.LumisTest do
                       highlight_lines: nil,
                       line_numbers: false,
                       include_highlights: false,
-                      italic: false,
+                      italic: true,
                       pre_class: nil,
                       theme: {:string, "github_light"}
                     }}
@@ -1699,7 +1699,7 @@ defmodule Lumis.LumisTest do
                       highlight_lines: nil,
                       line_numbers: false,
                       include_highlights: false,
-                      italic: false,
+                      italic: true,
                       pre_class: "deprecated-class",
                       theme: nil
                     }}
@@ -1719,7 +1719,7 @@ defmodule Lumis.LumisTest do
                       highlight_lines: nil,
                       line_numbers: false,
                       include_highlights: false,
-                      italic: false,
+                      italic: true,
                       pre_class: nil,
                       theme: nil
                     }},
@@ -1758,7 +1758,7 @@ defmodule Lumis.LumisTest do
                     highlight_lines: nil,
                     line_numbers: false,
                     include_highlights: false,
-                    italic: false,
+                    italic: true,
                     pre_class: nil,
                     theme: {:theme, ^theme}
                   }}
@@ -1776,7 +1776,7 @@ defmodule Lumis.LumisTest do
                     highlight_lines: nil,
                     line_numbers: false,
                     include_highlights: false,
-                    italic: false,
+                    italic: true,
                     pre_class: nil,
                     theme: {:string, "dracula"}
                   }}
@@ -1794,7 +1794,7 @@ defmodule Lumis.LumisTest do
                     highlight_lines: nil,
                     line_numbers: false,
                     include_highlights: false,
-                    italic: false,
+                    italic: true,
                     pre_class: nil,
                     theme: nil
                   }}
@@ -1881,7 +1881,7 @@ defmodule Lumis.LumisTest do
                     header: nil,
                     highlight_lines: %Lumis.HTMLInlineHighlightLines{},
                     include_highlights: false,
-                    italic: false,
+                    italic: true,
                     pre_class: nil,
                     theme: nil
                   }}
@@ -1900,7 +1900,7 @@ defmodule Lumis.LumisTest do
                     highlight_lines: nil,
                     line_numbers: false,
                     include_highlights: false,
-                    italic: false,
+                    italic: true,
                     pre_class: nil,
                     theme: nil
                   }}

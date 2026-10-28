@@ -38,7 +38,7 @@ class InteractiveDocsFormatter implements Formatter {
               "data-end": String(range.end),
               "data-fg": style?.fg,
               "data-bg": style?.bg,
-              style: styleToCss(style, { italic: true }),
+              style: styleToCss(style),
             })}${escaped}</span>`;
           } else {
             lines[lines.length - 1] += escaped;

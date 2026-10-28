@@ -175,7 +175,7 @@ export function textDecoration(style: HighlightStyle): string {
 export function styleToCss(
   style: HighlightStyle | undefined,
   options: {
-    /** @deprecated Customize italics with mapStyles. Keep `true` to emit retained theme italics; the default remains `false`. */
+    /** @deprecated Customize theme styles with mapStyles instead. */
     italic?: boolean;
     separator?: string;
     compact?: boolean;
@@ -186,7 +186,7 @@ export function styleToCss(
   const separator = options.separator ?? " ";
   const compact = options.compact ?? false;
 
-  return styleDeclarations(style, Boolean(options.italic))
+  return styleDeclarations(style, options.italic ?? true)
     .map(([property, value]) => (compact ? `${property}:${value};` : `${property}: ${value};`))
     .join(separator);
 }
@@ -617,7 +617,7 @@ export interface SpanInlineOptions {
   language: LanguageRef;
   scope: string;
   theme?: Theme;
-  /** @deprecated Customize italics with mapStyles. Keep `true` to emit retained theme italics; the default remains `false`. */
+  /** @deprecated Customize theme styles with mapStyles instead. */
   italic?: boolean;
   includeHighlights?: boolean;
 }
@@ -705,7 +705,7 @@ export interface SpanMultiThemesOptions {
   defaultTheme?: string;
   /** Defaults to `"--lumis"`. */
   cssVariablePrefix?: string;
-  /** @deprecated Customize italics with mapStyles. Keep `true` to emit retained theme italics; the default remains `false`. */
+  /** @deprecated Customize theme styles with mapStyles instead. */
   italic?: boolean;
   includeHighlights?: boolean;
 }
@@ -793,7 +793,7 @@ interface LightDarkProperty {
 function lightDarkProperties(
   lightStyle: HighlightStyle,
   darkStyle: HighlightStyle,
-  italic?: boolean,
+  italic = true,
 ): LightDarkProperty[] {
   const properties: LightDarkProperty[] = [
     {

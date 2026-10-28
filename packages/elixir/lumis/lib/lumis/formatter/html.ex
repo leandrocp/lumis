@@ -158,9 +158,6 @@ defmodule Lumis.Formatter.HTML do
       with nothing on it.
     * `:language` — the language whose specialized scopes to prefer, e.g.
       `comment.elixir` over `comment`. Defaults to `"plaintext"`.
-    * `:italic` (default `false`) — emit `font-style: italic` for a style that
-      asks for it. Deprecated: customize styles with `Lumis.Theme.map_styles/2`;
-      keep `true` to emit retained italics while the default remains `false`.
     * `:include_highlights` (default `false`) — add `data-highlight="<scope>"`
 
   """
@@ -169,7 +166,7 @@ defmodule Lumis.Formatter.HTML do
     Native.html_span_attrs(
       resolve_theme(Keyword.get(options, :theme)),
       Keyword.get(options, :language) || "plaintext",
-      Keyword.get(options, :italic, false),
+      italic_option(options),
       Keyword.get(options, :include_highlights, false)
     )
   end
@@ -235,9 +232,6 @@ defmodule Lumis.Formatter.HTML do
     * `:css_variable_prefix` (default `"--lumis"`) — the custom property prefix
     * `:language` — the language whose specialized scopes to prefer, e.g.
       `comment.elixir` over `comment`. Defaults to `"plaintext"`.
-    * `:italic` (default `false`) — emit `font-style: italic` for a style that
-      asks for it. Deprecated: customize styles with `Lumis.Theme.map_styles/2`;
-      keep `true` to emit retained italics while the default remains `false`.
     * `:include_highlights` (default `false`) — add `data-highlight="<scope>"`
 
   """
@@ -248,7 +242,7 @@ defmodule Lumis.Formatter.HTML do
       Keyword.get(options, :default_theme),
       css_variable_prefix(options),
       Keyword.get(options, :language) || "plaintext",
-      Keyword.get(options, :italic, false),
+      italic_option(options),
       Keyword.get(options, :include_highlights, false)
     )
   end
@@ -491,9 +485,6 @@ defmodule Lumis.Formatter.HTML do
 
   ## Options
 
-    * `:italic` (default `false`) — emit `font-style: italic` for a style that
-      asks for it. Deprecated: customize styles with `Lumis.Theme.map_styles/2`;
-      keep `true` to emit retained italics while the default remains `false`.
     * `:separator` (default `" "`) — what goes between declarations
 
   ## Example
@@ -506,7 +497,7 @@ defmodule Lumis.Formatter.HTML do
   def style_to_css(%Style{} = style, options \\ []) when is_list(options) do
     Native.html_style_to_css(
       style,
-      Keyword.get(options, :italic, false),
+      italic_option(options),
       Keyword.get(options, :separator, " ")
     )
   end
@@ -654,6 +645,16 @@ defmodule Lumis.Formatter.HTML do
   defp resolve_theme(nil), do: nil
   defp resolve_theme(%Theme{} = theme), do: theme
   defp resolve_theme(name) when is_binary(name), do: Theme.get(name)
+
+  defp italic_option(options) do
+    if Keyword.has_key?(options, :italic) do
+      IO.warn(
+        ":italic is deprecated. Customize theme styles with Lumis.Theme.map_styles/2 instead."
+      )
+    end
+
+    Keyword.get(options, :italic, true)
+  end
 
   # Accepts the `themes: [light: "github_light"]` keyword list `:html_multi_themes`
   # takes, and a map. A name no theme resolves to drops out, the way a `:theme`

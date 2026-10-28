@@ -173,8 +173,6 @@ upright = Theme.map_styles(theme, fn _scope, style -> %{style | italic: false} e
 Pass the result wherever a theme is accepted: inline HTML, each theme in
 multi-theme HTML, terminal output, or custom formatters. For linked HTML, build
 CSS from the modified theme and use that stylesheet instead of the prebuilt one.
-Inline HTML still requires `italic: true` to emit italic styles that remain in
-the theme; its default is `false`.
 
 Transformations preserve scope names, the theme name, appearance, revision, and
 license. They visit only existing entries, including language-specific entries,

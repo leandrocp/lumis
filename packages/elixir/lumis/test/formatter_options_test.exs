@@ -58,14 +58,14 @@ defmodule Lumis.FormatterOptionsTest do
     assert accepted == manifest_options("html_multi_themes")
   end
 
-  test "italic warns only when supplied and preserves defaults and explicit values" do
+  test "italic honors the theme by default and warns only for explicit overrides" do
     for {formatter, required} <- [
           {:html_inline, []},
           {:html_multi_themes, [themes: [light: "github_light"]]}
         ] do
       assert ExUnit.CaptureIO.capture_io(:stderr, fn ->
                assert {:ok, {^formatter, options}} = Lumis.formatter_type({formatter, required})
-               assert options[:italic] == false
+               assert options[:italic] == true
              end) == ""
 
       for italic <- [false, true] do

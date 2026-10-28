@@ -50,7 +50,7 @@ defmodule Lumis.Theme do
       default: true,
       deprecated:
         "Clear style.italic with Lumis.Theme.map_styles/2 before building CSS. The default remains true.",
-      doc: "Whether italic theme styles should be emitted."
+      doc: false
     ],
     scope: [
       type: :string,

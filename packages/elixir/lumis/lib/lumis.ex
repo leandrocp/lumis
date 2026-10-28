@@ -173,7 +173,6 @@ defmodule Lumis do
       - `:pre_class` (`t:String.t/0` - default: `nil`) - the CSS class to append into the wrapping `<pre>` tag.
       - `:pre_attrs` (`t:html_attrs/0` - default: `[]`) - attributes merged into the wrapping `<pre>` tag.
       - `:code_attrs` (`t:html_attrs/0` - default: `[]`) - attributes merged into the nested `<code>` tag.
-      - `:italic` (`t:boolean/0` - default: `false`) - enable italic style for the highlighted code.
       - `:include_highlights` (`t:boolean/0` - default: `false`) - include the highlight scope name in a `data-highlight` attribute. Useful for debugging.
       - `:highlight_lines` (`t:html_inline_highlight_lines/0` - default: `nil`) - highlight specific lines either using the theme `highlighted` style or with custom CSS styling.
       - `:line_numbers` (`t:boolean/0` - default: `false`) - open each line with a `<span class="l-line-number">` gutter carrying its number.
@@ -200,7 +199,6 @@ defmodule Lumis do
       - `:pre_class` (`t:String.t/0` - default: `nil`) - the CSS class to append into the wrapping `<pre>` tag.
       - `:pre_attrs` (`t:html_attrs/0` - default: `[]`) - attributes merged into the wrapping `<pre>` tag.
       - `:code_attrs` (`t:html_attrs/0` - default: `[]`) - attributes merged into the nested `<code>` tag.
-      - `:italic` (`t:boolean/0` - default: `false`) - enable italic style for the highlighted code.
       - `:include_highlights` (`t:boolean/0` - default: `false`) - include the highlight scope name in a `data-highlight` attribute.
       - `:highlight_lines` (`t:html_inline_highlight_lines/0` - default: `nil`) - highlight specific lines (same as html_inline).
       - `:line_numbers` (`t:boolean/0` - default: `false`) - open each line with a `<span class="l-line-number">` gutter carrying its number.
@@ -513,9 +511,8 @@ defmodule Lumis do
       code_attrs: @html_attrs_schema,
       italic: [
         type: :boolean,
-        default: false,
-        deprecated:
-          "Customize italics with Lumis.Theme.map_styles/2. Keep true to emit retained theme italics; the default remains false."
+        default: true,
+        deprecated: "Customize theme styles with Lumis.Theme.map_styles/2 instead."
       ],
       include_highlights: [type: :boolean, default: false],
       highlight_lines: [
@@ -642,9 +639,8 @@ defmodule Lumis do
       code_attrs: @html_attrs_schema,
       italic: [
         type: :boolean,
-        default: false,
-        deprecated:
-          "Customize italics with Lumis.Theme.map_styles/2. Keep true to emit retained theme italics; the default remains false."
+        default: true,
+        deprecated: "Customize theme styles with Lumis.Theme.map_styles/2 instead."
       ],
       include_highlights: [type: :boolean, default: false],
       highlight_lines: [
@@ -1258,7 +1254,7 @@ defmodule Lumis do
   ## Examples
 
       iex> Lumis.validate_options!(formatter: {:html_inline, language: "elixir"})
-      [formatter: {:html_inline, [header: nil, line_numbers: nil, highlight_lines: nil, include_highlights: false, italic: false, pre_class: nil, theme: nil, language: "elixir"]}]
+      [formatter: {:html_inline, [header: nil, line_numbers: nil, highlight_lines: nil, include_highlights: false, italic: true, pre_class: nil, theme: nil, language: "elixir"]}]
 
       iex> Lumis.validate_options!(formatter: {:html_inline, theme: "dracula"})
       [formatter: {:html_inline, [theme: "dracula", ...]}]

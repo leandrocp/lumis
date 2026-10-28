@@ -72,10 +72,10 @@ impl HtmlMultiThemesBuilder {
         self
     }
 
-    /// Controls italic emission. The default remains `false`.
+    #[doc(hidden)]
     #[deprecated(
         since = "4.2.0",
-        note = "customize italics with Theme::map_styles; keep italic(true) to emit retained theme italics while the default remains false"
+        note = "customize theme styles with Theme::map_styles instead"
     )]
     pub fn italic(&mut self, italic: bool) -> &mut Self {
         self.italic = Some(italic);
@@ -105,7 +105,7 @@ impl HtmlMultiThemesBuilder {
             pre_class: self.pre_class.take().flatten(),
             pre_attrs: self.pre_attrs.take().unwrap_or_default(),
             code_attrs: self.code_attrs.take().unwrap_or_default(),
-            italic: self.italic.take().unwrap_or(false),
+            italic: self.italic.take().unwrap_or(true),
             include_highlights: self.include_highlights.take().unwrap_or(false),
             highlight_lines: self.highlight_lines.take().flatten(),
             stepped_highlight_lines: Vec::new(),
@@ -179,7 +179,7 @@ impl Default for HtmlMultiThemes {
             pre_class: None,
             pre_attrs: Vec::new(),
             code_attrs: Vec::new(),
-            italic: false,
+            italic: true,
             include_highlights: false,
             highlight_lines: None,
             stepped_highlight_lines: Vec::new(),

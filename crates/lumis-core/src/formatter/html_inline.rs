@@ -82,10 +82,10 @@ impl HtmlInlineBuilder {
         self
     }
 
-    /// Controls italic emission. The default remains `false`.
+    #[doc(hidden)]
     #[deprecated(
         since = "4.2.0",
-        note = "customize italics with Theme::map_styles; keep italic(true) to emit retained theme italics while the default remains false"
+        note = "customize theme styles with Theme::map_styles instead"
     )]
     pub fn italic(&mut self, italic: bool) -> &mut Self {
         self.italic = Some(italic);
@@ -217,7 +217,7 @@ impl Default for HtmlInline {
             pre_class: None,
             pre_attrs: Vec::new(),
             code_attrs: Vec::new(),
-            italic: false,
+            italic: true,
             include_highlights: false,
             highlight_lines: None,
             stepped_highlight_lines: Vec::new(),
