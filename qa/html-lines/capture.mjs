@@ -87,7 +87,6 @@ function renderCli() {
           "l-highlighted",
         ];
         if (numbered) args.push("--line-numbers");
-        if (formatter !== "html-linked") args.push("--italic");
         if (formatter === "html-inline") args.push("--theme", manifest.theme);
         if (formatter === "html-multi-themes")
           args.push("--themes", `dark:${manifest.theme}`, "--default-theme", "dark");
