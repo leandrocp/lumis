@@ -9,47 +9,47 @@ importers:
   .:
     dependencies:
       '@lumis-sh/lumis':
-        specifier: ^0.9.0
-        version: 0.9.0
+        specifier: ^0.10.0
+        version: 0.10.0
       '@lumis-sh/themes':
         specifier: ^0.4.0
         version: 0.4.0
       '@lumis-sh/wasm-bundle-full':
         specifier: ^0.1.3
-        version: 0.1.3(@lumis-sh/lumis@0.9.0)
+        version: 0.1.3(@lumis-sh/lumis@0.10.0)
       '@lumis-sh/wasm-css':
         specifier: ^0.26.4
-        version: 0.26.4(@lumis-sh/lumis@0.9.0)
+        version: 0.26.4(@lumis-sh/lumis@0.10.0)
       '@lumis-sh/wasm-elixir':
         specifier: ^0.26.5
-        version: 0.26.5(@lumis-sh/lumis@0.9.0)
+        version: 0.26.5(@lumis-sh/lumis@0.10.0)
       '@lumis-sh/wasm-embedded-template':
         specifier: ^0.26.4
-        version: 0.26.4(@lumis-sh/lumis@0.9.0)
+        version: 0.26.4(@lumis-sh/lumis@0.10.0)
       '@lumis-sh/wasm-heex':
         specifier: ^0.26.3
-        version: 0.26.3(@lumis-sh/lumis@0.9.0)
+        version: 0.26.3(@lumis-sh/lumis@0.10.0)
       '@lumis-sh/wasm-html':
         specifier: ^0.26.4
-        version: 0.26.4(@lumis-sh/lumis@0.9.0)
+        version: 0.26.4(@lumis-sh/lumis@0.10.0)
       '@lumis-sh/wasm-javascript':
         specifier: ^0.26.4
-        version: 0.26.4(@lumis-sh/lumis@0.9.0)
+        version: 0.26.4(@lumis-sh/lumis@0.10.0)
       '@lumis-sh/wasm-json':
         specifier: ^0.26.5
-        version: 0.26.5(@lumis-sh/lumis@0.9.0)
+        version: 0.26.5(@lumis-sh/lumis@0.10.0)
       '@lumis-sh/wasm-markdown':
         specifier: ^0.26.3
-        version: 0.26.3(@lumis-sh/lumis@0.9.0)
+        version: 0.26.3(@lumis-sh/lumis@0.10.0)
       '@lumis-sh/wasm-ruby':
         specifier: ^0.26.4
-        version: 0.26.4(@lumis-sh/lumis@0.9.0)
+        version: 0.26.4(@lumis-sh/lumis@0.10.0)
       '@lumis-sh/wasm-rust':
         specifier: ^0.26.5
-        version: 0.26.5(@lumis-sh/lumis@0.9.0)
+        version: 0.26.5(@lumis-sh/lumis@0.10.0)
       '@lumis-sh/wasm-typescript':
         specifier: ^0.26.3
-        version: 0.26.3(@lumis-sh/lumis@0.9.0)
+        version: 0.26.3(@lumis-sh/lumis@0.10.0)
       '@vercel/analytics':
         specifier: ^2.0.1
         version: 2.0.1
@@ -250,60 +250,60 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@lumis-sh/lumis-native-darwin-arm64@0.9.0':
-    resolution: {integrity: sha512-HA14bo7Swlu8W5gIhyVqRIv61iRSqix2ussQmMOEY6dzPSCDL1xoWNFVqBjSGBMSp9JjUflLsKlcyNFmXxWM0g==}
+  '@lumis-sh/lumis-native-darwin-arm64@0.10.0':
+    resolution: {integrity: sha512-ScFGVYP+nY2EmPJqUwWd8Yo+8YJQ1nXdgTJs/mp8HFc7uJXztbCOnCth9deZ6PSDnWdrbxafRmIQqgudFaVStA==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [darwin]
 
-  '@lumis-sh/lumis-native-darwin-x64@0.9.0':
-    resolution: {integrity: sha512-aOi8JYRQBUMOtVINAHZeDqOYoSvBl+74nZwQf9RpY4Q709Q3OV1HUK3E11dD7t9IPSON1PblylnJj1mV61HWrg==}
+  '@lumis-sh/lumis-native-darwin-x64@0.10.0':
+    resolution: {integrity: sha512-0Qbtpy2p2SSKU1x6shzZvjZ1ses1/ee2OpYG+wQwfKDJhFEoEYRByvne4uZbhMvk9gzkV9in82Bujis6ARO8zw==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [darwin]
 
-  '@lumis-sh/lumis-native-linux-arm64-gnu@0.9.0':
-    resolution: {integrity: sha512-zDMfrtVIASenveZgXDFwVO7iGhrgu0eGcXFpfXbhTE1wRoDiJ4tsuqky7oBX64NSprxmvYTBPKHBwsV1Pjxcpg==}
+  '@lumis-sh/lumis-native-linux-arm64-gnu@0.10.0':
+    resolution: {integrity: sha512-7jCBIXM5TZRk4kGLkWwjqZWJ8B7ZCb2pdSAP6NQWK/whc3GczMhntrEHuy1LpAQSddVu+1HHl/jTOnolDyC2Mg==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@lumis-sh/lumis-native-linux-arm64-musl@0.9.0':
-    resolution: {integrity: sha512-eR0X/YHMu1k139mw71v9DMD5WUjqPTLGkGt/ypBbun9KOh+DhqrH/IImpa7KlLHPnQ7FZ1ZTacH+rixmvgQPUA==}
+  '@lumis-sh/lumis-native-linux-arm64-musl@0.10.0':
+    resolution: {integrity: sha512-MywcvF4gvv/mCh3GQKG7OzOZZlqU0+lJS3T/IP9dBddB/1sujdzdmz9iCGfNRlAGiFihoL8BAtVp2mDeSrb5uw==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@lumis-sh/lumis-native-linux-x64-gnu@0.9.0':
-    resolution: {integrity: sha512-+H02thpUnWS9+jg4syfVYcFC0ufXAhDoJGVX+GzAc/19CRw6glWHSK8nluJoA0YeHp0KQkYNYLasaXiIgSFiqw==}
+  '@lumis-sh/lumis-native-linux-x64-gnu@0.10.0':
+    resolution: {integrity: sha512-VBkeT6Pd5s2dJrmWKAC9Q6J4d214GBlzZxzHpADL2H6F0omjEZ9SsRwsVgc+gKkHzDST0hzhpJ+5R36I5xuDfA==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@lumis-sh/lumis-native-linux-x64-musl@0.9.0':
-    resolution: {integrity: sha512-BG5pSrETJhem7NhjElgfhkQviw/+zwteaP2VHLhW/MsA+nuIIy1xvz8UYEF3uns+KAArNF4IKjxIbFmFQGdd2Q==}
+  '@lumis-sh/lumis-native-linux-x64-musl@0.10.0':
+    resolution: {integrity: sha512-ZNwxUUmzAIxXjDp2Xxu24TadolDYkAf54vklUeg8+/Ee8WVxta+DfrdEhKQhoMpe8k7cmfeShNyH0KSa2kSTnw==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@lumis-sh/lumis-native-win32-arm64-msvc@0.9.0':
-    resolution: {integrity: sha512-jCJWq7zr2R9Kn7IRHyb07Ax3KUNxQcwpScDYHY9PIf3kJdhf4f2mgVQQcYRyjjmXoU+rGYIVPgJH8J45/TPzkA==}
+  '@lumis-sh/lumis-native-win32-arm64-msvc@0.10.0':
+    resolution: {integrity: sha512-XyBp1TGqSc3TCq6n8XPcizW/YGL3syti3i6ZaN3chOL8Nh4FuMghNziBar7MQ24FH36SM8UPuH2NJwWp5psA/A==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [win32]
 
-  '@lumis-sh/lumis-native-win32-x64-msvc@0.9.0':
-    resolution: {integrity: sha512-lGhi5oFYM+JczClPi53lnVdsIU4OLMvKNqfxQxNVl+SjmeChd4RM+EuwcJ6WpgI6kAqRuTAilslybDZuOglvCA==}
+  '@lumis-sh/lumis-native-win32-x64-msvc@0.10.0':
+    resolution: {integrity: sha512-hQikU38t/vgvC2YFKAqbk++b9haWKpTqjxi2qQ/0JsDUzrfOdGsg6kxHkJ8WxwdqV4hPWeOO9CW/tI2xOYRSoA==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
 
-  '@lumis-sh/lumis@0.9.0':
-    resolution: {integrity: sha512-5U/VBCPI09tofLxQiAWJZTIlh90EZIewmge1Zakw8E52EtpPUVV8jDD0AYlgv/BAqEMjD82sJmFgpHczt0lPTw==}
+  '@lumis-sh/lumis@0.10.0':
+    resolution: {integrity: sha512-y1x+0nl+BacS1jhU81Pry1Krj+PUiCu55ZCdlHo2xLCs2jXkbjNzJgnpyrFKclk6BLtY+Xuzx7nUG//xQJoTvA==}
     engines: {node: '>=18'}
 
   '@lumis-sh/themes@0.4.0':
@@ -1210,8 +1210,8 @@ packages:
       '@lumis-sh/lumis':
         optional: true
 
-  '@noble/hashes@2.3.0':
-    resolution: {integrity: sha512-oN+QwyX7VSHotibwubG3kpzbwKrfnyR6OOO+3Nk/53ADL7FmgHHz4TgrbaYKvvOw09u6QTx0oiH1cNCIOuN0CQ==}
+  '@noble/hashes@2.4.0':
+    resolution: {integrity: sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==}
     engines: {node: '>= 20.19.0'}
 
   '@oxc-project/types@0.153.0':
@@ -1988,9 +1988,6 @@ packages:
       yaml:
         optional: true
 
-  web-tree-sitter@0.26.11:
-    resolution: {integrity: sha512-Q5Dm3YTIXSXuH6FxX6RuzX2Qwpc4DPGiYMU87Wg5Z8OIStiQFiUex4zMDc0vBTw78EphaYJacncJghCHzbZptg==}
-
   webgl-fluid-enhanced@0.8.0:
     resolution: {integrity: sha512-Yj3+AfQYC6bENe3mTpj1XExVfSZCG6pGxAqGXluUgdjCPCP8rvjrHXy4P5LChlJUgL8kf4E9dgmv5nLXjTJIAg==}
 
@@ -2093,617 +2090,616 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@lumis-sh/lumis-native-darwin-arm64@0.9.0':
+  '@lumis-sh/lumis-native-darwin-arm64@0.10.0':
     optional: true
 
-  '@lumis-sh/lumis-native-darwin-x64@0.9.0':
+  '@lumis-sh/lumis-native-darwin-x64@0.10.0':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-arm64-gnu@0.9.0':
+  '@lumis-sh/lumis-native-linux-arm64-gnu@0.10.0':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-arm64-musl@0.9.0':
+  '@lumis-sh/lumis-native-linux-arm64-musl@0.10.0':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-x64-gnu@0.9.0':
+  '@lumis-sh/lumis-native-linux-x64-gnu@0.10.0':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-x64-musl@0.9.0':
+  '@lumis-sh/lumis-native-linux-x64-musl@0.10.0':
     optional: true
 
-  '@lumis-sh/lumis-native-win32-arm64-msvc@0.9.0':
+  '@lumis-sh/lumis-native-win32-arm64-msvc@0.10.0':
     optional: true
 
-  '@lumis-sh/lumis-native-win32-x64-msvc@0.9.0':
+  '@lumis-sh/lumis-native-win32-x64-msvc@0.10.0':
     optional: true
 
-  '@lumis-sh/lumis@0.9.0':
+  '@lumis-sh/lumis@0.10.0':
     dependencies:
-      '@noble/hashes': 2.3.0
+      '@noble/hashes': 2.4.0
       pathe: 2.0.3
       semver: 7.8.5
-      web-tree-sitter: 0.26.11
     optionalDependencies:
-      '@lumis-sh/lumis-native-darwin-arm64': 0.9.0
-      '@lumis-sh/lumis-native-darwin-x64': 0.9.0
-      '@lumis-sh/lumis-native-linux-arm64-gnu': 0.9.0
-      '@lumis-sh/lumis-native-linux-arm64-musl': 0.9.0
-      '@lumis-sh/lumis-native-linux-x64-gnu': 0.9.0
-      '@lumis-sh/lumis-native-linux-x64-musl': 0.9.0
-      '@lumis-sh/lumis-native-win32-arm64-msvc': 0.9.0
-      '@lumis-sh/lumis-native-win32-x64-msvc': 0.9.0
+      '@lumis-sh/lumis-native-darwin-arm64': 0.10.0
+      '@lumis-sh/lumis-native-darwin-x64': 0.10.0
+      '@lumis-sh/lumis-native-linux-arm64-gnu': 0.10.0
+      '@lumis-sh/lumis-native-linux-arm64-musl': 0.10.0
+      '@lumis-sh/lumis-native-linux-x64-gnu': 0.10.0
+      '@lumis-sh/lumis-native-linux-x64-musl': 0.10.0
+      '@lumis-sh/lumis-native-win32-arm64-msvc': 0.10.0
+      '@lumis-sh/lumis-native-win32-x64-msvc': 0.10.0
 
   '@lumis-sh/themes@0.4.0': {}
 
-  '@lumis-sh/wasm-angular@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-angular@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-arduino@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-arduino@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-asm@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-asm@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-astro@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-astro@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-bash@0.26.6(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-bash@0.26.6(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-bicep@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-bicep@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-bundle-full@0.1.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-bundle-full@0.1.3(@lumis-sh/lumis@0.10.0)':
     dependencies:
-      '@lumis-sh/lumis': 0.9.0
-      '@lumis-sh/wasm-angular': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-arduino': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-asm': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-astro': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-bash': 0.26.6(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-bicep': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-c': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-caddy': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-clojure': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-cmake': 0.26.5(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-comment': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-commonlisp': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-cpp': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-csharp': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-css': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-csv': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-d': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-dart': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-diff': 0.26.5(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-dockerfile': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-dot': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-editorconfig': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-eex': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-elixir': 0.26.5(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-elm': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-embedded-template': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-erlang': 0.26.5(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-fish': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-fortran': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-fsharp': 0.26.8(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-gitattributes': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-gitignore': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-gleam': 0.26.6(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-glimmer': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-glsl': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-go': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-graphql': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-haskell': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-hcl': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-heex': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-html': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-http': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-iex': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-ini': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-java': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-javadoc': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-javascript': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-jinja': 0.26.6(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-jinja_inline': 0.26.5(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-jq': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-json': 0.26.5(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-json5': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-julia': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-just': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-kdl': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-kotlin': 0.26.5(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-latex': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-liquid': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-llvm': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-lua': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-luadoc': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-make': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-markdown': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-markdown_inline': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-matlab': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-mermaid': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-nginx': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-nim': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-nix': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-nushell': 0.26.7(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-objc': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-ocaml': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-ocaml_interface': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-pascal': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-perl': 0.26.5(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-php': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-powershell': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-prisma': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-protobuf': 0.26.5(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-puppet': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-python': 0.26.5(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-qmljs': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-r': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-racket': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-regex': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-rst': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-ruby': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-rust': 0.26.5(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-scala': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-scheme': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-scss': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-solidity': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-sql': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-surface': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-svelte': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-swift': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-tcl': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-terraform': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-toml': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-toon': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-tsx': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-typescript': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-typst': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-vhdl': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-vim': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-vue': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-wat': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-wgsl': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-xml': 0.26.4(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-yaml': 0.26.3(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-zig': 0.26.2(@lumis-sh/lumis@0.9.0)
-      '@lumis-sh/wasm-zsh': 0.26.2(@lumis-sh/lumis@0.9.0)
+      '@lumis-sh/lumis': 0.10.0
+      '@lumis-sh/wasm-angular': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-arduino': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-asm': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-astro': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-bash': 0.26.6(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-bicep': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-c': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-caddy': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-clojure': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-cmake': 0.26.5(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-comment': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-commonlisp': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-cpp': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-csharp': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-css': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-csv': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-d': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-dart': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-diff': 0.26.5(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-dockerfile': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-dot': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-editorconfig': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-eex': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-elixir': 0.26.5(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-elm': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-embedded-template': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-erlang': 0.26.5(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-fish': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-fortran': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-fsharp': 0.26.8(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-gitattributes': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-gitignore': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-gleam': 0.26.6(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-glimmer': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-glsl': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-go': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-graphql': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-haskell': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-hcl': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-heex': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-html': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-http': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-iex': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-ini': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-java': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-javadoc': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-javascript': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-jinja': 0.26.6(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-jinja_inline': 0.26.5(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-jq': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-json': 0.26.5(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-json5': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-julia': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-just': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-kdl': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-kotlin': 0.26.5(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-latex': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-liquid': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-llvm': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-lua': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-luadoc': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-make': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-markdown': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-markdown_inline': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-matlab': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-mermaid': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-nginx': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-nim': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-nix': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-nushell': 0.26.7(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-objc': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-ocaml': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-ocaml_interface': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-pascal': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-perl': 0.26.5(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-php': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-powershell': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-prisma': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-protobuf': 0.26.5(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-puppet': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-python': 0.26.5(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-qmljs': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-r': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-racket': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-regex': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-rst': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-ruby': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-rust': 0.26.5(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-scala': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-scheme': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-scss': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-solidity': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-sql': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-surface': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-svelte': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-swift': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-tcl': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-terraform': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-toml': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-toon': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-tsx': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-typescript': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-typst': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-vhdl': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-vim': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-vue': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-wat': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-wgsl': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-xml': 0.26.4(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-yaml': 0.26.3(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-zig': 0.26.2(@lumis-sh/lumis@0.10.0)
+      '@lumis-sh/wasm-zsh': 0.26.2(@lumis-sh/lumis@0.10.0)
 
-  '@lumis-sh/wasm-c@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-c@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-caddy@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-caddy@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-clojure@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-clojure@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-cmake@0.26.5(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-cmake@0.26.5(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-comment@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-comment@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-commonlisp@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-commonlisp@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-cpp@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-cpp@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-csharp@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-csharp@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-css@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-css@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-csv@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-csv@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-d@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-d@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-dart@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-dart@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-diff@0.26.5(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-diff@0.26.5(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-dockerfile@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-dockerfile@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-dot@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-dot@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-editorconfig@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-editorconfig@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-eex@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-eex@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-elixir@0.26.5(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-elixir@0.26.5(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-elm@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-elm@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-embedded-template@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-embedded-template@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-erlang@0.26.5(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-erlang@0.26.5(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-fish@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-fish@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-fortran@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-fortran@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-fsharp@0.26.8(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-fsharp@0.26.8(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-gitattributes@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-gitattributes@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-gitignore@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-gitignore@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-gleam@0.26.6(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-gleam@0.26.6(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-glimmer@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-glimmer@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-glsl@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-glsl@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-go@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-go@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-graphql@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-graphql@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-haskell@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-haskell@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-hcl@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-hcl@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-heex@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-heex@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-html@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-html@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-http@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-http@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-iex@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-iex@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-ini@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-ini@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-java@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-java@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-javadoc@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-javadoc@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-javascript@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-javascript@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-jinja@0.26.6(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-jinja@0.26.6(@lumis-sh/lumis@0.10.0)':
     dependencies:
-      '@lumis-sh/wasm-jinja_inline': 0.26.5(@lumis-sh/lumis@0.9.0)
+      '@lumis-sh/wasm-jinja_inline': 0.26.5(@lumis-sh/lumis@0.10.0)
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-jinja_inline@0.26.5(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-jinja_inline@0.26.5(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-jq@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-jq@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-json5@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-json5@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-json@0.26.5(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-json@0.26.5(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-julia@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-julia@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-just@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-just@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-kdl@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-kdl@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-kotlin@0.26.5(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-kotlin@0.26.5(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-latex@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-latex@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-liquid@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-liquid@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-llvm@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-llvm@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-lua@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-lua@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-luadoc@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-luadoc@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-make@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-make@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-markdown@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-markdown@0.26.3(@lumis-sh/lumis@0.10.0)':
     dependencies:
-      '@lumis-sh/wasm-markdown_inline': 0.26.3(@lumis-sh/lumis@0.9.0)
+      '@lumis-sh/wasm-markdown_inline': 0.26.3(@lumis-sh/lumis@0.10.0)
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-markdown_inline@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-markdown_inline@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-matlab@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-matlab@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-mermaid@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-mermaid@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-nginx@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-nginx@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-nim@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-nim@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-nix@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-nix@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-nushell@0.26.7(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-nushell@0.26.7(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-objc@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-objc@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-ocaml@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-ocaml@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-ocaml_interface@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-ocaml_interface@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-pascal@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-pascal@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-perl@0.26.5(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-perl@0.26.5(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-php@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-php@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-powershell@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-powershell@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-prisma@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-prisma@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-protobuf@0.26.5(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-protobuf@0.26.5(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-puppet@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-puppet@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-python@0.26.5(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-python@0.26.5(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-qmljs@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-qmljs@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-r@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-r@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-racket@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-racket@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-regex@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-regex@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-rst@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-rst@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-ruby@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-ruby@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-rust@0.26.5(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-rust@0.26.5(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-scala@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-scala@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-scheme@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-scheme@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-scss@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-scss@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-solidity@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-solidity@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-sql@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-sql@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-surface@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-surface@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-svelte@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-svelte@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-swift@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-swift@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-tcl@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-tcl@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-terraform@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-terraform@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-toml@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-toml@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-toon@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-toon@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-tsx@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-tsx@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-typescript@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-typescript@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-typst@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-typst@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-vhdl@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-vhdl@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-vim@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-vim@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-vue@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-vue@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-wat@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-wat@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-wgsl@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-wgsl@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-xml@0.26.4(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-xml@0.26.4(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-yaml@0.26.3(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-yaml@0.26.3(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-zig@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-zig@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@lumis-sh/wasm-zsh@0.26.2(@lumis-sh/lumis@0.9.0)':
+  '@lumis-sh/wasm-zsh@0.26.2(@lumis-sh/lumis@0.10.0)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.9.0
+      '@lumis-sh/lumis': 0.10.0
 
-  '@noble/hashes@2.3.0': {}
+  '@noble/hashes@2.4.0': {}
 
   '@oxc-project/types@0.153.0': {}
 
@@ -3208,7 +3204,5 @@ snapshots:
       esbuild: 0.27.4
       fsevents: 2.3.3
       jiti: 2.7.0
-
-  web-tree-sitter@0.26.11: {}
 
   webgl-fluid-enhanced@0.8.0: {}
