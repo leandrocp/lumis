@@ -153,7 +153,7 @@ HTML, transform each theme before passing it to the formatter.
 To remove all italic styles rather than only code-fence italics, replace the
 callback with one that clears `italic` on every entry:
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
   <Tab value="JavaScript / TypeScript">
 
 ```ts
@@ -178,24 +178,6 @@ upright = Theme.map_styles(theme, fn _scope, style -> %{style | italic: false} e
 ```
 
   </Tab>
-  <Tab value="CLI">
-
-The CLI reads custom themes from the data directory. Save an upright copy of
-the theme's JSON there under a new name, then use that name:
-
-```bash
-mkdir -p ~/.local/share/lumis/themes
-curl -fsSL https://unpkg.com/@lumis-sh/themes/dist/json/catppuccin_frappe.json |
-  jq '.name = "catppuccin_frappe_upright" | .highlights |= map_values(del(.italic))' \
-  > ~/.local/share/lumis/themes/catppuccin_frappe_upright.json
-lumis highlight main.rs -f html-inline --theme catppuccin_frappe_upright
-```
-
-The copy works with every formatter, `--themes`, and `lumis themes build-css`.
-See [Data directory](/cli/behavior#data-directory) for where custom themes
-live on each platform.
-
-  </Tab>
 </Tabs>
 
 Mapping visits existing styles only and replaces each style with the callback's
@@ -203,3 +185,25 @@ result. It does not add scopes or reset inherited CSS: clearing a code-fence
 style does not remove independently italic comments inside that fence, or an
 italic style applied by your page. See the [theme transformation contract](/themes#transform-theme-styles)
 for ownership and fallback behavior.
+
+## Use a customized theme in the CLI
+
+The CLI loads a theme from a JSON file. Customize the theme with map styles in
+any runtime, save the result as JSON, and pass the file to `--theme`:
+
+```ts
+import { writeFileSync } from 'node:fs';
+import frappe from '@lumis-sh/themes/catppuccin_frappe';
+import { mapStyles } from '@lumis-sh/lumis/themes';
+
+const upright = mapStyles(frappe, (_scope, style) => ({ ...style, italic: false }));
+
+writeFileSync('catppuccin_frappe_upright.json', JSON.stringify(upright));
+```
+
+```bash
+lumis highlight main.rs -f html-inline --theme ./catppuccin_frappe_upright.json
+```
+
+See [Local custom themes](/cli/behavior#local-custom-themes) for every CLI
+command that accepts a theme file.
