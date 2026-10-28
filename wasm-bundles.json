@@ -176,7 +176,7 @@
       }
     },
     "web-extra": {
-      "version": "0.1.4",
+      "version": "0.1.5",
       "bundleFormat": 3,
       "dependencies": {
         "@lumis-sh/wasm-angular": "^0.26.0",
@@ -188,11 +188,13 @@
         "@lumis-sh/wasm-glimmer": "^0.26.0",
         "@lumis-sh/wasm-graphql": "^0.26.0",
         "@lumis-sh/wasm-heex": "^0.26.0",
+        "@lumis-sh/wasm-htmldjango": "^0.26.0",
         "@lumis-sh/wasm-markdown": "^0.26.0",
         "@lumis-sh/wasm-markdown_inline": "^0.26.0",
         "@lumis-sh/wasm-php": "^0.26.0",
         "@lumis-sh/wasm-prisma": "^0.26.0",
         "@lumis-sh/wasm-scss": "^0.26.0",
+        "@lumis-sh/wasm-slim": "^0.26.0",
         "@lumis-sh/wasm-surface": "^0.26.0",
         "@lumis-sh/wasm-svelte": "^0.26.0",
         "@lumis-sh/wasm-vue": "^0.26.0",
