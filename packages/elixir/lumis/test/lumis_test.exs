@@ -714,6 +714,29 @@ defmodule Lumis.LumisTest do
   end
 
   describe "formatter: html_multi_themes" do
+    test "validated themes can be reused without changing the rendered styles" do
+      dark = %{
+        Lumis.Theme.get("github_dark")
+        | highlights: %{"string" => %Lumis.Theme.Style{fg: "#123456", italic: true}}
+      }
+
+      options = [
+        formatter:
+          {:html_multi_themes, language: "json", themes: [light: "github_light", dark: dark]}
+      ]
+
+      validated = Lumis.validate_options!(options)
+      assert Lumis.validate_options!(validated) == validated
+
+      source = ~s(["hello"])
+      expected = Lumis.highlight!(source, options)
+      assert expected =~ "--lumis-light:#0a3069;"
+      assert expected =~ "--lumis-dark:#123456;"
+      assert expected =~ "--lumis-dark-font-style:italic;"
+      assert Lumis.highlight!(source, validated) == expected
+      assert Lumis.highlight(source, validated) == {:ok, expected}
+    end
+
     test "with basic dual theme support" do
       assert_contains(
         "defmodule Test do\nend",
