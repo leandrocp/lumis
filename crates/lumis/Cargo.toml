@@ -295,7 +295,7 @@ lang-zig = ["dep:tree-sitter-zig", "lumis-core/lang-zig"]
 lang-zsh = ["dep:tree-sitter-zsh", "lumis-core/lang-zsh"]
 
 [dependencies]
-lumis-core = { path = "../lumis-core", version = "4.1.0", default-features = false }
+lumis-core = { path = "../lumis-core", version = "5.0.0", default-features = false }
 lumis-wasm-runtime = { path = "../lumis-wasm-runtime", version = "0.5.2", default-features = false }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
