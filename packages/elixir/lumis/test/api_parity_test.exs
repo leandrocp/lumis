@@ -236,6 +236,11 @@ defmodule Lumis.ApiParityTest do
       assert Lumis.Theme.closest(%{}) == nil
     end
 
+    test "map_theme_styles" do
+      theme = Lumis.Theme.get("dracula")
+      assert Lumis.Theme.map_styles(theme, fn _, style -> style end) == theme
+    end
+
     test "the manifest claims exactly these" do
       claimed =
         manifest()
@@ -252,6 +257,7 @@ defmodule Lumis.ApiParityTest do
                "highlight",
                "highlight_events",
                "language_info",
+               "map_theme_styles",
                "theme"
              ],
              "add a test above for the capabilities this list gained"

@@ -45,6 +45,15 @@
   ],
   "capabilities": [
     {
+      "name": "map_theme_styles",
+      "$comment": "Transform each existing scope's complete style once, preserving scope names and theme metadata. Callback order is unspecified.",
+      "spelling": {
+        "rust": "themes::Theme::map_styles",
+        "javascript": "themes.mapStyles",
+        "elixir": "Theme.map_styles"
+      }
+    },
+    {
       "name": "closest_theme",
       "$comment": "Find a readable built-in theme matching supplied background, foreground and ANSI colors, or return nothing.",
       "spelling": {

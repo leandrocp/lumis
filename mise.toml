@@ -331,6 +331,20 @@ pnpm --filter @lumis-sh/lumis exec vitest run test/theme-css-options.test.ts tes
 (cd packages/elixir/lumis && LUMIS_BUILD=1 mix test test/theme_css_options_test.exs test/lumis/theme_test.exs)
 '''
 
+[tasks.'test-theme-styles']
+description = "Check theme transformations and public APIs across Rust, JavaScript, and Elixir"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cargo test -p lumis-core --locked map_styles
+cargo test -p lumis --locked --no-default-features --features lang-rust --test api_parity
+pnpm --filter @lumis-sh/themes run build
+pnpm --filter @lumis-sh/lumis run build
+pnpm --filter @lumis-sh/lumis exec vitest run test/theme-css.test.ts test/api-parity.test.ts
+pnpm --filter @lumis-sh/lumis exec node --test test/theme-package.mjs
+(cd packages/elixir/lumis && LUMIS_BUILD=1 mix test test/lumis/theme_test.exs test/api_parity_test.exs)
+'''
+
 [tasks.stress]
 description = "Run the generated Lumis stress-test corpus across runtime boundaries"
 run = "node stress-test/run.mjs"

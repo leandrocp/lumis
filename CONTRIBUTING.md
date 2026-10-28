@@ -232,6 +232,15 @@ Add an option to the manifest first and watch the checks fail before implementin
 mise run test-theme-css
 ```
 
+Theme transformations share `fixtures/theme-map-styles.json`. Each runtime applies
+the same callback to the input theme and checks the complete expected theme,
+including metadata, exact scope names, and styles cleared rather than merged.
+Run the fixture, API parity, and packaged JavaScript checks with:
+
+```sh
+mise run test-theme-styles
+```
+
 ### The top-level API manifest
 
 The manifest above covers the formatters, and so does

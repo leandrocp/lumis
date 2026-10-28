@@ -3,6 +3,56 @@ defmodule Lumis.ThemeTest do
 
   alias Lumis.Theme
 
+  describe "map_styles/2" do
+    test "matches the shared contract without changing the original" do
+      fixture =
+        Path.expand("../../../../../fixtures/theme-map-styles.json", __DIR__)
+        |> File.read!()
+        |> Jason.decode!()
+
+      {:ok, original} = Theme.from_json(Jason.encode!(fixture["theme"]))
+      {:ok, expected} = Theme.from_json(Jason.encode!(fixture["expected"]))
+      assert map_size(original.highlights) == 6
+
+      mapped =
+        Theme.map_styles(original, fn scope, style ->
+          send(self(), {:mapped, scope})
+
+          case scope do
+            "markup.raw.block" -> %{style | italic: false}
+            "normal" -> %{style | bg: "#ffffff"}
+            "highlighted" -> %Theme.Style{}
+            _ -> style
+          end
+        end)
+
+      assert mapped == expected
+      assert original.highlights["markup.raw.block"].italic
+      assert Theme.build_css!(mapped) == Theme.build_css!(expected)
+
+      for scope <- Map.keys(original.highlights), do: assert_received({:mapped, ^scope})
+      refute_received {:mapped, _}
+    end
+
+    test "composes transformations and handles empty themes" do
+      theme =
+        Theme.get("github_light")
+        |> Theme.map_styles(fn _scope, style -> %{style | italic: false} end)
+
+      refute Theme.build_css!(theme) =~ "font-style: italic"
+
+      theme =
+        Theme.map_styles(theme, fn scope, style ->
+          %{style | italic: scope == "markup.italic"}
+        end)
+
+      assert length(String.split(Theme.build_css!(theme), "font-style: italic")) == 2
+
+      assert Theme.map_styles(%Theme{}, fn _, _ -> flunk("empty theme has no styles") end) ==
+               %Theme{}
+    end
+  end
+
   describe "fetch" do
     test "fetch existing theme" do
       assert %Theme{name: "github_light", appearance: :light, highlights: highlights} =

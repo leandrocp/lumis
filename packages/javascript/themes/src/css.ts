@@ -211,20 +211,9 @@ function textDecorationRule(style: StyleEntry): string | undefined {
 }
 
 function underlineDecoration(underline: StyleEntry["underline"]): string | undefined {
-  switch (underline) {
-    case "solid":
-      return "underline";
-    case "wavy":
-    case "undercurl":
-      return "underline wavy";
-    case "double":
-      return "underline double";
-    case "dotted":
-      return "underline dotted";
-    case "dashed":
-      return "underline dashed";
-    case undefined:
-      return undefined;
+  if (!underline) return undefined;
+  if (underline === true || underline === "solid") {
+    return "underline";
   }
-  return undefined;
+  return `underline ${underline === "undercurl" ? "wavy" : underline}`;
 }
