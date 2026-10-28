@@ -422,7 +422,8 @@ export interface OpenPreTagOptions {
 /** Build the attributes used by inline and linked `<pre>` tags. */
 export function preAttrs(options: OpenPreTagOptions = {}): HtmlAttrs {
   const className = options.preClass ? `lumis ${options.preClass}` : "lumis";
-  const style = styleToCss(getThemeStyle(options.theme, "normal"));
+  const normal = getThemeStyle(options.theme, "normal");
+  const style = styleToCss({ fg: normal?.fg, bg: normal?.bg });
 
   return mergeAttrs(
     {

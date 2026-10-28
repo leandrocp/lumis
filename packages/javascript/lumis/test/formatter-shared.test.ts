@@ -158,7 +158,19 @@ describe("formatter shared helpers", () => {
   it("merges authored pre attributes after generated attributes", () => {
     const attrs = preAttrs({
       preClass: "custom",
-      theme,
+      theme: {
+        ...theme,
+        highlights: {
+          ...theme.highlights,
+          normal: {
+            ...theme.highlights.normal,
+            italic: true,
+            bold: true,
+            underline: "double",
+            strikethrough: true,
+          },
+        },
+      },
       attrs: {
         class: "custom authored",
         style: "outline: 1px solid red",

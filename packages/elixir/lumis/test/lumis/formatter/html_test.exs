@@ -1,5 +1,5 @@
 defmodule Lumis.Formatter.HTMLTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias Lumis.Formatter.HTML
 
