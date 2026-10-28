@@ -1,3 +1,11 @@
+## [0.19.0](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.18.0...cargo-lumis/v0.19.0) (2026-10-28)
+
+### Features
+
+- **formatters:** **Breaking:** Drop italic arguments from Rust HTML helpers in [\#1909](https://github.com/leandrocp/lumis/pull/1909)
+- **cli:** Load custom theme files and document generation in [\#1912](https://github.com/leandrocp/lumis/pull/1912)
+- **themes:** Add MIT Nord and Nordern colorschemes in [\#1911](https://github.com/leandrocp/lumis/pull/1911)
+
 ## [0.18.0](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.17.2...cargo-lumis/v0.18.0) (2026-10-28)
 
 ### Features
