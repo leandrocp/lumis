@@ -7,7 +7,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@lumis-sh/lumis": "^0.10.0",
+    "@lumis-sh/lumis": "^0.10.1",
     "@lumis-sh/themes": "^0.4.3",
     "@lumis-sh/vite": "^0.2.2",
     "@lumis-sh/wasm-javascript": "^0.26.4",
