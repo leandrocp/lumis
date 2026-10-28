@@ -1,3 +1,9 @@
+## [0.8.4](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.3...cargo-lumis-cli/v0.8.4) (2026-10-28)
+
+### Features
+
+- **cli:** Load custom theme files and document generation in [\#1912](https://github.com/leandrocp/lumis/pull/1912)
+
 ## [0.8.3](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.2...cargo-lumis-cli/v0.8.3) (2026-10-28)
 
 ### Features
