@@ -1,3 +1,18 @@
+## [0.8.3](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.2...cargo-lumis-cli/v0.8.3) (2026-10-28)
+
+### Features
+
+- **languages:** Add Slim and Django templates in [\#1860](https://github.com/leandrocp/lumis/pull/1860)
+- **languages:** Add TLA+ and PlusCal support in [\#1888](https://github.com/leandrocp/lumis/pull/1888)
+
+### Bug Fixes
+
+- **themes:** Remove copyleft and unlicensed themes in [\#1874](https://github.com/leandrocp/lumis/pull/1874)
+- **themes:** Record each theme's license at extraction in [\#1879](https://github.com/leandrocp/lumis/pull/1879)
+- **themes:** Name each theme's license in CSS and listings in [\#1881](https://github.com/leandrocp/lumis/pull/1881)
+- **themes:** Ship the theme notice and license files in every package in [\#1882](https://github.com/leandrocp/lumis/pull/1882)
+- **formatters:** Respect theme italics and deprecate rendering switches in [\#1891](https://github.com/leandrocp/lumis/pull/1891)
+
 ## [0.8.2](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.1...cargo-lumis-cli/v0.8.2) (2026-10-23)
 
 ### Features
