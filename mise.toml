@@ -1487,20 +1487,62 @@ case "$package" in
 esac
 '''
 
+[tasks.'release-bump-overrides']
+description = "Read explicit bump selections from same-repository release pull requests"
+usage = '''
+arg "<pulls>"
+'''
+run = '''
+jq '
+  [ .[]
+    | select(.isCrossRepository == false and (.headRefName | startswith("release/")))
+    | .headRefName[8:] as $package
+    | [.labels[].name | select(. == "release:patch" or . == "release:minor" or . == "release:major")] as $bumps
+    | if ($bumps | length) > 1 then error("Conflicting release bump labels for " + $package)
+      elif ($bumps | length) == 1 then {key: $package, value: ($bumps[0] | ltrimstr("release:"))}
+      else empty end
+  ] | from_entries
+' "${usage_pulls?}"
+'''
+
+[tasks.'test-release-overrides']
+description = "Test release bump selection, version planning and release note classification"
+run = "python3 -B -m unittest discover -s .github/tests -p 'release_*.py'"
+
 [tasks.'release-plan']
 description = "Print the package and version of every release that can be prepared from the current branch"
+usage = '''
+flag "--overrides <path>" help="JSON package-to-bump selections from release-bump-overrides"
+'''
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 table="$(mise run release-packages)"
+overrides="${usage_overrides:-}"
+if [ -n "$overrides" ]; then
+    jq -e 'type == "object" and all(.[]; . == "patch" or . == "minor" or . == "major")' "$overrides" > /dev/null
+    unknown="$(jq -r --argjson packages "$(printf '%s\n' "$table" | cut -d'|' -f1 | jq -Rsc 'split("\n") | map(select(length > 0))')" 'keys - $packages | .[]' "$overrides")"
+    if [ -n "$unknown" ]; then
+        printf 'Unknown release bump packages: %s\n' "$unknown" >&2
+        exit 1
+    fi
+fi
 
 while IFS= read -r entry; do
     [ -n "$entry" ] || continue
     package="${entry%%|*}"
     IFS='|' read -r -a package_paths <<< "${entry#*|}"
+    bump="auto"
+    if [ -n "$overrides" ]; then
+        bump="$(jq -r --arg package "$package" '.[$package] // "auto"' "$overrides")"
+    fi
 
     case "$package" in
         npm-wasm-bundle-* | hex-wasm-bundle-*)
+            if [ "$bump" != "auto" ]; then
+                printf 'Bundle releases use registry-based patch versions, not bump overrides: %s\n' "$package" >&2
+                exit 1
+            fi
             next="$(cargo run -q --manifest-path crates/dev/Cargo.toml -- wasm-bundle-plan "$package")"
             if [ -n "$next" ]; then
                 printf '%s %s\n' "$package" "$next"
@@ -1546,6 +1588,11 @@ while IFS= read -r entry; do
 
     if [ "$next" = "$current" ]; then
         continue
+    fi
+
+    if [ "$bump" != "auto" ]; then
+        next="$(git-cliff --config cliff.toml --tag-pattern "$package/v[0-9].*" --unreleased --bump "$bump" --bumped-version "${include_args[@]}")"
+        next="${next#*/v}"
     fi
 
     printf '%s %s\n' "$package" "$next"
@@ -1597,12 +1644,18 @@ description = "Update package version files and regenerate the package changelog
 usage = '''
 arg "<package>"
 arg "<version>"
+flag "--bump <bump>" default="auto" help="Explicit release PR bump selection: auto, patch, minor or major"
 '''
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 package="${usage_package?}"
 version="${usage_version?}"
+bump="${usage_bump?}"
+case "$bump" in
+    auto | patch | minor | major) ;;
+    *) printf 'Invalid release bump: %s\n' "$bump" >&2; exit 1 ;;
+esac
 
 entry="$(mise run release-packages | awk -F'|' -v name="$package" '$1 == name')"
 if [ -z "$entry" ]; then
@@ -1666,7 +1719,16 @@ if [ "$package" = "npm-cli" ]; then
     done
 fi
 
-notes="$(git-cliff --config cliff.toml --body-file "$template" --github-repo leandrocp/lumis --tag-pattern "$package/v[0-9].*" --tag "$package/v$version" --strip header --unreleased "${include_args[@]}")"
+notes_args=(--config cliff.toml --body-file "$template" --github-repo leandrocp/lumis --tag-pattern "$package/v[0-9].*" --tag "$package/v$version" --strip header --unreleased)
+if [ "$bump" = "patch" ]; then
+    context="$(mktemp)"
+    trap 'rm -f "$context"' EXIT
+    git-cliff "${notes_args[@]}" --context "${include_args[@]}" | jq 'map(.commits |= map(.raw_message = ("fix: " + .message)))' > "$context"
+    notes="$(git-cliff --config cliff.toml --body-file "$template" --github-repo leandrocp/lumis --strip header --from-context "$context")"
+    rm -f "$context"
+else
+    notes="$(git-cliff "${notes_args[@]}" "${include_args[@]}")"
+fi
 prepared_changelog="$(mktemp "$changelog.XXXXXX")"
 trap 'rm -f "$prepared_changelog"' EXIT
 printf '%s\n' "$notes" > "$prepared_changelog"

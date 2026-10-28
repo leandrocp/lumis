@@ -16,6 +16,7 @@ on:
       - "**/*.ts"
       - "**/*.tsx"
       - ".github/actionlint.yaml"
+      - ".github/tests/**"
       - ".github/workflows/**"
       - ".oxfmtrc.json"
       - ".oxlintrc.json"
@@ -44,6 +45,7 @@ on:
       - "**/*.ts"
       - "**/*.tsx"
       - ".github/actionlint.yaml"
+      - ".github/tests/**"
       - ".github/workflows/**"
       - ".oxfmtrc.json"
       - ".oxlintrc.json"
@@ -68,6 +70,21 @@ permissions:
   contents: read
 
 jobs:
+  release-overrides:
+    name: Release bump overrides
+    if: >-
+      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
+          !(github.event.pull_request.head.repo.full_name == github.repository &&
+            startsWith(github.event.pull_request.head.ref, 'release/')) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "lts/*"
+      - run: mise run test-release-overrides
+
   actionlint:
     if: >-
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
