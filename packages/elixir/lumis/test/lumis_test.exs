@@ -726,6 +726,8 @@ defmodule Lumis.LumisTest do
       ]
 
       validated = Lumis.validate_options!(options)
+      assert {:html_multi_themes, formatter_options} = validated[:formatter]
+      assert Keyword.keys(formatter_options[:themes]) == [:light, :dark]
       assert Lumis.validate_options!(validated) == validated
 
       source = ~s(["hello"])
