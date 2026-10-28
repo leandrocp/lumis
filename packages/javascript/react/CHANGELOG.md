@@ -1,3 +1,5 @@
+## [0.4.1](https://github.com/leandrocp/lumis/compare/npm-react/v0.4.2...npm-react/v0.4.1) (2026-10-28)
+
 ## [0.4.2](https://github.com/leandrocp/lumis/compare/npm-react/v0.4.1...npm-react/v0.4.2) (2026-10-28)
 
 ## [0.4.1](https://github.com/leandrocp/lumis/compare/npm-react/v0.4.0...npm-react/v0.4.1) (2026-10-23)
