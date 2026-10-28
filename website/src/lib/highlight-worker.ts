@@ -57,7 +57,6 @@ async function handleMessage(req: WorkerRequest): Promise<WorkerResponse> {
           theme: req.theme,
           preClass: req.preClass ?? DEFAULT_PRE_CLASS,
           includeHighlights: true,
-          italic: false,
         }),
       );
       return { id: req.id, type: "result", html };
@@ -71,7 +70,6 @@ async function handleMessage(req: WorkerRequest): Promise<WorkerResponse> {
           themes: { light: req.lightTheme, dark: req.darkTheme },
           defaultTheme: "light-dark()",
           preClass: req.preClass ?? DEFAULT_PRE_CLASS,
-          italic: false,
         }),
       );
       return { id: req.id, type: "result", html };

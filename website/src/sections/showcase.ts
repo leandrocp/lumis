@@ -313,7 +313,6 @@ for (const theme of [dracula, nordic, githubLight, tokyonightMoon]) {
               language: elixirLanguage,
               theme,
               preClass: `${PRE_CLASS} text-xs`,
-              italic: false,
             }),
           );
           return `<figure class="m-0">
@@ -529,7 +528,7 @@ const CATALOG = [
 
 type ThemedOptions = Omit<
   HtmlMultiThemesOptions,
-  "language" | "themes" | "defaultTheme" | "preClass" | "italic"
+  "language" | "themes" | "defaultTheme" | "preClass"
 >;
 
 function themed(language: LanguageRef, options: ThemedOptions = {}) {
@@ -538,7 +537,6 @@ function themed(language: LanguageRef, options: ThemedOptions = {}) {
     themes: THEMES,
     defaultTheme: "light-dark()",
     preClass: PRE_CLASS,
-    italic: false,
     ...options,
   });
 }

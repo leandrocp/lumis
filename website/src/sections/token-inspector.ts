@@ -194,13 +194,10 @@ async function initInspector(root: HTMLElement, output: HTMLDivElement) {
           "data-bg": style?.bg,
           "data-fg-dark": darkStyle?.fg,
           "data-bg-dark": darkStyle?.bg,
-          style: styleToCss(
-            {
-              fg: themedColor(style?.fg, darkStyle?.fg),
-              bg: themedColor(style?.bg, darkStyle?.bg),
-            },
-            { italic: true },
-          ),
+          style: styleToCss({
+            fg: themedColor(style?.fg, darkStyle?.fg),
+            bg: themedColor(style?.bg, darkStyle?.bg),
+          }),
         });
 
         return `${attrs}${escape(part)}</span>`;
