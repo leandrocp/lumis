@@ -48,6 +48,7 @@ describe("mapStyles", () => {
     expect(mapped).toEqual(fixture.expected);
     expect(visited.sort()).toEqual(Object.keys(original.highlights).sort());
     expect(buildCss(mapped)).toBe(buildCss(fixture.expected));
+    expect(buildCss(mapped)).toContain("text-decoration: line-through;");
     for (const style of Object.values(mapped.highlights)) style.fg = "#000000";
     expect(original).toEqual(fixture.theme);
   });

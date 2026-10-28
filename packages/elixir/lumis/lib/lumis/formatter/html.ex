@@ -647,7 +647,10 @@ defmodule Lumis.Formatter.HTML do
   defp resolve_theme(name) when is_binary(name), do: Theme.get(name)
 
   defp italic_option(options) do
-    if Keyword.has_key?(options, :italic) do
+    if Keyword.has_key?(options, :italic) and
+         not Process.get({__MODULE__, :italic_warned}, false) do
+      Process.put({__MODULE__, :italic_warned}, true)
+
       IO.warn(
         ":italic is deprecated. Customize theme styles with Lumis.Theme.map_styles/2 instead."
       )

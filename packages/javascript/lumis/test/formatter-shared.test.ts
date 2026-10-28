@@ -103,6 +103,8 @@ describe("formatter shared helpers", () => {
     expect(textDecoration({ underline: "double", strikethrough: true })).toBe(
       "underline double line-through",
     );
+    expect(textDecoration({ underline: "none", strikethrough: true })).toBe("line-through");
+    expect(textDecoration({ underline: "none" })).toBe("none");
     expect(textDecoration({})).toBe("none");
   });
 

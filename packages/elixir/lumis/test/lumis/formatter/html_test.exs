@@ -362,36 +362,41 @@ defmodule Lumis.Formatter.HTMLTest do
                "color: #ff79c6;\nfont-style: italic;"
     end
 
-    test "helpers warn only for explicit italic overrides" do
+    test "helpers warn once per process only for explicit italic overrides" do
       style = %Lumis.Theme.Style{italic: true}
       theme = %{Lumis.Theme.get("github_light") | highlights: %{"markup.italic" => style}}
 
-      for render <- [
-            &HTML.style_to_css(style, &1),
-            fn options -> HTML.span_attrs([theme: theme] ++ options)["markup.italic"] end,
-            fn options ->
-              HTML.span_multi_themes_attrs(
-                [themes: [light: theme], default_theme: "light"] ++ options
-              )["markup.italic"]
-            end
-          ] do
+      renders = [
+        &HTML.style_to_css(style, &1),
+        fn options -> HTML.span_attrs([theme: theme] ++ options)["markup.italic"] end,
+        fn options ->
+          HTML.span_multi_themes_attrs(
+            [themes: [light: theme], default_theme: "light"] ++ options
+          )["markup.italic"]
+        end
+      ]
+
+      for render <- renders do
         assert ExUnit.CaptureIO.capture_io(:stderr, fn ->
                  assert render.([]) =~ "font-style:"
                end) == ""
-
-        for italic <- [false, true] do
-          warning =
-            ExUnit.CaptureIO.capture_io(:stderr, fn ->
-              css = render.(italic: italic)
-
-              assert String.contains?(css, [~s(style="font-style:italic;), "font-style: italic;"]) ==
-                       italic
-            end)
-
-          assert warning =~ ":italic is deprecated"
-          assert warning =~ "Lumis.Theme.map_styles/2"
-        end
       end
+
+      warning =
+        ExUnit.CaptureIO.capture_io(:stderr, fn ->
+          for render <- renders, italic <- [false, true] do
+            css = render.(italic: italic)
+
+            assert String.contains?(css, [~s(style="font-style:italic;), "font-style: italic;"]) ==
+                     italic
+          end
+
+          for _ <- 1..1000,
+              do: assert(HTML.style_to_css(style, italic: true) == "font-style: italic;")
+        end)
+
+      assert length(String.split(warning, ":italic is deprecated")) == 2
+      assert warning =~ "Lumis.Theme.map_styles/2"
     end
   end
 

@@ -53,7 +53,7 @@ pub fn open_tag(output: &mut dyn Write, name: &str, attrs: &HtmlAttrs) -> io::Re
 /// * `scope` - The tree-sitter scope name (e.g., "keyword")
 /// * `language` - Optional language for specialized scope lookup
 /// * `theme` - Optional theme for style lookup
-/// * `italic` - Whether to include italic styles
+/// * `italic` - Pass `true` to respect the theme's italic styles
 /// * `include_highlights` - Whether to include `data-highlight` attribute
 ///
 /// # Example
@@ -62,7 +62,7 @@ pub fn open_tag(output: &mut dyn Write, name: &str, attrs: &HtmlAttrs) -> io::Re
 /// use lumis::{html, languages::Language, themes};
 ///
 /// let theme = themes::get("dracula").ok();
-/// let span = html::span_inline("fn", Some(Language::Rust), "keyword", theme.as_ref(), false, true);
+/// let span = html::span_inline("fn", Some(Language::Rust), "keyword", theme.as_ref(), true, true);
 /// assert_eq!(span, r#"<span data-highlight="keyword" style="color: #ff79c6;">fn</span>"#);
 /// ```
 ///
@@ -71,7 +71,7 @@ pub fn open_tag(output: &mut dyn Write, name: &str, attrs: &HtmlAttrs) -> io::Re
 /// ```rust
 /// use lumis::html;
 ///
-/// assert_eq!(html::span_inline("fn", None, "keyword", None, false, false), "<span>fn</span>");
+/// assert_eq!(html::span_inline("fn", None, "keyword", None, true, false), "<span>fn</span>");
 /// ```
 pub fn span_inline(
     text: &str,
@@ -102,7 +102,7 @@ pub fn span_inline(
 /// use lumis::{html, languages::Language, themes};
 ///
 /// let theme = themes::get("dracula").ok();
-/// let attrs = html::span_inline_attrs(Some(Language::Rust), "keyword", theme.as_ref(), false, true);
+/// let attrs = html::span_inline_attrs(Some(Language::Rust), "keyword", theme.as_ref(), true, true);
 /// assert_eq!(attrs, r#"data-highlight="keyword" style="color: #ff79c6;""#);
 /// ```
 pub fn span_inline_attrs(
@@ -218,7 +218,7 @@ pub fn text_decoration(td: &TextDecoration) -> &'static str {
 /// let mut theme_map = HashMap::new();
 /// theme_map.insert("dark".to_string(), themes::get("dracula").unwrap());
 ///
-/// let attrs = html::span_multi_themes_attrs("keyword", None, &theme_map, None, "--hl", false, false);
+/// let attrs = html::span_multi_themes_attrs("keyword", None, &theme_map, None, "--hl", true, false);
 /// assert_eq!(attrs, r#"style="--hl-dark:#ff79c6; --hl-dark-font-style:normal; --hl-dark-font-weight:normal; --hl-dark-text-decoration:none;""#);
 /// ```
 pub fn span_multi_themes_attrs(
@@ -255,7 +255,7 @@ pub fn span_multi_themes_attrs(
 /// * `themes` - Map of theme name to Theme
 /// * `default_theme` - Optional name of the default theme (gets inline styles)
 /// * `css_variable_prefix` - CSS variable prefix (e.g., "--lumis")
-/// * `italic` - Whether to enable italic styling
+/// * `italic` - Pass `true` to respect the theme's italic styles
 /// * `include_highlights` - Whether to include data-highlight attribute
 ///
 /// # Example
@@ -274,13 +274,13 @@ pub fn span_multi_themes_attrs(
 ///     &theme_map,
 ///     None,
 ///     "--hl",
-///     false,
+///     true,
 ///     false,
 /// );
 /// assert_eq!(span, r#"<span style="--hl-dark:#ff79c6; --hl-dark-font-style:normal; --hl-dark-font-weight:normal; --hl-dark-text-decoration:none;">fn</span>"#);
 ///
 /// // With data-highlight attribute
-/// let span = html::span_multi_themes("fn", "keyword", None, &theme_map, None, "--hl", false, true);
+/// let span = html::span_multi_themes("fn", "keyword", None, &theme_map, None, "--hl", true, true);
 /// assert_eq!(span, r#"<span data-highlight="keyword" style="--hl-dark:#ff79c6; --hl-dark-font-style:normal; --hl-dark-font-weight:normal; --hl-dark-text-decoration:none;">fn</span>"#);
 /// ```
 #[allow(clippy::too_many_arguments)]

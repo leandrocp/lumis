@@ -511,7 +511,6 @@ defmodule Lumis do
       code_attrs: @html_attrs_schema,
       italic: [
         type: :boolean,
-        default: true,
         deprecated: "Customize theme styles with Lumis.Theme.map_styles/2 instead."
       ],
       include_highlights: [type: :boolean, default: false],
@@ -542,12 +541,6 @@ defmodule Lumis do
         default: nil
       ]
     ]
-
-    # NimbleOptions also warns for defaults, even when the caller supplied nothing.
-    schema =
-      if Keyword.has_key?(options, :italic),
-        do: schema,
-        else: Keyword.update!(schema, :italic, &Keyword.delete(&1, :deprecated))
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->
@@ -639,7 +632,6 @@ defmodule Lumis do
       code_attrs: @html_attrs_schema,
       italic: [
         type: :boolean,
-        default: true,
         deprecated: "Customize theme styles with Lumis.Theme.map_styles/2 instead."
       ],
       include_highlights: [type: :boolean, default: false],
@@ -670,11 +662,6 @@ defmodule Lumis do
         default: nil
       ]
     ]
-
-    schema =
-      if Keyword.has_key?(options, :italic),
-        do: schema,
-        else: Keyword.update!(schema, :italic, &Keyword.delete(&1, :deprecated))
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->
@@ -1056,7 +1043,7 @@ defmodule Lumis do
   @type options() :: [unquote(NimbleOptions.option_typespec(@options_schema))]
 
   @doc """
-  Returns all default options.
+  Returns the default options, omitting deprecated options.
   """
   @spec default_options() :: options()
   def default_options, do: validate_options!([])
@@ -1253,14 +1240,9 @@ defmodule Lumis do
 
   ## Examples
 
-      iex> Lumis.validate_options!(formatter: {:html_inline, language: "elixir"})
-      [formatter: {:html_inline, [header: nil, line_numbers: nil, highlight_lines: nil, include_highlights: false, italic: true, pre_class: nil, theme: nil, language: "elixir"]}]
-
-      iex> Lumis.validate_options!(formatter: {:html_inline, theme: "dracula"})
-      [formatter: {:html_inline, [theme: "dracula", ...]}]
-
-      iex> Lumis.validate_options!(language: :invalid)
-      ** (NimbleOptions.ValidationError)
+      iex> options = Lumis.validate_options!(formatter: {:html_inline, language: "elixir"})
+      iex> options[:formatter] |> elem(1) |> Keyword.fetch!(:language)
+      "elixir"
 
   """
   @spec validate_options!(options()) :: options()
@@ -1412,7 +1394,8 @@ defmodule Lumis do
   end
 
   defp convert_formatter_for_nif(:html_inline, opts) do
-    opts = opts |> convert_theme_for_nif() |> convert_attrs_for_nif()
+    opts =
+      opts |> convert_theme_for_nif() |> convert_attrs_for_nif() |> Map.put_new(:italic, true)
 
     {:html_inline,
      Map.take(opts, [
@@ -1462,7 +1445,7 @@ defmodule Lumis do
   end
 
   defp convert_formatter_for_nif(:html_multi_themes, opts) do
-    opts = convert_attrs_for_nif(opts)
+    opts = opts |> convert_attrs_for_nif() |> Map.put_new(:italic, true)
 
     {:html_multi_themes,
      Map.take(opts, [

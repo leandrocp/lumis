@@ -203,7 +203,6 @@ defmodule Lumis.LumisTest do
              [
                language: nil,
                header: nil,
-               italic: true,
                theme: nil,
                code_attrs: [],
                pre_attrs: [],
@@ -224,7 +223,6 @@ defmodule Lumis.LumisTest do
       assert Keyword.equal?(
                [
                  language: nil,
-                 italic: true,
                  theme: nil,
                  code_attrs: [],
                  pre_attrs: [],
@@ -1361,7 +1359,6 @@ defmodule Lumis.LumisTest do
                  highlight_lines: nil,
                  line_numbers: false,
                  include_highlights: false,
-                 italic: true,
                  code_attrs: [],
                  pre_attrs: [],
                  structure: :block,
@@ -1389,7 +1386,6 @@ defmodule Lumis.LumisTest do
                  highlight_lines: nil,
                  line_numbers: false,
                  include_highlights: false,
-                 italic: true,
                  code_attrs: [],
                  pre_attrs: [],
                  structure: :block,
@@ -1409,7 +1405,7 @@ defmodule Lumis.LumisTest do
                rainbow_brackets: false,
                annotations: []
              ] =
-               Lumis.validate_options!(formatter: {:html_inline, theme: "dracula", italic: true})
+               Lumis.validate_options!(formatter: {:html_inline, theme: "dracula"})
 
       assert Keyword.equal?(
                [
@@ -1422,8 +1418,7 @@ defmodule Lumis.LumisTest do
                  pre_attrs: [],
                  structure: :block,
                  pre_class: nil,
-                 theme: "dracula",
-                 italic: true
+                 theme: "dracula"
                ],
                formatter_opts
              )
@@ -1440,7 +1435,6 @@ defmodule Lumis.LumisTest do
                       line_numbers: false,
                       highlight_lines: nil,
                       include_highlights: false,
-                      italic: true,
                       code_attrs: [],
                       pre_attrs: [],
                       pre_class: nil,
@@ -1481,7 +1475,6 @@ defmodule Lumis.LumisTest do
                  highlight_lines: nil,
                  line_numbers: false,
                  include_highlights: false,
-                 italic: true,
                  code_attrs: [],
                  pre_attrs: [],
                  structure: :block,
@@ -1514,7 +1507,6 @@ defmodule Lumis.LumisTest do
                    highlight_lines: nil,
                    line_numbers: false,
                    include_highlights: false,
-                   italic: true,
                    code_attrs: [],
                    pre_attrs: [],
                    structure: :block,

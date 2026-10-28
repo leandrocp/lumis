@@ -29,6 +29,7 @@ defmodule Lumis.ThemeTest do
       assert mapped == expected
       assert original.highlights["markup.raw.block"].italic
       assert Theme.build_css!(mapped) == Theme.build_css!(expected)
+      assert Theme.build_css!(mapped) =~ "text-decoration: line-through;"
 
       for scope <- Map.keys(original.highlights), do: assert_received({:mapped, ^scope})
       refute_received {:mapped, _}

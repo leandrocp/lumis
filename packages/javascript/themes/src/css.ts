@@ -211,7 +211,7 @@ function textDecorationRule(style: StyleEntry): string | undefined {
 }
 
 function underlineDecoration(underline: StyleEntry["underline"]): string | undefined {
-  if (!underline) return undefined;
+  if (!underline || underline === "none") return undefined;
   if (underline === true || underline === "solid") {
     return "underline";
   }
