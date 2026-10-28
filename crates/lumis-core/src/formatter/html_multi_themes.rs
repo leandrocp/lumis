@@ -74,6 +74,7 @@ impl HtmlMultiThemesBuilder {
 
     /// Controls italic emission. The default remains `false`.
     #[deprecated(
+        since = "4.2.0",
         note = "customize italics with Theme::map_styles; keep italic(true) to emit retained theme italics while the default remains false"
     )]
     pub fn italic(&mut self, italic: bool) -> &mut Self {

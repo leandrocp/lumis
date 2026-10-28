@@ -694,6 +694,7 @@ impl<'a> CssBuilder<'a> {
 
     /// Controls italic emission. The default remains `true`.
     #[deprecated(
+        since = "4.2.0",
         note = "use Theme::map_styles to clear style.italic on the desired scopes before building CSS"
     )]
     pub fn enable_italic(&mut self, enable_italic: bool) -> &mut Self {
