@@ -1,0 +1,629 @@
+{
+  "name": "nordern",
+  "appearance": "dark",
+  "revision": "3187053aeff0e29745d1f731c263c6f216e33703",
+  "license": "MIT",
+  "highlights": {
+    "attribute": {
+      "fg": "#8fbcbb"
+    },
+    "attribute.builtin": {
+      "fg": "#8fbcbb"
+    },
+    "attribute.css": {
+      "fg": "#ebcb8b"
+    },
+    "attribute.sql": {
+      "fg": "#b48ead"
+    },
+    "boolean": {
+      "fg": "#81a1c1"
+    },
+    "character": {
+      "fg": "#81a1c1"
+    },
+    "character.special": {
+      "fg": "#ebcb8b"
+    },
+    "comment": {
+      "fg": "#5c6881"
+    },
+    "comment.documentation": {
+      "fg": "#8fbcbb"
+    },
+    "comment.error": {
+      "fg": "#bf616a",
+      "bold": true
+    },
+    "comment.hint": {
+      "fg": "#5c6881"
+    },
+    "comment.note": {
+      "fg": "#88c0d0",
+      "bold": true
+    },
+    "comment.todo": {
+      "fg": "#d08770",
+      "bold": true
+    },
+    "comment.warning": {
+      "fg": "#ebcb8b",
+      "bold": true
+    },
+    "constant": {
+      "fg": "#8fbcbb"
+    },
+    "constant.bash": {
+      "fg": "#e5e9f0"
+    },
+    "constant.builtin": {
+      "fg": "#88c0d0"
+    },
+    "constant.builtin.yaml": {
+      "fg": "#81a1c1"
+    },
+    "constant.html": {
+      "fg": "#d8dee9"
+    },
+    "constant.http": {
+      "fg": "#ebcb8b",
+      "bold": true
+    },
+    "constant.macro": {
+      "fg": "#8fbcbb"
+    },
+    "constant.typescript": {
+      "fg": "#e5e9f0"
+    },
+    "constructor": {
+      "fg": "#5e81ac"
+    },
+    "constructor.lua": {
+      "fg": "#88c0d0"
+    },
+    "constructor.python": {
+      "fg": "#88c0d0"
+    },
+    "diff.delta": {
+      "fg": "#ebcb8b",
+      "bg": "#414348"
+    },
+    "diff.minus": {
+      "fg": "#bf616a",
+      "bg": "#3d3944"
+    },
+    "diff.minus.word": {
+      "bg": "#794549"
+    },
+    "diff.plus": {
+      "fg": "#a3be8c",
+      "bg": "#3a4248"
+    },
+    "diff.plus.word": {
+      "bg": "#516342"
+    },
+    "function": {
+      "fg": "#88c0d0"
+    },
+    "function.builtin": {
+      "fg": "#8fbcbb"
+    },
+    "function.builtin.make": {
+      "fg": "#5c6881"
+    },
+    "function.call": {
+      "fg": "#88c0d0"
+    },
+    "function.call.bash": {
+      "fg": "#8fbcbb"
+    },
+    "function.macro": {
+      "fg": "#8fbcbb"
+    },
+    "function.make": {
+      "fg": "#e5e9f0",
+      "bold": true
+    },
+    "function.method": {
+      "fg": "#8fbcbb"
+    },
+    "function.method.call": {
+      "fg": "#81a1c1"
+    },
+    "function.method.call.go": {
+      "fg": "#88c0d0"
+    },
+    "function.method.call.python": {
+      "fg": "#88c0d0"
+    },
+    "function.method.go": {
+      "fg": "#88c0d0"
+    },
+    "function.method.python": {
+      "fg": "#88c0d0"
+    },
+    "highlighted": {
+      "bg": "#384356"
+    },
+    "keyword": {
+      "fg": "#81a1c1"
+    },
+    "keyword.conditional": {
+      "fg": "#81a1c1"
+    },
+    "keyword.conditional.ternary": {
+      "fg": "#ebcb8b"
+    },
+    "keyword.conditional.ternary.python": {
+      "fg": "#81a1c1"
+    },
+    "keyword.conditional.ternary.typescript": {
+      "fg": "#e5e9f0"
+    },
+    "keyword.coroutine": {
+      "fg": "#ebcb8b"
+    },
+    "keyword.coroutine.python": {
+      "fg": "#8fbcbb"
+    },
+    "keyword.debug": {
+      "fg": "#81a1c1"
+    },
+    "keyword.directive": {
+      "fg": "#88c0d0"
+    },
+    "keyword.directive.define": {
+      "fg": "#88c0d0"
+    },
+    "keyword.directive.javascript": {
+      "fg": "#ebcb8b"
+    },
+    "keyword.exception": {
+      "fg": "#81a1c1"
+    },
+    "keyword.export": {
+      "fg": "#81a1c1"
+    },
+    "keyword.function": {
+      "fg": "#81a1c1"
+    },
+    "keyword.http": {
+      "fg": "#a3be8c",
+      "bold": true
+    },
+    "keyword.import": {
+      "fg": "#81a1c1"
+    },
+    "keyword.modifier": {
+      "fg": "#81a1c1"
+    },
+    "keyword.operator": {
+      "fg": "#81a1c1"
+    },
+    "keyword.repeat": {
+      "fg": "#81a1c1"
+    },
+    "keyword.return": {
+      "fg": "#81a1c1"
+    },
+    "keyword.type": {
+      "fg": "#81a1c1"
+    },
+    "label": {
+      "fg": "#81a1c1"
+    },
+    "label.json": {
+      "fg": "#a3be8c"
+    },
+    "label.markdown": {
+      "fg": "#8fbcbb",
+      "bold": true
+    },
+    "label.yaml": {
+      "fg": "#ebcb8b"
+    },
+    "line_number": {
+      "fg": "#e5e9f0"
+    },
+    "line_number.highlighted": {
+      "fg": "#88c0d0",
+      "bg": "#384356",
+      "bold": true
+    },
+    "markup": {
+      "fg": "#88c0d0"
+    },
+    "markup.environment": {
+      "fg": "#88c0d0"
+    },
+    "markup.environment.name": {
+      "fg": "#88c0d0"
+    },
+    "markup.heading": {
+      "fg": "#88c0d0",
+      "bold": true
+    },
+    "markup.heading.1": {
+      "fg": "#88c0d0",
+      "bold": true
+    },
+    "markup.heading.2": {
+      "fg": "#8fbcbb",
+      "bold": true
+    },
+    "markup.heading.3": {
+      "fg": "#81a1c1",
+      "bold": true
+    },
+    "markup.heading.4": {
+      "fg": "#5e81ac",
+      "bold": true
+    },
+    "markup.heading.5": {
+      "fg": "#88c0d0",
+      "bold": true
+    },
+    "markup.heading.6": {
+      "fg": "#88c0d0",
+      "bold": true
+    },
+    "markup.italic": {
+      "fg": "#81a1c1",
+      "italic": true
+    },
+    "markup.link": {
+      "fg": "#88c0d0"
+    },
+    "markup.link.label": {
+      "fg": "#88c0d0"
+    },
+    "markup.link.markdown": {
+      "fg": "#a3be8c",
+      "italic": true
+    },
+    "markup.link.markdown_inline": {
+      "fg": "#e5e9f0"
+    },
+    "markup.link.url": {
+      "fg": "#a3be8c",
+      "underline": true
+    },
+    "markup.link.url.html": {
+      "fg": "#a3be8c"
+    },
+    "markup.list": {
+      "fg": "#ebcb8b"
+    },
+    "markup.list.checked": {
+      "fg": "#ebcb8b"
+    },
+    "markup.list.checked.markdown": {
+      "fg": "#a3be8c"
+    },
+    "markup.list.unchecked": {
+      "fg": "#ebcb8b"
+    },
+    "markup.math": {
+      "fg": "#b48ead"
+    },
+    "markup.quote": {
+      "fg": "#88c0d0"
+    },
+    "markup.quote.markdown": {
+      "fg": "#4c566a"
+    },
+    "markup.raw": {
+      "fg": "#88c0d0"
+    },
+    "markup.raw.block": {
+      "fg": "#a3be8c"
+    },
+    "markup.raw.markdown": {
+      "fg": "#ebcb8b"
+    },
+    "markup.strikethrough": {
+      "fg": "#4c566a",
+      "strikethrough": true
+    },
+    "markup.strikethrough.markdown_inline": {
+      "fg": "#81a1c1",
+      "strikethrough": true
+    },
+    "markup.strong": {
+      "fg": "#88c0d0",
+      "bold": true
+    },
+    "markup.underline": {
+      "underline": true
+    },
+    "module": {
+      "fg": "#5e81ac"
+    },
+    "module.builtin": {
+      "fg": "#5e81ac"
+    },
+    "module.builtin.python": {
+      "fg": "#e5e9f0"
+    },
+    "module.go": {
+      "fg": "#e5e9f0"
+    },
+    "module.python": {
+      "fg": "#e5e9f0"
+    },
+    "normal": {
+      "fg": "#e5e9f0",
+      "bg": "#2e3440"
+    },
+    "number": {
+      "fg": "#b48ead"
+    },
+    "number.float": {
+      "fg": "#b48ead"
+    },
+    "operator": {
+      "fg": "#ebcb8b"
+    },
+    "operator.bash": {
+      "fg": "#8fbcbb"
+    },
+    "operator.http": {
+      "fg": "#a3be8c",
+      "underline": true
+    },
+    "property": {
+      "fg": "#e5e9f0"
+    },
+    "property.css": {
+      "fg": "#e5e9f0",
+      "bold": true
+    },
+    "property.dockerfile": {
+      "fg": "#88c0d0"
+    },
+    "property.go": {
+      "fg": "#88c0d0"
+    },
+    "property.javascript": {
+      "fg": "#81a1c1"
+    },
+    "property.json": {
+      "fg": "#8fbcbb"
+    },
+    "property.toml": {
+      "fg": "#eceff4"
+    },
+    "property.yaml": {
+      "fg": "#8fbcbb"
+    },
+    "punctuation.bracket": {
+      "fg": "#81a1c1"
+    },
+    "punctuation.bracket.go": {
+      "fg": "#88c0d0"
+    },
+    "punctuation.bracket.json": {
+      "fg": "#e5e9f0"
+    },
+    "punctuation.bracket.lua": {
+      "fg": "#88c0d0"
+    },
+    "punctuation.bracket.markdown_inline": {
+      "fg": "#e5e9f0"
+    },
+    "punctuation.bracket.python": {
+      "fg": "#88c0d0"
+    },
+    "punctuation.bracket.toml": {
+      "fg": "#e5e9f0"
+    },
+    "punctuation.bracket.typescript": {
+      "fg": "#88c0d0"
+    },
+    "punctuation.delimiter": {
+      "fg": "#81a1c1"
+    },
+    "punctuation.delimiter.bash": {
+      "fg": "#88c0d0"
+    },
+    "punctuation.delimiter.css": {
+      "fg": "#ebcb8b"
+    },
+    "punctuation.delimiter.gitignore": {
+      "fg": "#5c6881"
+    },
+    "punctuation.delimiter.http": {
+      "fg": "#a3be8c",
+      "bold": true
+    },
+    "punctuation.delimiter.json": {
+      "fg": "#e5e9f0"
+    },
+    "punctuation.delimiter.lua": {
+      "fg": "#e5e9f0"
+    },
+    "punctuation.delimiter.markdown": {
+      "fg": "#ebcb8b"
+    },
+    "punctuation.delimiter.markdown_inline": {
+      "fg": "#ebcb8b"
+    },
+    "punctuation.delimiter.python": {
+      "fg": "#e5e9f0"
+    },
+    "punctuation.delimiter.xml": {
+      "fg": "#a3be8c"
+    },
+    "punctuation.delimiter.yaml": {
+      "fg": "#ebcb8b"
+    },
+    "punctuation.special": {
+      "fg": "#ebcb8b"
+    },
+    "punctuation.special.bash": {
+      "fg": "#88c0d0"
+    },
+    "punctuation.special.yaml": {
+      "fg": "#88c0d0",
+      "bold": true
+    },
+    "string": {
+      "fg": "#a3be8c"
+    },
+    "string.documentation": {
+      "fg": "#5c6881"
+    },
+    "string.escape": {
+      "fg": "#ebcb8b"
+    },
+    "string.http": {
+      "fg": "#a3be8c",
+      "underline": true
+    },
+    "string.regexp": {
+      "fg": "#ebcb8b"
+    },
+    "string.regexp.bash": {
+      "fg": "#8fbcbb"
+    },
+    "string.special": {
+      "fg": "#ebcb8b"
+    },
+    "string.special.path": {
+      "fg": "#a3be8c"
+    },
+    "string.special.path.gitignore": {
+      "fg": "#5c6881"
+    },
+    "string.special.symbol": {
+      "fg": "#8fbcbb"
+    },
+    "string.special.symbol.make": {
+      "fg": "#81a1c1"
+    },
+    "string.special.url": {
+      "fg": "#a3be8c",
+      "underline": true
+    },
+    "string.special.url.html": {
+      "fg": "#ebcb8b"
+    },
+    "tag": {
+      "fg": "#81a1c1"
+    },
+    "tag.attribute": {
+      "fg": "#8fbcbb"
+    },
+    "tag.attribute.css": {
+      "fg": "#ebcb8b"
+    },
+    "tag.attribute.html": {
+      "fg": "#8fbcbb",
+      "bold": true
+    },
+    "tag.attribute.xml": {
+      "fg": "#ebcb8b"
+    },
+    "tag.builtin": {
+      "fg": "#88c0d0"
+    },
+    "tag.delimiter": {
+      "fg": "#81a1c1"
+    },
+    "tag.delimiter.xml": {
+      "fg": "#8fbcbb"
+    },
+    "tag.javascript": {
+      "fg": "#88c0d0"
+    },
+    "tag.xml": {
+      "fg": "#a3be8c"
+    },
+    "type": {
+      "fg": "#88c0d0"
+    },
+    "type.builtin": {
+      "fg": "#88c0d0"
+    },
+    "type.builtin.go": {
+      "fg": "#7aa1be"
+    },
+    "type.builtin.sql": {
+      "fg": "#8fbcbb"
+    },
+    "type.definition": {
+      "fg": "#e5e9f0"
+    },
+    "type.definition.python": {
+      "fg": "#8fbcbb",
+      "bold": true
+    },
+    "type.go": {
+      "fg": "#7aa1be"
+    },
+    "type.http": {
+      "fg": "#a3be8c",
+      "underline": true
+    },
+    "type.javascript": {
+      "fg": "#e5e9f0"
+    },
+    "type.python": {
+      "fg": "#8fbcbb",
+      "bold": true
+    },
+    "type.toml": {
+      "fg": "#8fbcbb"
+    },
+    "type.typescript": {
+      "fg": "#e5e9f0"
+    },
+    "type.yaml": {
+      "fg": "#e5e9f0",
+      "bold": true
+    },
+    "variable": {
+      "fg": "#e5e9f0"
+    },
+    "variable.builtin": {
+      "fg": "#81a1c1"
+    },
+    "variable.css": {
+      "fg": "#8fbcbb"
+    },
+    "variable.http": {
+      "fg": "#a3be8c",
+      "underline": true
+    },
+    "variable.member": {
+      "fg": "#e5e9f0"
+    },
+    "variable.member.http": {
+      "fg": "#a3be8c",
+      "underline": true
+    },
+    "variable.member.lua": {
+      "fg": "#8fbcbb"
+    },
+    "variable.member.sql": {
+      "fg": "#b48ead"
+    },
+    "variable.member.yaml": {
+      "fg": "#ebcb8b"
+    },
+    "variable.parameter": {
+      "fg": "#e5e9f0"
+    },
+    "variable.parameter.bash": {
+      "fg": "#88c0d0",
+      "bold": true
+    },
+    "variable.parameter.builtin": {
+      "fg": "#81a1c1"
+    },
+    "variable.parameter.http": {
+      "fg": "#a3be8c",
+      "bold": true
+    }
+  }
+}
