@@ -1541,7 +1541,7 @@ while IFS= read -r entry; do
         include_args+=(--include-path "$path" --include-path "$path/**/*")
     done
 
-    next="$(git-cliff --config cliff.toml --tag-pattern "$package/v[0-9].*" --bumped-version "${include_args[@]}")"
+    next="$(git-cliff --config cliff.toml --tag-pattern "$package/v[0-9].*" --unreleased --bumped-version "${include_args[@]}")"
     next="${next#*/v}"
 
     if [ "$next" = "$current" ]; then
