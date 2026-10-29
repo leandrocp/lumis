@@ -67,7 +67,7 @@
     {
       "id": "sugar-high",
       "label": "Sugar High",
-      "version": "sugar-high 2.6.0",
+      "version": "sugar-high 2.6.2",
       "theme": "@catppuccin/highlightjs 1.0.1 colours, mapped onto its token classes by this repository"
     },
     {
@@ -106,7 +106,7 @@
         "shiki": 5887,
         "speed-highlight": 3415,
         "starry-night": 3487,
-        "sugar-high": 7297,
+        "sugar-high": 7338,
         "syntect": 6718,
         "tanstack-highlight": 1881
       },
@@ -140,8 +140,8 @@
           "frappe": "4051966247aa032ae1c54b5bdb3ed347b8406c3a48b45354065b70fd41d2e153"
         },
         "sugar-high": {
-          "latte": "92c266701b2dab42bd27d7899d2ddcb5fadf539cfbf39de8adaab132ad30efa6",
-          "frappe": "582bf6476460c61d1c1a0ddb95d13423600461a52a84c58a0a14577cff06be11"
+          "latte": "c4f21e1794b11a2c8808574f667276b680572f0e726c8bcf2a45b1fac1097fef",
+          "frappe": "a22bb35f1f1cbed49b39c378b41661fdab53f8a0fe4660e433527cf45cdcc6c1"
         },
         "syntect": {
           "latte": "c2236b9ba19832fe7b6d9b03e820d5006be57ad6e0951a0c2a54132f3881b258",
@@ -173,7 +173,7 @@
         "shiki": 3734,
         "speed-highlight": 2421,
         "starry-night": 2508,
-        "sugar-high": 8614,
+        "sugar-high": 4568,
         "syntect": 4157,
         "tanstack-highlight": 1960
       },
@@ -207,8 +207,8 @@
           "frappe": "9564b6a6882dd93334b9f41431fe9816bc5251e825fd4f04d8fb8d28df26b692"
         },
         "sugar-high": {
-          "latte": "7098db659640999d1d89441c0d90891b7c851138ae10d28c973fe09445ad0075",
-          "frappe": "e9224055d329ecb0c98e95aa721107d5743f7c4f949d5fbf06cad1a1d20a4d03"
+          "latte": "71e211c9add542dd282d39c03744d9eb411e7773408fa97c389a13a156c8300b",
+          "frappe": "aaae8c6aa6bfdb593d20ad301389de3b1c8e1894d27fc8e85e3cfd8940c8ce0a"
         },
         "syntect": {
           "latte": "110f01482dc0547cc8bfee2f6e174b770da32c9315b7342d9b558fab643a9e20",
@@ -436,7 +436,7 @@
         "shiki": 2474,
         "speed-highlight": 1487,
         "starry-night": 2026,
-        "sugar-high": 4331,
+        "sugar-high": 3228,
         "syntect": 2946,
         "tanstack-highlight": 838
       },
@@ -470,8 +470,8 @@
           "frappe": "a30f285fcc8fc36c01f84e9222734014e4e6b2d9835791dbbf80e0593ec48596"
         },
         "sugar-high": {
-          "latte": "dfb71548c61a1fea1490441674122861630d36b4a1e020dad24667df8a5f7927",
-          "frappe": "d82d77c34d41880245597f64c0df833f30f236971c7d01859c5ede55ac2ad356"
+          "latte": "f898674b89952dd0122b7644f9ca4e550159402c7acd811dc11aa3e0df6bffd2",
+          "frappe": "c29e19182c76579cf89982139bc843453389f4dc70a28ea701088d014fb8e679"
         },
         "syntect": {
           "latte": "f116cf85c8fb576fc0adcf9d208088e3562ceac4a8925739525c0c42e79fd802",
