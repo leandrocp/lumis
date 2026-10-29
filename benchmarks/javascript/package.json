@@ -43,7 +43,7 @@
     "mitata": "1.0.34",
     "prismjs": "1.30.0",
     "shiki": "4.5.0",
-    "sugar-high": "2.6.0"
+    "sugar-high": "2.6.2"
   },
   "devDependencies": {
     "oxfmt": "^0.74.0",

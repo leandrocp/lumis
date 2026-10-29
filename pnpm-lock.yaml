@@ -101,8 +101,8 @@ importers:
         specifier: 4.5.0
         version: 4.5.0
       sugar-high:
-        specifier: 2.6.0
-        version: 2.6.0
+        specifier: 2.6.2
+        version: 2.6.2
     devDependencies:
       oxfmt:
         specifier: ^0.74.0
@@ -2512,8 +2512,8 @@ packages:
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
 
-  sugar-high@2.6.0:
-    resolution: {integrity: sha512-G2xyakJ3Zk7Ja6Cw6mnWlkekllsgHrz14T/QXWYF4qmo64Ca96qt3YHAGIjgjLoCjhs1ZjjAGcrFjwmAxFlbXA==}
+  sugar-high@2.6.2:
+    resolution: {integrity: sha512-5mO9Zscg++wspkvgWwJ5YXY3fdkEAeIV/8C4YAjw5rbyYT+tvfyb3SDo3a3jGLpXOtXEpBXz5ymOLDB6j5dmDA==}
 
   supports-color@8.1.1:
     resolution: {integrity: sha512-MpUEN2OodtUzxvKQl72cUF7RQ5EiHsGvSsVG0ia9c5RbWGL2CI4C7EpPS8UTBIplnlzZiNuV56w+FuNxy3ty2Q==}
@@ -4582,7 +4582,7 @@ snapshots:
       tinyglobby: 0.2.17
       ts-interface-checker: 0.1.13
 
-  sugar-high@2.6.0: {}
+  sugar-high@2.6.2: {}
 
   supports-color@8.1.1:
     dependencies:
