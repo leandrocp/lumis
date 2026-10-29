@@ -4,7 +4,7 @@
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="assets/brand/banners/readme-banner-dark.svg">
       <source media="(prefers-color-scheme: light)" srcset="assets/brand/banners/readme-banner-light.svg">
-      <img src="assets/brand/banners/readme-banner-light.svg" alt="Lumis: Syntax Highlighter powered by Tree-sitter and Neovim themes." width="640">
+      <img src="assets/brand/banners/readme-banner-light.svg" alt="Lumis: One highlighter, 7 runtimes. Powered by Tree-sitter and Neovim themes." width="640">
     </picture>
   </a>
 </p>

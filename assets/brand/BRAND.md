@@ -2,7 +2,9 @@
 
 ![Lumis brand overview](overview.png)
 
-Lumis is a syntax highlighter powered by Tree-sitter and Neovim themes. The mark is a friendly, lumpy oak with a short forked trunk. It stands on a small hill, set off-center to the left, in front of a striped retro sunset sun inside a circle. The tree nods to Tree-sitter, and the stripes are highlighted lines of code. The feel is warm, nostalgic and dusky: not game-like and not cute.
+**One highlighter, 7 runtimes.** Powered by Tree-sitter and Neovim themes.
+
+The mark is a friendly, lumpy oak with a short forked trunk. It stands on a small hill, set off-center to the left, in front of a striped retro sunset sun inside a circle. The tree nods to Tree-sitter, and the stripes are highlighted lines of code. The feel is warm, nostalgic and dusky: not game-like and not cute.
 
 All paths below are relative to this folder (`assets/brand/`).
 
@@ -22,7 +24,7 @@ All paths below are relative to this folder (`assets/brand/`).
   - Dusk sky gradient, top to bottom: `#1B1847` → `#36257A` → `#6A3290` → `#8A3B8E`.
   - Sun glow: `#FF8A4C`.
 - **Dark-background halo:** a radial gradient. It runs from `#FF8A4C` at 55% opacity, to `#FF6F6F` at 22%, to `#FF5FAE` at 0%.
-- **Tagline text:** `#AEB3CF` on ink and `#545A78` on paper.
+- **Subline text** (the muted second line): `#AEB3CF` on ink (8.7:1) and `#545A78` on paper (6.2:1).
 - **Color rules:**
   - No green anywhere: the tree and hill are always pure ink.
   - No cyan or light-blue bands, in the sun or the sky.
@@ -33,14 +35,29 @@ All paths below are relative to this folder (`assets/brand/`).
 - **Wordmark:** lowercase `lumis` in **Nunito ExtraBold (800)**, kerned with the font's own kerning.
   - Use ink on light backgrounds and paper on dark ones.
   - Never set it in sun colors.
-- **Tagline in the banners and social preview:** Nunito SemiBold (600).
+- **Main message in the banners and social preview:** Nunito ExtraBold (800), paper on ink and ink on paper.
+- **Subline in the banners and social preview:** Nunito SemiBold (600), in the muted subline color.
 - **Outlined text:** all text in these files is converted to vector paths, so no font needs to be installed or bundled.
 - **Suggested companion fonts:**
   - Nunito 400–700 for UI and docs headings
   - Inter or the system UI font for body text
   - JetBrains Mono or another monospace font for code
 
-**Font attribution:** Nunito is © The Nunito Project Authors (https://github.com/googlefonts/nunito). It is licensed under the SIL Open Font License, Version 1.1 (https://openfontlicense.org). The wordmark and tagline are outlines derived from Nunito, and the font files themselves are not distributed here.
+**Font attribution:** Nunito is © The Nunito Project Authors (https://github.com/googlefonts/nunito). It is licensed under the SIL Open Font License, Version 1.1 (https://openfontlicense.org). The wordmark and the message lines are outlines derived from Nunito, and the font files themselves are not distributed here.
+
+## Messaging
+
+| Line | Exact copy | Where |
+|---|---|---|
+| **Main message** | One highlighter, 7 runtimes. | README banner headline, social preview, lumis.sh `<title>` and hero H1, the GitHub repo About description, the docs home description, the site footer |
+| **Subline** | Powered by Tree-sitter and Neovim themes. | Always directly under the main message: README banner, social preview, lumis.sh hero subhead, the GitHub About description |
+| **Package tagline** | Syntax Highlighter powered by Tree-sitter and Neovim themes. | Package registries only: `Cargo.toml`, `mix.exs`, npm `package.json` `description`s and the `lib.rs` `//!` line |
+
+- **Write the number as a numeral:** "7 runtimes", never "seven runtimes". When the count changes, update the copy and the banners together.
+- **The main message and the subline go together.** Show the subline under the main message wherever there's room. In one-line places such as the About description, join them: "One highlighter, 7 runtimes. Powered by Tree-sitter and Neovim themes."
+- **Keep the package tagline for packages.** Registry search shows a single description line, so it has to say what the package is.
+- **Casing:** sentence case. "Tree-sitter" and "Neovim" are always capitalized like this. In the package tagline, "Syntax Highlighter" is capitalized.
+- **Alt text for banners and the social preview:** "Lumis: One highlighter, 7 runtimes. Powered by Tree-sitter and Neovim themes."
 
 ## Logo versions
 
@@ -58,8 +75,8 @@ All paths below are relative to this folder (`assets/brand/`).
   - It has four bands with no gaps, plus a simplified tree and hill.
   - `favicon-32.png` is rendered from the full icon instead.
   - `favicon-180.png` and `favicon-512.png` are app icons, rendered from `favicon/app-icon.svg` (the haloed icon on an ink square).
-- **README banners** (`banners/readme-banner-{dark,light}`): 1280 × 320. Each has the horizontal lockup and the tagline.
-- **Social preview** (`social/social-preview`): 1280 × 640, on ink. All content sits inside a 40 px safe border.
+- **README banners** (`banners/readme-banner-{dark,light}`): 1280 × 390. Each has the horizontal lockup, then the main message, then the subline.
+- **Social preview** (`social/social-preview`): 1280 × 640, on ink. It has the badge, the wordmark, the main message over two lines, the subline, a stripe and `lumis.sh`. All content sits inside a 40 px safe border.
 
 ## Dark backgrounds
 
