@@ -10,10 +10,6 @@
 </p>
 
 <p align="center">
-  <a href="https://lumis.sh"><img src="assets/intro.jpg" alt="Lumis Syntax Highlighter"></a>
-</p>
-
-<p align="center">
   <a href="https://lumis.sh">lumis.sh</a>
   -
   <a href="https://docs.lumis.sh">docs</a>
