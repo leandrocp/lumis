@@ -29,8 +29,7 @@
     "@lumis-sh/wasm-ruby": "^0.26.4",
     "@lumis-sh/wasm-rust": "^0.26.5",
     "@lumis-sh/wasm-typescript": "^0.26.3",
-    "@vercel/analytics": "^2.0.1",
-    "webgl-fluid-enhanced": "^0.8.0"
+    "@vercel/analytics": "^2.0.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
