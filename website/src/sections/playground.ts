@@ -13,7 +13,7 @@ function pickRandom<T>(items: T[]): T {
 
 export function renderPlayground() {
   return `
-    <section id="playground" class="py-24 sm:py-36">
+    <section id="playground" class="py-24 sm:py-28">
       <div class="mx-auto max-w-6xl px-6">
         <a href="#playground" class="group inline-flex items-center gap-1 font-mono text-sm font-semibold tracking-wider no-underline transition-opacity hover:opacity-80">
           <span class="text-accent">&lt;</span><span class="text-accent">Playground</span> <span class="text-accent">/&gt;</span>
@@ -42,7 +42,7 @@ export function renderPlayground() {
           </div>
         </div>
 
-        <div class="mt-8 overflow-hidden border border-line rounded-lg">
+        <div class="mt-8 overflow-hidden rounded-lg bg-surface">
           <div class="preview-content max-h-[50rem] overflow-y-auto [&_code]:font-mono"><div class="flex items-center justify-center py-24 font-mono text-xs text-subtle">Highlighting...</div></div>
         </div>
       </div>

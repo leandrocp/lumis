@@ -12,7 +12,7 @@ import { renderCommunity } from "./sections/community";
 import { renderRuntimes } from "./sections/runtimes";
 import { renderIntegrations } from "./sections/integrations";
 import { renderFooter } from "./sections/footer";
-import { setupTabs, setupCopyButtons, SECTION_DIVIDER } from "./lib/utils";
+import { setupTabs, setupCopyButtons } from "./lib/utils";
 import { FIRST_PAINT_LANGUAGES } from "./data/languages";
 import { loadLanguages } from "./lib/highlighter";
 
@@ -24,23 +24,14 @@ export function renderApp() {
     renderHero(),
     renderStats(),
     renderPlayground(),
-    SECTION_DIVIDER,
     renderQuickstart(),
-    SECTION_DIVIDER,
     renderRuntimes(),
-    SECTION_DIVIDER,
     renderIntegrations(),
-    SECTION_DIVIDER,
     renderFormatters(),
-    SECTION_DIVIDER,
     renderTokenInspector(),
-    SECTION_DIVIDER,
     renderStreaming(),
-    SECTION_DIVIDER,
     renderInjections(),
-    SECTION_DIVIDER,
     renderWasm(),
-    SECTION_DIVIDER,
     renderCommunity(),
     "</main>",
     renderFooter(),

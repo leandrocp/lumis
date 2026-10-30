@@ -2,7 +2,7 @@ import { loadTheme } from "../data/themes";
 
 export function renderTokenInspector() {
   return `
-    <section id="inspector" class="py-24 sm:py-36">
+    <section id="inspector" class="py-24 sm:py-28">
       <div class="mx-auto max-w-6xl px-6">
         <a href="#inspector" class="group inline-flex items-center gap-1 font-mono text-sm font-semibold tracking-wider no-underline transition-opacity hover:opacity-80">
           <span class="text-accent">&lt;</span><span class="text-accent">Inspector</span> <span class="text-accent">/&gt;</span>
@@ -21,28 +21,28 @@ export function renderTokenInspector() {
                 <span class="font-mono text-[11px] text-subtle" id="inspector-lang-count"></span>
               </div>
             </div>
-            <div class="overflow-hidden border border-line rounded-lg bg-surface p-4 sm:p-5">
+            <div class="overflow-hidden rounded-lg bg-surface p-4 sm:p-5">
               <div id="inspector-output" class="inspector-output overflow-x-auto [&_code]:font-mono"></div>
             </div>
           </div>
           <div class="space-y-3">
-            <div class="border border-line rounded-lg p-4 ">
+            <div class="rounded-lg bg-surface-2 p-4 dark:bg-surface">
               <span class="block font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">Token</span>
               <code class="mt-1 block font-mono text-sm text-fg" id="inspector-text">-</code>
             </div>
-            <div class="border border-line rounded-lg p-4 ">
+            <div class="rounded-lg bg-surface-2 p-4 dark:bg-surface">
               <span class="block font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">Scope</span>
               <span class="mt-1 block font-mono text-sm text-fg" id="inspector-scope">-</span>
             </div>
-            <div class="border border-line rounded-lg p-4 ">
+            <div class="rounded-lg bg-surface-2 p-4 dark:bg-surface">
               <span class="block font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">Language</span>
               <span class="mt-1 block font-mono text-sm text-fg" id="inspector-language">-</span>
             </div>
-            <div class="border border-line rounded-lg p-4 ">
+            <div class="rounded-lg bg-surface-2 p-4 dark:bg-surface">
               <span class="block font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">Byte range</span>
               <span class="mt-1 block font-mono text-sm text-fg" id="inspector-range">-</span>
             </div>
-            <div class="border border-line rounded-lg p-4 ">
+            <div class="rounded-lg bg-surface-2 p-4 dark:bg-surface">
               <span class="block font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">Foreground</span>
               <span class="mt-1 block font-mono text-sm text-fg" id="inspector-fg">-</span>
             </div>

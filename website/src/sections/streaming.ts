@@ -15,7 +15,7 @@ async function fetchUserData(userId) {
 
 export function renderStreaming() {
   return `
-    <section id="streaming" class="py-24 sm:py-36">
+    <section id="streaming" class="py-24 sm:py-28">
       <div class="mx-auto max-w-6xl px-6">
         <a href="#streaming" class="group inline-flex items-center gap-1 font-mono text-sm font-semibold tracking-wider no-underline transition-opacity hover:opacity-80">
           <span class="text-accent">&lt;</span><span class="text-accent">Streaming</span> <span class="text-accent">/&gt;</span>
@@ -28,7 +28,7 @@ export function renderStreaming() {
             <span class="inline-block h-2 w-2 rounded-full bg-accent"></span>
             <span class="font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">Markdown + incomplete fenced code</span>
           </div>
-          <div class="overflow-hidden border border-line rounded-lg">
+          <div class="overflow-hidden rounded-lg bg-surface">
             <div class="streaming-lumis [&_code]:font-mono"></div>
           </div>
         </div>
