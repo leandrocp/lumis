@@ -42,10 +42,10 @@ jobs:
           - label: Visual comparison
             task: comparison-timings
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550 # v5.2.2
+      - uses: jdx/mise-action@v5.2.2
         with:
           # Pinned: mise 2026.7.18 cannot install core:erlang/core:elixir on the
           # runner, and benchmarks/mise.lock was produced by this version.
@@ -79,7 +79,7 @@ jobs:
         run: mise run -C benchmarks ${{ matrix.size_task }}
       - name: Upload partial benchmark report
         if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: lumis-benchmark-part-${{ matrix.task }}-${{ github.sha }}
           path: target/benchmarks/runs/current
@@ -94,14 +94,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+      - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24.18.0
       - name: Download partial benchmark reports
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        uses: actions/download-artifact@v8.0.2
         with:
           pattern: lumis-benchmark-part-*-${{ github.sha }}
           path: target/benchmarks/runs/current
@@ -120,7 +120,7 @@ jobs:
           fi
       - name: Upload benchmark reports
         if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: lumis-benchmarks-${{ github.sha }}
           path: target/benchmarks/runs/current
