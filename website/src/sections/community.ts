@@ -69,7 +69,7 @@ export function renderCommunity() {
         <p class="mt-6 max-w-3xl font-mono text-sm leading-7 text-muted">See how other projects use Lumis.</p>
 
         <div id="community-runtimes" class="mt-12 scroll-mt-24">
-          <h3 class="font-display text-xl font-semibold text-fg">Community runtimes</h3>
+          <h3 class="font-display text-xl font-bold text-fg">Community runtimes</h3>
           <p class="mt-4 max-w-3xl font-mono text-sm leading-7 text-muted">
             roastedroot maintains <a href="https://github.com/roastedroot/lumis4j" target="_blank" rel="noreferrer" class="underline underline-offset-4 hover:text-fg hover:text-accent">Lumis4J</a> for Java.
             Answer.AI maintains <a href="https://github.com/AnswerDotAI/fastpylight" target="_blank" rel="noreferrer" class="underline underline-offset-4 hover:text-fg hover:text-accent">fastpylight</a> for Python.
@@ -79,13 +79,13 @@ export function renderCommunity() {
         </div>
 
         <div id="used-by" class="mt-12 scroll-mt-24">
-          <h3 class="font-display text-xl font-semibold text-fg">Used by</h3>
+          <h3 class="font-display text-xl font-bold text-fg">Used by</h3>
           <ul class="mt-6 grid gap-px border border-line rounded-lg bg-surface-2   sm:grid-cols-2 lg:grid-cols-3">
           ${PROJECTS.map(
             (project) => `
             <li class="bg-surface p-6 ">
               <p class="font-mono text-xs text-muted">${project.runtime}</p>
-              <h4 class="mt-3 font-display text-lg font-semibold text-fg"><a href="${project.href}" target="_blank" rel="noreferrer" class="underline decoration-line underline-offset-4 transition-colors hover:text-accent  dark:hover:text-accent">${project.name}</a></h4>
+              <h4 class="mt-3 font-display text-lg font-bold text-fg"><a href="${project.href}" target="_blank" rel="noreferrer" class="underline decoration-line underline-offset-4 transition-colors hover:text-accent  dark:hover:text-accent">${project.name}</a></h4>
               <p class="mt-3 font-mono text-sm leading-6 text-muted">${project.description}</p>
             </li>
           `,
@@ -95,13 +95,13 @@ export function renderCommunity() {
         </div>
 
         <div id="mentions" class="mt-12 scroll-mt-24">
-          <h3 class="font-display text-xl font-semibold text-fg">Mentions</h3>
+          <h3 class="font-display text-xl font-bold text-fg">Mentions</h3>
           <ul class="mt-6 grid gap-px border border-line rounded-lg bg-surface-2   lg:grid-cols-3">
             ${MENTIONS.map(
               (mention) => `
               <li class="bg-surface p-6 ">
                 <p class="font-mono text-xs text-muted">${mention.source}</p>
-                <h4 class="mt-3 font-display text-lg font-semibold text-fg"><a href="${mention.href}" target="_blank" rel="noreferrer" class="underline decoration-line underline-offset-4 transition-colors hover:text-accent  dark:hover:text-accent">${mention.title}</a></h4>
+                <h4 class="mt-3 font-display text-lg font-bold text-fg"><a href="${mention.href}" target="_blank" rel="noreferrer" class="underline decoration-line underline-offset-4 transition-colors hover:text-accent  dark:hover:text-accent">${mention.title}</a></h4>
                 <p class="mt-3 font-mono text-sm leading-6 text-muted">${mention.description}</p>
               </li>
             `,

@@ -46,6 +46,7 @@ themes/NOTICE.md linguist-generated
 themes/licenses/** linguist-generated
 
 # Generated test and website artifacts.
+assets/brand/**/*.png linguist-generated
 packages/javascript/*/examples/**/output.html linguist-generated
 fixtures/conformance/**/bbcode.txt linguist-generated
 fixtures/conformance/**/fixture.json linguist-generated
