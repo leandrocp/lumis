@@ -50,7 +50,9 @@ jobs:
       - uses: jdx/mise-action@v5.2.2
 
       # The bundle packages' plan stages the bundles and compares them in `crates/dev`.
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
 
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2.9.2
@@ -132,7 +134,9 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
 
       - name: Install cargo-edit
         uses: taiki-e/install-action@v2.87.30

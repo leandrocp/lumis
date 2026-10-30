@@ -65,7 +65,9 @@ jobs:
         with:
           ref: ${{ inputs.tag || github.ref_name }}
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
         if: ${{ !endsWith(matrix.target, '-musl') }}
         with:
           targets: ${{ matrix.target }}
@@ -156,7 +158,9 @@ jobs:
         with:
           ref: ${{ inputs.tag || github.ref_name }}
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
         if: ${{ !endsWith(matrix.target, '-musl') }}
         with:
           targets: ${{ matrix.target }}

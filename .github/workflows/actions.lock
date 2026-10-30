@@ -27,7 +27,7 @@ workflows:
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-node@v7.1.0'
         - 'actions/upload-artifact@v7.0.2'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'erlef/setup-beam@v1.24.1'
         - 'jdx/mise-action@v5.2.2'
         - 'pnpm/action-setup@v6.1.0'
@@ -38,23 +38,23 @@ workflows:
         - 'pnpm/action-setup@v6.1.0'
     '.github/workflows/elixir-nif-rust.yml':
         - 'actions/checkout@v7.0.1'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'jdx/mise-action@v5.2.2'
     '.github/workflows/elixir-release.yml':
         - 'actions/checkout@v7.0.1'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'erlef/setup-beam@v1.24.1'
         - 'jdx/mise-action@v5.2.2'
     '.github/workflows/elixir.yml': []
     '.github/workflows/gen-css.yml':
         - 'actions/checkout@v7.0.1'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'jdx/mise-action@v5.2.2'
         - 'peter-evans/create-pull-request@v8.1.1'
     '.github/workflows/gen-themes.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-node@v7.1.0'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'jdx/mise-action@v5.2.2'
         - 'peter-evans/create-pull-request@v8.1.1'
         - 'pnpm/action-setup@v6.1.0'
@@ -63,18 +63,18 @@ workflows:
         - 'actions/download-artifact@v8.0.2'
         - 'actions/setup-node@v7.1.0'
         - 'actions/upload-artifact@v7.0.2'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'pnpm/action-setup@v6.1.0'
     '.github/workflows/javascript.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-node@v7.1.0'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'jdx/mise-action@v5.2.2'
         - 'pnpm/action-setup@v6.1.0'
     '.github/workflows/lint.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-node@v7.1.0'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'jdx/mise-action@v5.2.2'
         - 'pnpm/action-setup@v6.1.0'
         - 'swatinem/rust-cache@v2.9.2'
@@ -82,14 +82,14 @@ workflows:
         - 'actions/cache@v6.1.0'
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-node@v7.1.0'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'jdx/mise-action@v5.2.2'
         - 'pnpm/action-setup@v6.1.0'
         - 'swatinem/rust-cache@v2.9.2'
     '.github/workflows/release-prepare.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-node@v7.1.0'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'jdx/mise-action@v5.2.2'
         - 'peter-evans/create-pull-request@v8.1.1'
         - 'pnpm/action-setup@v6.1.0'
@@ -101,12 +101,12 @@ workflows:
     '.github/workflows/rust-release.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-node@v7.1.0'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'jdx/mise-action@v5.2.2'
         - 'peter-evans/create-pull-request@v8.1.1'
     '.github/workflows/rust.yml':
         - 'actions/checkout@v7.0.1'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'jdx/mise-action@v5.2.2'
         - 'msys2/setup-msys2@v2.33.0'
         - 'swatinem/rust-cache@v2.9.2'
@@ -116,7 +116,7 @@ workflows:
         - 'actions/download-artifact@v8.0.2'
         - 'actions/setup-node@v7.1.0'
         - 'actions/upload-artifact@v7.0.2'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'erlef/setup-beam@v1.24.1'
         - 'jdx/mise-action@v5.2.2'
         - 'pnpm/action-setup@v6.1.0'
@@ -124,7 +124,7 @@ workflows:
     '.github/workflows/upgrade-langs.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-node@v7.1.0'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'jdx/mise-action@v5.2.2'
         - 'peter-evans/create-pull-request@v8.1.1'
         - 'pnpm/action-setup@v6.1.0'
@@ -143,7 +143,7 @@ workflows:
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-node@v7.1.0'
         - 'actions/upload-artifact@v7.0.2'
-        - 'dtolnay/rust-toolchain@stable'
+        - 'dtolnay/rust-toolchain@v1'
         - 'erlef/setup-beam@v1.24.1'
         - 'jdx/mise-action@v5.2.2'
         - 'pnpm/action-setup@v6.1.0'
@@ -186,9 +186,9 @@ dependencies:
         commit: 'sha1-cf430e030ddbb5b0abf93d22962f4752f3646cd9'
         owner_id: 44036562
         repo_id: 192625955
-    'dtolnay/rust-toolchain@stable':
-        ref: 'stable'
-        commit: 'sha1-b725eda525362e7cf34af9a7243cac1e3f01a7ec'
+    'dtolnay/rust-toolchain@v1':
+        ref: 'v1'
+        commit: 'sha1-683b588c487a69d01f6c6ddf40f036ff682cc2c8'
         owner_id: 1940490
         repo_id: 260749683
     'erlef/setup-beam@v1.24.1':

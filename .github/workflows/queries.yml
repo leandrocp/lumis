@@ -63,7 +63,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
       - uses: Swatinem/rust-cache@v2.9.2
       - uses: pnpm/action-setup@v6.1.0
         with:
@@ -114,7 +116,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: jdx/mise-action@v5.2.2
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
       # `mise run wasm-build` compiles the dev tool, a workspace of its own, and
       # the Wasmtime check compiles in the root one, so both targets are cached.
       - uses: Swatinem/rust-cache@v2.9.2

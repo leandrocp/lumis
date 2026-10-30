@@ -89,7 +89,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
         if: matrix.rust
 
       - uses: Swatinem/rust-cache@v2.9.2

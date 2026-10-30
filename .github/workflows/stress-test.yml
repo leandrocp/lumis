@@ -20,7 +20,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
 
       - uses: jdx/mise-action@v5.2.2
         with:
@@ -67,7 +69,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
 
       - uses: erlef/setup-beam@v1.24.1
         if: matrix.runtime == 'elixir'
