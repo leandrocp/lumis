@@ -16,6 +16,7 @@ import { formatBBCode } from "./formatter/bbcode.js";
 import { formatHtmlInline } from "./formatter/html-inline.js";
 import { formatHtmlLinked } from "./formatter/html-linked.js";
 import { formatHtmlMultiThemes } from "./formatter/html-multi-themes.js";
+import { multiThemesPreAttrs, preAttrs } from "./formatter/html.js";
 
 /**
  * Create an inline-styles HTML formatter. Each token gets a `<span>` with
@@ -225,6 +226,67 @@ export function withAttrs<T extends Formatter>(
       break;
   }
   return formatter;
+}
+
+/** What {@link toInline} returns. */
+export interface InlineCode {
+  /** The formatter with `structure: "inline"`, writing the token spans alone. */
+  formatter: HtmlInlineFormatter | HtmlLinkedFormatter | HtmlMultiThemesFormatter;
+  /**
+   * The `lumis` class and the theme's text and background color, merged with
+   * the attributes given, for the element the spans go in.
+   */
+  attrs: HtmlAttrs;
+}
+
+/**
+ * Derive the inline counterpart of a built-in HTML formatter, and the
+ * attributes that give the element around it the theme's colors.
+ *
+ * It is what a renderer integration wants for inline code: it holds a block
+ * formatter from the user and a `<code>` of its own to fill. The formatter's
+ * `preClass` and `preAttrs` belong to its blocks and are left out of `attrs`.
+ *
+ * Returns `undefined` for a formatter that is not a built-in HTML one, which
+ * has no inline structure.
+ *
+ * @example
+ * ```ts
+ * import { htmlInline, toInline } from '@lumis-sh/lumis/formatters'
+ * import { openTag } from '@lumis-sh/lumis/formatters/html'
+ *
+ * const inline = toInline(htmlInline({ language: javascript, theme: dracula }), { id: 'x' })
+ * const html = `${openTag('code', inline.attrs)}${hl.highlight('x = 1', inline.formatter)}</code>`
+ * // <code class="lumis" style="color: #f8f8f2; background-color: #282a36;" id="x">…</code>
+ * ```
+ */
+export function toInline(formatter: Formatter, attrs?: HtmlAttrs): InlineCode | undefined {
+  const builtin = getBuiltinFormatter(formatter);
+  if (!builtin) return undefined;
+
+  switch (builtin.kind) {
+    case "html-inline":
+      return {
+        formatter: htmlInline({ ...builtin.formatter, structure: "inline" }),
+        attrs: preAttrs({ theme: builtin.formatter.theme, attrs }),
+      };
+    case "html-linked":
+      return {
+        formatter: htmlLinked({ ...builtin.formatter, structure: "inline" }),
+        attrs: preAttrs({ attrs }),
+      };
+    case "html-multi-themes": {
+      const { themes, defaultTheme, cssVariablePrefix } = builtin.formatter;
+      return {
+        formatter: htmlMultiThemes({ ...builtin.formatter, structure: "inline" }),
+        attrs: multiThemesPreAttrs({ themes, defaultTheme, cssVariablePrefix, attrs }),
+      };
+    }
+    case "bbcode-scoped":
+    case "terminal":
+      break;
+  }
+  return undefined;
 }
 
 export type {

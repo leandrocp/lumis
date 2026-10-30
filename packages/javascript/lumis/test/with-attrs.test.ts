@@ -5,6 +5,7 @@ import {
   htmlInline,
   htmlLinked,
   htmlMultiThemes,
+  toInline,
   withAttrs,
 } from "../src/formatter.js";
 import { terminal } from "../src/terminal.js";
@@ -94,5 +95,42 @@ describe("withAttrs", () => {
     const base = htmlLinked({ language: "javascript" });
 
     expect(render(withAttrs(base, {}))).toBe(render(base));
+  });
+});
+
+describe("toInline", () => {
+  it("writes spans alone and puts the theme's colors on the element given", () => {
+    const base = htmlInline({ language: "javascript", theme, preClass: "card" });
+    const inline = toInline(base, { class: "authored", id: "x" });
+
+    expect(render(base)).toContain("<pre");
+    expect(inline && render(inline.formatter)).not.toContain("<pre");
+    expect(inline?.attrs).toEqual({
+      class: "lumis authored",
+      style: "color: #f8f8f2; background-color: #282a36;",
+      id: "x",
+    });
+  });
+
+  it("gives linked inline code the class its stylesheet colors", () => {
+    expect(toInline(htmlLinked({ language: "javascript" }))?.attrs).toEqual({ class: "lumis" });
+  });
+
+  it("carries every theme of a multi-theme formatter onto the element", () => {
+    const inline = toInline(
+      htmlMultiThemes({ language: "javascript", themes: { dark: theme }, defaultTheme: "dark" }),
+    );
+
+    expect(inline && render(inline.formatter)).not.toContain("<pre");
+    expect(inline?.attrs.class).toBe("lumis lumis-themes dracula");
+    expect(inline?.attrs.style).toBe("color:#f8f8f2; background-color:#282a36;");
+  });
+
+  it("returns nothing for a formatter with no inline structure", () => {
+    const custom: Formatter = { render: () => "custom" };
+
+    expect(toInline(terminal({ language: "javascript", theme }))).toBeUndefined();
+    expect(toInline(bbcodeScoped({ language: "javascript" }))).toBeUndefined();
+    expect(toInline(custom)).toBeUndefined();
   });
 });
