@@ -17,7 +17,7 @@ const CFG = {
   fadeMs: 320,
   slowFrameMs: 28,
   slowFrameCount: 45,
-  static: { x: 0.79, y: 0.3, xs: 0.5, ys: 0.84 },
+  static: { x: 0.79, y: 0.3, mobileX: 0.78, mobileY: 270 },
 };
 
 export function mountHeroWow(host: HTMLElement) {
@@ -72,14 +72,14 @@ export function mountHeroWow(host: HTMLElement) {
     const transform = `translate3d(${state.x}px,${state.y}px,0)`;
     glow.style.transform = `${transform} scale(${state.scale})`;
     lens.style.transform = `${transform} scale(${state.scale})`;
-    lit.style.transform = `translate3d(${radius - state.x}px,${radius - state.y}px,0) scale(${1 / state.scale})`;
+    lit.style.transform = `translate3d(${radius - state.x / state.scale}px,${radius - state.y / state.scale}px,0) scale(${1 / state.scale})`;
     glow.style.opacity = `${state.opacity}`;
     lens.style.opacity = `${state.opacity}`;
   };
   const park = () => {
     const small = width < 640;
-    state.x = state.targetX = width * (small ? CFG.static.xs : CFG.static.x);
-    state.y = state.targetY = height * (small ? CFG.static.ys : CFG.static.y);
+    state.x = state.targetX = width * (small ? CFG.static.mobileX : CFG.static.x);
+    state.y = state.targetY = small ? CFG.static.mobileY : height * CFG.static.y;
     state.opacity = state.targetOpacity = state.scale = 1;
     apply();
   };
@@ -93,15 +93,22 @@ export function mountHeroWow(host: HTMLElement) {
     park();
   };
   const phase = (x: number) =>
-    (Math.asin(Math.max(-1, Math.min(1, (x / width - 0.5) / 0.36))) / (2 * Math.PI)) *
-    CFG.ambientPeriodX;
+    (Math.asin(Math.max(-1, Math.min(1, (x / width - 0.5) / (width < 640 ? 0.34 : 0.36)))) /
+      (2 * Math.PI)) *
+    (width < 640 ? 16_000 : CFG.ambientPeriodX);
   const updateTarget = (now: number) => {
     if (mode === "ambient") {
       const t = now - origin;
-      state.targetX = width * (0.5 + 0.36 * Math.sin((t * 2 * Math.PI) / CFG.ambientPeriodX));
-      state.targetY =
-        height * (0.52 + 0.24 * Math.sin((t * 2 * Math.PI) / CFG.ambientPeriodY + 1.1));
-      state.targetOpacity = CFG.ambientOpacity;
+      const small = width < 640;
+      state.targetX =
+        width *
+        (0.5 +
+          (small ? 0.34 : 0.36) *
+            Math.sin((t * 2 * Math.PI) / (small ? 16_000 : CFG.ambientPeriodX)));
+      state.targetY = small
+        ? 300 + 60 * Math.sin((t * 2 * Math.PI) / 11_000 + 1.1)
+        : height * (0.52 + 0.24 * Math.sin((t * 2 * Math.PI) / CFG.ambientPeriodY + 1.1));
+      state.targetOpacity = small ? 1 : CFG.ambientOpacity;
     }
     if ((mode === "settle" || mode === "touch") && now > settleAt) {
       mode = "ambient";
@@ -154,13 +161,14 @@ export function mountHeroWow(host: HTMLElement) {
   const settle = () => {
     if (mode === "static") return;
     mode = "settle";
-    state.targetOpacity = CFG.ambientOpacity;
+    state.targetOpacity = width < 640 ? 1 : CFG.ambientOpacity;
     settleAt = performance.now() + CFG.settleDelay;
     kick();
   };
   const focus = (event: FocusEvent) => {
     const target = event.target;
-    if (!(target instanceof HTMLElement) || !target.matches(":focus-visible")) return;
+    if (mode === "static" || !(target instanceof HTMLElement) || !target.matches(":focus-visible"))
+      return;
     const rect = target.getBoundingClientRect();
     state.targetX = rect.left - left + rect.width / 2;
     state.targetY = rect.top + scrollY - top + rect.height / 2;
@@ -183,11 +191,17 @@ export function mountHeroWow(host: HTMLElement) {
   }).observe(host);
   section.addEventListener("pointermove", track, { passive: true });
   section.addEventListener("pointerenter", track, { passive: true });
-  section.addEventListener("pointerleave", settle, { passive: true });
+  section.addEventListener(
+    "pointerleave",
+    (event) => {
+      if (event.pointerType !== "touch") settle();
+    },
+    { passive: true },
+  );
   section.addEventListener(
     "pointerdown",
     (event) => {
-      if (event.pointerType === "touch") {
+      if (mode !== "static" && event.pointerType === "touch") {
         mode = "touch";
         state.scale = 0.9;
         track(event);
@@ -216,7 +230,6 @@ export function mountHeroWow(host: HTMLElement) {
   else {
     state.x = state.targetX = width / 2;
     state.y = state.targetY = height / 2;
-    host.classList.add("is-on");
     kick();
   }
   host.classList.add("is-on");

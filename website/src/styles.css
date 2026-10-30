@@ -216,6 +216,7 @@ a:not([class]):hover {
 }
 .wow-lit {
   color: var(--wow-plain);
+  transform-origin: 0 0;
 }
 .wow-lit .k {
   color: var(--wow-k);
@@ -247,9 +248,10 @@ a:not([class]):hover {
   will-change: transform, opacity;
 }
 .wow-glow {
-  width: calc(var(--wow-r) * 3.2);
-  height: calc(var(--wow-r) * 3.2);
-  margin: calc(var(--wow-r) * -1.6) 0 0 calc(var(--wow-r) * -1.6);
+  width: calc(var(--wow-r) * var(--wow-glow-k, 3.2));
+  height: calc(var(--wow-r) * var(--wow-glow-k, 3.2));
+  margin: calc(var(--wow-r) * var(--wow-glow-k, 3.2) / -2) 0 0
+    calc(var(--wow-r) * var(--wow-glow-k, 3.2) / -2);
   background: var(--wow-glow);
 }
 .wow-lens {
@@ -272,7 +274,26 @@ a:not([class]):hover {
 
 @media (max-width: 639px) {
   #hero-wow {
-    --wow-r: 150px;
+    --wow-r: 160px;
+    --wow-glow: radial-gradient(
+      closest-side,
+      rgb(255 194 61 / 48%),
+      rgb(255 122 69 / 22%) 40%,
+      rgb(255 95 174 / 8%) 68%,
+      rgb(255 95 174 / 0) 100%
+    );
+  }
+  .wow-field {
+    -webkit-mask-image:
+      linear-gradient(180deg, #000 0 340px, rgb(0 0 0 / var(--wow-safe)) 400px),
+      linear-gradient(#000 70%, transparent),
+      linear-gradient(90deg, #000 calc(100% - 56px), transparent);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(180deg, #000 0 340px, rgb(0 0 0 / var(--wow-safe)) 400px),
+      linear-gradient(#000 70%, transparent),
+      linear-gradient(90deg, #000 calc(100% - 56px), transparent);
+    mask-composite: intersect;
   }
   .wow-code {
     padding: 72px 20px;
@@ -296,11 +317,12 @@ a:not([class]):hover {
     --wow-safe: 0.18;
     --wow-glow: radial-gradient(
       closest-side,
-      rgb(255 138 76 / 36%),
-      rgb(255 111 111 / 17%) 38%,
-      rgb(255 95 174 / 7%) 66%,
+      rgb(255 138 76 / 44%),
+      rgb(255 111 111 / 21%) 38%,
+      rgb(255 95 174 / 9%) 66%,
       rgb(255 95 174 / 0) 100%
     );
+    --wow-glow-k: 3.6;
   }
 }
 
