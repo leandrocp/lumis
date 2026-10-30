@@ -66,6 +66,11 @@ html {
   color-scheme: light dark;
 }
 
+img[src="/brand/badge-light.svg"],
+img[src="/brand/badge-dark.svg"] {
+  aspect-ratio: 1;
+}
+
 html,
 body {
   @apply overflow-x-hidden;
