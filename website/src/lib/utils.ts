@@ -1,10 +1,5 @@
-export const ACTIVE_TAB_CLASSES = [
-  "border-zinc-900",
-  "text-zinc-900",
-  "dark:border-white",
-  "dark:text-white",
-];
-export const INACTIVE_TAB_CLASSES = ["border-transparent", "text-zinc-500", "dark:text-zinc-400"];
+export const ACTIVE_TAB_CLASSES = ["border-accent", "text-fg"];
+export const INACTIVE_TAB_CLASSES = ["border-transparent", "text-muted"];
 
 export function setupTabs(
   root: HTMLElement,
@@ -45,12 +40,12 @@ export function setupCopyButtons(root: HTMLElement) {
       const text = decodeURIComponent(raw);
       navigator.clipboard.writeText(text);
       btn.innerHTML = CHECK_SVG;
-      btn.classList.add("text-emerald-500");
+      btn.classList.add("text-accent");
       const liveRegion = document.querySelector("#live-region");
       if (liveRegion) liveRegion.textContent = "Copied to clipboard";
       setTimeout(() => {
         btn.innerHTML = COPY_SVG;
-        btn.classList.remove("text-emerald-500");
+        btn.classList.remove("text-accent");
         if (liveRegion) liveRegion.textContent = "";
       }, 1500);
     });
@@ -65,4 +60,4 @@ export const CLOSE_SVG = `<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" s
 export const COPY_SVG = `<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`;
 export const CHECK_SVG = `<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
 
-export const SECTION_DIVIDER = `<div class="mx-auto max-w-6xl px-6"><hr class="border-zinc-200 dark:border-zinc-800" /></div>`;
+export const SECTION_DIVIDER = `<div class="mx-auto max-w-6xl px-6"><hr class="border-line" /></div>`;

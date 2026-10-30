@@ -305,7 +305,7 @@ for (const theme of [dracula, nordic, githubLight, tokyonightMoon]) {
         { label: "tokyonight_moon", theme: tokyonightMoon },
       ];
 
-      return `<div class="grid gap-px bg-zinc-200 dark:bg-zinc-800 sm:grid-cols-2">${themes
+      return `<div class="grid gap-px bg-surface-2 sm:grid-cols-2">${themes
         .map(({ label, theme }) => {
           const output = hl.highlight(
             THEME_SOURCE,
@@ -316,7 +316,7 @@ for (const theme of [dracula, nordic, githubLight, tokyonightMoon]) {
             }),
           );
           return `<figure class="m-0">
-            <figcaption class="bg-white px-5 pt-4 font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:bg-[#09090b] dark:text-zinc-400">${label}</figcaption>
+            <figcaption class="bg-surface px-5 pt-4 font-mono text-[11px] tracking-wider text-muted uppercase  dark:text-subtle">${label}</figcaption>
             ${output}
           </figure>`;
         })
@@ -346,7 +346,7 @@ for (const theme of [dracula, nordic, githubLight, tokyonightMoon]) {
         CSS_SOURCE,
         htmlLinked({ language: cssLanguage, preClass: PRE_CLASS }),
       );
-      return `<div class="grid gap-px bg-zinc-200 dark:bg-zinc-800">
+      return `<div class="grid gap-px bg-surface-2">
         ${output}
         ${outputPanel("the markup it produced", `${output.slice(0, 240)}…`)}
       </div>`;
@@ -376,9 +376,9 @@ for (const theme of [dracula, nordic, githubLight, tokyonightMoon]) {
           header: {
             openTag:
               '<figure class="m-0">' +
-              '<figcaption class="flex items-center justify-between border-b border-zinc-200 px-5 py-2 font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:border-zinc-800 dark:text-zinc-400">' +
+              '<figcaption class="flex items-center justify-between border-b border-line px-5 py-2 font-mono text-[11px] tracking-wider text-muted uppercase  dark:text-subtle">' +
               "formatPrice.ts" +
-              '<button type="button" class="demo-copy cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard">' +
+              '<button type="button" class="demo-copy cursor-pointer text-subtle transition-colors hover:text-fg hover:text-accent" aria-label="Copy to clipboard">' +
               `${COPY_SVG}</button></figcaption>`,
             closeTag: "</figure>",
           },
@@ -390,10 +390,10 @@ for (const theme of [dracula, nordic, githubLight, tokyonightMoon]) {
       button?.addEventListener("click", () => {
         void navigator.clipboard.writeText(HEADER_SOURCE);
         button.innerHTML = CHECK_SVG;
-        button.classList.add("text-emerald-500");
+        button.classList.add("text-accent");
         setTimeout(() => {
           button.innerHTML = COPY_SVG;
-          button.classList.remove("text-emerald-500");
+          button.classList.remove("text-accent");
         }, 1500);
       });
     },
@@ -564,9 +564,9 @@ function linkStylesheets() {
 }
 
 function outputPanel(label: string, content: string) {
-  return `<div class="bg-white dark:bg-[#09090b]">
-    <p class="px-5 pt-4 font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">${label}</p>
-    <pre class="m-0 max-h-44 overflow-auto p-5 font-mono text-[13px] leading-relaxed break-all whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">${escapeHtml(content)}</pre>
+  return `<div class="bg-surface">
+    <p class="px-5 pt-4 font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">${label}</p>
+    <pre class="m-0 max-h-44 overflow-auto p-5 font-mono text-[13px] leading-relaxed break-all whitespace-pre-wrap text-muted">${escapeHtml(content)}</pre>
   </div>`;
 }
 
@@ -575,12 +575,12 @@ export function renderShowcase() {
     <section id="showcase" class="pt-32 pb-24 sm:pt-40 sm:pb-36">
       <div class="mx-auto max-w-6xl px-6">
         <h1 class="inline-flex items-center gap-1 font-mono text-sm font-semibold tracking-wider">
-          <span class="text-pink-400">&lt;</span><span class="text-purple-400">Showcase</span> <span class="text-pink-400">/&gt;</span>
+          <span class="text-accent">&lt;</span><span class="text-accent">Showcase</span> <span class="text-accent">/&gt;</span>
         </h1>
-        <h2 class="mt-8 max-w-3xl font-mono text-4xl font-bold leading-tight tracking-tight text-zinc-900 dark:text-white">
+        <h2 class="mt-8 max-w-3xl font-display text-4xl font-bold leading-tight tracking-tight text-fg">
           What Lumis can do.
         </h2>
-        <p class="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+        <p class="mt-4 max-w-2xl text-sm leading-relaxed text-muted">
           From built-in languages and themes to custom formatters and framework integrations, on
           every runtime.
         </p>
@@ -588,36 +588,36 @@ export function renderShowcase() {
         <div class="mt-16 space-y-12">
           ${DEMOS.map(
             (demo) => `
-            <article id="${demo.id}" class="border border-zinc-200 dark:border-zinc-800">
-              <header class="border-b border-zinc-200 px-5 py-4 dark:border-zinc-800">
+            <article id="${demo.id}" class="border border-line rounded-lg">
+              <header class="border-b border-line px-5 py-4 ">
                 <div class="flex flex-wrap items-baseline justify-between gap-3">
-                  <h3 class="font-mono text-lg font-bold tracking-tight text-zinc-900 dark:text-white">${demo.title}</h3>
+                  <h3 class="font-display text-lg font-bold tracking-tight text-fg">${demo.title}</h3>
                   <div class="flex flex-wrap gap-2">
                     ${demo.tags
                       .map(
                         (tag) =>
-                          `<span class="border border-zinc-200 px-2 py-0.5 font-mono text-[10px] tracking-wider text-zinc-500 uppercase dark:border-zinc-800 dark:text-zinc-400">${tag}</span>`,
+                          `<span class="border border-line rounded-lg px-2 py-0.5 font-mono text-[10px] tracking-wider text-muted uppercase  dark:text-subtle">${tag}</span>`,
                       )
                       .join("")}
                   </div>
                 </div>
-                <p class="mt-2 max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">${demo.blurb}</p>
+                <p class="mt-2 max-w-3xl text-sm text-muted">${demo.blurb}</p>
               </header>
               <div class="grid lg:grid-cols-2">
-                <div class="demo-code grid grid-rows-[auto_1fr] border-b border-zinc-200 dark:border-zinc-800 lg:border-r lg:border-b-0" data-demo="${demo.id}">
-                  <div class="flex items-center justify-between border-b border-zinc-200 px-5 py-2 dark:border-zinc-800">
-                    <span class="font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">The code</span>
-                    <button class="copy-install shrink-0 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard" data-copy="${encodeURIComponent(demo.code)}">${COPY_SVG}</button>
+                <div class="demo-code grid grid-rows-[auto_1fr] border-b border-line lg:border-r lg:border-b-0" data-demo="${demo.id}">
+                  <div class="flex items-center justify-between border-b border-line px-5 py-2 ">
+                    <span class="font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">The code</span>
+                    <button class="copy-install shrink-0 cursor-pointer text-subtle transition-colors hover:text-fg hover:text-accent" aria-label="Copy to clipboard" data-copy="${encodeURIComponent(demo.code)}">${COPY_SVG}</button>
                   </div>
-                  <pre class="${PRE_CLASS} text-zinc-700 dark:text-zinc-300"><code>${escapeHtml(demo.code)}</code></pre>
+                  <pre class="${PRE_CLASS} text-muted"><code>${escapeHtml(demo.code)}</code></pre>
                 </div>
                 <div class="demo-output grid" data-demo="${demo.id}">
-                  <p class="px-5 py-12 text-center font-mono text-xs text-zinc-400">Fetching parser…</p>
+                  <p class="px-5 py-12 text-center font-mono text-xs text-subtle">Fetching parser…</p>
                 </div>
               </div>
-              <footer class="border-t border-zinc-200 px-5 py-3 dark:border-zinc-800">
+              <footer class="border-t border-line px-5 py-3 ">
                 <a href="${demo.source}" ${demo.source.startsWith("http") ? 'target="_blank" rel="noreferrer"' : ""}
-                   class="inline-flex items-center gap-1.5 font-mono text-xs tracking-wider text-zinc-500 uppercase transition-colors hover:text-zinc-900 dark:hover:text-white">
+                   class="inline-flex items-center gap-1.5 font-mono text-xs tracking-wider text-muted uppercase transition-colors hover:text-fg hover:text-accent">
                   Full example
                   <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
                 </a>
@@ -626,23 +626,23 @@ export function renderShowcase() {
           ).join("")}
         </div>
 
-        <h2 class="mt-24 font-mono text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
+        <h2 class="mt-24 font-display text-4xl font-bold tracking-tight text-fg">
           Examples you can clone and run.
         </h2>
-        <p class="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+        <p class="mt-4 max-w-2xl text-sm leading-relaxed text-muted">
           Frameworks, editors and terminals cannot be embedded in a page. Each of these is a
           directory in the repository.
         </p>
-        <div class="mt-8 grid gap-px border border-zinc-200 bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="mt-8 grid gap-px border border-line rounded-lg bg-surface-2   sm:grid-cols-2 lg:grid-cols-3">
           ${CATALOG.map(
             (entry) => `
             <a href="${entry.href}" target="_blank" rel="noreferrer"
-               class="group bg-white p-6 transition-colors hover:bg-zinc-50 dark:bg-[#09090b] dark:hover:bg-zinc-950">
-              <h3 class="flex items-center gap-1.5 font-mono text-sm font-bold tracking-wider text-zinc-900 dark:text-white">
+               class="group bg-surface p-6 transition-colors hover:bg-surface-2">
+              <h3 class="flex items-center gap-1.5 font-mono text-sm font-bold tracking-wider text-fg">
                 ${entry.title}
-                <svg class="h-3.5 w-3.5 text-zinc-400 transition-transform group-hover:translate-x-0.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+                <svg class="h-3.5 w-3.5 text-subtle transition-transform group-hover:translate-x-0.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
               </h3>
-              <p class="mt-2 font-mono text-xs leading-relaxed text-zinc-500">${entry.detail}</p>
+              <p class="mt-2 font-mono text-xs leading-relaxed text-muted">${entry.detail}</p>
             </a>`,
           ).join("")}
         </div>
@@ -674,7 +674,7 @@ async function mount(demo: Demo, output: HTMLElement, code: HTMLElement) {
     output.innerHTML = await demo.run();
     demo.wire?.(output);
   } catch (error) {
-    output.innerHTML = `<p class="px-5 py-12 text-center font-mono text-xs text-red-500">${escapeHtml(
+    output.innerHTML = `<p class="px-5 py-12 text-center font-mono text-xs text-accent">${escapeHtml(
       `${demo.title} did not render: ${String(error)}`,
     )}</p>`;
   }

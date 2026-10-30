@@ -1,23 +1,23 @@
 export function renderStats() {
   return `
-    <section class="border-y border-zinc-200 dark:border-zinc-800">
+    <section class="border-y border-line">
       <div class="mx-auto max-w-6xl">
-        <div class="grid gap-px bg-zinc-200 dark:bg-zinc-800 sm:grid-cols-2 lg:grid-cols-4">
-          <div class="bg-white px-6 py-8 dark:bg-[#09090b]">
-            <p class="font-mono text-2xl font-bold tabular-nums text-zinc-900 dark:text-white">7 <span class="text-pink-400">Runtimes</span></p>
-            <p class="mt-1 font-mono text-xs text-zinc-500">CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN. Java and Python maintained by the community.</p>
+        <div class="grid gap-px bg-surface-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="bg-surface px-6 py-8 ">
+            <p class="font-mono text-2xl font-bold tabular-nums text-fg">7 <span class="text-accent">Runtimes</span></p>
+            <p class="mt-1 font-mono text-xs text-muted">CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN. Java and Python maintained by the community.</p>
           </div>
-          <div class="bg-white px-6 py-8 dark:bg-[#09090b]">
-            <p class="font-mono text-2xl font-bold tabular-nums text-zinc-900 dark:text-white">110+ <span class="text-sky-400">Languages</span></p>
-            <p class="mt-1 font-mono text-xs text-zinc-500">Compiled Tree-sitter grammars containing highlights and injections.</p>
+          <div class="bg-surface px-6 py-8 ">
+            <p class="font-mono text-2xl font-bold tabular-nums text-fg">110+ <span class="text-accent">Languages</span></p>
+            <p class="mt-1 font-mono text-xs text-muted">Compiled Tree-sitter grammars containing highlights and injections.</p>
           </div>
-          <div class="bg-white px-6 py-8 dark:bg-[#09090b]">
-            <p class="font-mono text-2xl font-bold tabular-nums text-zinc-900 dark:text-white">200+ <span class="text-amber-400">Themes</span></p>
-            <p class="mt-1 font-mono text-xs text-zinc-500">Neovim colorschemes btw. Pick one of the built-in themes or bring your own.</p>
+          <div class="bg-surface px-6 py-8 ">
+            <p class="font-mono text-2xl font-bold tabular-nums text-fg">200+ <span class="text-accent">Themes</span></p>
+            <p class="mt-1 font-mono text-xs text-muted">Neovim colorschemes btw. Pick one of the built-in themes or bring your own.</p>
           </div>
-          <div class="bg-white px-6 py-8 dark:bg-[#09090b]">
-            <p class="font-mono text-2xl font-bold tabular-nums text-zinc-900 dark:text-white">5 <span class="text-emerald-400">Formatters</span></p>
-            <p class="mt-1 font-mono text-xs text-zinc-500">HTML Inline, HTML Linked, Multi Theme, Terminal, BBCode + bring your own.</p>
+          <div class="bg-surface px-6 py-8 ">
+            <p class="font-mono text-2xl font-bold tabular-nums text-fg">5 <span class="text-accent">Formatters</span></p>
+            <p class="mt-1 font-mono text-xs text-muted">HTML Inline, HTML Linked, Multi Theme, Terminal, BBCode + bring your own.</p>
           </div>
         </div>
       </div>

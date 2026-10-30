@@ -5,46 +5,46 @@ export function renderTokenInspector() {
     <section id="inspector" class="py-24 sm:py-36">
       <div class="mx-auto max-w-6xl px-6">
         <a href="#inspector" class="group inline-flex items-center gap-1 font-mono text-sm font-semibold tracking-wider no-underline transition-opacity hover:opacity-80">
-          <span class="text-cyan-400">&lt;</span><span class="text-pink-400">Inspector</span> <span class="text-cyan-400">/&gt;</span>
+          <span class="text-accent">&lt;</span><span class="text-accent">Inspector</span> <span class="text-accent">/&gt;</span>
         </a>
-        <h2 class="mt-8 font-mono text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
+        <h2 class="mt-8 font-display text-4xl font-bold tracking-tight text-fg">
           Tree-sitter parsing every token.
         </h2>
 
         <div class="mt-12 grid gap-8 lg:grid-cols-[1fr_320px]">
           <div>
             <div class="mb-3 flex items-center justify-between">
-              <span class="font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">HTML + JavaScript</span>
+              <span class="font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">HTML + JavaScript</span>
               <div class="flex gap-3">
-                <span class="font-mono text-[11px] text-zinc-400" id="inspector-token-count"></span>
-                <span class="font-mono text-[11px] text-zinc-400" id="inspector-scope-count"></span>
-                <span class="font-mono text-[11px] text-zinc-400" id="inspector-lang-count"></span>
+                <span class="font-mono text-[11px] text-subtle" id="inspector-token-count"></span>
+                <span class="font-mono text-[11px] text-subtle" id="inspector-scope-count"></span>
+                <span class="font-mono text-[11px] text-subtle" id="inspector-lang-count"></span>
               </div>
             </div>
-            <div class="overflow-hidden border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-[#0d1117] sm:p-5">
+            <div class="overflow-hidden border border-line rounded-lg bg-surface p-4 sm:p-5">
               <div id="inspector-output" class="inspector-output overflow-x-auto [&_code]:font-mono"></div>
             </div>
           </div>
           <div class="space-y-3">
-            <div class="border border-zinc-200 p-4 dark:border-zinc-800">
-              <span class="block font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">Token</span>
-              <code class="mt-1 block font-mono text-sm text-zinc-900 dark:text-white" id="inspector-text">-</code>
+            <div class="border border-line rounded-lg p-4 ">
+              <span class="block font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">Token</span>
+              <code class="mt-1 block font-mono text-sm text-fg" id="inspector-text">-</code>
             </div>
-            <div class="border border-zinc-200 p-4 dark:border-zinc-800">
-              <span class="block font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">Scope</span>
-              <span class="mt-1 block font-mono text-sm text-zinc-900 dark:text-white" id="inspector-scope">-</span>
+            <div class="border border-line rounded-lg p-4 ">
+              <span class="block font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">Scope</span>
+              <span class="mt-1 block font-mono text-sm text-fg" id="inspector-scope">-</span>
             </div>
-            <div class="border border-zinc-200 p-4 dark:border-zinc-800">
-              <span class="block font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">Language</span>
-              <span class="mt-1 block font-mono text-sm text-zinc-900 dark:text-white" id="inspector-language">-</span>
+            <div class="border border-line rounded-lg p-4 ">
+              <span class="block font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">Language</span>
+              <span class="mt-1 block font-mono text-sm text-fg" id="inspector-language">-</span>
             </div>
-            <div class="border border-zinc-200 p-4 dark:border-zinc-800">
-              <span class="block font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">Byte range</span>
-              <span class="mt-1 block font-mono text-sm text-zinc-900 dark:text-white" id="inspector-range">-</span>
+            <div class="border border-line rounded-lg p-4 ">
+              <span class="block font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">Byte range</span>
+              <span class="mt-1 block font-mono text-sm text-fg" id="inspector-range">-</span>
             </div>
-            <div class="border border-zinc-200 p-4 dark:border-zinc-800">
-              <span class="block font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">Foreground</span>
-              <span class="mt-1 block font-mono text-sm text-zinc-900 dark:text-white" id="inspector-fg">-</span>
+            <div class="border border-line rounded-lg p-4 ">
+              <span class="block font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">Foreground</span>
+              <span class="mt-1 block font-mono text-sm text-fg" id="inspector-fg">-</span>
             </div>
           </div>
         </div>

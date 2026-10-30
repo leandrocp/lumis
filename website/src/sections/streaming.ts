@@ -18,17 +18,17 @@ export function renderStreaming() {
     <section id="streaming" class="py-24 sm:py-36">
       <div class="mx-auto max-w-6xl px-6">
         <a href="#streaming" class="group inline-flex items-center gap-1 font-mono text-sm font-semibold tracking-wider no-underline transition-opacity hover:opacity-80">
-          <span class="text-fuchsia-400">&lt;</span><span class="text-blue-400">Streaming</span> <span class="text-fuchsia-400">/&gt;</span>
+          <span class="text-accent">&lt;</span><span class="text-accent">Streaming</span> <span class="text-accent">/&gt;</span>
         </a>
-        <h2 class="mt-8 font-mono text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
+        <h2 class="mt-8 font-display text-4xl font-bold tracking-tight text-fg">
           Fast and accurate even for incomplete code.
         </h2>
         <div class="mt-12">
           <div class="mb-3 flex items-center gap-2">
-            <span class="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
-            <span class="font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">Markdown + incomplete fenced code</span>
+            <span class="inline-block h-2 w-2 rounded-full bg-accent"></span>
+            <span class="font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">Markdown + incomplete fenced code</span>
           </div>
-          <div class="overflow-hidden border border-zinc-200 dark:border-zinc-800">
+          <div class="overflow-hidden border border-line rounded-lg">
             <div class="streaming-lumis [&_code]:font-mono"></div>
           </div>
         </div>

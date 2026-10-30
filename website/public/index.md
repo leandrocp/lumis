@@ -19,15 +19,15 @@ Lumis is a syntax highlighter powered by Tree-sitter. It supports 7 runtimes: CL
 
 ## Install
 
-| Runtime | Command or dependency |
-| --- | --- |
-| CLI | `curl -LsSf https://lumis.sh/install.sh \| sh` |
-| Rust | `cargo add lumis` |
-| JavaScript / TypeScript | `npm install @lumis-sh/lumis @lumis-sh/themes @lumis-sh/wasm-javascript` |
-| Browsers / CDN | `https://cdn.jsdelivr.net/npm/@lumis-sh/lumis/+esm` |
-| Elixir | `{:lumis, "~> 0.10"}` plus a parser such as `{:lumis_wasm_elixir, "~> 0.26.0"}` |
-| Java (community) | `io.roastedroot:lumis4j:0.0.7` |
-| Python (community) | `pip install fastpylight` |
+| Runtime                 | Command or dependency                                                           |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| CLI                     | `curl -LsSf https://lumis.sh/install.sh \| sh`                                  |
+| Rust                    | `cargo add lumis`                                                               |
+| JavaScript / TypeScript | `npm install @lumis-sh/lumis @lumis-sh/themes @lumis-sh/wasm-javascript`        |
+| Browsers / CDN          | `https://cdn.jsdelivr.net/npm/@lumis-sh/lumis/+esm`                             |
+| Elixir                  | `{:lumis, "~> 0.10"}` plus a parser such as `{:lumis_wasm_elixir, "~> 0.26.0"}` |
+| Java (community)        | `io.roastedroot:lumis4j:0.0.7`                                                  |
+| Python (community)      | `pip install fastpylight`                                                       |
 
 ## Quick start
 
@@ -37,10 +37,7 @@ import { htmlInline } from "@lumis-sh/lumis/formatters";
 import dracula from "@lumis-sh/themes/dracula";
 import javascript from "@lumis-sh/wasm-javascript";
 
-const html = await highlight(
-  "const x = 1",
-  htmlInline({ language: javascript, theme: dracula }),
-);
+const html = await highlight("const x = 1", htmlInline({ language: javascript, theme: dracula }));
 ```
 
 The [quick start](https://docs.lumis.sh) has CLI, Rust, Elixir, browser, and Java examples. For fastpylight, see the [Python guide](https://docs.lumis.sh/usage/python).

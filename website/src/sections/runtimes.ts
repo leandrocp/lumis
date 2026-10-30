@@ -80,28 +80,28 @@ export function renderRuntimes() {
     <section id="runtimes" class="py-24 sm:py-36">
       <div class="mx-auto max-w-6xl px-6">
         <a href="#runtimes" class="group inline-flex items-center gap-1 font-mono text-sm font-semibold tracking-wider no-underline transition-opacity hover:opacity-80">
-          <span class="text-rose-400">&lt;</span><span class="text-indigo-400">Runtimes</span> <span class="text-rose-400">/&gt;</span>
+          <span class="text-accent">&lt;</span><span class="text-accent">Runtimes</span> <span class="text-accent">/&gt;</span>
         </a>
-        <h2 class="mt-8 font-mono text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
+        <h2 class="mt-8 font-display text-4xl font-bold tracking-tight text-fg">
           7 runtimes. Pick yours.
         </h2>
         <div class="mt-12">
           <div class="grid auto-rows-fr gap-4 sm:grid-cols-4 lg:grid-cols-8">
             ${RUNTIME_LINKS.map(
               (p, index) => `
-              <div class="min-w-0 border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-[#09090b] sm:col-span-2 ${index === 4 ? "lg:col-start-2" : ""} ${index === 5 ? "lg:col-start-4" : ""} ${index === 6 ? "sm:col-start-2 lg:col-start-6" : ""}">
-                <h3 class="font-mono text-sm font-bold tracking-wider text-zinc-900 uppercase dark:text-white lg:min-h-10">${p.name}</h3>
-                <div class="mt-4 flex min-h-20 items-center justify-between gap-2 border border-zinc-100 px-3 py-2 dark:border-zinc-800">
-                  <code class="min-w-0 font-mono text-xs text-zinc-600 [overflow-wrap:anywhere] dark:text-zinc-400"><span class="mr-2 text-zinc-300 select-none dark:text-zinc-700">&gt;</span>${p.install}</code>
-                  <button class="copy-install shrink-0 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard" data-copy="${encodeURIComponent(p.install)}">${COPY_SVG}</button>
+              <div class="min-w-0 border border-line rounded-lg bg-surface p-5   sm:col-span-2 ${index === 4 ? "lg:col-start-2" : ""} ${index === 5 ? "lg:col-start-4" : ""} ${index === 6 ? "sm:col-start-2 lg:col-start-6" : ""}">
+                <h3 class="font-mono text-sm font-bold tracking-wider text-fg uppercase  lg:min-h-10">${p.name}</h3>
+                <div class="mt-4 flex min-h-20 items-center justify-between gap-2 border border-control rounded-lg px-3 py-2">
+                  <code class="min-w-0 font-mono text-xs text-muted [overflow-wrap:anywhere]"><span class="mr-2 text-subtle select-none">&gt;</span>${p.install}</code>
+                  <button class="copy-install shrink-0 cursor-pointer text-subtle transition-colors hover:text-fg hover:text-accent" aria-label="Copy to clipboard" data-copy="${encodeURIComponent(p.install)}">${COPY_SVG}</button>
                 </div>
                 <div class="mt-4 flex flex-wrap gap-2">
                   ${p.links
                     .map(
                       (link) =>
-                        `<a href="${link.href}" target="_blank" rel="noreferrer" class="font-mono text-xs text-zinc-500 underline decoration-zinc-300 underline-offset-2 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:decoration-zinc-700 dark:hover:text-white">${link.label}</a>`,
+                        `<a href="${link.href}" target="_blank" rel="noreferrer" class="font-mono text-xs text-muted underline decoration-line underline-offset-2 transition-colors hover:text-accent">${link.label}</a>`,
                     )
-                    .join('<span class="text-zinc-300 dark:text-zinc-700">/</span>')}
+                    .join('<span class="text-subtle">/</span>')}
                 </div>
               </div>
             `,
