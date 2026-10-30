@@ -106,7 +106,6 @@ a:not([class]):hover {
   *::before,
   *::after {
     transition: none !important;
-    transform: none !important;
   }
 }
 
@@ -144,19 +143,169 @@ a:not([class]):hover {
   color: light-dark(#62678a, #8a90b2);
 }
 
-#hero-fluid {
-  @apply absolute! inset-0 -top-16;
-  mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 65%, transparent 100%);
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 20%,
-    black 65%,
-    transparent 100%
+#hero-wow {
+  --wow-code-base: rgb(14 21 48 / 7%);
+  --wow-k: #5b3fd9;
+  --wow-f: #b4235f;
+  --wow-n: #c8354a;
+  --wow-t: #b8461a;
+  --wow-s: #8f6200;
+  --wow-c: #8a8478;
+  --wow-p: #545a78;
+  --wow-plain: #0e1530;
+  --wow-lit-opacity: 0.92;
+  --wow-safe: 0.15;
+  --wow-glow: radial-gradient(
+    closest-side,
+    rgb(255 194 61 / 40%),
+    rgb(255 122 69 / 18%) 40%,
+    rgb(255 95 174 / 7%) 68%,
+    rgb(255 95 174 / 0) 100%
   );
-  opacity: 0.6;
+  --wow-r: 220px;
+  contain: strict;
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
 }
 
-#hero-fluid canvas {
-  @apply absolute! inset-0 w-full! h-full!;
+#hero-wow.is-on {
+  opacity: 1;
+}
+
+.wow-field {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image:
+    radial-gradient(ellipse 34rem 25rem at 50% 50%, rgb(0 0 0 / var(--wow-safe)) 0 58%, #000 100%),
+    linear-gradient(#000 70%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    radial-gradient(ellipse 34rem 25rem at 50% 50%, rgb(0 0 0 / var(--wow-safe)) 0 58%, #000 100%),
+    linear-gradient(#000 70%, transparent);
+  mask-composite: intersect;
+}
+.wow-code {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 88px 40px;
+  font:
+    400 13.5px/1.75 "JetBrains Mono",
+    ui-monospace,
+    monospace;
+  white-space: pre;
+  columns: 22rem;
+  column-gap: 3.5rem;
+  column-fill: auto;
+}
+.wow-code b {
+  display: block;
+  break-inside: avoid;
+  margin: 0 0 2.4em;
+  font-weight: 400;
+}
+.wow-code i {
+  font-style: normal;
+}
+.wow-base {
+  color: var(--wow-code-base);
+}
+.wow-base i {
+  color: inherit;
+}
+.wow-lit {
+  color: var(--wow-plain);
+}
+.wow-lit .k {
+  color: var(--wow-k);
+}
+.wow-lit .f {
+  color: var(--wow-f);
+}
+.wow-lit .n {
+  color: var(--wow-n);
+}
+.wow-lit .t {
+  color: var(--wow-t);
+}
+.wow-lit .s {
+  color: var(--wow-s);
+}
+.wow-lit .c {
+  color: var(--wow-c);
+}
+.wow-lit .p {
+  color: var(--wow-p);
+}
+.wow-glow,
+.wow-lens {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  will-change: transform, opacity;
+}
+.wow-glow {
+  width: calc(var(--wow-r) * 3.2);
+  height: calc(var(--wow-r) * 3.2);
+  margin: calc(var(--wow-r) * -1.6) 0 0 calc(var(--wow-r) * -1.6);
+  background: var(--wow-glow);
+}
+.wow-lens {
+  width: calc(var(--wow-r) * 2);
+  height: calc(var(--wow-r) * 2);
+  margin: calc(var(--wow-r) * -1) 0 0 calc(var(--wow-r) * -1);
+  overflow: hidden;
+  -webkit-mask-image: radial-gradient(
+    closest-side,
+    #000 0 38%,
+    rgb(0 0 0 / 55%) 70%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(closest-side, #000 0 38%, rgb(0 0 0 / 55%) 70%, transparent 100%);
+}
+.wow-lens .wow-lit {
+  opacity: var(--wow-lit-opacity);
+  will-change: transform;
+}
+
+@media (max-width: 639px) {
+  #hero-wow {
+    --wow-r: 150px;
+  }
+  .wow-code {
+    padding: 72px 20px;
+    font-size: 12px;
+    columns: 18rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  #hero-wow {
+    --wow-code-base: rgb(174 179 207 / 6.5%);
+    --wow-k: #a58bff;
+    --wow-f: #ff5fae;
+    --wow-n: #ff6f6f;
+    --wow-t: #ff7a45;
+    --wow-s: #ffc23d;
+    --wow-c: #636c99;
+    --wow-p: #aeb3cf;
+    --wow-plain: #f7f5f0;
+    --wow-lit-opacity: 0.95;
+    --wow-safe: 0.18;
+    --wow-glow: radial-gradient(
+      closest-side,
+      rgb(255 138 76 / 36%),
+      rgb(255 111 111 / 17%) 38%,
+      rgb(255 95 174 / 7%) 66%,
+      rgb(255 95 174 / 0) 100%
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #hero-wow {
+    transition: none;
+  }
 }
