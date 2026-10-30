@@ -41,9 +41,26 @@
   --color-fd-ring: #ffc23d;
 }
 
+.dark #nd-sidebar {
+  --color-fd-muted: #1e2850;
+  --color-fd-secondary: #1e2850;
+  --color-fd-muted-foreground: #aeb3cf;
+}
+
 .prose :is(h1, h2, h3),
+#nd-page > h1,
 #nd-nav-title {
   font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+}
+
+#nd-page > h1 {
+  font-weight: 800;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-fd-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 html {
