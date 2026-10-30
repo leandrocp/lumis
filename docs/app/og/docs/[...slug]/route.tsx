@@ -14,6 +14,16 @@ export async function GET(_req: Request, { params }: RouteContext<"/og/docs/[...
     title: page.data.title,
     description: page.data.description,
     site: appName,
+    icon: (
+      <img
+        src="https://raw.githubusercontent.com/leandrocp/lumis/main/assets/brand/png/icon-dark.png"
+        alt="Lumis"
+        width={64}
+        height={64}
+      />
+    ),
+    primaryColor: "rgba(140,107,255,0.35)",
+    primaryTextColor: "#A58BFF",
   });
 }
 

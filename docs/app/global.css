@@ -1,6 +1,50 @@
-@import 'tailwindcss';
-@import 'fumadocs-ui/css/neutral.css';
-@import 'fumadocs-ui/css/preset.css';
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+@theme {
+  --color-fd-background: #f7f5f0;
+  --color-fd-foreground: #0e1530;
+  --color-fd-muted: #efece4;
+  --color-fd-muted-foreground: #545a78;
+  --color-fd-popover: #ffffff;
+  --color-fd-popover-foreground: #0e1530;
+  --color-fd-card: #ffffff;
+  --color-fd-card-foreground: #0e1530;
+  --color-fd-border: #dcd7cb;
+  --color-fd-primary: #5b3fd9;
+  --color-fd-primary-foreground: #ffffff;
+  --color-fd-secondary: #efece4;
+  --color-fd-secondary-foreground: #0e1530;
+  --color-fd-accent: rgb(140 107 255 / 0.12);
+  --color-fd-accent-foreground: #0e1530;
+  --color-fd-ring: #5b3fd9;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+.dark {
+  --color-fd-background: #0e1530;
+  --color-fd-foreground: #f7f5f0;
+  --color-fd-muted: #1e2850;
+  --color-fd-muted-foreground: #aeb3cf;
+  --color-fd-popover: #161e3f;
+  --color-fd-popover-foreground: #f7f5f0;
+  --color-fd-card: #161e3f;
+  --color-fd-card-foreground: #f7f5f0;
+  --color-fd-border: #2e3760;
+  --color-fd-primary: #a58bff;
+  --color-fd-primary-foreground: #0e1530;
+  --color-fd-secondary: #1e2850;
+  --color-fd-secondary-foreground: #f7f5f0;
+  --color-fd-accent: rgb(140 107 255 / 0.18);
+  --color-fd-accent-foreground: #f7f5f0;
+  --color-fd-ring: #ffc23d;
+}
+
+.prose :is(h1, h2, h3),
+#nd-nav-title {
+  font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+}
 
 html {
   scrollbar-gutter: stable;
@@ -23,7 +67,7 @@ html > body[data-scroll-locked] {
 
 .lumis {
   overflow-x: auto;
-  border-radius: 0.5rem;
+  border-radius: 14px;
   padding: 1rem;
 }
 
@@ -37,11 +81,13 @@ html > body[data-scroll-locked] {
 
 .codeBlockContainer_lumis {
   overflow: hidden;
-  border-radius: 0.5rem;
+  border-radius: 14px;
   margin: 1rem 0;
 }
 
-.codeBlockContainer_lumis .lumis { border-radius: 0; }
+.codeBlockContainer_lumis .lumis {
+  border-radius: 0;
+}
 .codeBlockTitle_lumis {
   display: flex;
   align-items: center;
@@ -50,5 +96,7 @@ html > body[data-scroll-locked] {
   padding: 0 0.25rem 0 1rem;
   border-bottom: 1px solid var(--color-fd-border);
   background: var(--color-fd-muted);
-  font: 600 0.875rem ui-monospace, monospace;
+  font:
+    600 0.875rem ui-monospace,
+    monospace;
 }
