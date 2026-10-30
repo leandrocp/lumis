@@ -122,8 +122,8 @@ css = theme_css("dracula", "pre code")`,
 
 export function renderQuickstart() {
   return `
-    <section id="quickstart" class="py-24 sm:py-36">
-      <div class="mx-auto max-w-4xl px-6">
+    <section id="quickstart" class="py-24 sm:py-28">
+      <div class="mx-auto max-w-6xl px-6">
         <a href="#quickstart" class="group inline-flex items-center gap-1 font-mono text-sm font-semibold tracking-wider no-underline transition-opacity hover:opacity-80">
           <span class="text-accent">&lt;</span><span class="text-accent">Quickstart</span> <span class="text-accent">/&gt;</span>
         </a>
@@ -156,8 +156,8 @@ export function renderQuickstart() {
               ${
                 tab.install
                   ? `
-              <div class="border border-line rounded-lg">
-                <div class="flex items-center justify-between border-b border-line px-4 py-2">
+              <div class="overflow-hidden rounded-lg bg-surface">
+                <div class="flex items-center justify-between bg-surface-2 px-4 py-2">
                   <span class="font-mono text-[11px] tracking-wider text-muted uppercase">Install</span>
                   <button class="copy-install shrink-0 cursor-pointer text-subtle transition-colors hover:text-accent" aria-label="Copy to clipboard" data-copy="${encodeURIComponent(tab.install.code)}">${COPY_SVG}</button>
                 </div>
@@ -175,8 +175,8 @@ export function renderQuickstart() {
               }
               ${tab.id === "python" ? `<p class="font-mono text-xs leading-6 text-muted">fastpylight is maintained by Answer.AI. Add the generated CSS to your page to apply the theme. <a href="https://docs.lumis.sh/usage/python" class="underline underline-offset-2">Python guide</a></p>` : ""}
               ${tab.id === "java" ? `<p class="font-mono text-xs leading-6 text-muted">Lumis4J is maintained by roastedroot. <a href="https://docs.lumis.sh/usage/java" class="underline underline-offset-2">Java guide</a></p>` : ""}
-              <div class="border border-line rounded-lg">
-                <div class="flex items-center justify-between border-b border-line px-4 py-2">
+              <div class="overflow-hidden rounded-lg bg-surface">
+                <div class="flex items-center justify-between bg-surface-2 px-4 py-2">
                   <span class="font-mono text-[11px] tracking-wider text-muted uppercase">Usage</span>
                   <button class="copy-install shrink-0 cursor-pointer text-subtle transition-colors hover:text-accent" aria-label="Copy to clipboard" data-copy="${encodeURIComponent(tab.usage.code)}">${COPY_SVG}</button>
                 </div>

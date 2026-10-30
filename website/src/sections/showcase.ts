@@ -633,12 +633,12 @@ export function renderShowcase() {
           Frameworks, editors and terminals cannot be embedded in a page. Each of these is a
           directory in the repository.
         </p>
-        <div class="mt-8 grid gap-px border border-line rounded-lg bg-surface-2   sm:grid-cols-2 lg:grid-cols-3">
+        <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           ${CATALOG.map(
             (entry) => `
             <a href="${entry.href}" target="_blank" rel="noreferrer"
-               class="group bg-surface p-6 transition-colors hover:bg-surface-2">
-              <h3 class="flex items-center gap-1.5 font-mono text-sm font-bold tracking-wider text-fg">
+               class="group rounded-lg bg-surface-2 p-6 transition-colors hover:bg-accent-soft dark:bg-surface dark:hover:bg-surface-2">
+              <h3 class="flex items-center gap-1.5 font-mono text-sm font-bold tracking-wider text-accent">
                 ${entry.title}
                 <svg class="h-3.5 w-3.5 text-subtle transition-transform group-hover:translate-x-0.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
               </h3>

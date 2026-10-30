@@ -20,7 +20,7 @@ const HTML_CSS_JS_SOURCE = `<section class="greeting-card">
 
 export function renderInjections() {
   return `
-    <section id="injections" class="py-24 sm:py-36">
+    <section id="injections" class="py-24 sm:py-28">
       <div class="mx-auto max-w-6xl px-6">
         <a href="#injections" class="group inline-flex items-center gap-1 font-mono text-sm font-semibold tracking-wider no-underline transition-opacity hover:opacity-80">
           <span class="text-accent">&lt;</span><span class="text-accent">Injections</span> <span class="text-accent">/&gt;</span>
@@ -43,21 +43,21 @@ export function renderInjections() {
               </span>
             </div>
           </div>
-          <div class="overflow-hidden border border-line rounded-lg">
+          <div class="overflow-hidden rounded-lg bg-surface">
             <div class="injection-preview-html-nested [&_code]:font-mono"></div>
           </div>
         </div>
 
         <dl class="mt-12 grid gap-8 sm:grid-cols-3">
-          <div class="border-l-2 border-line py-1 pl-5 ">
+          <div class="py-1">
             <dt class="font-mono text-sm font-medium text-fg">Multi-level nesting</dt>
             <dd class="mt-1 font-mono text-xs leading-relaxed text-muted">Each injected language gets its own parser, loaded during the pass that finds it. No depth limits, no second pass.</dd>
           </div>
-          <div class="border-l-2 border-line py-1 pl-5 ">
+          <div class="py-1">
             <dt class="font-mono text-sm font-medium text-fg">Language-aware scopes</dt>
             <dd class="mt-1 font-mono text-xs leading-relaxed text-muted">Tokens know which language they belong to. Themes apply the right colors automatically.</dd>
           </div>
-          <div class="border-l-2 border-line py-1 pl-5 ">
+          <div class="py-1">
             <dt class="font-mono text-sm font-medium text-fg">Real embedded syntax</dt>
             <dd class="mt-1 font-mono text-xs leading-relaxed text-muted">Injected blocks are not plain text, so strings, keywords, and punctuation keep the right scopes.</dd>
           </div>

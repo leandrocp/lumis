@@ -84,7 +84,7 @@ const INTEGRATION_LINKS = [
 
 export function renderIntegrations() {
   return `
-    <section id="integrations" class="py-24 sm:py-36">
+    <section id="integrations" class="py-24 sm:py-28">
       <div class="mx-auto max-w-6xl px-6">
         <a href="#integrations" class="group inline-flex items-center gap-1 font-mono text-sm font-semibold tracking-wider no-underline transition-opacity hover:opacity-80">
           <span class="text-accent">&lt;</span><span class="text-accent">Integrations</span> <span class="text-accent">/&gt;</span>
@@ -93,18 +93,20 @@ export function renderIntegrations() {
           Plug the building blocks.
         </h2>
 
-        <div class="mt-12 grid gap-px border border-line rounded-lg bg-surface-2   sm:grid-cols-2 lg:grid-cols-4">
+        <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           ${INTEGRATION_LINKS.map(
             (integration) => `
-              <div class="bg-surface p-6 ">
+              <div class="rounded-lg bg-surface-2 p-6 dark:bg-surface">
                 <h3 class="font-mono text-sm font-bold tracking-wider text-fg uppercase ">${integration.name}</h3>
-                <div class="mt-4 flex flex-wrap gap-2">
+                <div class="mt-4 flex flex-wrap gap-x-2.5 gap-y-2">
                   ${integration.links
                     .map(
                       (link) =>
-                        `<a href="${link.href}"${link.href.startsWith("http") ? ' target="_blank" rel="noreferrer"' : ""} class="font-mono text-xs text-muted underline decoration-line underline-offset-2 transition-colors hover:text-fg dark:text-subtle  hover:text-accent">${link.label}</a>`,
+                        `<a href="${link.href}"${link.href.startsWith("http") ? ' target="_blank" rel="noreferrer"' : ""} class="font-mono text-xs text-accent no-underline hover:underline underline-offset-3">${link.label}</a>`,
                     )
-                    .join('<span class="text-subtle">/</span>')}
+                    .join(
+                      '<span aria-hidden="true" class="size-[3px] self-center rounded-full bg-subtle"></span>',
+                    )}
                 </div>
               </div>
             `,

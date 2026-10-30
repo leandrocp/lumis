@@ -177,10 +177,20 @@ a:not([class]):hover {
   inset: 0;
   -webkit-mask-image:
     radial-gradient(ellipse 34rem 25rem at 50% 50%, rgb(0 0 0 / var(--wow-safe)) 0 58%, #000 100%),
+    radial-gradient(
+      ellipse 46rem 13rem at 50% calc(100% - 184px),
+      rgb(0 0 0 / var(--wow-safe)) 0 66%,
+      #000 100%
+    ),
     linear-gradient(#000 70%, transparent);
   -webkit-mask-composite: source-in;
   mask-image:
     radial-gradient(ellipse 34rem 25rem at 50% 50%, rgb(0 0 0 / var(--wow-safe)) 0 58%, #000 100%),
+    radial-gradient(
+      ellipse 46rem 13rem at 50% calc(100% - 184px),
+      rgb(0 0 0 / var(--wow-safe)) 0 66%,
+      #000 100%
+    ),
     linear-gradient(#000 70%, transparent);
   mask-composite: intersect;
 }
