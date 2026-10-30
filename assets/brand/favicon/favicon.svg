@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" role="img" aria-label="Lumis">
+  <title>Lumis</title>
+<g shape-rendering="crispEdges">
+<path d="M5 0h6v1h-6zM3 1h10v1h-10zM2 2h2v1h-2zM7 2h7v1h-7zM1 3h2v1h-2zM9 3h6v1h-6z" fill="#8C6BFF"/>
+<path d="M1 4h1v1h-1zM10 4h5v1h-5zM0 5h1v1h-1zM10 5h6v1h-6zM0 6h2v1h-2zM10 6h6v1h-6z" fill="#FF5FAE"/>
+<path d="M0 7h2v1h-2zM4 7h1v1h-1zM6 7h1v1h-1zM9 7h7v1h-7zM0 8h4v1h-4zM5 8h1v1h-1zM7 8h9v1h-9zM0 9h5v1h-5zM6 9h10v1h-10z" fill="#FF7A45"/>
+<path d="M0 10h5v1h-5zM6 10h10v1h-10zM3 11h1v1h-1zM7 11h9v1h-9zM10 12h5v1h-5zM14 13h1v1h-1z" fill="#FFC23D"/>
+<path d="M4 2h3v1h-3zM3 3h6v1h-6zM2 4h8v1h-8zM1 5h9v1h-9zM2 6h8v1h-8zM2 7h2v1h-2zM5 7h1v1h-1zM7 7h2v1h-2zM4 8h1v1h-1zM6 8h1v1h-1zM5 9h1v1h-1zM5 10h1v1h-1zM0 11h3v1h-3zM4 11h3v1h-3zM1 12h9v1h-9zM1 13h13v1h-13zM2 14h12v1h-12zM3 15h10v1h-10z" fill="#0E1530"/>
+</g>
+</svg>
