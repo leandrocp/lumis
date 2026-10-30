@@ -68,9 +68,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: stable
-        if: ${{ !endsWith(matrix.target, '-musl') }}
-        with:
           targets: ${{ matrix.target }}
+        if: ${{ !endsWith(matrix.target, '-musl') }}
 
       - name: Build native runtime
         if: ${{ !endsWith(matrix.target, '-musl') }}
@@ -161,9 +160,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: stable
-        if: ${{ !endsWith(matrix.target, '-musl') }}
-        with:
           targets: ${{ matrix.target }}
+        if: ${{ !endsWith(matrix.target, '-musl') }}
 
       - name: Build CLI
         if: ${{ !endsWith(matrix.target, '-musl') }}
