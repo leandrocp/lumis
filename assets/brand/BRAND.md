@@ -113,7 +113,7 @@ On ink or any dark background, use the `-dark` files. They place a warm radial h
 | `png/*.png`, `png/*@2x.png` | Color PNGs at 1x and 2x. The 1x widths are: badge 512, icon 256, horizontal lockup 640, stacked lockup 360. |
 | `favicon/favicon.svg`, `favicon/favicon-{16,32}.png` | Browser favicons. |
 | `favicon/favicon-180.png`, `favicon/favicon-512.png`, `favicon/app-icon.svg` | Apple touch icon and app icon, plus their source. |
-| `banners/readme-banner-{dark,light}.{svg,png}`, `@2x.png` | README header banners. |
+| `banners/readme-banner-{dark,light}.{svg,png}`, `banners/readme-banner-{dark,light}@2x.png` | README header banners. |
 | `social/social-preview.{svg,png}` | GitHub social preview, 1280 × 640. |
 | `overview.png` | Board showing every version on dark and light. |
 
