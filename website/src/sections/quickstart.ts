@@ -125,26 +125,26 @@ export function renderQuickstart() {
     <section id="quickstart" class="py-24 sm:py-36">
       <div class="mx-auto max-w-4xl px-6">
         <a href="#quickstart" class="group inline-flex items-center gap-1 font-mono text-sm font-semibold tracking-wider no-underline transition-opacity hover:opacity-80">
-          <span class="text-amber-400">&lt;</span><span class="text-violet-400">Quickstart</span> <span class="text-amber-400">/&gt;</span>
+          <span class="text-accent">&lt;</span><span class="text-accent">Quickstart</span> <span class="text-accent">/&gt;</span>
         </a>
-        <h2 class="mt-8 font-mono text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
+        <h2 class="mt-8 font-display text-4xl font-bold tracking-tight text-fg">
           Install, import, highlight.
         </h2>
         <div class="mt-6 flex flex-wrap items-center gap-3">
           <a href="https://docs.lumis.sh"
-             class="inline-flex items-center gap-2 border border-zinc-200 px-4 py-2 font-mono text-xs tracking-wider text-zinc-700 uppercase transition-colors hover:border-zinc-900 hover:text-zinc-900 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-white dark:hover:text-white">
+             class="inline-flex items-center gap-2 border border-control rounded-lg px-4 py-2 font-mono text-xs tracking-wider text-muted uppercase transition-colors hover:border-accent hover:text-accent">
             docs
             <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
           </a>
         </div>
 
         <div class="mt-12">
-          <div class="flex gap-1 overflow-x-auto border-b border-zinc-200 dark:border-zinc-800" role="tablist">
+          <div class="flex gap-1 overflow-x-auto border-b border-line" role="tablist">
             ${QUICKSTART_TABS.map(
               (tab, i) => `
               <button role="tab" data-tab="${tab.id}" aria-selected="${i === 0}" aria-controls="quickstart-panel-${tab.id}"
                 class="quickstart-tab shrink-0 cursor-pointer border-b-2 px-4 py-2 font-mono text-xs tracking-wider uppercase transition-colors
-                  ${i === 0 ? "border-zinc-900 text-zinc-900 dark:border-white dark:text-white" : "border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"}"
+                  ${i === 0 ? "border-accent text-fg" : "border-transparent text-muted hover:text-accent"}"
               >${tab.label}</button>
             `,
             ).join("")}
@@ -156,13 +156,13 @@ export function renderQuickstart() {
               ${
                 tab.install
                   ? `
-              <div class="border border-zinc-200 dark:border-zinc-800">
-                <div class="flex items-center justify-between border-b border-zinc-200 px-4 py-2 dark:border-zinc-800">
-                  <span class="font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">Install</span>
-                  <button class="copy-install shrink-0 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard" data-copy="${encodeURIComponent(tab.install.code)}">${COPY_SVG}</button>
+              <div class="border border-line rounded-lg">
+                <div class="flex items-center justify-between border-b border-line px-4 py-2">
+                  <span class="font-mono text-[11px] tracking-wider text-muted uppercase">Install</span>
+                  <button class="copy-install shrink-0 cursor-pointer text-subtle transition-colors hover:text-accent" aria-label="Copy to clipboard" data-copy="${encodeURIComponent(tab.install.code)}">${COPY_SVG}</button>
                 </div>
                 <div class="quickstart-install [&_code]:font-mono" data-language="${tab.install.language}" data-code="${encodeURIComponent(tab.install.code)}">
-                  <pre class="m-0 overflow-x-auto px-5 py-4 font-mono text-[13px] leading-7 text-zinc-700 dark:text-zinc-300 sm:px-6 sm:text-sm"><code>${escapeHtml(tab.install.code)}</code></pre>
+                  <pre class="m-0 overflow-x-auto px-5 py-4 font-mono text-[13px] leading-7 text-muted sm:px-6 sm:text-sm"><code>${escapeHtml(tab.install.code)}</code></pre>
                 </div>
               </div>
               `
@@ -170,18 +170,18 @@ export function renderQuickstart() {
               }
               ${
                 tab.id === "javascript"
-                  ? `<p class="font-mono text-xs leading-6 text-zinc-500 dark:text-zinc-400">The same package works in JavaScript and TypeScript, with types included. It loads exact parser WASM per language from the packages you install.</p>`
+                  ? `<p class="font-mono text-xs leading-6 text-muted">The same package works in JavaScript and TypeScript, with types included. It loads exact parser WASM per language from the packages you install.</p>`
                   : ""
               }
-              ${tab.id === "python" ? `<p class="font-mono text-xs leading-6 text-zinc-500 dark:text-zinc-400">fastpylight is maintained by Answer.AI. Add the generated CSS to your page to apply the theme. <a href="https://docs.lumis.sh/usage/python" class="underline underline-offset-2">Python guide</a></p>` : ""}
-              ${tab.id === "java" ? `<p class="font-mono text-xs leading-6 text-zinc-500 dark:text-zinc-400">Lumis4J is maintained by roastedroot. <a href="https://docs.lumis.sh/usage/java" class="underline underline-offset-2">Java guide</a></p>` : ""}
-              <div class="border border-zinc-200 dark:border-zinc-800">
-                <div class="flex items-center justify-between border-b border-zinc-200 px-4 py-2 dark:border-zinc-800">
-                  <span class="font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">Usage</span>
-                  <button class="copy-install shrink-0 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard" data-copy="${encodeURIComponent(tab.usage.code)}">${COPY_SVG}</button>
+              ${tab.id === "python" ? `<p class="font-mono text-xs leading-6 text-muted">fastpylight is maintained by Answer.AI. Add the generated CSS to your page to apply the theme. <a href="https://docs.lumis.sh/usage/python" class="underline underline-offset-2">Python guide</a></p>` : ""}
+              ${tab.id === "java" ? `<p class="font-mono text-xs leading-6 text-muted">Lumis4J is maintained by roastedroot. <a href="https://docs.lumis.sh/usage/java" class="underline underline-offset-2">Java guide</a></p>` : ""}
+              <div class="border border-line rounded-lg">
+                <div class="flex items-center justify-between border-b border-line px-4 py-2">
+                  <span class="font-mono text-[11px] tracking-wider text-muted uppercase">Usage</span>
+                  <button class="copy-install shrink-0 cursor-pointer text-subtle transition-colors hover:text-accent" aria-label="Copy to clipboard" data-copy="${encodeURIComponent(tab.usage.code)}">${COPY_SVG}</button>
                 </div>
                 <div class="quickstart-usage [&_code]:font-mono" data-language="${tab.usage.language}" data-code="${encodeURIComponent(tab.usage.code)}">
-                  <pre class="m-0 overflow-x-auto px-5 py-4 font-mono text-[13px] leading-7 text-zinc-700 dark:text-zinc-300 sm:px-6 sm:text-sm"><code>${escapeHtml(tab.usage.code)}</code></pre>
+                  <pre class="m-0 overflow-x-auto px-5 py-4 font-mono text-[13px] leading-7 text-muted sm:px-6 sm:text-sm"><code>${escapeHtml(tab.usage.code)}</code></pre>
                 </div>
               </div>
             </div>

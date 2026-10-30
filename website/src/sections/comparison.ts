@@ -41,26 +41,26 @@ export function renderComparison() {
     <section id="comparison" class="pt-32 pb-24 sm:pt-40 sm:pb-36">
       <div class="mx-auto max-w-6xl px-6">
         <h1 class="inline-flex items-center gap-1 font-mono text-sm font-semibold tracking-wider">
-          <span class="text-orange-400">&lt;</span><span class="text-cyan-400">Comparison</span> <span class="text-orange-400">/&gt;</span>
+          <span class="text-accent">&lt;</span><span class="text-accent">Comparison</span> <span class="text-accent">/&gt;</span>
         </h1>
 
-        <div class="comparison-shell mt-8 border border-zinc-200 dark:border-zinc-800">
-          <div class="border-b border-zinc-200 px-5 py-4 dark:border-zinc-800">
-            <p id="comparison-documents-label" class="mb-3 font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
+        <div class="comparison-shell mt-8 border border-line rounded-lg">
+          <div class="border-b border-line px-5 py-4 ">
+            <p id="comparison-documents-label" class="mb-3 font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">
               Source files
             </p>
             <div class="comparison-documents flex flex-wrap gap-2" role="tablist" aria-labelledby="comparison-documents-label"></div>
           </div>
-          <div class="border-b border-zinc-200 px-5 dark:border-zinc-800">
+          <div class="border-b border-line px-5 ">
             <div class="comparison-implementations flex flex-wrap gap-x-4 sm:gap-x-6" role="tablist" aria-label="Implementation"></div>
           </div>
-          <div class="comparison-viewport h-[70vh] min-h-[420px] bg-[#eff1f5] dark:bg-[#303446]">
+          <div class="comparison-viewport h-[70vh] min-h-[420px] bg-surface-2">
             <iframe class="comparison-frame block h-full w-full border-0" title="Highlighted output" loading="eager"></iframe>
-            <p class="comparison-unsupported hidden h-full items-center justify-center px-6 text-center font-mono text-sm text-[#4c4f69] dark:text-[#c6d0f5]"></p>
+            <p class="comparison-unsupported hidden h-full items-center justify-center px-6 text-center font-mono text-sm text-muted"></p>
           </div>
         </div>
 
-        <p class="comparison-missing mt-6 hidden font-mono text-sm text-zinc-500 dark:text-zinc-400"></p>
+        <p class="comparison-missing mt-6 hidden font-mono text-sm text-muted"></p>
       </div>
     </section>`;
 }
@@ -156,7 +156,7 @@ export async function setupComparison(root: HTMLElement) {
     button.dataset.id = entry.id;
     button.setAttribute("role", "tab");
     button.className =
-      "shrink-0 cursor-pointer border border-zinc-300 px-2.5 py-1 font-mono text-[11px] tracking-wider whitespace-nowrap uppercase transition-colors sm:px-3 sm:py-1.5 sm:text-xs dark:border-zinc-700";
+      "shrink-0 cursor-pointer border border-control px-2.5 py-1 font-mono text-[11px] tracking-wider whitespace-nowrap uppercase transition-colors sm:px-3 sm:py-1.5 sm:text-xs ";
     button.textContent = entry.label;
     button.addEventListener("click", selectDocument(entry));
     documentTabs.append(button);

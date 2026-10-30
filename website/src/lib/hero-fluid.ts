@@ -1,16 +1,6 @@
 import WebGLFluidEnhanced from "webgl-fluid-enhanced";
 
-// Syntax-highlighting-inspired color palette
-const COLOR_PALETTE = [
-  "#f472b6", // pink — keywords
-  "#a78bfa", // purple — strings
-  "#38bdf8", // blue — functions
-  "#34d399", // green — comments
-  "#fbbf24", // amber — types
-  "#fb923c", // orange — constants
-  "#f87171", // red — operators
-  "#818cf8", // indigo — attributes
-];
+const COLOR_PALETTE = ["#8C6BFF", "#FF5FAE", "#FF6F6F", "#FF7A45", "#FFC23D"];
 
 export function mountHeroFluid(container: HTMLElement): WebGLFluidEnhanced {
   const fluid = new WebGLFluidEnhanced(container);
@@ -18,7 +8,7 @@ export function mountHeroFluid(container: HTMLElement): WebGLFluidEnhanced {
   fluid.setConfig({
     transparent: true,
     colorPalette: COLOR_PALETTE,
-    colorful: true,
+    colorful: false,
     colorUpdateSpeed: 4,
     densityDissipation: 0.965,
     velocityDissipation: 0.992,

@@ -32,17 +32,17 @@ export function renderFormatters() {
     <section id="formatters" class="py-24 sm:py-36">
       <div class="mx-auto max-w-6xl px-6">
         <a href="#formatters" class="group inline-flex items-center gap-1 font-mono text-sm font-semibold tracking-wider no-underline transition-opacity hover:opacity-80">
-          <span class="text-sky-400">&lt;</span><span class="text-emerald-400">Formatters</span> <span class="text-sky-400">/&gt;</span>
+          <span class="text-accent">&lt;</span><span class="text-accent">Formatters</span> <span class="text-accent">/&gt;</span>
         </a>
-        <h2 class="mt-8 font-mono text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
+        <h2 class="mt-8 font-display text-4xl font-bold tracking-tight text-fg">
           Built-in formatters or bring your own.
         </h2>
-        <div class="mt-12 grid gap-px border border-zinc-200 bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="mt-12 grid gap-px border border-line rounded-lg bg-surface-2   sm:grid-cols-2 lg:grid-cols-3">
           ${FORMATTERS.map(
             (f) => `
-            <div class="bg-white p-6 dark:bg-[#09090b]">
-              <h3 class="font-mono text-sm font-bold tracking-wider text-zinc-900 dark:text-white">${f.name}</h3>
-              <p class="mt-2 font-mono text-xs leading-relaxed text-zinc-500">${f.description}</p>
+            <div class="bg-surface p-6 ">
+              <h3 class="font-mono text-sm font-bold tracking-wider text-fg">${f.name}</h3>
+              <p class="mt-2 font-mono text-xs leading-relaxed text-muted">${f.description}</p>
             </div>
           `,
           ).join("")}
