@@ -101,3 +101,34 @@ describe("with markdown-it-attrs", () => {
     expect(html).not.toContain("id=");
   });
 });
+
+async function renderInline(source: string): Promise<string> {
+  const plugin = await markdownItLumis({
+    formatter: (language) => htmlInline({ language, theme: dracula }),
+    languages: [javascript],
+    inlineCode: true,
+  });
+  return new MarkdownIt().use(markdownItAttrs).use(plugin).renderInline(source);
+}
+
+describe("inline code with markdown-it-attrs", () => {
+  it.each(["{.language-javascript #cta}", "{data-language=javascript #cta}"])(
+    "highlights `const x = 1`%s and keeps its attributes",
+    async (attrs) => {
+      const html = await renderInline(`Run \`const x = 1\`${attrs} first.`);
+
+      expect(html).toMatch(
+        /^Run <code class="lumis( language-javascript)?" style="color: #f8f8f2; background-color: #282a36;"/u,
+      );
+      expect(html).toContain('id="cta"');
+      expect(html).toMatch(/<span style="color: #[0-9a-f]+;">const<\/span>/u);
+      expect(html.endsWith("</code> first.")).toBe(true);
+    },
+  );
+
+  it("leaves `x`{.nohighlight .language-javascript} to markdown-it-attrs", async () => {
+    const html = await renderInline("`x`{.nohighlight .language-javascript}");
+
+    expect(html).toBe('<code class="nohighlight language-javascript">x</code>');
+  });
+});

@@ -1,6 +1,8 @@
 import type { Element, Properties, Root } from "hast";
 import { describe, expect, it, vi } from "vitest";
 import { visit } from "unist-util-visit";
+import { toString } from "hast-util-to-string";
+import markers from "../../../../fixtures/inline-code-markers.json";
 import dracula from "../../themes/dist/json/dracula.json";
 import githubLight from "../../themes/dist/json/github_light.json";
 import javascript from "../../lumis/langs/javascript.ts";
@@ -842,5 +844,136 @@ describe("rehype-lumis", () => {
 
       assertLumisPreElement(tree);
     });
+  });
+});
+
+function inlineCodeTree(properties: Properties, text: string): Root {
+  return {
+    type: "root",
+    children: [
+      {
+        type: "element",
+        tagName: "p",
+        properties: {},
+        children: [
+          { type: "text", value: "Run " },
+          {
+            type: "element",
+            tagName: "code",
+            properties,
+            children: [{ type: "text", value: text }],
+          },
+          { type: "text", value: " first." },
+        ],
+      },
+    ],
+  };
+}
+
+const draculaFormatter: RehypeLumisOptions["formatter"] = (language) =>
+  htmlInline({ language, theme: dracula });
+const unmarked = markers.cases.filter((marker) => marker.language === null);
+const marked = markers.cases.filter((marker) => marker.language !== null);
+
+describe("inlineCode", () => {
+  it("leaves inline code alone unless enabled", async () => {
+    const tree = inlineCodeTree({ className: ["language-json"] }, "x{:json}");
+    const snapshot = structuredClone(tree);
+
+    await rehypeLumis({ formatter: draculaFormatter })(tree);
+
+    expect(tree).toEqual(snapshot);
+  });
+
+  it.each(marked)("highlights $text with the {:lang} suffix removed", async ({ text, code }) => {
+    const tree = inlineCodeTree({}, text);
+
+    await rehypeLumis({ formatter: draculaFormatter, inlineCode: true })(tree);
+
+    const [element] = findElements(tree, "code");
+    expect(toString(element)).toBe(code);
+    expect(classNames(element)).toEqual(["lumis"]);
+    expect(findElements(tree, "span").length).toBeGreaterThan(0);
+  });
+
+  it.each(unmarked)("leaves $text without a marker untouched", async ({ text }) => {
+    const formatter = vi.fn<RehypeLumisOptions["formatter"]>(draculaFormatter);
+    const tree = inlineCodeTree({}, text);
+    const snapshot = structuredClone(tree);
+
+    await rehypeLumis({ formatter, inlineCode: true })(tree);
+
+    expect(tree).toEqual(snapshot);
+    expect(formatter).not.toHaveBeenCalled();
+  });
+
+  it.each([{ className: ["inline", "language-json"] }, { dataLanguage: "json" }])(
+    "highlights a <code> labeled by %j and keeps its attributes",
+    async (label) => {
+      const tree = inlineCodeTree({ ...label, id: "cta", style: "padding: 0;" }, '{"a": 1}');
+
+      await rehypeLumis({ formatter: draculaFormatter, inlineCode: true })(tree);
+
+      const paragraph = tree.children[0] as Element;
+      const element = paragraph.children[1] as Element;
+      expect(paragraph.children).toHaveLength(3);
+      expect(element.tagName).toBe("code");
+      expect(element.properties.id).toBe("cta");
+      expect(classNames(element)).toEqual(["lumis", ...(label.className ?? [])]);
+      expect(style(element)).toBe("color: #f8f8f2; background-color: #282a36; padding: 0;");
+      expect(toString(element)).toBe('{"a": 1}');
+      expect(findElements(tree, "pre")).toHaveLength(0);
+      expect(
+        element.children.every((child) => child.type !== "element" || child.tagName === "span"),
+      ).toBe(true);
+      expect(assertSpansExist(tree).some((span) => style(span).startsWith("color: #"))).toBe(true);
+    },
+  );
+
+  it("gives linked inline code the lumis class and scope classes", async () => {
+    const tree = inlineCodeTree({}, '{"a": 1}{:json}');
+
+    await rehypeLumis({ formatter: (language) => htmlLinked({ language }), inlineCode: true })(
+      tree,
+    );
+
+    const [element] = findElements(tree, "code");
+    expect(element.properties).toEqual({ className: ["lumis"] });
+    expect(assertSpansExist(tree).some((span) => classNames(span)[0]?.startsWith("l-"))).toBe(true);
+  });
+
+  it("renders a language that cannot load as plain text without its marker", async () => {
+    const formatter = vi.fn<RehypeLumisOptions["formatter"]>(draculaFormatter);
+    const tree = inlineCodeTree({}, "x = 1{:no-such-language}");
+
+    await rehypeLumis({ formatter, inlineCode: true })(tree);
+
+    expect(formatter).toHaveBeenCalledWith(undefined);
+    expect(toString(findElements(tree, "code")[0])).toBe("x = 1");
+  });
+
+  it.each([
+    ["an opt-out class", inlineCodeTree({ className: ["language-json", "nohighlight"] }, "1")],
+    ["a formatter with no inline structure", inlineCodeTree({ dataLanguage: "json" }, "1")],
+  ])("leaves inline code with %s untouched", async (_, tree) => {
+    const snapshot = structuredClone(tree);
+
+    await rehypeLumis({
+      formatter: (language) => terminal({ language, theme: dracula }),
+      inlineCode: true,
+    })(tree);
+
+    expect(tree).toEqual(snapshot);
+  });
+
+  it("does not treat the <code> of a declined block as inline", async () => {
+    const tree = codeBlockTree({ code: "x{:json}" });
+    const snapshot = structuredClone(tree);
+
+    await rehypeLumis({ formatter: draculaFormatter, defaultLanguage: false, inlineCode: true })(
+      tree,
+    );
+
+    expect(tree).toEqual(snapshot);
   });
 });

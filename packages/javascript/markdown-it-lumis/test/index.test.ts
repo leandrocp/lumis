@@ -14,11 +14,14 @@ import {
 import type { LanguageRef } from "@lumis-sh/lumis";
 import { htmlInline, htmlLinked, htmlMultiThemes, terminal } from "@lumis-sh/lumis/formatters";
 import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
+import markers from "../../../../fixtures/inline-code-markers.json";
+import { fromHtml } from "hast-util-from-html";
+import { toString } from "hast-util-to-string";
 
 const JS_SOURCE = "```javascript\nconst x = 1\n```";
 const JSON_SOURCE = '```json\n{"a": 1}\n```';
 
-configureLocalWasmResolver(["javascript", "json"], {
+configureLocalWasmResolver(["javascript", "json", "elixir"], {
   configureLanguagePackageResolver,
   configureWasmResolver,
 });
@@ -362,5 +365,83 @@ describe("markdown-it-lumis", () => {
       expect(html).toMatch(/<pre class="lumis"/u);
       expect(html).toMatch(/<span style="color: #[0-9a-f]+;">const<\/span>/u);
     });
+  });
+});
+
+function codeText(html: string): string {
+  const code = fromHtml(html, { fragment: true }).children.find(
+    (node) => node.type === "element" && node.tagName === "code",
+  );
+  return code ? toString(code) : "";
+}
+
+async function renderInline(
+  source: string,
+  options: Partial<Parameters<typeof markdownItLumis>[0]> = {},
+): Promise<string> {
+  const plugin = await markdownItLumis({
+    formatter: (language) => htmlInline({ language, theme: dracula }),
+    languages: [javascript, json, "elixir"],
+    inlineCode: true,
+    ...options,
+  });
+  return new MarkdownIt().use(plugin).renderInline(source);
+}
+
+describe("inlineCode", () => {
+  it("leaves inline code to markdown-it unless enabled", async () => {
+    const source = "Run `const x = 1{:javascript}` first.";
+
+    expect(await renderInline(source, { inlineCode: undefined })).toBe(
+      new MarkdownIt().renderInline(source),
+    );
+  });
+
+  it.each(markers.cases.filter((marker) => marker.language !== null))(
+    "highlights $text with the {:lang} suffix removed",
+    async ({ text, code }) => {
+      const html = await renderInline(`Run \`${text}\` first.`);
+
+      expect(html).toMatch(
+        /^Run <code class="lumis" style="color: #f8f8f2; background-color: #282a36;">/u,
+      );
+      expect(html.endsWith("</code> first.")).toBe(true);
+      expect(codeText(html)).toBe(code);
+      expect(html).toMatch(/<span style="color: #[0-9a-f]+;">/u);
+    },
+  );
+
+  it.each(markers.cases.filter((marker) => marker.language === null))(
+    "leaves $text without a marker to markdown-it",
+    async ({ text }) => {
+      const source = `Run \`${text}\` first.`;
+
+      expect(await renderInline(source)).toBe(new MarkdownIt().renderInline(source));
+    },
+  );
+
+  it("renders a language it has not loaded as plain text without its marker", async () => {
+    expect(await renderInline("`x = 1{:no-such-language}`")).toBe(
+      '<code class="lumis" style="color: #f8f8f2; background-color: #282a36;">x = 1</code>',
+    );
+  });
+
+  it("gives linked inline code the lumis class and scope classes", async () => {
+    const html = await renderInline('`{"a": 1}{:json}`', {
+      formatter: (language) => htmlLinked({ language }),
+    });
+
+    expect(html).toMatch(/^<code class="lumis"><span class="l-/u);
+    expect(html).not.toContain("<pre");
+  });
+
+  it("leaves inline code to markdown-it for a formatter with no inline structure", async () => {
+    const source = "`const x = 1{:javascript}`";
+
+    expect(
+      await renderInline(source, {
+        formatter: (language) => terminal({ language, theme: dracula }),
+      }),
+    ).toBe(new MarkdownIt().renderInline(source));
   });
 });

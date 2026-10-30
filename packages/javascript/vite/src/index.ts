@@ -9,22 +9,33 @@ import { visit } from "unist-util-visit";
 export type VitePluginLumisOptions = RehypeLumisOptions;
 
 type Tree = ReturnType<typeof fromHtml>;
-type Pre = Extract<Tree["children"][number], { tagName: string }>;
+type Element = Extract<Tree["children"][number], { tagName: string }>;
 
 interface Block {
   start: number;
   end: number;
-  pre: Pre;
+  element: Element;
 }
 
 // Most entry points hold no code at all, and parsing one costs ~75x what
-// looking for the tag does. Nothing here can match a document without a `pre`.
+// looking for the tag does. Nothing here can match a document without one.
 const PRE_TAG = /<pre[\s/>]/iu;
+const CODE_TAG = /<(?:pre|code)[\s/>]/iu;
 
 function createProcessor(options: VitePluginLumisOptions) {
   return unified()
     .use(rehypeLumis, { ...options, defaultLanguage: options.defaultLanguage ?? false })
     .freeze();
+}
+
+function isCandidate(node: Element, parent: Tree | Element | undefined, inlineCode: boolean) {
+  if (node.tagName === "pre") return true;
+  // A `code` inside a `pre` belongs to that block, highlighted or declined.
+  return (
+    inlineCode &&
+    node.tagName === "code" &&
+    !(parent?.type === "element" && parent.tagName === "pre")
+  );
 }
 
 // Vite splices its own HTML edits into the source string by offset rather than
@@ -33,17 +44,17 @@ function createProcessor(options: VitePluginLumisOptions) {
 // `&#x26;`, bare entry HTML gains `<html><head><body>`, and `<%= title %>` in a
 // text node turns into `&#x3C;%= title %>`, which the EJS-style plugins that run
 // after this one no longer recognize.
-function findBlocks(tree: Tree): Block[] {
+function findBlocks(tree: Tree, inlineCode: boolean): Block[] {
   const blocks: Block[] = [];
 
   function collect(root: Tree) {
-    visit(root, "element", (node) => {
+    visit(root, "element", (node, _index, parent) => {
       if (node.tagName === "template") {
         const content = node.content;
         if (content?.type === "root") collect(content);
       }
 
-      if (node.tagName !== "pre") {
+      if (!isCandidate(node, parent, inlineCode)) {
         return;
       }
 
@@ -53,7 +64,7 @@ function findBlocks(tree: Tree): Block[] {
         return;
       }
 
-      blocks.push({ start, end, pre: node });
+      blocks.push({ start, end, element: node });
     });
   }
 
@@ -63,7 +74,7 @@ function findBlocks(tree: Tree): Block[] {
   return blocks;
 }
 
-/** Highlight `pre > code` blocks in Vite HTML entry points. */
+/** Highlight `pre > code` blocks, and optionally inline `code`, in Vite HTML entry points. */
 export default function lumis(options: VitePluginLumisOptions): Plugin {
   let processor: ReturnType<typeof createProcessor> | undefined;
   let ready: Promise<void> | undefined;
@@ -85,12 +96,13 @@ export default function lumis(options: VitePluginLumisOptions): Plugin {
     buildStart: warmHighlighter,
     configureServer: warmHighlighter,
     async transformIndexHtml(html) {
-      if (!PRE_TAG.test(html)) {
+      const inlineCode = options.inlineCode === true;
+      if (!(inlineCode ? CODE_TAG : PRE_TAG).test(html)) {
         // oxlint-disable-next-line unicorn/no-useless-undefined -- the Vite hook returns no transform result for unrelated HTML.
         return undefined;
       }
 
-      const blocks = findBlocks(fromHtml(html));
+      const blocks = findBlocks(fromHtml(html), inlineCode);
       if (blocks.length === 0) {
         // oxlint-disable-next-line unicorn/no-useless-undefined -- the Vite hook returns no transform result when no blocks match.
         return undefined;
@@ -108,11 +120,12 @@ export default function lumis(options: VitePluginLumisOptions): Plugin {
           continue;
         }
 
-        const result = await getProcessor().run({ type: "root", children: [block.pre] });
-        // `rehype-lumis` replaces the node it accepts, so a `pre` still standing
-        // is one it declined: no `code` first child, or a block that failed to
-        // highlight. Leaving the source slice alone is what declining means here.
-        if (result.children[0] === block.pre) {
+        const result = await getProcessor().run({ type: "root", children: [block.element] });
+        // `rehype-lumis` replaces the node it accepts, so an element still
+        // standing is one it declined: no `code` first child, no language, or a
+        // block that failed to highlight. Leaving the source slice alone is what
+        // declining means here.
+        if (result.children[0] === block.element) {
           continue;
         }
 
