@@ -1,0 +1,2 @@
+# Workspace builds use the root files; MSYS2 cannot copy these links before their targets are extracted.
+/languages.toml export-ignore
