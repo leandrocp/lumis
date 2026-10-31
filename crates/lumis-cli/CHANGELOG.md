@@ -1,3 +1,9 @@
+## [0.8.5](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.4...cargo-lumis-cli/v0.8.5) (2026-10-31)
+
+### Bug Fixes
+
+- **website:** Address asset and website rollout review in [\#1936](https://github.com/leandrocp/lumis/pull/1936)
+
 ## [0.8.4](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.3...cargo-lumis-cli/v0.8.4) (2026-10-28)
 
 ### Features
