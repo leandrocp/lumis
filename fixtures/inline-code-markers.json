@@ -1,0 +1,22 @@
+{
+  "$comment": [
+    "How inline code names its language with a `{:lang}` suffix.",
+    "",
+    "rehype-lumis and markdown-it-lumis each split the suffix off the code before",
+    "highlighting, and both tests read these cases so the two copies cannot drift.",
+    "`language: null` is text that carries no marker and stays untouched.",
+    "A name starting with `.` is rehype-pretty-code's highlight-scope syntax, not",
+    "a language."
+  ],
+  "cases": [
+    { "text": "const x = 1{:javascript}", "code": "const x = 1", "language": "javascript" },
+    { "text": "%{a: 1} {:elixir}", "code": "%{a: 1} ", "language": "elixir" },
+    { "text": "{\"a\": \"{:x}\"}{:json}", "code": "{\"a\": \"{:x}\"}", "language": "json" },
+    { "text": "{:js}", "code": "{:js}", "language": null },
+    { "text": "x{:js} y", "code": "x{:js} y", "language": null },
+    { "text": "x{:}", "code": "x{:}", "language": null },
+    { "text": "x{:.keyword}", "code": "x{:.keyword}", "language": null },
+    { "text": "x{:java script}", "code": "x{:java script}", "language": null },
+    { "text": "const x = 1", "code": "const x = 1", "language": null }
+  ]
+}

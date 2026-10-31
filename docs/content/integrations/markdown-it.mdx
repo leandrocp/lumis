@@ -80,6 +80,7 @@ Use this when you want to reuse an existing highlighter.
 - `formatter` - required callback that receives the fence language and returns a Lumis formatter
 - `languages` - languages to register or load during setup before calling sync `md.render()`; accepts `Language` objects, bundles, and string refs when a bundle is also present
 - `fenceAttrsOnPre` - put a fence's attributes on `<pre>` rather than `<code>`. Defaults to `true`
+- `inlineCode` - also highlight inline code that names its language; defaults to `false`. See [Inline code](#inline-code).
 
 ## Behavior
 
@@ -88,6 +89,36 @@ Use this when you want to reuse an existing highlighter.
 - loads any language refs passed in `languages` during async setup
 - renders synchronously after setup, so load the languages you expect to use
 - falls back to the default fence renderer if highlighting fails and no fallback succeeds
+
+## Inline code
+
+With `inlineCode: true`, a code span is highlighted when it names its language
+with a `{:lang}` suffix. Code spans that name none keep markdown-it's own
+rendering, so prose in backticks is never recolored:
+
+```md
+Declare it with `const answer = 42{:javascript}`.
+```
+
+With `markdown-it-attrs`, a `language-*` class or `data-language` attribute
+works too, and the span's other attributes are kept:
+
+```md
+Declare it with `const answer = 42`{.language-javascript #answer}.
+```
+
+The suffix is removed and the code is written with the
+[inline structure](/formatters#inline-code). The formatter's theme colors go on
+the `<code>` with the `lumis` class:
+
+```html
+<code class="lumis" style="color: #4c4f69; background-color: #eff1f5;"><span style="color: #8839ef;">const</span> …</code>
+```
+
+Load the languages inline code names in `languages`, as for fences. A language
+that is not loaded renders as plain text. `nohighlight` and `no-highlight` skip
+a span, and a formatter that is not one of the built-in HTML formatters leaves
+inline code to markdown-it.
 
 ## Fence attributes
 

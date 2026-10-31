@@ -39,7 +39,8 @@ export default defineConfig({
 Write blocks as `<pre><code class="language-javascript">...</code></pre>`, or set
 `data-language` on `<pre>`. Authored attributes on both elements are preserved.
 Unlabeled blocks are left untouched; set `defaultLanguage: 'plaintext'` to format
-them too. Use `nohighlight` on either element to skip a block.
+them too. Use `nohighlight` on either element to skip a block. Set `inlineCode: true`
+to also highlight a labeled `<code>` outside a `<pre>`.
 
 See the [Vite integration guide](https://docs.lumis.sh/integrations/vite) for behavior,
 language preloading, and a complete example.

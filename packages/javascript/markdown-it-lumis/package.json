@@ -47,6 +47,8 @@
     "@lumis-sh/lumis": "workspace:^",
     "@microsoft/api-extractor": "^7.59.4",
     "@types/markdown-it": "^14.2.0",
+    "hast-util-from-html": "^2.0.3",
+    "hast-util-to-string": "^3.0.1",
     "markdown-it-attrs": "^5.0.1",
     "oxfmt": "^0.74.0",
     "oxlint": "1.89.0",

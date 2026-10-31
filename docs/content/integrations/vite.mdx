@@ -93,6 +93,17 @@ block untouched, even when it names a language or `defaultLanguage` is set:
 <pre><code class="language-javascript nohighlight">filled after load</code></pre>
 ```
 
+Set `inlineCode: true` to also highlight a `<code>` outside a `<pre>` that names its
+language with a `language-*` class or `data-language`. Unlabeled inline code is
+left alone:
+
+```html
+<p>Install it with <code data-language="bash">mix igniter.install mdex</code>.</p>
+```
+
+The `<code>` keeps its attributes and gets the theme's colors, as described in
+[rehype-lumis](/integrations/rehype-lumis#inline-code).
+
 Skipped blocks keep their original source byte for byte. A block that names an
 unavailable language still renders as plain text with the configured formatter.
 

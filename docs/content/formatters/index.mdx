@@ -654,6 +654,20 @@ html = HTML.open_tag("code", attrs) <> spans <> "</code>"
   </Tab>
 </Tabs>
 
+In JavaScript, `toInline` from `@lumis-sh/lumis/formatters` derives both from
+a formatter you already have: the same formatter with `structure: 'inline'`, and
+the attributes for your element, merged with any you pass:
+
+```js
+import {toInline} from '@lumis-sh/lumis/formatters';
+
+const inline = toInline(htmlInline({language: bash, theme: frappe}), {id: 'install'});
+const html = `${openTag('code', inline.attrs)}${await highlight(source, inline.formatter)}</code>`;
+```
+
+The Markdown and HTML integrations use it for their `inlineCode` option; see
+[rehype-lumis](/integrations/rehype-lumis#inline-code).
+
 With HTML Linked, add the `lumis` class to your element and the theme stylesheet
 colors it. The stylesheet's line layout rules only apply inside `pre.lumis`, so
 they leave inline code alone.

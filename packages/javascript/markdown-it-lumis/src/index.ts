@@ -9,7 +9,8 @@ import type {
 } from "@lumis-sh/lumis";
 import type { Formatter, HtmlAttrs } from "@lumis-sh/lumis/formatters";
 import { createHighlighter } from "@lumis-sh/lumis";
-import { withAttrs } from "@lumis-sh/lumis/formatters";
+import { toInline, withAttrs } from "@lumis-sh/lumis/formatters";
+import { openTag } from "@lumis-sh/lumis/formatters/html";
 
 export interface MarkdownItLumisOptions {
   formatter: (language: string | undefined) => Formatter;
@@ -24,9 +25,54 @@ export interface MarkdownItLumisOptions {
    * `false` for that.
    */
   fenceAttrsOnPre?: boolean;
+  /**
+   * Also highlight inline code that names its language, with a `{:lang}`
+   * suffix as in `` `const x = 1{:javascript}` ``, or with a `language-*`
+   * class or `data-language` attribute that a plugin such as
+   * `markdown-it-attrs` put on it. Defaults to `false`.
+   */
+  inlineCode?: boolean;
 }
 
 type FenceRenderer = NonNullable<MarkdownIt["renderer"]["rules"]["fence"]>;
+type InlineCodeRenderer = NonNullable<MarkdownIt["renderer"]["rules"]["code_inline"]>;
+
+const LANGUAGE_PREFIX = "language-";
+
+// `{:.name}` is how rehype-pretty-code names a highlight scope rather than a
+// language, so a name starting with a dot is not a marker.
+const LANGUAGE_NAME = /^[\w+#-][\w+#.-]*$/u;
+
+/** Split a trailing `{:lang}` marker off inline code, as `` `x = 1{:python}` `` writes it. */
+function splitLanguageSuffix(text: string): { code: string; language: string } | undefined {
+  if (!text.endsWith("}")) return undefined;
+
+  const open = text.lastIndexOf("{:");
+  if (open <= 0) return undefined;
+
+  const language = text.slice(open + 2, -1);
+  return LANGUAGE_NAME.test(language) ? { code: text.slice(0, open), language } : undefined;
+}
+
+function attrsLanguage(classes: string[], attrs: HtmlAttrs | undefined): string | undefined {
+  const fromClass = classes
+    .find((name) => name.startsWith(LANGUAGE_PREFIX) && name.length > LANGUAGE_PREFIX.length)
+    ?.slice(LANGUAGE_PREFIX.length);
+  const dataLanguage = attrs?.["data-language"];
+
+  return fromClass ?? (typeof dataLanguage === "string" && dataLanguage ? dataLanguage : undefined);
+}
+
+function parseInlineCode(
+  content: string,
+  attrs: HtmlAttrs | undefined,
+): { code: string; language: string } | undefined {
+  const classes = typeof attrs?.class === "string" ? attrs.class.split(/\s+/u) : [];
+  if (classes.some((name) => name === "nohighlight" || name === "no-highlight")) return undefined;
+
+  const language = attrsLanguage(classes, attrs);
+  return language === undefined ? splitLanguageSuffix(content) : { code: content, language };
+}
 
 function renderDefaultFence(
   defaultFence: FenceRenderer | undefined,
@@ -129,8 +175,41 @@ function hasLanguageMetadata(value: LanguageInput | LanguageRef): boolean {
   );
 }
 
+function installInlineCode(
+  md: MarkdownIt,
+  highlighter: Highlighter,
+  formatter: MarkdownItLumisOptions["formatter"],
+): void {
+  const defaultInlineCode = md.renderer.rules.code_inline;
+
+  function renderDefault(...args: Parameters<InlineCodeRenderer>): string {
+    if (defaultInlineCode) return defaultInlineCode(...args);
+    const [tokens, idx, opts, _env, self] = args;
+    return self.renderToken(tokens, idx, opts);
+  }
+
+  md.renderer.rules.code_inline = function codeInline(tokens, idx, opts, env, self) {
+    const token = tokens[idx];
+    const authored = token && fenceAttrs(token.attrs);
+    const parsed = token && parseInlineCode(token.content, authored);
+    if (!parsed) return renderDefault(tokens, idx, opts, env, self);
+
+    try {
+      const inline = toInline(formatter(parsed.language), authored);
+      if (!inline) return renderDefault(tokens, idx, opts, env, self);
+
+      const spans = highlighter.highlight(parsed.code, inline.formatter);
+      return `${openTag("code", inline.attrs)}${spans}</code>`;
+    } catch {
+      return renderDefault(tokens, idx, opts, env, self);
+    }
+  };
+}
+
 export function fromHighlighter(highlighter: Highlighter, options: MarkdownItLumisOptions) {
   return function installMarkdownItLumis(md: MarkdownIt): void {
+    if (options.inlineCode === true) installInlineCode(md, highlighter, options.formatter);
+
     const defaultFence = md.renderer.rules.fence;
 
     md.renderer.rules.fence = function fence(tokens, idx, opts, env, self) {

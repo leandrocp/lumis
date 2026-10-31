@@ -159,6 +159,17 @@ describe("@lumis-sh/vite", () => {
     expect(result).toBeUndefined();
   });
 
+  it("highlights labeled inline code with inlineCode and splices only that element", async () => {
+    const html =
+      '<!doctype html><p>Run <code id="code-cta" data-language="plaintext">mix &amp; go</code> now.</p><code>unlabeled</code><pre><code>declined</code></pre>';
+
+    const result = await transformHtml(createPlugin({ inlineCode: true }), html);
+
+    expect(result).toBe(
+      '<!doctype html><p>Run <code class="lumis" style="color: #f8f8f2; background-color: #282a36;" id="code-cta" data-language="plaintext">mix &#x26; go</code> now.</p><code>unlabeled</code><pre><code>declined</code></pre>',
+    );
+  });
+
   it("returns a document with no pre element untouched", async () => {
     const html = '<div id="app"></div>\n<script type="module" src="/main.js"></script>\n';
 

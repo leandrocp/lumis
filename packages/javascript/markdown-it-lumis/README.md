@@ -89,3 +89,4 @@ md.use(plugin)
 |--------|------|---------|-------------|
 | `formatter` | `(language: string \| undefined) => Formatter` | (required) | Creates a Lumis formatter for each code block |
 | `languages` | `Array` | `[]` | Languages to load and prepare. Accepts Language objects, bundles, or string names (when a bundle is also passed). |
+| `inlineCode` | `boolean` | `false` | Also highlight inline code that names its language, such as `` `x = 1{:python}` ``. See [Inline code](https://docs.lumis.sh/integrations/markdown-it#inline-code). |

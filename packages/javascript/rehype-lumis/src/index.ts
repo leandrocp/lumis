@@ -3,7 +3,8 @@ import type { Highlighter, LanguageInput } from "@lumis-sh/lumis";
 import type { Formatter, HtmlAttrs } from "@lumis-sh/lumis/formatters";
 import type { Plugin } from "unified";
 import { createHighlighter } from "@lumis-sh/lumis";
-import { withAttrs } from "@lumis-sh/lumis/formatters";
+import { toInline, withAttrs } from "@lumis-sh/lumis/formatters";
+import { openTag } from "@lumis-sh/lumis/formatters/html";
 import { fromHtml } from "hast-util-from-html";
 import { find, html as htmlSchema } from "property-information";
 import { toString } from "hast-util-to-string";
@@ -19,6 +20,12 @@ export interface RehypeLumisOptions {
    * Defaults to "plaintext" in rehype-lumis and false in @lumis-sh/vite.
    */
   defaultLanguage?: string | false;
+  /**
+   * Also highlight inline `<code>`, outside a `<pre>`, that names its
+   * language with a `language-*` class, a `data-language` attribute or a
+   * `{:lang}` suffix in its text. Defaults to `false`.
+   */
+  inlineCode?: boolean;
 }
 
 interface ParsedCodeBlock {
@@ -104,6 +111,37 @@ function parseCodeBlock(
   };
 }
 
+interface ParsedInlineCode {
+  code: string;
+  language: string;
+  codeProperties: Properties;
+}
+
+// `{:.name}` is how rehype-pretty-code names a highlight scope rather than a
+// language, so a name starting with a dot is not a marker.
+const LANGUAGE_NAME = /^[\w+#-][\w+#.-]*$/u;
+
+/** Split a trailing `{:lang}` marker off inline code, as `` `x = 1{:python}` `` writes it. */
+function splitLanguageSuffix(text: string): { code: string; language: string } | undefined {
+  if (!text.endsWith("}")) return undefined;
+
+  const open = text.lastIndexOf("{:");
+  if (open <= 0) return undefined;
+
+  const language = text.slice(open + 2, -1);
+  return LANGUAGE_NAME.test(language) ? { code: text.slice(0, open), language } : undefined;
+}
+
+function parseInlineCode(node: Element): ParsedInlineCode | undefined {
+  if (skipsHighlighting(node)) return undefined;
+
+  const text = toString(node);
+  const language = getLanguageFromClassNames(node) ?? getLanguageFromProperties(node);
+  const parsed = language === undefined ? splitLanguageSuffix(text) : { code: text, language };
+
+  return parsed && { ...parsed, codeProperties: node.properties };
+}
+
 function parseFragment(html: string): RootContent[] {
   return fromHtml(html, { fragment: true }).children;
 }
@@ -165,22 +203,28 @@ function restoreTrailingChildren(replacement: RootContent[], parsed: ParsedCodeB
   pre.children.splice(trailingIndex, 0, ...parsed.trailingChildren);
 }
 
+// Every other runtime loads whatever a document names, and this plugin is not
+// the place to invent a second rule. A fence naming something that cannot be
+// loaded costs that block its highlighting, not the document its render.
+async function loadLanguage(
+  highlighter: Highlighter,
+  language: string | undefined,
+): Promise<string | undefined> {
+  if (language == null) return undefined;
+  try {
+    await highlighter.loadLanguage(language);
+    return language;
+  } catch {
+    return undefined;
+  }
+}
+
 async function renderBlock(
   highlighter: Highlighter,
   parsed: ParsedCodeBlock,
   formatter: (language: string | undefined) => Formatter,
 ): Promise<RootContent[]> {
-  // Every other runtime loads whatever a document names, and this plugin is not
-  // the place to invent a second rule. A fence naming something that cannot be
-  // loaded costs that block its highlighting, not the document its render.
-  let resolved = parsed.language;
-  if (resolved != null) {
-    try {
-      await highlighter.loadLanguage(resolved);
-    } catch {
-      resolved = undefined;
-    }
-  }
+  const resolved = await loadLanguage(highlighter, parsed.language);
 
   // The authored properties go to the formatter rather than onto the hast it
   // produces, so `class` unions and `style` appends exactly once, where Rust
@@ -199,6 +243,40 @@ async function renderBlock(
   return replacement;
 }
 
+async function renderInline(
+  highlighter: Highlighter,
+  parsed: ParsedInlineCode,
+  formatter: (language: string | undefined) => Formatter,
+): Promise<RootContent[] | undefined> {
+  const resolved = await loadLanguage(highlighter, parsed.language);
+  const inline = toInline(formatter(resolved), propertiesToAttrs(parsed.codeProperties));
+  if (!inline) return undefined;
+
+  const spans = highlighter.highlight(parsed.code, inline.formatter);
+  return parseFragment(`${openTag("code", inline.attrs)}${spans}</code>`);
+}
+
+type Render = () => Promise<RootContent[] | undefined>;
+
+function planRender(
+  node: Element,
+  parent: Element | Root,
+  highlighter: Highlighter,
+  options: RehypeLumisOptions,
+): Render | undefined {
+  if (node.tagName === "pre") {
+    const parsed = parseCodeBlock(node, options.defaultLanguage ?? "plaintext");
+    return parsed && (() => renderBlock(highlighter, parsed, options.formatter));
+  }
+
+  // A `<code>` inside a `<pre>` is a block, highlighted or declined above.
+  const inParent = parent.type === "element" && parent.tagName === "pre";
+  if (options.inlineCode !== true || node.tagName !== "code" || inParent) return undefined;
+
+  const parsed = parseInlineCode(node);
+  return parsed && (() => renderInline(highlighter, parsed, options.formatter));
+}
+
 const rehypeLumis: Plugin<[RehypeLumisOptions], Root> = function rehypeLumis(options) {
   const setup = createHighlighter({
     languages: options.languages ?? [],
@@ -206,32 +284,28 @@ const rehypeLumis: Plugin<[RehypeLumisOptions], Root> = function rehypeLumis(opt
 
   return async function transform(tree) {
     const highlighter = await setup;
-    const targets: Array<{
-      parent: Element | Root;
-      index: number;
-      parsed: ParsedCodeBlock;
-    }> = [];
+    const targets: Array<{ parent: Element | Root; index: number; render: Render }> = [];
 
     visit(tree, "element", (node, index, parent) => {
-      if (!parent || index == null || node.tagName !== "pre") {
+      if (!parent || index == null) {
         // oxlint-disable-next-line unicorn/no-useless-undefined -- explicit no-op result keeps visitor returns consistent.
         return undefined;
       }
 
-      const parsed = parseCodeBlock(node, options.defaultLanguage ?? "plaintext");
-      if (!parsed) {
+      const render = planRender(node, parent, highlighter, options);
+      if (!render) {
         // oxlint-disable-next-line unicorn/no-useless-undefined -- explicit no-op result keeps visitor returns consistent.
         return undefined;
       }
 
-      targets.push({ parent, index, parsed });
+      targets.push({ parent, index, render });
       return "skip";
     });
 
     const replacements = await Promise.all(
-      targets.map(async ({ parsed }) => {
+      targets.map(async ({ render }) => {
         try {
-          return await renderBlock(highlighter, parsed, options.formatter);
+          return await render();
         } catch {
           // oxlint-disable-next-line unicorn/no-useless-undefined -- failed blocks are intentionally skipped.
           return undefined;

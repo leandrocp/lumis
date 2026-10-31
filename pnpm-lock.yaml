@@ -322,6 +322,12 @@ importers:
       '@types/markdown-it':
         specifier: ^14.2.0
         version: 14.2.0
+      hast-util-from-html:
+        specifier: ^2.0.3
+        version: 2.0.3
+      hast-util-to-string:
+        specifier: ^3.0.1
+        version: 3.0.1
       markdown-it-attrs:
         specifier: ^5.0.1
         version: 5.0.1(markdown-it@15.0.3)

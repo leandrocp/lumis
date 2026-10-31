@@ -73,9 +73,40 @@ const file = await unified()
 For example, use `defaultLanguage: 'elixir'` to highlight unlabeled fences as
 Elixir. A language named on the block takes precedence.
 
+- `inlineCode` - also highlight inline `<code>` that names its language; defaults to `false`. See [Inline code](#inline-code).
+
 To skip one block, add `nohighlight` or `no-highlight` to its `<pre>` or `<code>`
 classes. Either class leaves the block untouched, regardless of its language or
 the `defaultLanguage` option.
+
+## Inline code
+
+With `inlineCode: true`, a `<code>` outside a `<pre>` is highlighted when it names
+its language. Inline code that names none is left alone, so prose in backticks is
+never recolored. In Markdown, end the code span with a `{:lang}` suffix:
+
+```md
+Declare it with `const answer = 42{:javascript}`.
+```
+
+In HTML, or with a remark plugin that adds attributes, use a `language-*` class
+or `data-language` on the `<code>`:
+
+```html
+<code class="language-javascript">const answer = 42</code>
+```
+
+The `<code>` keeps its attributes, and its text is replaced with the
+[inline structure](/formatters#inline-code) of the formatter's output. The
+suffix is removed first. The formatter's theme colors go on the `<code>` with
+the `lumis` class, as a block's `<pre>` would get them:
+
+```html
+<code class="lumis" style="color: #4c4f69; background-color: #eff1f5;"><span style="color: #8839ef;">const</span> …</code>
+```
+
+`nohighlight` and `no-highlight` skip inline code too. A formatter that is not
+one of the built-in HTML formatters leaves inline code alone.
 
 ## Behavior
 
