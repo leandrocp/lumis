@@ -55,6 +55,9 @@ def run(directory, case, *, extra=(), piped=False, reply=True, term="xterm-256co
         while True:
             if time.monotonic() - started > 30:
                 raise AssertionError(f"hung: {case['name']}: {received!r}")
+            # Sample exit before select: output written between a timed-out select and the
+            # exit check would otherwise be dropped.
+            exited = process.poll() is not None
             ready, _, _ = select.select([master], [], [], 0.05)
             if ready:
                 try:
@@ -71,7 +74,7 @@ def run(directory, case, *, extra=(), piped=False, reply=True, term="xterm-256co
                     query_started = time.monotonic()
                     if reply:
                         os.write(master, response(case))
-            elif process.poll() is not None:
+            elif exited:
                 break
         stdout, _ = process.communicate(timeout=2)
         elapsed = None if query_started is None else time.monotonic() - query_started
