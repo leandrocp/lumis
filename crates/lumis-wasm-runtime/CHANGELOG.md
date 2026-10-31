@@ -1,3 +1,9 @@
+## [0.6.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.6.0...cargo-lumis-wasm-runtime/v0.6.1) (2026-10-31)
+
+### Bug Fixes
+
+- **runtime:** Nest spans that cross an injected layer's span in [\#1951](https://github.com/leandrocp/lumis/pull/1951)
+
 ## [0.6.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.5.3...cargo-lumis-wasm-runtime/v0.6.0) (2026-10-28)
 
 ### Dependencies
