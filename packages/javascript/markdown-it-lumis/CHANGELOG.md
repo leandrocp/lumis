@@ -1,3 +1,9 @@
+## [0.3.3](https://github.com/leandrocp/lumis/compare/npm-markdown-it-lumis/v0.3.2...npm-markdown-it-lumis/v0.3.3) (2026-10-31)
+
+### Features
+
+- **integrations:** Highlight inline code behind an inlineCode option in [\#1940](https://github.com/leandrocp/lumis/pull/1940)
+
 ## [0.3.2](https://github.com/leandrocp/lumis/compare/npm-markdown-it-lumis/v0.3.1...npm-markdown-it-lumis/v0.3.2) (2026-10-28)
 
 ## [0.3.1](https://github.com/leandrocp/lumis/compare/npm-markdown-it-lumis/v0.3.0...npm-markdown-it-lumis/v0.3.1) (2026-10-23)
