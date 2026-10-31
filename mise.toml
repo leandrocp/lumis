@@ -1258,7 +1258,7 @@ cargo-lumis-core|crates/lumis-core
 cargo-lumis-build|crates/lumis-build
 cargo-lumis-wasm-runtime|crates/lumis-wasm-runtime
 cargo-lumis|crates/lumis
-cargo-lumis-cli|crates/lumis-cli|crates/lumis-wasm-runtime|.gitattributes
+cargo-lumis-cli|crates/lumis-cli|crates/lumis-wasm-runtime|crates/lumis/.gitattributes|crates/lumis-core/.gitattributes
 npm-themes|packages/javascript/themes
 npm-lumis|packages/javascript/lumis|crates/lumis|crates/lumis-core|crates/lumis-wasm-runtime
 npm-markdown-it-lumis|packages/javascript/markdown-it-lumis
