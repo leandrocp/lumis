@@ -62,7 +62,7 @@ jobs:
       # build for everyone we support", which is a release question, so they run
       # on main where breaking it must not reach a tag.
       test-stage: ${{ github.event_name == 'pull_request' && 'stable' || 'all' }}
-      stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '["ubuntu-22.04", "windows-2022", "macos-14"]' }}
+      stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '["ubuntu-22.04", "windows-2022", "macos-15"]' }}
   lint:
     if: >-
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
