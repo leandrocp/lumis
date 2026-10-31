@@ -69,7 +69,9 @@
 //   covers a gap the injection left out: in a diff hunk, an injected node runs across the
 //   `+`/`-` markers. Its ends are anonymous, so every reader of the stream, the HTML renderer
 //   in this file included, closes the wrong span and drops the parent's scope from the rest of
-//   the line. The adapter closes the span that ends first and reopens the spans closed with it.
+//   the line. `emit_event` records which layer produced each start and end, by its tree's root
+//   node, and the adapter closes that layer's innermost span, reopening any span another layer
+//   opened inside it before the next text or start. Within one layer the order is upstream's.
 // - A module-level `allow` holds the workspace lint levels off this file. Upstream is not
 //   written to them, and restyling it to satisfy `clippy::pedantic` would grow the diff for
 //   nothing. Lumis code in here is still reviewed against those lints by hand.
@@ -97,7 +99,7 @@
 use std::{
     cell::Cell,
     cmp::Reverse,
-    collections::{BinaryHeap, HashMap, HashSet},
+    collections::{BinaryHeap, HashMap, HashSet, VecDeque},
     mem, ops, str,
     sync::{
         atomic::{AtomicUsize, Ordering},
@@ -677,6 +679,8 @@ where
     iter_count: usize,
     next_event: Option<HighlightEvent>,
     last_highlight_range: Option<(usize, usize, usize)>,
+    /// The layer that produced the latest start or end, for `NestedHighlights`.
+    event_layer: Option<usize>,
 }
 
 struct HighlightIterLayer<'a> {
@@ -1160,6 +1164,7 @@ impl Highlighter {
             layers,
             next_event: None,
             last_highlight_range: None,
+            event_layer: None,
         };
         result.sort_layers();
         Ok(NestedHighlights::new(result))
@@ -1700,6 +1705,11 @@ where
         } else {
             result = event.map(Ok);
         }
+        // MODIFICATION: the event came from the first layer, before re-sorting.
+        self.event_layer = self
+            .layers
+            .first()
+            .map(|layer| layer._tree.root_node().id());
         self.sort_layers();
         result
     }
@@ -2066,9 +2076,10 @@ where
 ///
 /// A layer ends its own innermost span, but the stream's ends are anonymous, so
 /// a reader closes whichever span opened last. When a span from another layer
-/// opened inside it and outlives it, that is the wrong one. Spans close in the
-/// order their ranges end, so the earliest-ending open span is the one to close;
-/// any span opened inside it is closed with it and reopened straight after.
+/// opened inside it and is still open, that is the wrong one. This closes the
+/// layer's own span instead, along with the spans opened inside it, and reopens
+/// those before the next text or start. A span that ends before then is never
+/// reopened. A stream from a single layer passes through unchanged.
 struct NestedHighlights<'a, F>
 where
     F: FnMut(&str) -> Option<&'a HighlightConfiguration>,
@@ -2076,13 +2087,14 @@ where
     iter: HighlightIter<'a, F>,
     open: Vec<OpenHighlight>,
     languages: Vec<String>,
-    queued: Vec<HighlightEvent>,
+    queued: VecDeque<HighlightEvent>,
 }
 
 struct OpenHighlight {
     highlight: Highlight,
     language: usize,
-    end: usize,
+    layer: Option<usize>,
+    written: bool,
 }
 
 impl<'a, F> NestedHighlights<'a, F>
@@ -2094,12 +2106,33 @@ where
             iter,
             open: Vec::new(),
             languages: Vec::new(),
-            queued: Vec::new(),
+            queued: VecDeque::new(),
         }
     }
 
-    fn track_start(&mut self, highlight: Highlight, language: &str) {
-        let index = self
+    fn push(&mut self, event: HighlightEvent) {
+        match event {
+            HighlightEvent::HighlightStart {
+                highlight,
+                language,
+            } => {
+                self.reopen();
+                self.open_span(highlight, &language);
+                self.queued.push_back(HighlightEvent::HighlightStart {
+                    highlight,
+                    language,
+                });
+            }
+            HighlightEvent::HighlightEnd => self.close_layer_span(),
+            source @ HighlightEvent::Source { .. } => {
+                self.reopen();
+                self.queued.push_back(source);
+            }
+        }
+    }
+
+    fn open_span(&mut self, highlight: Highlight, language: &str) {
+        let language = self
             .languages
             .iter()
             .position(|known| known == language)
@@ -2107,43 +2140,42 @@ where
                 self.languages.push(language.to_owned());
                 self.languages.len() - 1
             });
-        // Set by the same step that produced this start.
-        let end = self
-            .iter
-            .last_highlight_range
-            .map_or(usize::MAX, |(_, end, _)| end);
         self.open.push(OpenHighlight {
             highlight,
-            language: index,
-            end,
+            language,
+            layer: self.iter.event_layer,
+            written: true,
         });
     }
 
-    /// Closes the open span that ends first, the innermost of those ending
-    /// together, and queues whatever closing it takes down to be reopened.
-    fn close_earliest(&mut self) {
-        let Some(index) = self
+    /// Closes the innermost open span of the layer that ended one, and the
+    /// spans other layers opened inside it, which stay open to be reopened.
+    fn close_layer_span(&mut self) {
+        let layer = self.iter.event_layer;
+        let index = self
             .open
             .iter()
-            .enumerate()
-            .rev()
-            .min_by_key(|(_, open)| open.end)
-            .map(|(index, _)| index)
-        else {
-            return;
-        };
-        let crossed = self.open.split_off(index + 1);
-        self.open.pop();
+            .rposition(|open| open.layer == layer)
+            .unwrap_or(self.open.len().saturating_sub(1));
+        for open in &mut self.open[index..] {
+            if open.written {
+                open.written = false;
+                self.queued.push_back(HighlightEvent::HighlightEnd);
+            }
+        }
+        if index < self.open.len() {
+            self.open.remove(index);
+        }
+    }
 
-        for open in crossed.iter().rev() {
-            self.queued.push(HighlightEvent::HighlightStart {
+    fn reopen(&mut self) {
+        for open in self.open.iter_mut().filter(|open| !open.written) {
+            open.written = true;
+            self.queued.push_back(HighlightEvent::HighlightStart {
                 highlight: open.highlight,
                 language: self.languages[open.language].clone(),
             });
         }
-        self.queued
-            .extend(crossed.iter().map(|_| HighlightEvent::HighlightEnd));
-        self.open.extend(crossed);
     }
 }
 
@@ -2154,19 +2186,15 @@ where
     type Item = Result<HighlightEvent, Error>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(event) = self.queued.pop() {
-            return Some(Ok(event));
+        loop {
+            if let Some(event) = self.queued.pop_front() {
+                return Some(Ok(event));
+            }
+            match self.iter.next()? {
+                Ok(event) => self.push(event),
+                Err(error) => return Some(Err(error)),
+            }
         }
-        let event = self.iter.next()?;
-        match &event {
-            Ok(HighlightEvent::HighlightStart {
-                highlight,
-                language,
-            }) => self.track_start(*highlight, language),
-            Ok(HighlightEvent::HighlightEnd) => self.close_earliest(),
-            _ => {}
-        }
-        Some(event)
     }
 }
 
