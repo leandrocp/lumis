@@ -1,3 +1,13 @@
+## [0.8.5](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.4...cargo-lumis-cli/v0.8.5) (2026-10-31)
+
+### Bug Fixes
+
+- **runtime:** Nest spans that cross an injected layer's span in [\#1951](https://github.com/leandrocp/lumis/pull/1951)
+
+### Testing
+
+- **cli:** Stop dropping output in the pseudoterminal harness in [\#1948](https://github.com/leandrocp/lumis/pull/1948)
+
 ## [0.8.4](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.3...cargo-lumis-cli/v0.8.4) (2026-10-28)
 
 ### Features
