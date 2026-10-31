@@ -1661,6 +1661,50 @@ class Coalescing {
   }
 }
 
+interface OpenHighlight {
+  capture: HighlightCapture;
+  layer: LayerState;
+  written: boolean;
+}
+
+/**
+ * Closes the innermost open span of the layer that ended one, and the spans
+ * other layers opened inside it, which stay open for `reopen` to write again.
+ *
+ * The port of `NestedHighlights` in
+ * `crates/lumis-wasm-runtime/src/tree_sitter_highlight.rs`. A span from another
+ * layer can open inside a layer's span and still be open when it ends, as an
+ * injected node does when it covers the `+`/`-` markers of a diff hunk. Closing
+ * the span opened last would then close the wrong one.
+ */
+function closeLayerSpan(open: OpenHighlight[], layer: LayerState, events: Coalescing): void {
+  let index = open.length - 1;
+  for (let candidate = index; candidate >= 0; candidate -= 1) {
+    if (open[candidate]!.layer === layer) {
+      index = candidate;
+      break;
+    }
+  }
+  for (const highlight of open.slice(index)) {
+    if (highlight.written) {
+      highlight.written = false;
+      events.end();
+    }
+  }
+  open.splice(index, 1);
+}
+
+// Writes the spans `closeLayerSpan` closed and left open, before the next text
+// or start. One that ended before then is never written again.
+function reopen(open: OpenHighlight[], events: Coalescing): void {
+  for (const highlight of open) {
+    if (!highlight.written) {
+      highlight.written = true;
+      events.start(highlight.capture.scope, highlight.capture.language);
+    }
+  }
+}
+
 function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): HighlightEvent[] {
   const events = new Coalescing();
 
@@ -1677,11 +1721,13 @@ function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): Hig
     ],
     highlightEndStack: [],
   }));
+  const open: OpenHighlight[] = [];
   let cursor = 0;
   let lastHighlightRange: { startByte: number; endByte: number; depth: number } | undefined;
 
   function emitSource(endByte: number): void {
     if (endByte > cursor) {
+      reopen(open, events);
       events.source(cursor, endByte);
       cursor = endByte;
     }
@@ -1695,7 +1741,7 @@ function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): Hig
     if (!boundary.isStart) {
       layer.highlightEndStack.pop();
       emitSource(boundary.offset);
-      events.end();
+      closeLayerSpan(open, layer, events);
       continue;
     }
 
@@ -1703,7 +1749,9 @@ function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): Hig
     if (!capture) continue;
 
     emitSource(capture.startByte);
+    reopen(open, events);
     events.start(capture.scope, capture.language);
+    open.push({ capture, layer, written: true });
     layer.highlightEndStack.push(capture.endByte);
     lastHighlightRange = {
       startByte: capture.startByte,

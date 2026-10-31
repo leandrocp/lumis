@@ -1,0 +1,10 @@
+[function-diff]diff[/function-diff] [variable-parameter-diff]--git[/variable-parameter-diff] [string-special-path-diff]a/a.exs b/a.exs[/string-special-path-diff]
+[diff-minus-diff][punctuation-special-diff]---[/punctuation-special-diff] [string-special-path-diff]a/a.exs[/string-special-path-diff][/diff-minus-diff]
+[diff-plus-diff][punctuation-special-diff]+++[/punctuation-special-diff] [string-special-path-diff]b/a.exs[/string-special-path-diff][/diff-plus-diff]
+[attribute-diff]@@ -1,3 +1,3 @@[/attribute-diff]
+ [variable-elixir]message[/variable-elixir] [operator-elixir]=[/operator-elixir] [string-elixir]"""
+[diff-minus-diff][punctuation-special-diff]-[/punctuation-special-diff]old[/diff-minus-diff]
+[diff-plus-diff][punctuation-special-diff]+[/punctuation-special-diff]new[/diff-plus-diff]
+ """[/string-elixir]
+[diff-minus-diff][punctuation-special-diff]-[/punctuation-special-diff][module-elixir]IO[/module-elixir][operator-elixir].[/operator-elixir][function-call-elixir]puts[/function-call-elixir][punctuation-bracket-elixir]([/punctuation-bracket-elixir][string-elixir]"old"[/string-elixir][punctuation-bracket-elixir])[/punctuation-bracket-elixir][/diff-minus-diff]
+[operator-elixir][diff-plus-diff][punctuation-special-diff]+[/punctuation-special-diff][/diff-plus-diff][/operator-elixir][diff-plus-diff][module-elixir]IO[/module-elixir][operator-elixir].[/operator-elixir][function-call-elixir]puts[/function-call-elixir][punctuation-bracket-elixir]([/punctuation-bracket-elixir][string-elixir]"new"[/string-elixir][punctuation-bracket-elixir])[/punctuation-bracket-elixir][/diff-plus-diff]

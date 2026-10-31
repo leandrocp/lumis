@@ -1,0 +1,10 @@
+diff --git a/a.exs b/a.exs
+--- a/a.exs
++++ b/a.exs
+@@ -1,3 +1,3 @@
+ message = """
+-old
++new
+ """
+-IO.puts("old")
++IO.puts("new")

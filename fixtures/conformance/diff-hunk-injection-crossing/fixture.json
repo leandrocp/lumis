@@ -1,0 +1,502 @@
+{
+  "name": "diff-hunk-injection-crossing",
+  "language": "diff",
+  "theme": "dracula",
+  "events": [
+    {
+      "type": "start",
+      "scope": "function",
+      "language": "diff"
+    },
+    {
+      "type": "source",
+      "start": 0,
+      "end": 4
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 4,
+      "end": 5
+    },
+    {
+      "type": "start",
+      "scope": "variable.parameter",
+      "language": "diff"
+    },
+    {
+      "type": "source",
+      "start": 5,
+      "end": 10
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 10,
+      "end": 11
+    },
+    {
+      "type": "start",
+      "scope": "string.special.path",
+      "language": "diff"
+    },
+    {
+      "type": "source",
+      "start": 11,
+      "end": 26
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 26,
+      "end": 27
+    },
+    {
+      "type": "start",
+      "scope": "diff.minus",
+      "language": "diff"
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.special",
+      "language": "diff"
+    },
+    {
+      "type": "source",
+      "start": 27,
+      "end": 30
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 30,
+      "end": 31
+    },
+    {
+      "type": "start",
+      "scope": "string.special.path",
+      "language": "diff"
+    },
+    {
+      "type": "source",
+      "start": 31,
+      "end": 38
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 38,
+      "end": 39
+    },
+    {
+      "type": "start",
+      "scope": "diff.plus",
+      "language": "diff"
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.special",
+      "language": "diff"
+    },
+    {
+      "type": "source",
+      "start": 39,
+      "end": 42
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 42,
+      "end": 43
+    },
+    {
+      "type": "start",
+      "scope": "string.special.path",
+      "language": "diff"
+    },
+    {
+      "type": "source",
+      "start": 43,
+      "end": 50
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 50,
+      "end": 51
+    },
+    {
+      "type": "start",
+      "scope": "attribute",
+      "language": "diff"
+    },
+    {
+      "type": "source",
+      "start": 51,
+      "end": 66
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 66,
+      "end": 68
+    },
+    {
+      "type": "start",
+      "scope": "variable",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 68,
+      "end": 75
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 75,
+      "end": 76
+    },
+    {
+      "type": "start",
+      "scope": "operator",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 76,
+      "end": 77
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 77,
+      "end": 78
+    },
+    {
+      "type": "start",
+      "scope": "string",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 78,
+      "end": 82
+    },
+    {
+      "type": "start",
+      "scope": "diff.minus",
+      "language": "diff"
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.special",
+      "language": "diff"
+    },
+    {
+      "type": "source",
+      "start": 82,
+      "end": 83
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 83,
+      "end": 86
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 86,
+      "end": 87
+    },
+    {
+      "type": "start",
+      "scope": "diff.plus",
+      "language": "diff"
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.special",
+      "language": "diff"
+    },
+    {
+      "type": "source",
+      "start": 87,
+      "end": 88
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 88,
+      "end": 91
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 91,
+      "end": 96
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 96,
+      "end": 97
+    },
+    {
+      "type": "start",
+      "scope": "diff.minus",
+      "language": "diff"
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.special",
+      "language": "diff"
+    },
+    {
+      "type": "source",
+      "start": 97,
+      "end": 98
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "module",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 98,
+      "end": 100
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "operator",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 100,
+      "end": 101
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "function.call",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 101,
+      "end": 105
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.bracket",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 105,
+      "end": 106
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "string",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 106,
+      "end": 111
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.bracket",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 111,
+      "end": 112
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 112,
+      "end": 113
+    },
+    {
+      "type": "start",
+      "scope": "operator",
+      "language": "elixir"
+    },
+    {
+      "type": "start",
+      "scope": "diff.plus",
+      "language": "diff"
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.special",
+      "language": "diff"
+    },
+    {
+      "type": "source",
+      "start": 113,
+      "end": 114
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "diff.plus",
+      "language": "diff"
+    },
+    {
+      "type": "start",
+      "scope": "module",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 114,
+      "end": 116
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "operator",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 116,
+      "end": 117
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "function.call",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 117,
+      "end": 121
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.bracket",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 121,
+      "end": 122
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "string",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 122,
+      "end": 127
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.bracket",
+      "language": "elixir"
+    },
+    {
+      "type": "source",
+      "start": 127,
+      "end": 128
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "end"
+    }
+  ]
+}
