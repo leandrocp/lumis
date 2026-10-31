@@ -1678,8 +1678,13 @@ interface OpenHighlight {
  * the span opened last would then close the wrong one.
  */
 function closeLayerSpan(open: OpenHighlight[], layer: LayerState, events: Coalescing): void {
-  const found = open.findLastIndex((highlight) => highlight.layer === layer);
-  const index = found === -1 ? Math.max(open.length - 1, 0) : found;
+  let index = open.length - 1;
+  for (let candidate = index; candidate >= 0; candidate -= 1) {
+    if (open[candidate]!.layer === layer) {
+      index = candidate;
+      break;
+    }
+  }
   for (const highlight of open.slice(index)) {
     if (highlight.written) {
       highlight.written = false;
