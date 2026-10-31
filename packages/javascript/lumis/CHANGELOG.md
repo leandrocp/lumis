@@ -1,3 +1,13 @@
+## [0.10.2](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.1...npm-lumis/v0.10.2) (2026-10-31)
+
+### Features
+
+- **integrations:** Highlight inline code behind an inlineCode option in [\#1940](https://github.com/leandrocp/lumis/pull/1940)
+
+### Bug Fixes
+
+- **runtime:** Nest spans that cross an injected layer's span in [\#1951](https://github.com/leandrocp/lumis/pull/1951)
+
 ## [0.10.1](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.0...npm-lumis/v0.10.1) (2026-10-28)
 
 ### Features
