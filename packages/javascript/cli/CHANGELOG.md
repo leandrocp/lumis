@@ -1,3 +1,9 @@
+## [0.6.10](https://github.com/leandrocp/lumis/compare/npm-cli/v0.6.9...npm-cli/v0.6.10) (2026-10-31)
+
+### Dependencies
+
+- **javascript:** Update npm CLI binary to 0.8.5 in [\#1954](https://github.com/leandrocp/lumis/pull/1954)
+
 ## [0.6.9](https://github.com/leandrocp/lumis/compare/npm-cli/v0.6.8...npm-cli/v0.6.9) (2026-10-28)
 
 ### Dependencies
