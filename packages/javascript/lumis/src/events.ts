@@ -1661,6 +1661,31 @@ class Coalescing {
   }
 }
 
+/**
+ * Closes the open span that ends first, the innermost of those ending together,
+ * and reopens the spans opened inside it.
+ *
+ * The port of `NestedHighlights` in
+ * `crates/lumis-wasm-runtime/src/tree_sitter_highlight.rs`. A layer ends its own
+ * innermost span, but a span from another layer can open inside it and outlive
+ * it, as an injected node does when it covers the `+`/`-` markers of a diff hunk.
+ * Closing the span opened last would then close the wrong one.
+ */
+function closeEarliest(open: HighlightCapture[], events: Coalescing): void {
+  let index = open.length - 1;
+  for (let candidate = index - 1; candidate >= 0; candidate -= 1) {
+    if (open[candidate]!.endByte < open[index]!.endByte) index = candidate;
+  }
+
+  const crossed = open.splice(index + 1);
+  open.pop();
+  for (let count = 0; count <= crossed.length; count += 1) events.end();
+  for (const capture of crossed) {
+    events.start(capture.scope, capture.language);
+    open.push(capture);
+  }
+}
+
 function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): HighlightEvent[] {
   const events = new Coalescing();
 
@@ -1677,6 +1702,7 @@ function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): Hig
     ],
     highlightEndStack: [],
   }));
+  const open: HighlightCapture[] = [];
   let cursor = 0;
   let lastHighlightRange: { startByte: number; endByte: number; depth: number } | undefined;
 
@@ -1695,7 +1721,7 @@ function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): Hig
     if (!boundary.isStart) {
       layer.highlightEndStack.pop();
       emitSource(boundary.offset);
-      events.end();
+      closeEarliest(open, events);
       continue;
     }
 
@@ -1704,6 +1730,7 @@ function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): Hig
 
     emitSource(capture.startByte);
     events.start(capture.scope, capture.language);
+    open.push(capture);
     layer.highlightEndStack.push(capture.endByte);
     lastHighlightRange = {
       startByte: capture.startByte,

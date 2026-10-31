@@ -63,6 +63,13 @@
 //   Injections come first in the concatenated source, so their pattern and capture indices are
 //   the same in both. Almost all of `Query::new` is `ts_query__analyze_patterns` walking the
 //   grammar's parse table, so the second compile was a fifth of Elixir's load (107 ms to 88 ms).
+// - `Highlighter::highlight` wraps the iterator in `NestedHighlights`, so every `HighlightEnd`
+//   closes the span it belongs to. Upstream lets an injected layer's span overlap a parent
+//   layer's span without nesting in it, which happens wherever a combined injection's node
+//   covers a gap the injection left out: in a diff hunk, an injected node runs across the
+//   `+`/`-` markers. Its ends are anonymous, so every reader of the stream, the HTML renderer
+//   in this file included, closes the wrong span and drops the parent's scope from the rest of
+//   the line. The adapter closes the span that ends first and reopens the spans closed with it.
 // - A module-level `allow` holds the workspace lint levels off this file. Upstream is not
 //   written to them, and restyling it to satisfy `clippy::pedantic` would grow the diff for
 //   nothing. Lumis code in here is still reviewed against those lints by hand.
@@ -1155,7 +1162,7 @@ impl Highlighter {
             last_highlight_range: None,
         };
         result.sort_layers();
-        Ok(result)
+        Ok(NestedHighlights::new(result))
     }
 }
 
@@ -2052,6 +2059,114 @@ where
 
             self.sort_layers();
         }
+    }
+}
+
+/// [`HighlightIter`]'s events, with every end closing the span it belongs to.
+///
+/// A layer ends its own innermost span, but the stream's ends are anonymous, so
+/// a reader closes whichever span opened last. When a span from another layer
+/// opened inside it and outlives it, that is the wrong one. Spans close in the
+/// order their ranges end, so the earliest-ending open span is the one to close;
+/// any span opened inside it is closed with it and reopened straight after.
+struct NestedHighlights<'a, F>
+where
+    F: FnMut(&str) -> Option<&'a HighlightConfiguration>,
+{
+    iter: HighlightIter<'a, F>,
+    open: Vec<OpenHighlight>,
+    languages: Vec<String>,
+    queued: Vec<HighlightEvent>,
+}
+
+struct OpenHighlight {
+    highlight: Highlight,
+    language: usize,
+    end: usize,
+}
+
+impl<'a, F> NestedHighlights<'a, F>
+where
+    F: FnMut(&str) -> Option<&'a HighlightConfiguration> + 'a,
+{
+    const fn new(iter: HighlightIter<'a, F>) -> Self {
+        Self {
+            iter,
+            open: Vec::new(),
+            languages: Vec::new(),
+            queued: Vec::new(),
+        }
+    }
+
+    fn track_start(&mut self, highlight: Highlight, language: &str) {
+        let index = self
+            .languages
+            .iter()
+            .position(|known| known == language)
+            .unwrap_or_else(|| {
+                self.languages.push(language.to_owned());
+                self.languages.len() - 1
+            });
+        // Set by the same step that produced this start.
+        let end = self
+            .iter
+            .last_highlight_range
+            .map_or(usize::MAX, |(_, end, _)| end);
+        self.open.push(OpenHighlight {
+            highlight,
+            language: index,
+            end,
+        });
+    }
+
+    /// Closes the open span that ends first, the innermost of those ending
+    /// together, and queues whatever closing it takes down to be reopened.
+    fn close_earliest(&mut self) {
+        let Some(index) = self
+            .open
+            .iter()
+            .enumerate()
+            .rev()
+            .min_by_key(|(_, open)| open.end)
+            .map(|(index, _)| index)
+        else {
+            return;
+        };
+        let crossed = self.open.split_off(index + 1);
+        self.open.pop();
+
+        for open in crossed.iter().rev() {
+            self.queued.push(HighlightEvent::HighlightStart {
+                highlight: open.highlight,
+                language: self.languages[open.language].clone(),
+            });
+        }
+        self.queued
+            .extend(crossed.iter().map(|_| HighlightEvent::HighlightEnd));
+        self.open.extend(crossed);
+    }
+}
+
+impl<'a, F> Iterator for NestedHighlights<'a, F>
+where
+    F: FnMut(&str) -> Option<&'a HighlightConfiguration> + 'a,
+{
+    type Item = Result<HighlightEvent, Error>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(event) = self.queued.pop() {
+            return Some(Ok(event));
+        }
+        let event = self.iter.next()?;
+        match &event {
+            Ok(HighlightEvent::HighlightStart {
+                highlight,
+                language,
+            }) => self.track_start(*highlight, language),
+            Ok(HighlightEvent::HighlightEnd) => self.close_earliest(),
+            _ => {}
+        }
+        Some(event)
     }
 }
 
