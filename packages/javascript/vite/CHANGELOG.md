@@ -1,3 +1,9 @@
+## [0.2.3](https://github.com/leandrocp/lumis/compare/npm-vite/v0.2.2...npm-vite/v0.2.3) (2026-10-31)
+
+### Features
+
+- **integrations:** Highlight inline code behind an inlineCode option in [\#1940](https://github.com/leandrocp/lumis/pull/1940)
+
 ## [0.2.2](https://github.com/leandrocp/lumis/compare/npm-vite/v0.2.1...npm-vite/v0.2.2) (2026-10-28)
 
 ## [0.2.1](https://github.com/leandrocp/lumis/compare/npm-vite/v0.2.0...npm-vite/v0.2.1) (2026-10-23)
