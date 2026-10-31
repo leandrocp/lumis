@@ -10,7 +10,7 @@
   "dependencies": {
     "@astrojs/mdx": "^5.0.2",
     "@lumis-sh/lumis": "^0.10.2",
-    "@lumis-sh/rehype-lumis": "^0.3.2",
+    "@lumis-sh/rehype-lumis": "^0.3.3",
     "@lumis-sh/themes": "^0.4.3",
     "@lumis-sh/wasm-javascript": "^0.26.4",
     "@lumis-sh/wasm-rust": "^0.26.5",
