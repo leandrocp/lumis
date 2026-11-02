@@ -116,9 +116,9 @@ emacs = ["clojure"]
 
 [parsers.cmake]
 git = "https://github.com/uyha/tree-sitter-cmake.git"
-rev = "e997bd0b275ca525ce9befecedf5299031183661"
+rev = "a3ec2b2144daf7132e7ee824d8cab9610523d10f"
 crate = "tree-sitter-cmake"
-version = "0.7.5"
+version = "0.7.6"
 variant = "CMake"
 globs = ["*.cmake", "*.cmake.in", "CMakeLists.txt"]
 
