@@ -172,7 +172,7 @@ export const browserRuntime: RuntimeEnvironment = {
 
   async parserInitOptions() {
     return {
-      wasmBinary: treeSitterWasmBinary,
+      wasmBinary: treeSitterWasmBinary(),
     };
   },
 };
