@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "papercolor_light",
   "appearance": "light",
   "revision": "0cfe64ffb24c21a6101b5f994ca342a74c977aef",

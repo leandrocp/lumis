@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "zenburn",
   "appearance": "dark",
   "revision": "f5ee12b30119499c7fa7f95719cd7c5aab9f9f29",

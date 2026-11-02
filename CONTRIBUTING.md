@@ -1095,6 +1095,15 @@ mise run css-gen
 Theme generation keeps the previous revision when an upstream commit produces
 identical theme data, so revision-only changes do not create update PRs.
 
+### Theme schema
+
+`website/public/schemas/theme.json` is the JSON Schema for theme files, served
+at `https://lumis.sh/schemas/theme.json`. Every theme JSON names it in
+`$schema`, which `themes/extract_theme.lua` writes and Lumis ignores when
+loading. `crates/lumis-core/tests/theme_schema.rs` validates every bundled theme
+against it and pins what it accepts to `themes::from_json`, so a change to the
+theme format updates the schema in the same change.
+
 ### Theme licenses
 
 Nobody records a theme's license by hand. Extraction copies the plugin's

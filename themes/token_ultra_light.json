@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "token_ultra_light",
   "appearance": "light",
   "revision": "1538e1eadcbc9eb465b33bab71eec48c8bed0b76",
