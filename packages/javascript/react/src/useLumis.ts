@@ -1,9 +1,11 @@
 import type { EffectCallback, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import type { LumisOptions } from "./clientShared.js";
+import type { LumisRenderOptions } from "./common.js";
 import {
   getHighlighter,
   getLanguageId,
+  highlightHtml,
   highlightToReactNode,
   isHighlighterPromise,
   isLoadedLanguage,
@@ -11,7 +13,8 @@ import {
   toReactNode,
 } from "./clientShared.js";
 
-export interface UseLumisOptions extends LumisOptions {}
+export interface UseLumisOptions
+  extends LumisOptions, Pick<LumisRenderOptions, "inline" | "attrs"> {}
 
 export interface UseLumisResult {
   content: ReactNode | null;
@@ -62,7 +65,12 @@ export function useLumis(options: UseLumisOptions): UseLumisResult {
     }
 
     try {
-      const html = highlighter.highlight(options.children, options.formatter);
+      const html = highlightHtml(highlighter, {
+        children: options.children,
+        formatter: options.formatter,
+        inline: options.inline,
+        attrs: options.attrs,
+      });
       return {
         content: toReactNode(html),
         error: undefined,
@@ -86,7 +94,7 @@ export function useLumis(options: UseLumisOptions): UseLumisResult {
         needsLoad: false,
       };
     }
-  }, [highlighter, options.children, options.formatter]);
+  }, [highlighter, options.children, options.formatter, options.inline, options.attrs]);
 
   useEffect((): ReturnType<EffectCallback> => {
     if (!syncState.needsLoad) {
@@ -116,7 +124,14 @@ export function useLumis(options: UseLumisOptions): UseLumisResult {
       active = false;
     };
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- `options` is a fresh object every render; the fields the effect reads are listed instead.
-  }, [highlighter, options.children, options.formatter, syncState.needsLoad]);
+  }, [
+    highlighter,
+    options.children,
+    options.formatter,
+    options.inline,
+    options.attrs,
+    syncState.needsLoad,
+  ]);
 
   return {
     content: syncState.needsLoad ? (asyncContent ?? null) : syncState.content,

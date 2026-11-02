@@ -1,10 +1,18 @@
 import { createHighlighter, type Highlighter } from "@lumis-sh/lumis";
 import type { ReactNode } from "react";
-import { toReactNode, type LumisBaseOptions } from "./common.js";
+import {
+  highlightHtml,
+  toReactNode,
+  type InlineCodeOptions,
+  type LumisBaseOptions,
+  type LumisRenderOptions,
+} from "./common.js";
 
 export interface RenderCodeBlockOptions extends LumisBaseOptions {
   highlighter?: HighlighterInput;
 }
+
+export interface RenderInlineCodeOptions extends RenderCodeBlockOptions, InlineCodeOptions {}
 
 export type HighlighterInput = Highlighter | Promise<Highlighter>;
 
@@ -16,13 +24,13 @@ export function getHighlighter(highlighter?: HighlighterInput): HighlighterInput
 
 export async function highlightToReactNode(
   highlighterInput: HighlighterInput | undefined,
-  options: LumisBaseOptions,
+  options: LumisRenderOptions,
 ): Promise<ReactNode> {
   const highlighter = await getHighlighter(highlighterInput);
   if (options.formatter.language != null) {
     await highlighter.loadLanguage(options.formatter.language);
   }
 
-  const html = highlighter.highlight(options.children, options.formatter);
+  const html = highlightHtml(highlighter, options);
   return toReactNode(html);
 }
