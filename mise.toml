@@ -626,7 +626,6 @@ echo ""
 echo "Running Rust clippy..."
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo clippy --manifest-path crates/dev/Cargo.toml --all-targets -- -D warnings
-cargo clippy --manifest-path crates/autumnus/Cargo.toml --all-targets -- -D warnings
 echo ""
 echo "Running Rust complexity check..."
 mise run lint-complexity-rust
@@ -634,7 +633,6 @@ echo ""
 echo "Running Rust fmt check..."
 cargo fmt --all -- --check
 cargo fmt --manifest-path crates/dev/Cargo.toml --check
-cargo fmt --manifest-path crates/autumnus/Cargo.toml --check
 echo ""
 echo "Running Elixir checks..."
 mise run lint-elixir
@@ -710,7 +708,6 @@ set -euo pipefail
 echo "Formatting Rust..."
 cargo fmt --all
 cargo fmt --manifest-path crates/dev/Cargo.toml
-cargo fmt --manifest-path crates/autumnus/Cargo.toml
 echo ""
 echo "Formatting Elixir..."
 (cd packages/elixir/lumis && mix format)
