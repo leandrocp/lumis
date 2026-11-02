@@ -28,5 +28,5 @@ packages/javascript/cli/npm/*/lumis
 packages/javascript/cli/npm/*/lumis.exe
 
 # `crates/autumnus` is a published library in its own workspace, so its lockfile
-# binds nothing for consumers. Linting it produces one.
+# binds nothing for consumers. Building it produces one.
 crates/autumnus/Cargo.lock
