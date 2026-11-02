@@ -279,7 +279,7 @@ Rationale that is about the change rather than the code belongs in the commit me
 
 ### Formatting and linting are enforced everywhere
 
-Authored files are formatted and linted by default, with explicit exclusions for generated output, vendored sources and byte-exact corpora. `mise run fmt` formats every language, and `mise run lint` checks them. Run the gates relevant to the change before pushing; CI only checks.
+Authored files are formatted and linted by default, with explicit exclusions for generated output, vendored sources, byte-exact corpora and the frozen `crates/autumnus` shim, which nothing builds. `mise run fmt` formats every language, and `mise run lint` checks them. Run the gates relevant to the change before pushing; CI only checks.
 
 There is no per-package path list. `fmt-js` is `oxfmt "**/*.{ts,tsx,mjs,cjs,js,jsx}"` from the repo root and `lint-js` is `oxlint --deny-warnings --report-unused-disable-directives .` beside it, so a new package, script, example or test directory is covered the day it is added, whether or not the file has been staged yet.
 
