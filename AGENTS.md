@@ -218,7 +218,7 @@ A test that skips silently reports the same green as a test that verified someth
 
 ### What the workspace never resolves, it never checks
 
-The root `Cargo.toml` points `path` at every lumis crate and patches the rest through `[patch.crates-io]`. Nearly every build in this repository therefore compiles against the working tree, and the `version` requirement sitting beside each `path` is inert until the crate reaches crates.io. Nothing local can be green or red about it. The lone exception is `crates/autumnus`, which sits in its own workspace and depends on `lumis` through the registry.
+The root `Cargo.toml` points `path` at every lumis crate and patches the rest through `[patch.crates-io]`. Nearly every build in this repository therefore compiles against the working tree, and the `version` requirement sitting beside each `path` is inert until the crate reaches crates.io. Nothing local can be green or red about it. `crates/autumnus`, the frozen rename shim, depends on `lumis` through the registry, but nothing here builds it.
 
 That is not a gap in the test suite, it is a gap in what a test *could* observe, so it needs a check that reads the manifests rather than builds them. `mise run check-crate-deps` requires each requirement to equal the depended-on crate's version in this repository, and runs in `mise run lint`, in Rust CI, and again before `cargo publish`. `mise run release-prepare` uses the same updater before running Cargo's resolver, so releases stay in step without a checklist item.
 
