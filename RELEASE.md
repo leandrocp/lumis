@@ -205,7 +205,7 @@ cannot do this: it updates path dependencies and resolves before the NIF's
 requirement changes, which breaks a release that moves Tree-sitter versions.
 Commit every manifest and lockfile the preparation touches.
 
-Nothing built here resolves these requirements except `crates/autumnus`, so
+Nothing built here resolves these requirements, so
 `check-crate-deps` is the only thing that can see drift. That is how
 [#1118](https://github.com/leandrocp/lumis/issues/1118) shipped: `lumis` 0.12.1 called
 `lumis-core` 2.2.0 API while requiring `"2"`.
