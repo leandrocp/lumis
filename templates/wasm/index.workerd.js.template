@@ -1,0 +1,1 @@
+import wasm from './{wasm_name}.wasm'

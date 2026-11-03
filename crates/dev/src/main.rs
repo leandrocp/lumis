@@ -4030,6 +4030,7 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
             ("wasm_name", wasm_name),
             ("definition_hash", &definition_hash),
             ("lumis_range", LUMIS_READS_PACKAGE_FORMAT),
+            ("package_format", &PACKAGE_FORMAT_VERSION.to_string()),
             ("dependencies", &serde_json::to_string(&entry.dependencies)?),
         ],
     )?;
@@ -4039,6 +4040,9 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
             format!("{}\n", serde_json::to_string_pretty(&published)?),
         ),
         ("index.js", entry.js),
+        ("index.workerd.js", entry.workerd_js),
+        ("index.edge.js", entry.edge_js),
+        ("language-package.js", entry.language_package_js),
         ("index.d.ts", entry.dts),
         ("README.md", readme),
         ("package.json", pkg),
@@ -4682,12 +4686,21 @@ fn wasm_packages() -> Result<()> {
 /// The first `@lumis-sh/lumis` that reads the entry `PACKAGE_FORMAT_VERSION` 4
 /// generates. Parser packages name it as an optional peer, so a package manager
 /// flags an older Lumis at install rather than a browser failing at run time.
+/// The `workerd` and `edge-light` entries of format 5 need a newer one, but only
+/// on hosts where no earlier Lumis ran at all.
 const LUMIS_READS_PACKAGE_FORMAT: &str = ">=0.9.0";
 
 /// A parser package's JavaScript entry, its declarations, and what else it
 /// needs to say about them.
 struct PackageEntry {
     js: String,
+    /// The entry for Cloudflare Workers, which compile no WebAssembly at run
+    /// time and so take the parser as an imported module.
+    workerd_js: String,
+    /// The entry for Vercel's Edge runtime, which imports a module as `x.wasm?module`.
+    edge_js: String,
+    /// The language package, which both entries import.
+    language_package_js: String,
     dts: String,
     /// Packages of the grammars a language here requires, by version range.
     dependencies: BTreeMap<String, String>,
@@ -4824,27 +4837,21 @@ fn package_entry(
         &package.languages,
         ts_cli_minor,
     )?;
-    let mut js = String::new();
+    let mut imports = String::new();
     for (required, required_package) in &required_ids {
         writeln!(
-            js,
+            imports,
             "import {{ {required} }} from {}",
             serde_json::to_string(required_package)?
         )?;
     }
-    if !required_ids.is_empty() {
-        js.push('\n');
-    }
-    js.push_str(&render_template(
-        "templates/wasm/index.js.template",
-        &[("wasm_name", wasm_name)],
-    )?);
-    writeln!(
-        js,
-        "\nexport const languagePackage = {}",
+    imports.push_str("import { languagePackage } from './language-package.js'\n\n");
+    let language_package_js = format!(
+        "export const languagePackage = {}\n",
         serde_json::to_string_pretty(published)?
-    )?;
+    );
 
+    let mut js = String::from("\nexport { languagePackage }\n");
     let mut dts = fs::read_to_string("templates/wasm/index.d.ts.template")?;
     for (id, language) in &package.languages {
         language_export(&mut js, toml, package, id, &language.aliases)?;
@@ -4858,8 +4865,15 @@ fn package_entry(
         writeln!(dts, "export {{ {default} as default }}")?;
     }
 
+    let entry = |template: &str| -> Result<String> {
+        let wasm = render_template(template, &[("wasm_name", wasm_name)])?;
+        Ok(format!("{imports}{wasm}{js}"))
+    };
     Ok(PackageEntry {
-        js,
+        js: entry("templates/wasm/index.js.template")?,
+        workerd_js: entry("templates/wasm/index.workerd.js.template")?,
+        edge_js: entry("templates/wasm/index.edge.js.template")?,
+        language_package_js,
         dts,
         dependencies,
         import_line: readme_import_line(&package.package_name, default.as_deref(), &named),
@@ -4870,13 +4884,14 @@ fn package_entry(
 /// Bumped when a package's contents change in a way its definition hash does
 /// not see, so every parser is published to npm again. 4: the JavaScript entry
 /// exports the language with its language package, so importing it is enough
-/// anywhere.
+/// anywhere. 5: `workerd` and `edge-light` entries import the parser as a
+/// module, for Cloudflare Workers and Vercel's Edge runtime.
 ///
 /// Hex does not see it: Hex is current while its newest release ships the
 /// definition. A format change that reaches the Hex package needs a new
 /// definition, which raising the `lumis-language-package-v3` tag in
 /// `language_definition_hash` gives every parser on both registries.
-const PACKAGE_FORMAT_VERSION: u32 = 4;
+const PACKAGE_FORMAT_VERSION: u32 = 5;
 
 const REGISTRY_CONCURRENCY: usize = 16;
 
