@@ -45,10 +45,14 @@ for (const file of targets) {
   // the tag itself.
   const checks = moduleInstanceChecks(source);
   moduleChecks += checks.length;
-  for (const check of checks.toReversed()) {
+  let patched = "";
+  let copied = 0;
+  for (const check of checks) {
     const operand = source.slice(check.left.getStart(), check.left.end);
-    source = `${source.slice(0, check.getStart())}(Object.prototype.toString.call(${operand}) === "[object WebAssembly.Module]")${source.slice(check.end)}`;
+    patched += `${source.slice(copied, check.getStart())}(Object.prototype.toString.call(${operand}) === "[object WebAssembly.Module]")`;
+    copied = check.end;
   }
+  source = patched + source.slice(copied);
 
   await writeFile(filePath, source, "utf8");
 }
