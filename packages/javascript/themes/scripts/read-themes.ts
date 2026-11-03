@@ -4,6 +4,8 @@ import type { ThemeData } from "../src/types.js";
 
 const THEMES_SRC = path.resolve(import.meta.dirname, "../../../../themes");
 
+type ThemeFile = ThemeData & { $schema?: string };
+
 function normalize(data: ThemeData) {
   for (const entry of Object.values(data.highlights)) {
     if (entry.underline === true) {
@@ -26,15 +28,16 @@ export function readThemes() {
   for (const file of files) {
     const name = path.basename(file, ".json");
     const json = fs.readFileSync(path.join(THEMES_SRC, file), "utf-8");
-    const data: ThemeData = JSON.parse(json);
+    const data: ThemeFile = JSON.parse(json);
 
     if (!data.name || !data.highlights) {
       console.warn(`  skipping ${file}: missing name or highlights`);
       continue;
     }
 
-    normalize(data);
-    themes.push({ name, file, data });
+    const { $schema: _schema, ...theme } = data;
+    normalize(theme);
+    themes.push({ name, file, data: theme });
   }
 
   return themes;

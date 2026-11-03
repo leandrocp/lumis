@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "one_monokai",
   "appearance": "dark",
   "revision": "907cb55796037a9839d121b239237bbb9fe764e0",

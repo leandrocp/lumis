@@ -291,6 +291,7 @@ serde = { version = "1", features = ["derive"] }
 quote = "1"
 
 [dev-dependencies]
+jsonschema = { version = "0.60.2", default-features = false }
 pretty_assertions = "1"
 
 [lints]
