@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "gruber_darker",
   "appearance": "dark",
   "revision": "50fa4e583099729fcaaadc73a5afb74f7a91a625",

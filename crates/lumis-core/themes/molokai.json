@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "molokai",
   "appearance": "dark",
   "revision": "720bacc534fa3b1566d75612986737088a4fb132",

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "neomodern_iceclimber_dark",
   "appearance": "dark",
   "revision": "d41469578922a23d75a0d9e8deef1e34837230a6",

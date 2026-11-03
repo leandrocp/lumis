@@ -6,7 +6,7 @@
 
 [queries.default]
 git = "https://github.com/nvim-treesitter/nvim-treesitter.git"
-rev = "a2f694478be07f89c2d03cc17858a8745a400c4b"
+rev = "a9c4e1457e2e59f1b82c8f78dcdb3b2517555200"
 path = "runtime/queries"
 
 [queries.iex]
@@ -110,15 +110,15 @@ globs = ["Caddyfile", "caddyfile"]
 git = "https://github.com/sogaiu/tree-sitter-clojure.git"
 rev = "3a1ace906c151dd631cf6f149b5083f2b60e6a9e"
 crate = "tree-sitter-clojure-orchard"
-version = "0.2.8"
+version = "0.2.9"
 globs = ["*.bb", "*.boot", "*.clj", "*.cljc", "*.clje", "*.cljs", "*.cljx", "*.edn", "*.joke", "*.joker"]
 emacs = ["clojure"]
 
 [parsers.cmake]
 git = "https://github.com/uyha/tree-sitter-cmake.git"
-rev = "e997bd0b275ca525ce9befecedf5299031183661"
+rev = "a3ec2b2144daf7132e7ee824d8cab9610523d10f"
 crate = "tree-sitter-cmake"
-version = "0.7.5"
+version = "0.7.6"
 variant = "CMake"
 globs = ["*.cmake", "*.cmake.in", "CMakeLists.txt"]
 
@@ -551,8 +551,8 @@ globs = ["*.mli"]
 
 [parsers.perl]
 git = "https://github.com/tree-sitter-perl/tree-sitter-perl.git"
-rev = "50904961d6a87c5191e611276aa2ecb9d66ca4ff"
-version = "2.0.0"
+rev = "d0a9590e3150543032a3b1703fd082b3f4656e45"
+version = "2.0.3"
 generate = true
 globs = ["*.pm", "*.pl", "*.t"]
 emacs = ["perl"]
@@ -570,9 +570,9 @@ globs = ["*.php", "*.phtml", "*.php3", "*.php4", "*.php5", "*.php7", "*.phps"]
 
 [parsers.powershell]
 git = "https://github.com/airbus-cert/tree-sitter-powershell.git"
-rev = "4ffe56d66aa926c28442befbb5b89d1437d7199c"
+rev = "65ea6919e816a7ac142acec7ee72757f89db8439"
 crate = "tree-sitter-powershell"
-version = "0.26.4"
+version = "0.26.6"
 variant = "PowerShell"
 aliases = ["pwsh"]
 globs = ["*.ps1", "*.psm1"]

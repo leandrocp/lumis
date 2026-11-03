@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "synthweave_aqua",
   "appearance": "dark",
   "revision": "0520bc260674745cdd3b5465f322de5731217dc6",
