@@ -647,7 +647,7 @@ if theme.dependencies then
 	end
 end
 
-table.insert(plugins_to_install, { src = theme.url, name = plugin_dir_name(theme.url) })
+table.insert(plugins_to_install, { src = theme.url, name = plugin_dir_name(theme.url), version = theme.version })
 
 local pack_dir = vim.fn.stdpath("data") .. "/site/pack/core/opt"
 local plugin_names = {}
