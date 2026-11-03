@@ -446,6 +446,9 @@ globs = ["*.aux", "*.cls", "*.sty", "*.tex"]
 git = "https://github.com/Julian/tree-sitter-lean.git"
 rev = "0d28e5d6e8c4755f5df7ef9bde3b6ec6f59fae94"
 version = "0.2.0"
+# Regenerating the 47 MB parser.c outlasts the query CI job's timeout, and the
+# shipped one is already ABI 15; use the shipped parser.
+generate = false
 display_name = "Lean"
 aliases = ["lean4"]
 globs = ["*.lean"]
