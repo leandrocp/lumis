@@ -1,5 +1,5 @@
 /* cyberdream_light
- * revision: 39e1fda12c0704e01029b286a4c7e77e33a0c5cd
+ * revision: 8ed987565d081a8ebeda0bac939c22a0f451d074
  * license: MIT
  */
 .lumis {
@@ -56,7 +56,7 @@
   color: #f40064;
 }
 .l-diff-delta {
-  color: #007373;
+  color: #0057d1;
 }
 .l-diff-minus {
   color: #d11500;

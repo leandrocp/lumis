@@ -1,5 +1,5 @@
 /* token_meridian_dark
- * revision: 19acc041465c89739778a6054da8039b68798251
+ * revision: 4f28e3c711cf14b3c57c27f1ded3fb3c9e078c7e
  * license: BSD-3-Clause
  */
 .lumis {
@@ -13,7 +13,7 @@
   color: #d9a86e;
 }
 .l-boolean {
-  color: #d99148;
+  color: #e89a49;
 }
 .l-character {
   color: #8cbb62;
@@ -30,7 +30,7 @@
   font-style: italic;
 }
 .l-comment-error {
-  color: #db8935;
+  color: #dd8384;
   font-style: italic;
 }
 .l-comment-hint {
@@ -42,11 +42,11 @@
   font-style: italic;
 }
 .l-comment-todo {
-  color: #d99148;
+  color: #bf9c53;
   font-style: italic;
 }
 .l-comment-warning {
-  color: #d99148;
+  color: #bf9c53;
   font-style: italic;
 }
 .l-constant {
@@ -78,7 +78,7 @@
   background-color: #205531;
 }
 .l-error {
-  color: #db8935;
+  color: #dd8384;
 }
 .l-function {
   color: #b991db;
@@ -204,7 +204,7 @@
   font-weight: bold;
 }
 .l-markup-heading-4 {
-  color: #db8935;
+  color: #d9a86e;
   font-weight: bold;
 }
 .l-markup-heading-5 {
@@ -269,10 +269,10 @@
   color: #d9a86e;
 }
 .l-number {
-  color: #d99148;
+  color: #e89a49;
 }
 .l-number-float {
-  color: #d99148;
+  color: #e89a49;
 }
 .l-operator {
   color: #aba195;
