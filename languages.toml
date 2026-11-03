@@ -24,6 +24,11 @@ git = "https://github.com/gleam-lang/tree-sitter-gleam.git"
 rev = "fa6d0d94804f1b342e175865a3dbeb316ee5115e"
 path = "queries"
 
+[queries.lean]
+git = "https://github.com/Julian/tree-sitter-lean.git"
+rev = "0d28e5d6e8c4755f5df7ef9bde3b6ec6f59fae94"
+path = "queries"
+
 [queries.make]
 git = "https://github.com/tree-sitter-grammars/tree-sitter-make.git"
 rev = "70613f3d812cbabbd7f38d104d60a409c4008b43"
@@ -436,6 +441,15 @@ generate = true
 aliases = ["tex"]
 variant = "LaTeX"
 globs = ["*.aux", "*.cls", "*.sty", "*.tex"]
+
+[parsers.lean]
+git = "https://github.com/Julian/tree-sitter-lean.git"
+rev = "0d28e5d6e8c4755f5df7ef9bde3b6ec6f59fae94"
+version = "0.2.0"
+display_name = "Lean"
+aliases = ["lean4"]
+globs = ["*.lean"]
+emacs = ["lean", "lean4"]
 
 [parsers.liquid]
 git = "https://github.com/hankthetank27/tree-sitter-liquid.git"
@@ -1204,6 +1218,7 @@ exclude = [
   "haskell",
   "julia",
   "latex",
+  "lean",
   "nim",
   "nushell",
   "objc",

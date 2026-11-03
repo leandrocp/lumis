@@ -108,6 +108,7 @@ all-languages = [
     "lang-kdl",
     "lang-kotlin",
     "lang-latex",
+    "lang-lean",
     "lang-liquid",
     "lang-llvm",
     "lang-lua",
@@ -237,6 +238,7 @@ lang-julia = ["dep:tree-sitter-julia", "lumis-core/lang-julia"]
 lang-kdl = ["lumis-core/lang-kdl"]
 lang-kotlin = ["lumis-core/lang-kotlin"]
 lang-latex = ["lumis-core/lang-latex"]
+lang-lean = ["lumis-core/lang-lean"]
 lang-liquid = ["lumis-core/lang-liquid"]
 lang-llvm = ["dep:tree-sitter-llvm", "lumis-core/lang-llvm"]
 lang-lua = ["dep:tree-sitter-lua", "lumis-core/lang-lua"]

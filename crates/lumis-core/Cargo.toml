@@ -89,6 +89,7 @@ all-languages = [
     "lang-kdl",
     "lang-kotlin",
     "lang-latex",
+    "lang-lean",
     "lang-liquid",
     "lang-llvm",
     "lang-lua",
@@ -217,6 +218,7 @@ lang-julia = []
 lang-kdl = []
 lang-kotlin = []
 lang-latex = []
+lang-lean = []
 lang-liquid = []
 lang-llvm = []
 lang-lua = []

@@ -142,6 +142,8 @@ unsafe extern "C" {
     fn tree_sitter_kotlin() -> *const ();
     #[cfg(feature = "lang-latex")]
     fn tree_sitter_latex() -> *const ();
+    #[cfg(feature = "lang-lean")]
+    fn tree_sitter_lean() -> *const ();
     #[cfg(feature = "lang-liquid")]
     fn tree_sitter_liquid() -> *const ();
     #[cfg(feature = "lang-luadoc")]
@@ -327,6 +329,8 @@ impl LanguageConfig for Language {
             Language::Kotlin => &KOTLIN_CONFIG,
             #[cfg(feature = "lang-latex")]
             Language::LaTeX => &LATEX_CONFIG,
+            #[cfg(feature = "lang-lean")]
+            Language::Lean => &LEAN_CONFIG,
             #[cfg(feature = "lang-liquid")]
             Language::Liquid => &LIQUID_CONFIG,
             #[cfg(feature = "lang-llvm")]
@@ -1362,6 +1366,21 @@ static LATEX_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
         LATEX_LOCALS,
     )
     .expect("failed to create latex highlight configuration");
+    config.configure(&HIGHLIGHT_NAMES);
+    config
+});
+
+#[cfg(feature = "lang-lean")]
+static LEAN_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_lean) };
+    let mut config = HighlightConfiguration::new(
+        tree_sitter::Language::new(language_fn),
+        "lean",
+        LEAN_HIGHLIGHTS,
+        LEAN_INJECTIONS,
+        LEAN_LOCALS,
+    )
+    .expect("failed to create lean highlight configuration");
     config.configure(&HIGHLIGHT_NAMES);
     config
 });
@@ -2579,6 +2598,8 @@ mod tests {
         test_kotlin_config_loads => (Language::Kotlin, "Kotlin", "kotlin.kt");
         #[cfg(feature = "lang-latex")]
         test_latex_config_loads => (Language::LaTeX, "LaTeX", "latex.tex");
+        #[cfg(feature = "lang-lean")]
+        test_lean_config_loads => (Language::Lean, "Lean", "lean.lean");
         #[cfg(feature = "lang-liquid")]
         test_liquid_config_loads => (Language::Liquid, "Liquid", "liquid.liquid");
         #[cfg(feature = "lang-llvm")]
