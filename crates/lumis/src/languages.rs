@@ -96,6 +96,8 @@ unsafe extern "C" {
     fn tree_sitter_astro() -> *const ();
     #[cfg(feature = "lang-bash")]
     fn tree_sitter_bash() -> *const ();
+    #[cfg(feature = "lang-bend")]
+    fn tree_sitter_bend() -> *const ();
     #[cfg(feature = "lang-csv")]
     fn tree_sitter_csv() -> *const ();
     #[cfg(feature = "lang-dart")]
@@ -212,6 +214,8 @@ impl LanguageConfig for Language {
             Language::Astro => &ASTRO_CONFIG,
             #[cfg(feature = "lang-bash")]
             Language::Bash => &BASH_CONFIG,
+            #[cfg(feature = "lang-bend")]
+            Language::Bend => &BEND_CONFIG,
             #[cfg(feature = "lang-bicep")]
             Language::Bicep => &BICEP_CONFIG,
             #[cfg(feature = "lang-c")]
@@ -516,6 +520,21 @@ static BASH_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
         BASH_LOCALS,
     )
     .expect("failed to create bash highlight configuration");
+    config.configure(&HIGHLIGHT_NAMES);
+    config
+});
+
+#[cfg(feature = "lang-bend")]
+static BEND_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_bend) };
+    let mut config = HighlightConfiguration::new(
+        tree_sitter::Language::new(language_fn),
+        "bend",
+        BEND_HIGHLIGHTS,
+        BEND_INJECTIONS,
+        BEND_LOCALS,
+    )
+    .expect("failed to create bend highlight configuration");
     config.configure(&HIGHLIGHT_NAMES);
     config
 });
@@ -2447,6 +2466,8 @@ mod tests {
         test_astro_config_loads => (Language::Astro, "Astro", "astro.astro");
         #[cfg(feature = "lang-bash")]
         test_bash_config_loads => (Language::Bash, "Bash", "bash.sh");
+        #[cfg(feature = "lang-bend")]
+        test_bend_config_loads => (Language::Bend, "Bend", "bend.bend");
         #[cfg(feature = "lang-bicep")]
         test_bicep_config_loads => (Language::Bicep, "Bicep", "bicep.bicep");
         #[cfg(feature = "lang-c")]

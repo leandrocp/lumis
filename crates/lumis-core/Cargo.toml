@@ -33,6 +33,7 @@ all-languages = [
     "lang-asm",
     "lang-astro",
     "lang-bash",
+    "lang-bend",
     "lang-bicep",
     "lang-c",
     "lang-caddy",
@@ -160,6 +161,7 @@ lang-angular = []
 lang-asm = []
 lang-astro = []
 lang-bash = []
+lang-bend = []
 lang-bicep = []
 lang-c = []
 lang-caddy = []

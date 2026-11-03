@@ -51,6 +51,7 @@ all-languages = [
     "lang-asm",
     "lang-astro",
     "lang-bash",
+    "lang-bend",
     "lang-bicep",
     "lang-c",
     "lang-caddy",
@@ -179,6 +180,7 @@ lang-angular = ["lumis-core/lang-angular"]
 lang-asm = ["dep:tree-sitter-asm", "lumis-core/lang-asm"]
 lang-astro = ["lumis-core/lang-astro"]
 lang-bash = ["lumis-core/lang-bash"]
+lang-bend = ["lumis-core/lang-bend"]
 lang-bicep = ["dep:tree-sitter-bicep", "lumis-core/lang-bicep"]
 lang-c = ["dep:tree-sitter-c", "lumis-core/lang-c"]
 lang-caddy = ["dep:tree-sitter-caddy", "lumis-core/lang-caddy"]
