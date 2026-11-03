@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "nordern",
   "appearance": "dark",
   "revision": "3187053aeff0e29745d1f731c263c6f216e33703",

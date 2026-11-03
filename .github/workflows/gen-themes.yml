@@ -43,9 +43,12 @@ jobs:
 
       - name: Install Neovim
         run: |
-          sudo add-apt-repository ppa:neovim-ppa/unstable -y
           sudo apt-get update
-          sudo apt-get install -y lua5.4 neovim
+          sudo apt-get install -y lua5.4
+          curl -fsSL --retry 5 https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz \
+            | sudo tar -xz -C /opt
+          echo /opt/nvim-linux-x86_64/bin >> "$GITHUB_PATH"
+          /opt/nvim-linux-x86_64/bin/nvim --version | head -1
 
       - name: themes-gen
         run: echo "y" | mise run themes-gen

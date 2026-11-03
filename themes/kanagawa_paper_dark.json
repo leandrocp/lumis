@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "kanagawa_paper_dark",
   "appearance": "dark",
   "revision": "ecf19801a2673054c19421d82b766f7641688320",
