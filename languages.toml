@@ -800,6 +800,9 @@ globs = ["*.ino", "*.pde"]
 git = "https://github.com/HigherOrderCO/tree-sitter-bend.git"
 rev = "7e7b88b77103e4d9c11a68d719be8702e4d6ad7f"
 version = "0.2.37"
+# Tree-sitter 0.26 emits an empty supertype map for `_id`, whose subtypes are
+# all hidden, and the C does not compile; use the shipped parser.
+generate = false
 globs = ["*.bend"]
 
 [parsers.bicep]
