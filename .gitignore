@@ -1,4 +1,5 @@
 /target
+/mutants.out*/
 /crates/dev/target
 /tmp
 /lumis

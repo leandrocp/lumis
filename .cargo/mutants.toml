@@ -1,0 +1,7 @@
+# The NIF and the Node addon are tested from Elixir and JavaScript, which
+# `cargo test` never runs, so every mutant in them would be reported missed.
+# The highlighter is vendored from upstream Tree-sitter.
+exclude_globs = [
+    "packages/**",
+    "crates/lumis-wasm-runtime/src/tree_sitter_highlight.rs",
+]
