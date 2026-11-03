@@ -54,15 +54,15 @@ jobs:
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
           !(github.event.pull_request.head.repo.full_name == github.repository &&
             startsWith(github.event.pull_request.head.ref, 'release/')) }}
-    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
+    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@rust-test-msrv-os-versions
     with:
       manifest-path: 'packages/elixir/lumis/native/lumis_nif/Cargo.toml'
       msrv: '1.95'
-      # Stable only on a pull request. MSRV and nightly answer "does this still
-      # build for everyone we support", which is a release question, so they run
-      # on main where breaking it must not reach a tag.
-      test-stage: ${{ github.event_name == 'pull_request' && 'stable' || 'all' }}
+      # A pull request runs stable and the MSRV on Linux, so a too-new API fails
+      # before merge. Nightly and the other systems run on main.
       stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '["ubuntu-22.04", "windows-2022", "macos-15"]' }}
+      msrv-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '' }}
+      nightly-os-versions: ${{ github.event_name == 'pull_request' && '[]' || '["ubuntu-latest", "windows-latest", "macos-latest"]' }}
   lint:
     if: >-
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
