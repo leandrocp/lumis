@@ -58,6 +58,10 @@ export function Example() {
 }
 ```
 
+### Inline code
+
+`InlineCode` takes the same props and renders a themed `<code>` for code inside prose. See [Inline code](https://docs.lumis.sh/integrations/react#inline-code).
+
 ## Hook
 
 Pass `highlighter` when you want to reuse one instance across multiple blocks or load languages during setup.

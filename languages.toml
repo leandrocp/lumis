@@ -6,12 +6,17 @@
 
 [queries.default]
 git = "https://github.com/nvim-treesitter/nvim-treesitter.git"
-rev = "a2f694478be07f89c2d03cc17858a8745a400c4b"
+rev = "a9c4e1457e2e59f1b82c8f78dcdb3b2517555200"
 path = "runtime/queries"
 
 [queries.iex]
 git = "https://github.com/elixir-lang/tree-sitter-iex.git"
 rev = "39f20bb51f502e32058684e893c0c0b00bb2332c"
+path = "queries"
+
+[queries.bend]
+git = "https://github.com/HigherOrderCO/tree-sitter-bend.git"
+rev = "7e7b88b77103e4d9c11a68d719be8702e4d6ad7f"
 path = "queries"
 
 [queries.gleam]
@@ -110,15 +115,15 @@ globs = ["Caddyfile", "caddyfile"]
 git = "https://github.com/sogaiu/tree-sitter-clojure.git"
 rev = "3a1ace906c151dd631cf6f149b5083f2b60e6a9e"
 crate = "tree-sitter-clojure-orchard"
-version = "0.2.8"
+version = "0.2.9"
 globs = ["*.bb", "*.boot", "*.clj", "*.cljc", "*.clje", "*.cljs", "*.cljx", "*.edn", "*.joke", "*.joker"]
 emacs = ["clojure"]
 
 [parsers.cmake]
 git = "https://github.com/uyha/tree-sitter-cmake.git"
-rev = "e997bd0b275ca525ce9befecedf5299031183661"
+rev = "a3ec2b2144daf7132e7ee824d8cab9610523d10f"
 crate = "tree-sitter-cmake"
-version = "0.7.5"
+version = "0.7.6"
 variant = "CMake"
 globs = ["*.cmake", "*.cmake.in", "CMakeLists.txt"]
 
@@ -551,8 +556,8 @@ globs = ["*.mli"]
 
 [parsers.perl]
 git = "https://github.com/tree-sitter-perl/tree-sitter-perl.git"
-rev = "50904961d6a87c5191e611276aa2ecb9d66ca4ff"
-version = "2.0.0"
+rev = "d0a9590e3150543032a3b1703fd082b3f4656e45"
+version = "2.0.3"
 generate = true
 globs = ["*.pm", "*.pl", "*.t"]
 emacs = ["perl"]
@@ -570,9 +575,9 @@ globs = ["*.php", "*.phtml", "*.php3", "*.php4", "*.php5", "*.php7", "*.phps"]
 
 [parsers.powershell]
 git = "https://github.com/airbus-cert/tree-sitter-powershell.git"
-rev = "4ffe56d66aa926c28442befbb5b89d1437d7199c"
+rev = "65ea6919e816a7ac142acec7ee72757f89db8439"
 crate = "tree-sitter-powershell"
-version = "0.26.4"
+version = "0.26.6"
 variant = "PowerShell"
 aliases = ["pwsh"]
 globs = ["*.ps1", "*.psm1"]
@@ -628,9 +633,9 @@ emacs = ["rust"]
 
 [parsers.scala]
 git = "https://github.com/tree-sitter/tree-sitter-scala.git"
-rev = "851032fc97297bbe299dabe5bd826f778794d03c"
+rev = "8c0b6d44bfd66bf7bc9a1fc15084ef17cef2f97e"
 crate = "tree-sitter-scala"
-version = "0.26.3"
+version = "0.26.4"
 globs = ["*.scala", "*.sbt", "*.sc"]
 emacs = ["scala"]
 
@@ -790,6 +795,15 @@ rev = "2f0c1223c50aa4b754136db544204c6fc99ffc77"
 crate = "tree-sitter-arduino"
 version = "0.24.0"
 globs = ["*.ino", "*.pde"]
+
+[parsers.bend]
+git = "https://github.com/HigherOrderCO/tree-sitter-bend.git"
+rev = "7e7b88b77103e4d9c11a68d719be8702e4d6ad7f"
+version = "0.2.37"
+# Tree-sitter 0.26 emits an empty supertype map for `_id`, whose subtypes are
+# all hidden, and the C does not compile; use the shipped parser.
+generate = false
+globs = ["*.bend"]
 
 [parsers.bicep]
 git = "https://github.com/tree-sitter-grammars/tree-sitter-bicep.git"
@@ -1174,9 +1188,30 @@ parsers = [
 
 [bundles.full]
 parsers = "all"
-# 22 MB of parse tables, 17% of the 128 MB a Tree-sitter Wasm store gets for
-# every language a process loads. With it, the 113 published parsers total
-# 135.9 MB and `bundle-full` cannot be loaded at all; without it they total
-# 113.7 MB and fit. Measured, not estimated: the median parser is 112 KB, so
-# this one is 203x its peers.
-exclude = ["systemverilog"]
+# Half the 128 MB Tree-sitter Wasm store every language in a process shares.
+# With every parser but systemverilog, the bundle reserved 119 MB of it, so
+# loading it left no room for anything else. Each parser below is at least
+# 1.3 MB and niche, and they total 71 MB of the 119; the median parser is
+# 111 KB. `gen-language-catalog` fails when the members' measured memory
+# exceeds the cap, so a new language that does not fit has to be listed here,
+# and in the `bundle-full` section of docs/content/languages.mdx.
+max_memory_mb = 64
+exclude = [
+  "arduino",
+  "d",
+  "fortran",
+  "fsharp",
+  "haskell",
+  "julia",
+  "latex",
+  "nim",
+  "nushell",
+  "objc",
+  "ocaml",
+  "ocaml_interface",
+  "perl",
+  "qmljs",
+  "systemverilog",
+  "tlaplus",
+  "vhdl",
+]

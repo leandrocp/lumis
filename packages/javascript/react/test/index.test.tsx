@@ -14,12 +14,12 @@ import {
   configureWasmResolver as configureClientWasmResolver,
 } from "@lumis-sh/lumis/client/languages";
 import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
-import { htmlInline } from "@lumis-sh/lumis/formatters";
+import { htmlInline, terminal } from "@lumis-sh/lumis/formatters";
 import { configureLocalWasmResolver, ensureLocalParserWasmDataUrl } from "../../lumis/test/wasm.ts";
 import dracula from "../../themes/themes/dracula.ts";
 import githubLight from "../../themes/themes/github_light.ts";
-import { CodeBlock, useLumis } from "../src/index.js";
-import { renderCodeBlock } from "../src/server.js";
+import { CodeBlock, InlineCode, useLumis } from "../src/index.js";
+import { renderCodeBlock, renderInlineCode } from "../src/server.js";
 
 const SOURCE = "const x = 1";
 
@@ -124,6 +124,37 @@ describe("@lumis-sh/react", () => {
     expect(html).toMatch(/<span style="color:#[0-9a-f]+">const<\/span>/u);
   });
 
+  it("renders inline code on the server with the theme on the code element", async () => {
+    const highlighter = await createHighlighter();
+
+    const node = await renderInlineCode({
+      children: SOURCE,
+      formatter: htmlInline({ language: bundledLanguages.javascript, theme: dracula }),
+      highlighter,
+      attrs: { class: "authored", id: "x" },
+    });
+
+    const html = renderToStaticMarkup(node);
+
+    expect(html).toMatch(
+      /^<code class="lumis authored" style="color:#f8f8f2;background-color:#282a36" id="x"><span style="color:#[0-9a-f]+">const<\/span>.*<\/code>$/u,
+    );
+    expect(html).not.toContain("<pre");
+    expect(html).not.toContain("\n");
+  });
+
+  it("rejects inline code for a formatter that is not HTML", async () => {
+    const highlighter = await createHighlighter({ languages: [bundledLanguages] });
+
+    await expect(
+      renderInlineCode({
+        children: SOURCE,
+        formatter: terminal({ language: "javascript", theme: dracula }),
+        highlighter,
+      }),
+    ).rejects.toThrow("Inline code needs a built-in HTML formatter");
+  });
+
   it("supports string formatter languages through renderCodeBlock", async () => {
     const highlighter = await createHighlighter({ languages: [bundledLanguages] });
 
@@ -225,6 +256,44 @@ describe("@lumis-sh/react", () => {
     await waitForHtml(container, 'class="lumis"');
     expect(container.innerHTML).toContain('class="lumis"');
     expect(container.innerHTML).toContain('class="language-javascript"');
+
+    await act(async () => {
+      root.unmount();
+    });
+  });
+
+  it("renders InlineCode once its language loads", async () => {
+    const { deferred, language, lazy } = await createDeferredJavaScript();
+    const highlighter = await createHighlighter({ languages: [{ javascript: lazy }] });
+    const container = document.createElement("div");
+    document.body.append(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        <p>
+          Run{" "}
+          <InlineCode
+            highlighter={highlighter}
+            formatter={htmlInline({ language: "javascript", theme: dracula })}
+          >
+            {SOURCE}
+          </InlineCode>
+        </p>,
+      );
+    });
+
+    expect(container.innerHTML).toBe("<p>Run </p>");
+
+    await act(async () => {
+      deferred.resolve(language);
+    });
+
+    await waitForHtml(container, "<code");
+    const code = container.querySelector("p > code");
+    expect(code?.className).toBe("lumis");
+    expect(code?.textContent).toBe(SOURCE);
+    expect(container.querySelector("pre")).toBeNull();
 
     await act(async () => {
       root.unmount();

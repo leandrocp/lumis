@@ -111,6 +111,8 @@ export interface ThemeInfo {
  * ```
  */
 export interface Theme {
+  /** URL of the JSON Schema the theme file follows. */
+  $schema?: string;
   name: string;
   appearance: "light" | "dark";
   revision?: string;

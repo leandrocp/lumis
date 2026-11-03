@@ -1,2 +1,3 @@
 export { renderCodeBlock } from "./renderCodeBlock.js";
-export type { RenderCodeBlockOptions } from "./serverShared.js";
+export { renderInlineCode } from "./renderInlineCode.js";
+export type { RenderCodeBlockOptions, RenderInlineCodeOptions } from "./serverShared.js";

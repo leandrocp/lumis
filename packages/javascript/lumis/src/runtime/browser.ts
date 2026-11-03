@@ -183,7 +183,7 @@ export const browserRuntime: RuntimeEnvironment = {
 
   async parserInitOptions() {
     const module = precompiledRuntime;
-    if (!module) return { wasmBinary: treeSitterWasmBinary };
+    if (!module) return { wasmBinary: treeSitterWasmBinary() };
     return {
       instantiateWasm(
         imports: WebAssembly.Imports,

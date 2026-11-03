@@ -169,6 +169,13 @@ impl TreeSitterParser {
         // tree-sitter/tree-sitter-haskell#144).
         build.flag_if_supported("-fno-strict-aliasing");
 
+        // MSVC reads source and encodes string literals in the system code
+        // page, so a non-ASCII token name such as Bend's `"\u03bb"` becomes
+        // `?` and queries naming it fail to compile.
+        if build.get_compiler().is_like_msvc() {
+            build.flag("/utf-8");
+        }
+
         // Prefix TAG_TYPES_BY_TAG_NAME to avoid symbol conflicts between
         // parsers that share the same tag.h definitions (angular, astro, vue).
         let tag_h = self.src_dir.join("tag.h");
