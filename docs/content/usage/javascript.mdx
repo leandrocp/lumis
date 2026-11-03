@@ -210,9 +210,19 @@ Useful for dropdowns, config validation, and docs tooling:
 - Node loads installed parser packages such as `@lumis-sh/wasm-elixir` or bundle packages such as `@lumis-sh/wasm-bundle-web`, and nothing else unless you configure a resolver
 - ordinary Node highlighters share one Wasmtime runtime; a highlighter that supplies parser bytes, queries, or resolver callbacks gets an isolated Tree-sitter Wasm store so its definitions are released with that highlighter, while the Wasmtime engine and persistent caches remain shared
 - Bun and Deno are also supported
-- Cloudflare Workers, Vercel Edge Functions and Supabase Edge Functions are supported too; see [Edge runtimes](#edge-runtimes)
+- edge runtimes are supported too; see [Edge runtimes](#edge-runtimes)
 
 ## Edge runtimes
+
+Tested on Cloudflare Workers, Vercel Edge Functions and Supabase Edge Functions.
+Another edge host works when it does one of these:
+
+- compiles WebAssembly from bytes at run time, as Deno does; the ordinary
+  entries work there
+- imports `.wasm` files as compiled modules and resolves the `workerd` or
+  `edge-light` export condition, as Wrangler and Next.js do
+
+A host that does neither cannot run Lumis.
 
 Supabase Edge Functions run Deno, so they work like Deno does: import the
 packages with `npm:` specifiers, such as `npm:@lumis-sh/wasm-rust`.
@@ -479,6 +489,3 @@ Being a separate process is the point: failing there fails the build rather than
 a request. [Languages](/languages#preloaded) has the command, and why
 `lumis languages download` is not the build step for a Node project.
 
-:::note Edge is not supported yet
-The portable JavaScript runtime uses `web-tree-sitter`, but Edge runtimes are not supported yet because of an upstream Tree-sitter limitation: [tree-sitter/tree-sitter#2160](https://github.com/tree-sitter/tree-sitter/issues/2160).
-:::
