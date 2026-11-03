@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "mellifluous_mountain",
   "appearance": "dark",
   "revision": "ec0575bdb63594c5e7fba6eb9607b009aa1fb74e",

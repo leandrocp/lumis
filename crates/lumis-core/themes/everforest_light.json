@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "everforest_light",
   "appearance": "light",
   "revision": "a0e9edc57379e8feafc6ba207c26dbb12fc1b6d8",
