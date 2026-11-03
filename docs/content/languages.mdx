@@ -141,34 +141,10 @@ were asked for last.
 Preload what you serve. Installing a parser is cheap; loading one is what
 spends the budget.
 
-`bundle-full` is not every language. It is capped at 64 MB of memory, half
-the store, so it leaves out the largest parsers of the less common languages:
-`arduino`, `d`, `fortran`, `fsharp`, `haskell`, `julia`, `latex`, `nim`,
-`nushell`, `objc`, `ocaml`, `ocaml_interface`, `perl`, `qmljs`,
-`systemverilog`, `tlaplus`, and `vhdl`. Together they would take more of the
-store than everything in the bundle.
-
-### How `bundle-full` is chosen
-
-A parser's Memory is mostly the parse tables Tree-sitter generates from its
-grammar, so it follows the grammar, not how common the language is. Most
-parsers need about 100 KB. A few need several MB, and `fsharp` alone needs more
-than 10 MB.
-
-The bundle starts from every language and leaves out the largest parsers until
-the rest fit under 64 MB. Large parsers of widely used languages stay in, such
-as `csharp`, `kotlin`, `swift`, `cpp`, `scala`, and `sql`. Large parsers of less
-common languages go first. That is a judgment call, not a measurement of usage,
-and the cap leaves some headroom so a parser can grow without forcing another
-removal.
-
-The fastest way to get a language back into `bundle-full` is a smaller parser.
-The cost comes from the upstream grammar, so a grammar change that shrinks its
-parse tables helps every Tree-sitter user, not just Lumis. The
-[Language catalog](/reference/languages) links each parser's upstream
-repository and shows its current Memory. If a parser shrinks enough to fit, or
-you think the bundle should trade one language for another,
-[open an issue](https://github.com/leandrocp/lumis/issues).
+`bundle-full` leaves out big parsers so it fits under 64 MB: `arduino`, `d`,
+`fortran`, `fsharp`, `haskell`, `julia`, `latex`, `nim`, `nushell`, `objc`,
+`ocaml`, `ocaml_interface`, `perl`, `qmljs`, `systemverilog`, `tlaplus`, and
+`vhdl`.
 
 ### Add languages a bundle leaves out
 
