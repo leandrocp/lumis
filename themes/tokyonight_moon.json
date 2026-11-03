@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "tokyonight_moon",
   "appearance": "dark",
   "revision": "cdc07ac78467a233fd62c493de29a17e0cf2b2b6",

@@ -6,7 +6,7 @@
 
 [queries.default]
 git = "https://github.com/nvim-treesitter/nvim-treesitter.git"
-rev = "a2f694478be07f89c2d03cc17858a8745a400c4b"
+rev = "a9c4e1457e2e59f1b82c8f78dcdb3b2517555200"
 path = "runtime/queries"
 
 [queries.iex]
@@ -110,15 +110,15 @@ globs = ["Caddyfile", "caddyfile"]
 git = "https://github.com/sogaiu/tree-sitter-clojure.git"
 rev = "3a1ace906c151dd631cf6f149b5083f2b60e6a9e"
 crate = "tree-sitter-clojure-orchard"
-version = "0.2.8"
+version = "0.2.9"
 globs = ["*.bb", "*.boot", "*.clj", "*.cljc", "*.clje", "*.cljs", "*.cljx", "*.edn", "*.joke", "*.joker"]
 emacs = ["clojure"]
 
 [parsers.cmake]
 git = "https://github.com/uyha/tree-sitter-cmake.git"
-rev = "e997bd0b275ca525ce9befecedf5299031183661"
+rev = "a3ec2b2144daf7132e7ee824d8cab9610523d10f"
 crate = "tree-sitter-cmake"
-version = "0.7.5"
+version = "0.7.6"
 variant = "CMake"
 globs = ["*.cmake", "*.cmake.in", "CMakeLists.txt"]
 

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "melange_light",
   "appearance": "light",
   "revision": "ce42f6b629beeaa00591ba73a77d3eeac4cf28ce",

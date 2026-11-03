@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "everblush",
   "appearance": "dark",
   "revision": "678f808d81801b983b6fb8296fb17ba1b2785d7c",
