@@ -32,7 +32,13 @@ import { isInlineStructure } from "../formatter/html-structure.js";
 import { assertBudget, warnUnresolvedInjection } from "../events.js";
 import { decodeNativeEvents } from "./native-event-codec.js";
 import { PLAINTEXT_LANG_ID } from "../types.js";
-import { DEFAULT_RESOLVER, normalizeLanguageName, notDeclared, verifyWasm } from "./languages.js";
+import {
+  DEFAULT_RESOLVER,
+  isParserLocation,
+  normalizeLanguageName,
+  notDeclared,
+  verifyWasm,
+} from "./languages.js";
 import type {
   HighlighterRuntimeOptions,
   LanguagePackageResolver,
@@ -155,6 +161,11 @@ interface AddonLanguage {
  * Response. Only what this downloads is checked against `packaged`.
  */
 async function readWasmInput(wasm: RuntimeWasmInput, packaged: WasmRef): Promise<Uint8Array> {
+  if (!isParserLocation(wasm)) {
+    throw new TypeError(
+      "the native runtime cannot read a compiled WebAssembly.Module; pass the parser's bytes, path or URL",
+    );
+  }
   if (wasm instanceof Uint8Array) return wasm;
   if (wasm instanceof ArrayBuffer) return new Uint8Array(wasm);
   if (wasm instanceof Response) return new Uint8Array(await wasm.arrayBuffer());

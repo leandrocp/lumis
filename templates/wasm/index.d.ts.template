@@ -6,8 +6,11 @@ export interface Language {
   id: string
   aliases: string[]
   packageName: string
-  /** The parser, which a bundler ships next to your code. */
-  wasm: URL
+  /**
+   * The parser, which a bundler ships next to your code: a `URL`, or a
+   * `WebAssembly.Module` on Cloudflare Workers and Vercel's Edge runtime.
+   */
+  wasm: URL | WebAssembly.Module
   languagePackage: LanguagePackage
   /** Grammars this language cannot highlight without, loaded along with it. */
   requires?: Language[]

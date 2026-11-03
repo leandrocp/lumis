@@ -381,6 +381,23 @@ Node-compatible process polyfill. The Node bundle keeps those branches for its
 Wasm fallback. Both builds finish before the bundle patch and declaration check
 run.
 
+Cloudflare Workers and Vercel's Edge runtime refuse to compile WebAssembly at
+run time; only a `.wasm` import, which their build step compiles at deploy time,
+yields a module. So the browser build has two more entries, selected by export
+condition: `index.workerd` for `workerd`, which imports `web-tree-sitter.wasm`,
+and `index.edge` for `edge-light`, which imports it as `web-tree-sitter.wasm?module`,
+Next.js's spelling. The file is copied into `dist/`, and both boot Tree-sitter
+through Emscripten's `instantiateWasm` hook instead of from the embedded bytes.
+Each `@lumis-sh/wasm-*` package has matching `index.workerd.js` and
+`index.edge.js` entries that import its parser the same way, and a
+`WebAssembly.Module` handed over as a parser is loaded with `Language.loadSync`
+as it is. Such a module has no bytes to hash, so it is keyed by identity and
+never shared as its package's published parser. `next start` compiles those
+imports in another realm, so the bundle patch replaces web-tree-sitter's
+`instanceof WebAssembly.Module` checks with a tag check, as Lumis does. Deno,
+and so Supabase Edge Functions, compiles bytes like Node and needs none of
+this.
+
 The resolver itself follows the same ownership boundary. The CLI and Elixir call
 `lumis-wasm-runtime::LanguageStore`, so compatible version checks, exact
 manifest caching, integrity verification, and refresh semantics are one Rust

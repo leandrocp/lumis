@@ -14,6 +14,8 @@
   "exports": {
     ".": {
       "types": "./index.d.ts",
+      "workerd": "./index.workerd.js",
+      "edge-light": "./index.edge.js",
       "default": "./index.js"
     },
     "./{wasm_name}.wasm": "./{wasm_name}.wasm",
@@ -21,7 +23,7 @@
   },
   "lumis": {
     "treeSitter": "{tree_sitter_cli}",
-    "formatVersion": 4,
+    "formatVersion": {package_format},
     "definitionHash": "{definition_hash}"
   },
   "peerDependencies": {
