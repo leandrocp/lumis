@@ -41,9 +41,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # The official stable build rather than ppa:neovim-ppa/unstable, whose
-      # nightly packages failed to install on ubuntu-latest (Ubuntu 26.04).
-      # Theme extraction uses vim.pack, which needs Neovim 0.12 or later.
       - name: Install Neovim
         run: |
           sudo apt-get update
