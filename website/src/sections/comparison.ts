@@ -27,6 +27,56 @@ interface Manifest {
   documents: ComparisonDocument[];
 }
 
+interface SavedState {
+  document?: string;
+  implementation?: string;
+  positions: Record<string, number>;
+}
+
+const STATE_KEY = "lumis-comparison";
+
+function readState(): SavedState {
+  try {
+    const value: unknown = JSON.parse(sessionStorage.getItem(STATE_KEY) ?? "null");
+    if (typeof value !== "object" || value === null) return { positions: {} };
+    const field = (key: string): unknown => (key in value ? Reflect.get(value, key) : undefined);
+    const documentId = field("document");
+    const implementationId = field("implementation");
+    const positions = field("positions");
+    return {
+      document: typeof documentId === "string" ? documentId : undefined,
+      implementation: typeof implementationId === "string" ? implementationId : undefined,
+      positions: Object.fromEntries(
+        Object.entries(typeof positions === "object" && positions !== null ? positions : {}).filter(
+          (entry): entry is [string, number] => typeof entry[1] === "number",
+        ),
+      ),
+    };
+  } catch {
+    return { positions: {} };
+  }
+}
+
+function writeState(state: SavedState) {
+  try {
+    sessionStorage.setItem(STATE_KEY, JSON.stringify(state));
+  } catch {
+    // Storage can be disabled or full; the page still works without it.
+  }
+}
+
+function navigate(frame: HTMLIFrameElement, page: string, at: number) {
+  // Back restores the frame to the URL it had when the page was first left, so
+  // `page` can be the document it already shows. Changing only the fragment does
+  // not reload it, and its script never sees the new `#at=`.
+  const panel =
+    frame.contentWindow?.location.pathname === page
+      ? frame.contentDocument?.querySelector("pre")
+      : undefined;
+  frame.src = `${page}#at=${at}`;
+  if (panel) panel.scrollTop = at;
+}
+
 function paint(container: HTMLElement, selected: string) {
   for (const button of Array.from(container.children) as HTMLButtonElement[]) {
     const isSelected = button.dataset.id === selected;
@@ -94,10 +144,22 @@ export async function setupComparison(root: HTMLElement) {
   // Switching either tab reloads the frame, so the frame reports where it is and
   // the next page is asked to resume there. Positions are kept per document,
   // because the same offset in a different file is not the same place, while the
-  // same offset in a different implementation of one file is.
-  const positions = new Map<string, number>();
-  let currentDocument = manifest.documents[0]!;
-  let currentImplementation = manifest.implementations[0]!;
+  // same offset in a different implementation of one file is. The browser does
+  // not restore a scroll offset inside a frame whose src was set by script, so
+  // the state is kept for the tab's session to survive a reload or a Back.
+  const saved = readState();
+  const positions = new Map(Object.entries(saved.positions));
+  let currentDocument =
+    manifest.documents.find((entry) => entry.id === saved.document) ?? manifest.documents[0]!;
+  let currentImplementation =
+    manifest.implementations.find((entry) => entry.id === saved.implementation) ??
+    manifest.implementations[0]!;
+  const saveState = () =>
+    writeState({
+      document: currentDocument.id,
+      implementation: currentImplementation.id,
+      positions: Object.fromEntries(positions),
+    });
 
   // The outputs are files rendered ahead of time, so the page cannot restyle one
   // the way the live showcase restyles its own. Both flavours are published and
@@ -116,7 +178,9 @@ export async function setupComparison(root: HTMLElement) {
 
   addEventListener("message", (event: MessageEvent) => {
     const scroll = (event.data as { lumisShowcaseScroll?: number } | null)?.lumisShowcaseScroll;
-    if (typeof scroll === "number") positions.set(currentDocument.id, scroll);
+    if (typeof scroll !== "number") return;
+    positions.set(currentDocument.id, scroll);
+    saveState();
   });
 
   function show() {
@@ -130,10 +194,13 @@ export async function setupComparison(root: HTMLElement) {
       ? `${currentImplementation.label} does not support ${currentDocument.languageLabel}.`
       : "";
 
-    frame.src = isUnsupported
-      ? "about:blank"
-      : `${DATA}/${currentDocument.id}/${currentTheme.id}/${currentImplementation.id}.html` +
-        `#at=${positions.get(currentDocument.id) ?? 0}`;
+    if (isUnsupported) frame.src = "about:blank";
+    else
+      navigate(
+        frame,
+        `${DATA}/${currentDocument.id}/${currentTheme.id}/${currentImplementation.id}.html`,
+        positions.get(currentDocument.id) ?? 0,
+      );
     frame.title =
       `${currentImplementation.label} highlighting ${currentDocument.label} ` +
       `in ${currentTheme.name}`;
@@ -141,12 +208,14 @@ export async function setupComparison(root: HTMLElement) {
 
   const selectDocument = (entry: ComparisonDocument) => () => {
     currentDocument = entry;
+    saveState();
     paint(documentTabs, entry.id);
     show();
   };
 
   const selectImplementation = (entry: Manifest["implementations"][number]) => () => {
     currentImplementation = entry;
+    saveState();
     paint(implementationTabs, entry.id);
     show();
   };

@@ -21,7 +21,7 @@ export function renderNav(home = "") {
   return `
     <nav class="fixed top-0 left-0 right-0 z-50 border-b border-line bg-canvas/80 backdrop-blur-lg">
       <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <a href="/" aria-label="Lumis home"><img src="/brand/lockup-horizontal-light.svg" alt="" class="h-10 w-auto dark:hidden"><img src="/brand/lockup-horizontal-dark.svg" alt="" class="hidden h-10 w-auto dark:block"></a>
+        <a href="/" aria-label="Lumis home"><img src="/brand/lockup-horizontal-light.svg" alt="" width="108" height="40" class="h-10 w-auto dark:hidden"><img src="/brand/lockup-horizontal-dark.svg" alt="" width="108" height="40" class="hidden h-10 w-auto dark:block"></a>
         <div class="flex items-center gap-4 font-display text-sm font-bold text-muted sm:gap-6">
           ${links.map((label, index) => `<a href="${hrefFor(label, home)}" class="hidden transition-[color,background-color,border-color,text-decoration-color] hover:text-fg ${index > 4 ? "xl:inline-block" : "lg:inline-block"}">${label}</a>`).join("")}
           <a href="https://docs.lumis.sh" class="hidden h-10 items-center rounded-md bg-accent px-5 text-accent-fg transition-[color,background-color,border-color,text-decoration-color] hover:bg-accent-strong md:inline-flex">Docs</a>
