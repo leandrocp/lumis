@@ -1789,6 +1789,7 @@ return {
 	},
 	{
 		url = "https://github.com/thesimonho/kanagawa-paper.nvim",
+		version = "neovim",
 		name = "kanagawa_paper_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -1797,6 +1798,7 @@ return {
 	},
 	{
 		url = "https://github.com/thesimonho/kanagawa-paper.nvim",
+		version = "neovim",
 		name = "kanagawa_paper_light",
 		config = function()
 			vim.o.background = "light"
