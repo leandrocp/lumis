@@ -176,6 +176,10 @@ define_catalog! {
             aliases: ["tex"],
             package_name: "@lumis-sh/wasm-latex"
         },
+        "lean" => {
+            aliases: ["lean4"],
+            package_name: "@lumis-sh/wasm-lean"
+        },
         "liquid" => {
             aliases: [],
             package_name: "@lumis-sh/wasm-liquid"
