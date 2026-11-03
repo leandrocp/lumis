@@ -125,6 +125,31 @@ The optional `skip` field maps a runtime that cannot run the fixture yet to the
 reason. Only `web-tree-sitter`, which covers the JavaScript Wasm and browser
 suites, reads it. `conformance-regen` preserves all three fields.
 
+### Mutation testing
+
+[cargo-mutants](https://mutants.rs/) changes one operator or return value at a
+time and reports each change the Rust tests still pass with. A missed mutant is
+behavior nothing pins: a fixture that passes either way, or a branch no case
+reaches.
+
+```sh
+mise run test-mutants --package lumis-core
+mise run test-mutants --file crates/lumis-core/src/diff_words.rs
+```
+
+Arguments pass through to `cargo mutants`. Only the mutated crate's tests run,
+so a mutant caught by a downstream crate shows up as missed; add
+`--cargo-arg=--package=<crate>` to run that crate's tests too. Results land in
+`mutants.out/`. `.cargo/mutants.toml` leaves out the NIF and the Node addon,
+whose tests are Elixir and JavaScript, and the vendored Tree-sitter highlighter.
+
+Do not pass `--in-place` locally: an interrupted run leaves the mutation in
+your working tree.
+
+On pull requests, the `Mutation testing` workflow tests only the mutants in
+changed lines (`--in-diff`) and reports misses as annotations without failing
+the build. Run it from the Actions tab to test every mutant in one crate.
+
 ### Generated HTML and CSS
 
 After changing HTML formatters or theme layout, refresh the shared outputs:

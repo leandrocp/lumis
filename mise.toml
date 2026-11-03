@@ -430,6 +430,11 @@ description = "Regenerate JavaScript example HTML and verify standalone builds"
 depends = ["build-examples-deps"]
 run = "node packages/javascript/scripts/test-examples.mjs --update"
 
+[tasks.'test-mutants']
+description = "Mutation-test Rust crates with cargo-mutants; arguments pass through"
+tools = { "cargo:cargo-mutants" = "27.1.0" }
+run = "cargo mutants"
+
 [tasks.'test-queries']
 description = "Compile every processed query against a parser built from languages.toml"
 run = '''
