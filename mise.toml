@@ -357,6 +357,7 @@ run = '''
 set -euo pipefail
 pnpm --filter @lumis-sh/lumis run build:native
 pnpm --filter @lumis-sh/lumis run build
+pnpm --filter @lumis-sh/rehype-lumis run build
 
 # Each process gets its own copy of the staged store, so a suite that writes
 # into it cannot disturb the shared tree or another suite. The resolver
