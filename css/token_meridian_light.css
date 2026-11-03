@@ -1,5 +1,5 @@
 /* token_meridian_light
- * revision: 19acc041465c89739778a6054da8039b68798251
+ * revision: 4f28e3c711cf14b3c57c27f1ded3fb3c9e078c7e
  * license: BSD-3-Clause
  */
 .lumis {
@@ -30,7 +30,7 @@
   font-style: italic;
 }
 .l-comment-error {
-  color: #286fc0;
+  color: #ae5158;
   font-style: italic;
 }
 .l-comment-hint {
@@ -42,11 +42,11 @@
   font-style: italic;
 }
 .l-comment-todo {
-  color: #2f75c6;
+  color: #926e25;
   font-style: italic;
 }
 .l-comment-warning {
-  color: #2f75c6;
+  color: #926e25;
   font-style: italic;
 }
 .l-constant {
@@ -78,7 +78,7 @@
   background-color: #abdba2;
 }
 .l-error {
-  color: #286fc0;
+  color: #ae5158;
 }
 .l-function {
   color: #7a1f7a;
@@ -208,11 +208,11 @@
   font-weight: bold;
 }
 .l-markup-heading-5 {
-  color: #286fc0;
+  color: #0048b3;
   font-weight: bold;
 }
 .l-markup-heading-6 {
-  color: #2f75c6;
+  color: #4b1fa3;
   font-weight: bold;
 }
 .l-markup-italic {
