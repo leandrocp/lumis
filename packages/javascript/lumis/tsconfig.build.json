@@ -3,6 +3,9 @@
   "include": [
     "src/index.ts",
     "src/index.browser.ts",
+    "src/index.workerd.ts",
+    "src/index.edge.ts",
+    "src/wasm-module.d.ts",
     "src/languages.ts",
     "src/languages.browser.ts",
     "src/formatters.ts",

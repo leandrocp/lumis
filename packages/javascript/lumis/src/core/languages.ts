@@ -21,6 +21,7 @@ import type {
   LoadedLanguage,
   LumisHighlightEvent,
   QueryCaptureOffset,
+  RuntimeWasmInput,
   WasmRef,
 } from "../types.js";
 import { PLAINTEXT_LANG_ID, type LanguageInfo } from "../types.js";
@@ -118,7 +119,7 @@ export interface LoadLanguageOptions {
   definition: LanguageDefinition;
   packageName?: string;
   /** Where the parser bytes come from. Queries always come from the package. */
-  wasm?: WasmRef | Uint8Array | ArrayBuffer | string | URL | Response;
+  wasm?: WasmRef | RuntimeWasmInput;
   /** The `lumis.json` of an imported package, so nothing has to be resolved. */
   languagePackage?: object;
 }
@@ -289,7 +290,7 @@ function isWasmRef(wasm: object): wasm is WasmRef {
 
 function isRuntimeWasmInput(
   wasm: NonNullable<LoadLanguageOptions["wasm"]>,
-): wasm is Uint8Array | ArrayBuffer | string | URL | Response {
+): wasm is RuntimeWasmInput {
   return !(typeof wasm === "object" && wasm !== null && isWasmRef(wasm));
 }
 
@@ -569,18 +570,50 @@ function ownedBuffer(data: Uint8Array): ArrayBuffer {
 
 type ParserGrammar = { ok: true; name: string } | { ok: false; detail: string };
 
-/** Parser bytes and the digest that identifies them. */
-interface ParserBytes {
-  bytes: Uint8Array;
-  digest: string;
-}
+/**
+ * A parser and the key that identifies it: the digest of its bytes, or for a
+ * module compiled elsewhere, the module itself.
+ */
+type ParserSource =
+  | { bytes: Uint8Array; digest: string }
+  | { module: WebAssembly.Module; digest: string };
 
 /**
  * Bytes handed over directly are used as they are, so only their own digest
  * can say which parser they are.
  */
-async function handedParser(bytes: Uint8Array): Promise<ParserBytes> {
+async function handedParser(bytes: Uint8Array): Promise<ParserSource> {
   return { bytes, digest: await sha256Hex(bytes) };
+}
+
+/** Parser bytes, or where to find them, as opposed to a compiled module. */
+export type ParserLocation = Uint8Array | ArrayBuffer | string | URL | Response;
+
+/**
+ * Whether a parser input is anything but a compiled module, from this realm or
+ * another: Next.js's Edge sandbox compiles `.wasm?module` imports outside the
+ * realm it runs in, where `instanceof` is false for a real module.
+ *
+ * @internal
+ */
+export function isParserLocation(wasm: RuntimeWasmInput): wasm is ParserLocation {
+  return Object.prototype.toString.call(wasm) !== "[object WebAssembly.Module]";
+}
+
+const moduleKeys = new WeakMap<WebAssembly.Module, string>();
+let nextModuleKey = 0;
+
+/**
+ * A compiled module has no bytes to hash, so it is keyed by identity and is
+ * never taken for its package's published parser.
+ */
+function handedModule(module: WebAssembly.Module): ParserSource {
+  let digest = moduleKeys.get(module);
+  if (digest === undefined) {
+    digest = `module-${nextModuleKey++}`;
+    moduleKeys.set(module, digest);
+  }
+  return { module, digest };
 }
 
 interface CachedParserModule {
@@ -672,10 +705,19 @@ function functionExports(section: ReturnType<typeof wasmReader>): string[] {
   return names;
 }
 
-function inspectParserGrammar(data: Uint8Array): ParserGrammar {
+/** The functions a parser exports, read without compiling bytes a second time. */
+function parserExports(parser: ParserSource): string[] {
+  return "module" in parser
+    ? WebAssembly.Module.exports(parser.module)
+        .filter(({ kind }) => kind === "function")
+        .map(({ name }) => name)
+    : exportedFunctionNames(parser.bytes);
+}
+
+function inspectParserGrammar(parser: ParserSource): ParserGrammar {
   let exports: string[];
   try {
-    exports = exportedFunctionNames(data);
+    exports = parserExports(parser);
   } catch (error) {
     return { ok: false, detail: error instanceof Error ? error.message : String(error) };
   }
@@ -737,11 +779,11 @@ function underViteDeps(source: string): boolean {
 
 function requireParserGrammar(
   cached: CachedParserModule,
-  data: Uint8Array,
+  source: ParserSource,
   parser: WasmRef,
   expected: string,
 ): void {
-  cached.grammar ??= inspectParserGrammar(data);
+  cached.grammar ??= inspectParserGrammar(source);
   if (!cached.grammar.ok) {
     throw new Error(`invalid parser grammar export for '${parser.name}': ${cached.grammar.detail}`);
   }
@@ -1111,10 +1153,10 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
   function instantiateParserSync(
     Language: TreeSitterLanguageCtor,
     parserModule: CachedParserModule,
-    bytes: Uint8Array,
+    module: WebAssembly.Module,
   ): Language {
     try {
-      parserModule.language = Language.loadSync(new WebAssembly.Module(ownedBuffer(bytes)));
+      parserModule.language = Language.loadSync(module);
       return parserModule.language;
     } catch (error) {
       parserModule.failure = { error };
@@ -1124,16 +1166,23 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
 
   async function loadParserLanguage(
     Language: TreeSitterLanguageCtor,
-    parser: ParserBytes,
+    parser: ParserSource,
     packaged: { wasm: WasmRef; grammarName: string },
   ): Promise<Language> {
     const parserModule = parserModuleFor(parser.digest);
-    requireParserGrammar(parserModule, parser.bytes, packaged.wasm, packaged.grammarName);
+    requireParserGrammar(parserModule, parser, packaged.wasm, packaged.grammarName);
     if (parserModule.language) return parserModule.language;
     if (parserModule.failure) throw parserModule.failure.error;
     if (parserModule.loading) return parserModule.loading;
+    if ("module" in parser) {
+      return instantiateParserSync(Language, parserModule, parser.module);
+    }
     if (parser.bytes.byteLength <= SYNC_INSTANTIATE_LIMIT) {
-      return instantiateParserSync(Language, parserModule, parser.bytes);
+      return instantiateParserSync(
+        Language,
+        parserModule,
+        new WebAssembly.Module(ownedBuffer(parser.bytes)),
+      );
     }
 
     parserModule.loading = Language.load(parser.bytes).then(
@@ -1377,7 +1426,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       resolved: { wasm: NonNullable<LoadLanguageOptions["wasm"]>; definition: { id: string } },
       packaged: WasmRef,
       requestedId: string,
-    ): Promise<ParserBytes> {
+    ): Promise<ParserSource> {
       const { wasm } = resolved;
       if (typeof wasm === "object" && isWasmRef(wasm)) {
         const bytes = await this.resolveParserWasm(resolved.definition.id, wasm);
@@ -1386,6 +1435,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       if (!isRuntimeWasmInput(wasm)) {
         throw new Error(`Unsupported WASM input for language "${requestedId}"`);
       }
+      if (!isParserLocation(wasm)) return handedModule(wasm);
 
       const source = await runtime.resolveWasm(wasm);
       if (source instanceof Uint8Array) return handedParser(source);

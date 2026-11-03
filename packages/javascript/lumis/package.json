@@ -21,12 +21,23 @@
     "neovim",
     "wasm"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "./dist/index.workerd.js",
+    "./dist/index.edge.js"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "workerd": {
+        "types": "./dist/index.workerd.d.ts",
+        "default": "./dist/index.workerd.js"
+      },
+      "edge-light": {
+        "types": "./dist/index.edge.d.ts",
+        "default": "./dist/index.edge.js"
+      },
       "browser": {
         "types": "./dist/index.browser.d.ts",
         "default": "./dist/index.browser.js"

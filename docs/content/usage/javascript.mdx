@@ -210,6 +210,50 @@ Useful for dropdowns, config validation, and docs tooling:
 - Node loads installed parser packages such as `@lumis-sh/wasm-elixir` or bundle packages such as `@lumis-sh/wasm-bundle-web`, and nothing else unless you configure a resolver
 - ordinary Node highlighters share one Wasmtime runtime; a highlighter that supplies parser bytes, queries, or resolver callbacks gets an isolated Tree-sitter Wasm store so its definitions are released with that highlighter, while the Wasmtime engine and persistent caches remain shared
 - Bun and Deno are also supported
+- Cloudflare Workers, Vercel Edge Functions and Supabase Edge Functions are supported too; see [Edge runtimes](#edge-runtimes)
+
+## Edge runtimes
+
+Supabase Edge Functions run Deno, so they work like Deno does: import the
+packages with `npm:` specifiers, such as `npm:@lumis-sh/wasm-rust`.
+
+Cloudflare Workers and Vercel Edge Functions use the same imports as anywhere
+else:
+
+```ts
+import { createHighlighter } from "@lumis-sh/lumis";
+import { htmlInline } from "@lumis-sh/lumis/formatters";
+import dracula from "@lumis-sh/themes/dracula";
+import rust from "@lumis-sh/wasm-rust";
+
+const hl = await createHighlighter({ languages: [rust] });
+
+export default {
+  async fetch() {
+    const html = hl.highlight("fn main() {}", htmlInline({ language: rust, theme: dracula }));
+    return new Response(html, { headers: { "content-type": "text/html" } });
+  },
+};
+```
+
+In a Vercel Edge Function, highlight inside a route handler exported next to
+`export const runtime = "edge"`.
+
+Neither runtime can compile WebAssembly while it runs, only modules its build
+step compiled when it deployed. Under the `workerd` export condition, which
+Wrangler selects, and the `edge-light` condition, which Next.js selects for the
+Edge runtime, Lumis and every `@lumis-sh/wasm-*` package import their `.wasm`
+files as modules for that reason. It follows that:
+
+- every language highlighted there, injected ones included, has to come from a
+  package the code imports
+- a resolver cannot work, because the parser bytes it fetches could not be
+  compiled
+- a parser you supply yourself must be a `WebAssembly.Module`, such as
+  `import parser from "./tree-sitter-rust.wasm"` on Workers or
+  `"./tree-sitter-rust.wasm?module"` on Vercel, not bytes or a URL
+
+`runtimeKind()` returns `'wasm'`.
 
 ## Where parsers come from
 

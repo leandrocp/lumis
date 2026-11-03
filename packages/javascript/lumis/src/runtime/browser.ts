@@ -11,6 +11,17 @@ const cacheLocks = new Map<string, Promise<void>>();
 let wasmCache: Promise<Cache | undefined> | undefined;
 let wasmDatabase: Promise<IDBDatabase | undefined> | undefined;
 let indexedDbPreferred: boolean | undefined;
+let precompiledRuntime: WebAssembly.Module | undefined;
+
+/**
+ * Boots Tree-sitter from a module compiled ahead of time, for hosts such as
+ * Cloudflare Workers that refuse to compile WebAssembly from bytes.
+ *
+ * @internal
+ */
+export function setRuntimeModule(module: WebAssembly.Module): void {
+  precompiledRuntime = module;
+}
 
 function cacheRequest(key: string): Request {
   const origin = globalThis.location?.origin ?? "https://lumis.invalid";
@@ -171,8 +182,17 @@ export const browserRuntime: RuntimeEnvironment = {
   },
 
   async parserInitOptions() {
+    const module = precompiledRuntime;
+    if (!module) return { wasmBinary: treeSitterWasmBinary };
     return {
-      wasmBinary: treeSitterWasmBinary,
+      instantiateWasm(
+        imports: WebAssembly.Imports,
+        receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
+      ) {
+        const instance = new WebAssembly.Instance(module, imports);
+        receiveInstance(instance, module);
+        return instance.exports;
+      },
     };
   },
 };

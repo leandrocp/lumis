@@ -1,6 +1,6 @@
 ---
 title: Runtimes
-description: Seven Lumis runtimes, including community-maintained Java and Python packages.
+description: Nine Lumis runtimes, including community-maintained Java and Python packages.
 keywords:
   - lumis
   - docs.rs
@@ -12,7 +12,7 @@ keywords:
 
 
 
-Lumis supports **7 runtimes**. Five are maintained in this repository; the community maintains the Java and Python packages.
+Lumis supports **9 runtimes**. Seven are maintained in this repository; the community maintains the Java and Python packages.
 
 ## First-party runtimes
 
@@ -23,11 +23,14 @@ Lumis supports **7 runtimes**. Five are maintained in this repository; the commu
 | Elixir | `lumis` | [HexDocs](https://hexdocs.pm/lumis) |
 | JavaScript / TypeScript | `@lumis-sh/lumis` | [npm](https://www.npmjs.com/package/@lumis-sh/lumis) |
 | Browsers / CDN | `@lumis-sh/lumis` | [npm](https://www.npmjs.com/package/@lumis-sh/lumis) |
+| Cloudflare Workers | `@lumis-sh/lumis` | [Guide](/usage/javascript#edge-runtimes) |
+| Vercel Edge Functions | `@lumis-sh/lumis` | [Guide](/usage/javascript#edge-runtimes) |
 
 `@lumis-sh/lumis` has one JavaScript and TypeScript API with bundled declarations.
-It covers Node.js, Bun, Deno, and browsers. Node, the CLI and
+It covers Node.js, Bun, Deno (including Supabase Edge Functions), Cloudflare
+Workers, Vercel Edge Functions, and browsers. Node, the CLI and
 Elixir all run the same Wasmtime highlighting from `lumis-wasm-runtime`, so
-identical input produces identical output; browsers use `web-tree-sitter`.
+identical input produces identical output; browsers and edge runtimes use `web-tree-sitter`.
 
 Every dynamic runtime loads exact parser WASM per language rather than shipping
 an all-language binary. It loads what a document turns out to need, and keeps
