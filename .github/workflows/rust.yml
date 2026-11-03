@@ -54,8 +54,9 @@ jobs:
     with:
       msrv: '1.95'
       manifest-path: 'crates/lumis/Cargo.toml'
-      test-stage: ${{ github.event_name == 'pull_request' && 'stable' || 'all' }}
-      stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '["ubuntu-22.04", "windows-2022", "macos-15"]' }}
+      stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04", "windows-2022"]' || '["ubuntu-22.04", "windows-2022", "macos-15"]' }}
+      msrv-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '' }}
+      nightly-os-versions: ${{ github.event_name == 'pull_request' && '[]' || '["ubuntu-latest", "windows-latest", "macos-latest"]' }}
   test-lumis-build:
     if: >-
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
@@ -65,8 +66,9 @@ jobs:
     with:
       msrv: '1.95'
       manifest-path: 'crates/lumis-build/Cargo.toml'
-      test-stage: ${{ github.event_name == 'pull_request' && 'stable' || 'all' }}
       stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '["ubuntu-22.04", "windows-2022", "macos-15"]' }}
+      msrv-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '' }}
+      nightly-os-versions: ${{ github.event_name == 'pull_request' && '[]' || '["ubuntu-latest", "windows-latest", "macos-latest"]' }}
   test-lumis-core:
     if: >-
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
@@ -76,8 +78,9 @@ jobs:
     with:
       msrv: '1.95'
       manifest-path: 'crates/lumis-core/Cargo.toml'
-      test-stage: ${{ github.event_name == 'pull_request' && 'stable' || 'all' }}
       stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '["ubuntu-22.04", "windows-2022", "macos-15"]' }}
+      msrv-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '' }}
+      nightly-os-versions: ${{ github.event_name == 'pull_request' && '[]' || '["ubuntu-latest", "windows-latest", "macos-latest"]' }}
   test-lumis-cli:
     if: >-
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
@@ -87,8 +90,9 @@ jobs:
     with:
       msrv: '1.95'
       manifest-path: 'crates/lumis-cli/Cargo.toml'
-      test-stage: ${{ github.event_name == 'pull_request' && 'stable' || 'all' }}
       stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04", "windows-2022"]' || '["ubuntu-22.04", "windows-2022", "macos-15"]' }}
+      msrv-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '' }}
+      nightly-os-versions: ${{ github.event_name == 'pull_request' && '[]' || '["ubuntu-latest", "windows-latest", "macos-latest"]' }}
   test-lumis-wasm-runtime:
     if: >-
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
@@ -98,8 +102,9 @@ jobs:
     with:
       msrv: '1.95'
       manifest-path: 'crates/lumis-wasm-runtime/Cargo.toml'
-      test-stage: ${{ github.event_name == 'pull_request' && 'stable' || 'all' }}
-      stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '["ubuntu-22.04", "windows-2022", "macos-15"]' }}
+      stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04", "windows-2022"]' || '["ubuntu-22.04", "windows-2022", "macos-15"]' }}
+      msrv-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '' }}
+      nightly-os-versions: ${{ github.event_name == 'pull_request' && '[]' || '["ubuntu-latest", "windows-latest", "macos-latest"]' }}
   test-source-archive:
     name: CLI from MSYS2-extracted source archive
     if: >-
