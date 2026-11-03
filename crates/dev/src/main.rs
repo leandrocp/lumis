@@ -1360,6 +1360,9 @@ struct BundleInfo {
     /// than left to break the bundle.
     #[serde(default)]
     exclude: Vec<String>,
+    /// The most Wasm store memory the bundle's members may reserve together,
+    /// in the binary MB the docs table uses.
+    max_memory_mb: Option<u64>,
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -3325,11 +3328,71 @@ fn bundle_language_ids(name: &str, bundle: &BundleInfo, order: &[String]) -> Res
     }
 }
 
+/// Fail when a capped bundle's members reserve more store memory than its cap.
+///
+/// Members share a parser package (`ejs` and `erb` are both
+/// `tree-sitter-embedded-template`), which loads once, so each package counts
+/// once. A member not in `sizes` has not been published and measured yet; it
+/// is named rather than counted, so the total is a floor and `mise run
+/// wasm-sizes` is what closes the gap.
+fn check_bundle_memory(
+    toml: &LanguagesToml,
+    order: &[String],
+    sizes: &BTreeMap<String, ParserSizes>,
+) -> Result<()> {
+    for (name, bundle) in &toml.bundles {
+        let Some(max_mb) = bundle.max_memory_mb else {
+            continue;
+        };
+        let mut packages = BTreeMap::new();
+        let mut unmeasured = Vec::new();
+        for id in bundle_language_ids(name, bundle, order)? {
+            let info = toml
+                .parsers
+                .get(&id)
+                .with_context(|| format!("bundle '{name}' references unknown parser '{id}'"))?;
+            let wasm_name = info
+                .wasm_name
+                .clone()
+                .unwrap_or_else(|| format!("tree-sitter-{id}"));
+            match sizes.get(&wasm_name) {
+                Some(measured) => {
+                    packages.insert(wasm_name, measured.memory);
+                }
+                None => unmeasured.push(id),
+            }
+        }
+        let total: u64 = packages.values().sum();
+        let max = max_mb * 1024 * 1024;
+        ensure!(
+            total <= max,
+            "bundle '{name}' reserves {} of Wasm store memory, over its max_memory_mb of {}; \
+             leave parsers out of it in languages.toml",
+            human_bytes(total),
+            human_bytes(max)
+        );
+        if !unmeasured.is_empty() {
+            println!(
+                "bundle '{name}': {} of {} measured; not measured yet: {}",
+                human_bytes(total),
+                human_bytes(max),
+                unmeasured.join(", ")
+            );
+        }
+    }
+    Ok(())
+}
+
 fn gen_language_catalog(check: bool) -> Result<()> {
     let toml = read_languages_toml()?;
     let parser_order = parser_order(&read_languages_toml_edit()?)?;
     let path = "crates/lumis-wasm-runtime/src/catalog.rs";
     let package_version_range = supported_tree_sitter_series()?;
+    check_bundle_memory(
+        &toml,
+        &parser_order,
+        &parser_sizes_for(&package_version_range)?,
+    )?;
     let output = render_language_catalog(
         &toml.parsers,
         &parser_order,
@@ -5430,8 +5493,10 @@ fn bundle_app(name: &str) -> String {
 }
 
 /// The version `package` releases next, or `None` while its bundle is what its
-/// registry last got. One patch past the record and every version that
-/// registry has, so a release never reuses one.
+/// registry last got. Past the record and every version that registry has, so
+/// a release never reuses one: one patch, or the next breaking version when a
+/// member the record has is gone, since `^0.1` and `~> 0.1.6` would otherwise
+/// take the smaller bundle unasked.
 fn next_bundle_version(
     package: &BundlePackage,
     record: &BundleRecord,
@@ -5439,13 +5504,18 @@ fn next_bundle_version(
     published: &[String],
 ) -> Result<Option<semver::Version>> {
     let recorded = package.recorded(record);
+    let mut drops_member = false;
     if let Some(release) = recorded {
-        if package
+        let next = package
             .definition(bundles)?
-            .released_as(package.registry, release)
-        {
+            .release(package.registry, &release.version);
+        if next == *release {
             return Ok(None);
         }
+        drops_member = release
+            .dependencies
+            .keys()
+            .any(|member| !next.dependencies.contains_key(member));
     }
     let highest = recorded
         .map(|release| &release.version)
@@ -5453,11 +5523,14 @@ fn next_bundle_version(
         .chain(published)
         .filter_map(|version| semver::Version::parse(version).ok())
         .max();
-    Ok(Some(
-        highest.map_or(semver::Version::new(0, 1, 0), |version| {
-            semver::Version::new(version.major, version.minor, version.patch + 1)
-        }),
-    ))
+    Ok(Some(highest.map_or(
+        semver::Version::new(0, 1, 0),
+        |version| match (drops_member, version.major) {
+            (false, _) => semver::Version::new(version.major, version.minor, version.patch + 1),
+            (true, 0) => semver::Version::new(0, version.minor + 1, 0),
+            (true, major) => semver::Version::new(major + 1, 0, 0),
+        },
+    )))
 }
 
 /// The record after releasing `package` at `version`. Every other entry stays.
@@ -6746,6 +6819,36 @@ mod bundle_release_tests {
         );
     }
 
+    /// `^0.1.4` and `~> 0.1.6` would take a smaller bundle as a patch, so a
+    /// dropped member moves the breaking digit on both registries.
+    #[test]
+    fn dropping_a_member_takes_the_next_breaking_version() {
+        let record = record(
+            &[
+                ("full", npm_release("0.1.4", &[C, HURL])),
+                ("web", npm_release("1.2.3", &[CSS, C])),
+            ],
+            &[(
+                "full",
+                hex_release("0.1.6", &["lumis_wasm_c", "lumis_wasm_hurl"]),
+            )],
+        );
+        let shrunk = [bundle("full", &[C]), bundle("web", &[CSS])];
+
+        assert_eq!(
+            next("npm-wasm-bundle-full", &record, &shrunk, &["0.1.5"]).as_deref(),
+            Some("0.2.0")
+        );
+        assert_eq!(
+            next("hex-wasm-bundle-full", &record, &shrunk, &[]).as_deref(),
+            Some("0.2.0")
+        );
+        assert_eq!(
+            next("npm-wasm-bundle-web", &record, &shrunk, &[]).as_deref(),
+            Some("2.0.0")
+        );
+    }
+
     /// Ten language merges are one release: a package changes when its bundle
     /// differs from what its registry last got, however many pushes that took.
     #[test]
@@ -7773,6 +7876,47 @@ mod tests {
         }
     }
 
+    /// The cap counts each parser package once, however many languages share
+    /// it, and only members the bundle keeps.
+    #[test]
+    fn a_bundle_over_its_memory_cap_fails() {
+        let mb = 1024 * 1024;
+        let toml: LanguagesToml = toml::from_str(
+            r#"
+            queries = {}
+            [parsers.ejs]
+            wasm_name = "tree-sitter-embedded-template"
+            [parsers.erb]
+            wasm_name = "tree-sitter-embedded-template"
+            [parsers.big]
+            [parsers.new]
+            [bundles.full]
+            parsers = "all"
+            exclude = ["big"]
+            max_memory_mb = 3
+            "#,
+        )
+        .unwrap();
+        let order = ["ejs", "erb", "big", "new"].map(String::from);
+        let measured = |template: u64| {
+            BTreeMap::from([
+                (
+                    "tree-sitter-embedded-template".to_string(),
+                    sizes(template * mb),
+                ),
+                ("tree-sitter-big".to_string(), sizes(50 * mb)),
+            ])
+        };
+
+        assert!(check_bundle_memory(&toml, &order, &measured(2)).is_ok());
+        assert!(check_bundle_memory(&toml, &order, &measured(3)).is_ok());
+        let error = check_bundle_memory(&toml, &order, &measured(4)).unwrap_err();
+        assert!(
+            error.to_string().contains("'full' reserves 4 MB"),
+            "{error}"
+        );
+    }
+
     /// The docs table and the 128 MB budget are written in the same units, so a
     /// row cannot be compared against the budget unless both are binary.
     #[test]
@@ -8711,6 +8855,7 @@ mod tests {
                 BundleInfo {
                     parsers: BundleParsers::List(vec!["alpha".to_string()]),
                     exclude: Vec::new(),
+                    max_memory_mb: None,
                 },
             ),
             (
@@ -8718,6 +8863,7 @@ mod tests {
                 BundleInfo {
                     parsers: BundleParsers::All("all".to_string()),
                     exclude: vec!["zeta".to_string()],
+                    max_memory_mb: None,
                 },
             ),
         ]);

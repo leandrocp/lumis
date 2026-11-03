@@ -74,7 +74,9 @@ Each bundle releases once per registry, under that registry's own version:
 records each one's last release there: its version, dependency ranges and, on
 npm, `lumis.bundleFormat`. A bundle gets a release pull request only when it no
 longer matches that record, at one patch past the highest version the record or
-the registry has.
+the registry has. Dropping a member is breaking, since `^0.1.6` or `~> 0.1.6`
+would otherwise pick up the smaller bundle, so that release takes the next minor
+(or major, from 1.0) instead.
 
 Its `bundle-check` fails until every member, at its required range, is on that
 registry. A language merged into `main` updates the pull request before its parser
