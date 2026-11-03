@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "solarized_osaka_light",
   "appearance": "light",
   "revision": "a21176efde15fab21fabda0bf2ba123ed6d7332d",

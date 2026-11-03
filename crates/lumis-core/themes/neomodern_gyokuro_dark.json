@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "neomodern_gyokuro_dark",
   "appearance": "dark",
   "revision": "d41469578922a23d75a0d9e8deef1e34837230a6",

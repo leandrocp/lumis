@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "onenord_light",
   "appearance": "light",
   "revision": "5240bfb79bcab7e03508626c5283cfc417b79169",

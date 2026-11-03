@@ -546,7 +546,7 @@ local function extract_colorscheme_colors(theme)
 
 		local jq_cmd = [[jq '
       {
-        "$schema": "https://lumis.sh/schemas/theme.json",
+        "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
         name,
         appearance,
         revision,

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "night_owl",
   "appearance": "dark",
   "revision": "86ed124c2f7e118670649701288e024444bf91e5",

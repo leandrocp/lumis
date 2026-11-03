@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "edge_light",
   "appearance": "light",
   "revision": "7ec78c21bd8f0b2b0b47043bb1e730c561647c72",

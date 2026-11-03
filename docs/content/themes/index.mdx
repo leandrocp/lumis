@@ -192,11 +192,12 @@ caller. The API does not convert colors or turn a dark palette into a light one.
 
 Generate the file with the [Neovim colorscheme recipe](/recipes/generate-theme-from-neovim-colorscheme),
 or write it by hand. Point `$schema` at the theme schema to get completion and
-validation in editors that support JSON Schema:
+validation in editors that support JSON Schema. [Theme files](/themes/theme-files)
+describes every field:
 
 ```json
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "my_theme",
   "appearance": "dark",
   "revision": "v1",

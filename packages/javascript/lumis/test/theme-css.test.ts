@@ -254,18 +254,12 @@ const withoutHighlights = ({ highlights: _highlights, ...fields }: Readonly<Them
 // other field, `$schema` included, reaches users exactly as the source has it.
 describe("published themes", () => {
   const themesDir = new URL("../../../../themes/", import.meta.url);
-  const schema = JSON.parse(
-    readFileSync(new URL("../../../../website/public/schemas/theme.json", import.meta.url), "utf8"),
-  );
   const sources: Theme[] = readdirSync(themesDir)
     .filter((file) => file.endsWith(".json"))
     .map((file) => JSON.parse(readFileSync(new URL(file, themesDir), "utf8")));
 
-  it("finds the whole catalog, each pointing at the schema", () => {
+  it("finds the whole catalog", () => {
     expect(sources.length).toBeGreaterThan(200);
-    for (const source of sources) {
-      expect(source.$schema, source.name).toBe(schema.$id);
-    }
   });
 
   it.each([

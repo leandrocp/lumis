@@ -1,24 +1,76 @@
 use lumis_core::themes;
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
+use std::fmt::Write;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-const SCHEMA_PATH: &str = concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/../../website/public/schemas/theme.json"
-);
+/// Every theme schema version published at `https://lumis.sh/schemas/themes/`,
+/// oldest first, with the SHA-256 of its file. Line endings are normalized to LF
+/// first, so a Windows checkout hashes the same.
+/// A published version never changes: a format change ships as a new file and
+/// a new row, and the last row is the version Lumis writes.
+const PUBLISHED: &[(&str, &str)] = &[(
+    "v1.0.0",
+    "cdfc3dca064fea5995662d80f9acc12094aac776187aca657845255fe9e54be5",
+)];
+
+fn schema_dir() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../website/public/schemas/themes")
+}
+
+fn read_schema(version: &str) -> Value {
+    let path = schema_dir().join(format!("{version}.json"));
+    serde_json::from_str(&fs::read_to_string(&path).unwrap()).unwrap()
+}
 
 fn schema() -> Value {
-    serde_json::from_str(&fs::read_to_string(SCHEMA_PATH).unwrap()).unwrap()
+    let (current, _) = PUBLISHED.last().unwrap();
+    read_schema(current)
 }
 
 fn validator() -> jsonschema::Validator {
     jsonschema::draft202012::new(&schema()).expect("theme schema compiles")
 }
 
+fn sha256_hex(bytes: &[u8]) -> String {
+    Sha256::digest(bytes)
+        .iter()
+        .fold(String::new(), |mut hex, byte| {
+            write!(hex, "{byte:02x}").unwrap();
+            hex
+        })
+}
+
 #[test]
-fn schema_is_a_valid_draft_2020_12_schema() {
-    jsonschema::draft202012::meta::validate(&schema()).unwrap();
+fn published_versions_are_frozen() {
+    let mut on_disk: Vec<String> = fs::read_dir(schema_dir())
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+        .collect();
+    on_disk.sort();
+    let mut published: Vec<String> = PUBLISHED
+        .iter()
+        .map(|(version, _)| format!("{version}.json"))
+        .collect();
+    published.sort();
+    assert_eq!(on_disk, published, "schema files and PUBLISHED disagree");
+
+    for (version, expected) in PUBLISHED {
+        let schema = read_schema(version);
+        jsonschema::draft202012::meta::validate(&schema).unwrap();
+        assert_eq!(
+            schema["$id"],
+            format!("https://lumis.sh/schemas/themes/{version}.json"),
+            "$id of {version}"
+        );
+        let source = fs::read_to_string(schema_dir().join(format!("{version}.json"))).unwrap();
+        let actual = sha256_hex(source.replace("\r\n", "\n").as_bytes());
+        assert_eq!(
+            &actual, expected,
+            "{version} was published and must not change; add a new version instead"
+        );
+    }
 }
 
 #[test]
@@ -48,7 +100,7 @@ fn every_bundled_theme_validates_and_points_at_the_schema() {
 
 fn theme_with(highlights: Value) -> Value {
     json!({
-        "$schema": "https://lumis.sh/schemas/theme.json",
+        "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
         "name": "custom",
         "appearance": "light",
         "revision": "v1",

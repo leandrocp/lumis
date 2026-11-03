@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "jellybeans",
   "appearance": "dark",
   "revision": "d5989265b5256cb296b5772c73e57490e84f69b1",

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "citruszest",
   "appearance": "dark",
   "revision": "e6fed9ec3d0ac190b1387379c138ba5e23a1f4f9",

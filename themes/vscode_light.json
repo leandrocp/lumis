@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "vscode_light",
   "appearance": "light",
   "revision": "6439ed89d0e10193f07e92268a321d7c6f6e93ee",

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "bamboo_light",
   "appearance": "light",
   "revision": "1309bc88bffcf1bedc3e84e7fa9004de93da774a",

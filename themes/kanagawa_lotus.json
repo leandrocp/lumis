@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "kanagawa_lotus",
   "appearance": "light",
   "revision": "bb85e4bfc8d89b0e62c8fa53ccdd13d12e2f77b3",

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "aura_dark",
   "appearance": "dark",
   "revision": "20924aa0a43975420edd0e0b2f919e07a3eff9c9",

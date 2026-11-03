@@ -1835,6 +1835,7 @@ dependencies = [
  "rustler",
  "serde",
  "serde_json",
+ "sha2 0.11.1",
  "similar",
  "strsim",
  "toml 1.1.8+spec-1.1.0",

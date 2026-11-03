@@ -216,6 +216,11 @@
   ],
   "redirects": [
     {
+      "source": "/schemas/theme.json",
+      "destination": "/schemas/themes/v1.0.0.json",
+      "statusCode": 301
+    },
+    {
       "source": "/docs",
       "destination": "https://docs.lumis.sh/",
       "statusCode": 301

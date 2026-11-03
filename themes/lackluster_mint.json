@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "lackluster_mint",
   "appearance": "dark",
   "revision": "70dd682e564784893b984deb51dd5ddd263c8cc7",

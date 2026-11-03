@@ -1098,15 +1098,26 @@ identical theme data, so revision-only changes do not create update PRs.
 
 ### Theme schema
 
-`website/public/schemas/theme.json` is the JSON Schema for theme files, served
-at `https://lumis.sh/schemas/theme.json`. Every theme JSON names it in
-`$schema`, which `themes/extract_theme.lua` writes and Lumis ignores when
-loading. `crates/lumis-core/tests/theme_schema.rs` validates every bundled theme
-against it and pins what it accepts to `themes::from_json`, so a change to the
-theme format updates the schema in the same change. The JavaScript packages
-publish `$schema` too: `packages/javascript/lumis/test/theme-css.test.ts` fails
-when `@lumis-sh/themes` or `@lumis-sh/lumis/themes` ships a theme whose
-top-level fields differ from its source JSON.
+`website/public/schemas/themes/v<version>.json` holds every published version of
+the JSON Schema for theme files, served at
+`https://lumis.sh/schemas/themes/v<version>.json` and described in
+`docs/content/themes/theme-files.mdx`. Every theme JSON names the current version
+in `$schema`, which `themes/extract_theme.lua` writes and Lumis ignores when
+loading.
+
+A published version never changes. To change the theme format, add a new
+version file, add its row to `PUBLISHED` in
+`crates/lumis-core/tests/theme_schema.rs`, point `extract_theme.lua` and every
+theme JSON at it, and add it to the version table in the docs page. That test
+fails when a published file changes, when a file and a `PUBLISHED` row do not
+match, when a bundled theme does not validate against the current version or
+names another one, and when what the current version accepts disagrees with
+`themes::from_json`.
+
+The JavaScript packages publish `$schema` too:
+`packages/javascript/lumis/test/theme-css.test.ts` fails when
+`@lumis-sh/themes` or `@lumis-sh/lumis/themes` ships a theme whose top-level
+fields differ from its source JSON.
 
 ### Theme licenses
 

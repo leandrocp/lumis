@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lumis.sh/schemas/theme.json",
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "doom_one_dark",
   "appearance": "dark",
   "revision": "beae92173315c7282f6897e666cfd67fbf0f3ac9",

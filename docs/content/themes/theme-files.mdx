@@ -1,0 +1,118 @@
+---
+title: Theme files
+description: The JSON format of a Lumis theme, its JSON Schema, and how to write one.
+keywords:
+  - lumis theme format
+  - theme json schema
+  - custom themes
+---
+
+A Lumis theme is a JSON file that follows the schema at
+[`https://lumis.sh/schemas/themes/v1.0.0.json`](https://lumis.sh/schemas/themes/v1.0.0.json).
+Built-in themes, themes generated from a Neovim colorscheme, and themes you write
+by hand all use it.
+
+Name the schema in `$schema` to get completion and validation in editors that
+support JSON Schema, such as VS Code and Zed:
+
+```json
+{
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
+  "name": "my_theme",
+  "appearance": "dark",
+  "revision": "v1",
+  "license": "MIT",
+  "highlights": {
+    "normal": { "fg": "#f8f8f2", "bg": "#282a36" },
+    "comment": { "fg": "#6272a4", "italic": true },
+    "keyword": { "fg": "#ff79c6", "bold": true },
+    "string": { "fg": "#f1fa8c" },
+    "function": { "fg": "#50fa7b" },
+    "error": { "fg": "#ff5555", "underline": "wavy" }
+  }
+}
+```
+
+## Fields
+
+| Field | Required | Value |
+| --- | --- | --- |
+| `$schema` | no | URL of the schema version the file follows. Lumis ignores it when loading. |
+| `name` | yes | Theme name. Not empty. |
+| `appearance` | yes | `"light"` or `"dark"`: the background the theme is designed for. |
+| `revision` | yes | Commit or version of the source the theme came from. For a hand-written theme, any label such as `"v1"`. Not empty. |
+| `license` | no | SPDX license expression, such as `"MIT"`. `"NONE"` means the source has no license file and `"NOASSERTION"` that its license is unknown, which is also the value when the field is omitted. |
+| `highlights` | yes | Styles keyed by scope name. See [Scopes](#scopes). |
+
+The schema allows no other fields. Lumis ignores unknown fields when it loads a
+theme, so a misspelled field such as `"highlight"` raises no error at runtime;
+validating against the schema is what catches it.
+
+## Styles
+
+Each entry in `highlights` is a style. Every field is optional:
+
+| Field | Value |
+| --- | --- |
+| `fg` | Foreground color as `#` followed by six hex digits, such as `"#ff79c6"`. |
+| `bg` | Background color, in the same format. |
+| `bold` | `true` or `false`. |
+| `italic` | `true` or `false`. |
+| `underline` | `true` (same as `"solid"`), or one of `"solid"`, `"wavy"`, `"double"`, `"dotted"`, `"dashed"`, `"none"`. `"undercurl"` is accepted as `"wavy"`. |
+| `strikethrough` | `true` or `false`. |
+
+Lumis loads other color strings such as `"#fff"` or `"red"`, but terminal output
+skips any color that is not six hex digits, so the schema rejects them.
+
+Older theme files may use the boolean fields `undercurl`, `underdouble`,
+`underdotted` and `underdashed`. They still load and are marked deprecated in the
+schema. Use `underline` with the matching style instead.
+
+## Scopes
+
+Keys in `highlights` are the highlight scope names that Tree-sitter queries
+assign, such as `keyword`, `function.method` or `comment.documentation`. Some
+scopes end with a language name, such as `string.special.symbol.elixir`, to style
+one language differently.
+
+A scope without its own style uses its closest parent. A token captured as
+`function.method.call` looks up `function.method.call`, then `function.method`,
+then `function`. A theme that styles a few top-level scopes therefore covers every
+language, and more specific entries refine it.
+
+These scopes style output rather than syntax:
+
+| Scope | Styles |
+| --- | --- |
+| `normal` | Default text and background of the whole block. |
+| `highlighted` | Lines selected for [line highlighting](/recipes/line-highlighting). |
+| `line_number` | Line numbers. |
+| `line_number.highlighted` | Line numbers of highlighted lines. |
+| `diff.plus.word`, `diff.minus.word` | Changed words in [diffs](/recipes/highlight-diffs). |
+
+[`highlights.toml`](https://github.com/leandrocp/lumis/blob/main/highlights.toml)
+lists every scope the bundled queries use.
+
+## Create a theme
+
+- Generate one from any Neovim colorscheme with the
+  [Neovim colorscheme recipe](/recipes/generate-theme-from-neovim-colorscheme).
+  Generated files already name the schema.
+- Start from a built-in theme. Each one is published as JSON at
+  `https://unpkg.com/@lumis-sh/themes/dist/json/<theme>.json`; see the
+  [theme list](/reference/themes) for names.
+- Write one by hand, starting from the example above.
+
+Then [load it in your runtime](/themes#load-a-custom-theme-from-json).
+
+## Schema versions
+
+| Version | URL |
+| --- | --- |
+| 1.0.0 | [`https://lumis.sh/schemas/themes/v1.0.0.json`](https://lumis.sh/schemas/themes/v1.0.0.json) |
+
+A published schema version never changes. A change to the theme format ships as
+a new version at a new URL, so a file that names an older version keeps
+validating against the schema it was written for.
+`https://lumis.sh/schemas/theme.json`, the first URL the schema was published
+at, redirects to version 1.0.0.
