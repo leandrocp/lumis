@@ -50,7 +50,7 @@ jobs:
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
           !(github.event.pull_request.head.repo.full_name == github.repository &&
             startsWith(github.event.pull_request.head.ref, 'release/')) }}
-    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@rust-test-msrv-os-versions
+    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
     with:
       msrv: '1.95'
       manifest-path: 'crates/lumis/Cargo.toml'
@@ -62,7 +62,7 @@ jobs:
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
           !(github.event.pull_request.head.repo.full_name == github.repository &&
             startsWith(github.event.pull_request.head.ref, 'release/')) }}
-    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@rust-test-msrv-os-versions
+    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
     with:
       msrv: '1.95'
       manifest-path: 'crates/lumis-build/Cargo.toml'
@@ -74,7 +74,7 @@ jobs:
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
           !(github.event.pull_request.head.repo.full_name == github.repository &&
             startsWith(github.event.pull_request.head.ref, 'release/')) }}
-    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@rust-test-msrv-os-versions
+    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
     with:
       msrv: '1.95'
       manifest-path: 'crates/lumis-core/Cargo.toml'
@@ -86,7 +86,7 @@ jobs:
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
           !(github.event.pull_request.head.repo.full_name == github.repository &&
             startsWith(github.event.pull_request.head.ref, 'release/')) }}
-    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@rust-test-msrv-os-versions
+    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
     with:
       msrv: '1.95'
       manifest-path: 'crates/lumis-cli/Cargo.toml'
@@ -98,7 +98,7 @@ jobs:
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
           !(github.event.pull_request.head.repo.full_name == github.repository &&
             startsWith(github.event.pull_request.head.ref, 'release/')) }}
-    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@rust-test-msrv-os-versions
+    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
     with:
       msrv: '1.95'
       manifest-path: 'crates/lumis-wasm-runtime/Cargo.toml'
