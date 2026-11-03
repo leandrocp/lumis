@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "gruvbox_baby",
   "appearance": "dark",
   "revision": "bd52e62d8134647090108189e69c8b3cd18bdbbf",

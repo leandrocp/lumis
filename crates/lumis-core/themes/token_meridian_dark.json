@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/theme.json",
   "name": "token_meridian_dark",
   "appearance": "dark",
   "revision": "19acc041465c89739778a6054da8039b68798251",
