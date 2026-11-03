@@ -1,5 +1,5 @@
 import { htmlInline } from "@lumis-sh/lumis/formatters";
-import { renderCodeBlock } from "@lumis-sh/react/server";
+import { renderCodeBlock, renderInlineCode } from "@lumis-sh/react/server";
 import githubLight from "@lumis-sh/themes/github_light";
 import { CodeBlockExampleLazy } from "./CodeBlockExampleLazy";
 
@@ -22,6 +22,13 @@ export default async function Page() {
       theme: githubLight,
     }),
   });
+  const serverInline = await renderInlineCode({
+    children: "await fetch(url)",
+    formatter: htmlInline({
+      language: "tsx",
+      theme: githubLight,
+    }),
+  });
 
   return (
     <main style={mainStyle}>
@@ -30,11 +37,13 @@ export default async function Page() {
         The first block is rendered on the server with <code>@lumis-sh/react/server</code>.
       </p>
       {serverBlock}
+      <p>Inline code renders on the server too, as in {serverInline}.</p>
 
       <div style={spacerStyle} />
 
       <p>
-        The second block is a client component using <code>CodeBlock</code>.
+        The second block is a client component using <code>CodeBlock</code>, followed by{" "}
+        <code>InlineCode</code>.
       </p>
       <CodeBlockExampleLazy />
     </main>

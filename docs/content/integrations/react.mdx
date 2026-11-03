@@ -1,11 +1,12 @@
 ---
 title: React
-description: Use Lumis in React with a client `CodeBlock`, a `useLumis` hook, and a server renderer.
+description: Use Lumis in React with client `CodeBlock` and `InlineCode` components, a `useLumis` hook, and server renderers.
 keywords:
   - react lumis
   - react syntax highlighting
   - codeblock react lumis
   - server render code blocks react
+  - inline code react lumis
 ---
 
 
@@ -89,6 +90,37 @@ export function Example() {
 
 If you do not pass `highlighter`, `CodeBlock` uses a shared internal highlighter. Passing your own `highlighter` is the better choice when you want to register bundles or reuse one instance across many blocks.
 
+## Inline code
+
+Use `InlineCode` for code inside a sentence. It takes the same formatter as `CodeBlock` and renders a `<code>` holding the highlighted tokens, with the `lumis` class and the theme's colors, instead of a `<pre>` block.
+
+```tsx
+import {InlineCode} from '@lumis-sh/react'
+import {htmlInline} from '@lumis-sh/lumis/formatters'
+import latte from '@lumis-sh/themes/catppuccin_latte'
+import web from '@lumis-sh/wasm-bundle-web'
+
+const formatter = htmlInline({language: web.javascript, theme: latte})
+
+export function Example() {
+  return (
+    <p>
+      Call <InlineCode formatter={formatter}>{'createHighlighter()'}</InlineCode> once.
+    </p>
+  )
+}
+```
+
+Pass `attrs` to add attributes to the `<code>`. `class` and `style` merge with the ones Lumis sets:
+
+```tsx
+<InlineCode formatter={formatter} attrs={{class: 'api', id: 'setup'}}>
+  {'createHighlighter()'}
+</InlineCode>
+```
+
+`InlineCode` works with `htmlInline`, `htmlLinked` and `htmlMultiThemes`. Other formatters have no inline form and raise an error. With `htmlLinked`, the theme stylesheet colors the `<code>` through its `lumis` class.
+
 ## Hook
 
 Use `useLumis()` when you want to control the loading UI yourself.
@@ -120,6 +152,8 @@ export function Example() {
 }
 ```
 
+Pass `inline: true`, and optionally `attrs`, to get the `InlineCode` output instead of a block.
+
 `error` is an `Error` when highlighting or language loading fails, and `undefined` otherwise.
 
 ## Server rendering
@@ -148,6 +182,24 @@ export async function Article() {
   })
 
   return <article>{block}</article>
+}
+```
+
+`renderInlineCode()` is its counterpart for inline code, and takes the same options plus `attrs`:
+
+```tsx
+import {renderInlineCode} from '@lumis-sh/react/server'
+import web from '@lumis-sh/wasm-bundle-web'
+import {htmlInline} from '@lumis-sh/lumis/formatters'
+import latte from '@lumis-sh/themes/catppuccin_latte'
+
+export async function Setup() {
+  const code = await renderInlineCode({
+    children: 'createHighlighter()',
+    formatter: htmlInline({language: web.javascript, theme: latte}),
+  })
+
+  return <p>Call {code} once.</p>
 }
 ```
 
@@ -188,9 +240,9 @@ This is the best option when you want to register a bundle and render many code 
 ## Behavior
 
 - `formatter` is the single source of truth for the language
-- `CodeBlock` and `useLumis()` are client exports from `@lumis-sh/react`
-- `renderCodeBlock()` is a server export from `@lumis-sh/react/server`
+- `CodeBlock`, `InlineCode` and `useLumis()` are client exports from `@lumis-sh/react`
+- `renderCodeBlock()` and `renderInlineCode()` are server exports from `@lumis-sh/react/server`
 - the React helpers call `highlighter.loadLanguage(formatter.language)` before highlighting
 - when the language is already loaded, Lumis reuses the cached result
 - for true server-rendered highlighting, prefer `renderCodeBlock()`
-- `CodeBlock` and `useLumis()` re-highlight when `children`, `formatter`, or `highlighter` changes
+- `CodeBlock`, `InlineCode` and `useLumis()` re-highlight when `children`, `formatter`, or `highlighter` changes, and `InlineCode` and `useLumis({inline: true})` also when `attrs` changes
