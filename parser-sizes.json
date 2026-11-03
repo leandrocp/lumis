@@ -48,6 +48,12 @@
       "wasm": 1414349,
       "memory": 1177744
     },
+    "tree-sitter-bend": {
+      "version": "0.26.0",
+      "download": 39709,
+      "wasm": 204245,
+      "memory": 185532
+    },
     "tree-sitter-bicep": {
       "version": "0.26.2",
       "download": 29741,
