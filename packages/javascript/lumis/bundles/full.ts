@@ -79,6 +79,7 @@ export const bundledLanguages: LanguageBundle = {
   xml: lazy("xml", [], () => import("../langs/xml.js")),
   yaml: lazy("yaml", [], () => import("../langs/yaml.js")),
   zig: lazy("zig", [], () => import("../langs/zig.js")),
+  bend: lazy("bend", [], () => import("../langs/bend.js")),
   bicep: lazy("bicep", [], () => import("../langs/bicep.js")),
   dot: lazy("dot", [], () => import("../langs/dot.js")),
   editorconfig: lazy("editorconfig", [], () => import("../langs/editorconfig.js")),

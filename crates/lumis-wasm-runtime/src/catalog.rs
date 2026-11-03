@@ -336,6 +336,10 @@ define_catalog! {
             aliases: [],
             package_name: "@lumis-sh/wasm-arduino"
         },
+        "bend" => {
+            aliases: [],
+            package_name: "@lumis-sh/wasm-bend"
+        },
         "bicep" => {
             aliases: [],
             package_name: "@lumis-sh/wasm-bicep"
@@ -487,7 +491,7 @@ define_catalog! {
     },
     bundles: {
         "backend" => ["csharp", "elixir", "erlang", "go", "java", "javadoc", "javascript", "kotlin", "php", "protobuf", "python", "ruby", "rust", "scala", "sql", "typescript"],
-        "full" => ["angular", "asm", "astro", "bash", "c", "caddy", "clojure", "cmake", "comment", "commonlisp", "cpp", "csharp", "css", "csv", "dart", "diff", "dockerfile", "eex", "ejs", "elixir", "elm", "erb", "erlang", "fish", "gleam", "glimmer", "go", "graphql", "hcl", "heex", "html", "htmldjango", "http", "iex", "ini", "java", "javascript", "json", "kotlin", "liquid", "llvm", "lua", "make", "markdown", "markdown_inline", "mdx", "nix", "php", "powershell", "protobuf", "python", "r", "regex", "ruby", "rust", "scala", "scss", "slim", "sql", "surface", "svelte", "swift", "toml", "tsx", "typescript", "typst", "vim", "vue", "wat", "xml", "yaml", "zig", "bicep", "dot", "editorconfig", "gitattributes", "javadoc", "jq", "kdl", "luadoc", "pascal", "puppet", "terraform", "toon", "wgsl", "zsh", "gitignore", "glsl", "groovy", "hurl", "jinja", "jinja_inline", "json5", "just", "matlab", "mermaid", "nginx", "prisma", "racket", "rst", "scheme", "solidity", "tcl"],
+        "full" => ["angular", "asm", "astro", "bash", "c", "caddy", "clojure", "cmake", "comment", "commonlisp", "cpp", "csharp", "css", "csv", "dart", "diff", "dockerfile", "eex", "ejs", "elixir", "elm", "erb", "erlang", "fish", "gleam", "glimmer", "go", "graphql", "hcl", "heex", "html", "htmldjango", "http", "iex", "ini", "java", "javascript", "json", "kotlin", "liquid", "llvm", "lua", "make", "markdown", "markdown_inline", "mdx", "nix", "php", "powershell", "protobuf", "python", "r", "regex", "ruby", "rust", "scala", "scss", "slim", "sql", "surface", "svelte", "swift", "toml", "tsx", "typescript", "typst", "vim", "vue", "wat", "xml", "yaml", "zig", "bend", "bicep", "dot", "editorconfig", "gitattributes", "javadoc", "jq", "kdl", "luadoc", "pascal", "puppet", "terraform", "toon", "wgsl", "zsh", "gitignore", "glsl", "groovy", "hurl", "jinja", "jinja_inline", "json5", "just", "matlab", "mermaid", "nginx", "prisma", "racket", "rst", "scheme", "solidity", "tcl"],
         "system" => ["asm", "bash", "c", "cmake", "cpp", "go", "llvm", "make", "rust", "wat", "zig", "zsh"],
         "web" => ["css", "html", "javascript", "json", "tsx", "typescript"],
         "web-extra" => ["angular", "astro", "dart", "eex", "ejs", "elm", "erb", "glimmer", "graphql", "heex", "htmldjango", "markdown", "markdown_inline", "mdx", "php", "prisma", "scss", "slim", "surface", "svelte", "vue", "xml"],
