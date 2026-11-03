@@ -378,6 +378,12 @@
       "wasm": 3720646,
       "memory": 3288940
     },
+    "tree-sitter-lean": {
+      "version": "0.26.0",
+      "download": 500740,
+      "wasm": 8237562,
+      "memory": 8120416
+    },
     "tree-sitter-liquid": {
       "version": "0.26.3",
       "download": 34260,
