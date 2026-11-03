@@ -551,8 +551,8 @@ globs = ["*.mli"]
 
 [parsers.perl]
 git = "https://github.com/tree-sitter-perl/tree-sitter-perl.git"
-rev = "50904961d6a87c5191e611276aa2ecb9d66ca4ff"
-version = "2.0.0"
+rev = "d0a9590e3150543032a3b1703fd082b3f4656e45"
+version = "2.0.3"
 generate = true
 globs = ["*.pm", "*.pl", "*.t"]
 emacs = ["perl"]
@@ -628,9 +628,9 @@ emacs = ["rust"]
 
 [parsers.scala]
 git = "https://github.com/tree-sitter/tree-sitter-scala.git"
-rev = "851032fc97297bbe299dabe5bd826f778794d03c"
+rev = "8c0b6d44bfd66bf7bc9a1fc15084ef17cef2f97e"
 crate = "tree-sitter-scala"
-version = "0.26.3"
+version = "0.26.4"
 globs = ["*.scala", "*.sbt", "*.sc"]
 emacs = ["scala"]
 
