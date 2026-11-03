@@ -39,12 +39,12 @@ export function setupCopyButtons(root: HTMLElement) {
       const raw = btn.dataset.copy!;
       const text = decodeURIComponent(raw);
       navigator.clipboard.writeText(text);
-      btn.innerHTML = CHECK_SVG;
+      btn.querySelector("svg")!.outerHTML = CHECK_SVG;
       btn.classList.add("text-accent");
       const liveRegion = document.querySelector("#live-region");
       if (liveRegion) liveRegion.textContent = "Copied to clipboard";
       setTimeout(() => {
-        btn.innerHTML = COPY_SVG;
+        btn.querySelector("svg")!.outerHTML = COPY_SVG;
         btn.classList.remove("text-accent");
         if (liveRegion) liveRegion.textContent = "";
       }, 1500);
