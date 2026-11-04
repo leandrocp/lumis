@@ -65,15 +65,17 @@ function writeState(state: SavedState) {
   }
 }
 
-function navigate(frame: HTMLIFrameElement, page: string, at: number) {
-  // Back restores the frame to the URL it had when the page was first left, so
-  // `page` can be the document it already shows. Changing only the fragment does
-  // not reload it, and its script never sees the new `#at=`.
-  const panel =
-    frame.contentWindow?.location.pathname === page
-      ? frame.contentDocument?.querySelector("pre")
-      : undefined;
-  frame.src = `${page}#at=${at}`;
+function navigate(frame: HTMLIFrameElement, page: string, at?: number) {
+  // Setting `src` would add an entry to the session history, so Back would step
+  // the frame through earlier tabs, with stale offsets, while the tabs above it
+  // stayed on the current selection.
+  const location = frame.contentWindow?.location;
+  if (at === undefined) return location?.replace(page);
+  // Back restores the frame to the URL it had when the page was left, so `page`
+  // can be the document it already shows. Changing only the fragment does not
+  // reload it, and its script never sees the new `#at=`.
+  const panel = location?.pathname === page ? frame.contentDocument?.querySelector("pre") : null;
+  location?.replace(`${page}#at=${at}`);
   if (panel) panel.scrollTop = at;
 }
 
@@ -194,7 +196,7 @@ export async function setupComparison(root: HTMLElement) {
       ? `${currentImplementation.label} does not support ${currentDocument.languageLabel}.`
       : "";
 
-    if (isUnsupported) frame.src = "about:blank";
+    if (isUnsupported) navigate(frame, "about:blank");
     else
       navigate(
         frame,
