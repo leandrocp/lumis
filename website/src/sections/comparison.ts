@@ -181,7 +181,9 @@ export async function setupComparison(root: HTMLElement) {
   addEventListener("message", (event: MessageEvent) => {
     const scroll = (event.data as { lumisShowcaseScroll?: number } | null)?.lumisShowcaseScroll;
     if (typeof scroll !== "number") return;
-    positions.set(currentDocument.id, scroll);
+    // At fractional device pixel ratios the offset is fractional, and the frame
+    // reads only whole pixels from `#at=`.
+    positions.set(currentDocument.id, Math.round(scroll));
     saveState();
   });
 
