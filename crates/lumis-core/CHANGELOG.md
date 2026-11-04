@@ -1,3 +1,13 @@
+## [6.1.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v6.0.0...cargo-lumis-core/v6.1.0) (2026-11-04)
+
+### Features
+
+- **themes:** Add a JSON Schema for theme files
+- **languages:** Add Bend support in [\#1965](https://github.com/leandrocp/lumis/pull/1965)
+- **themes:** Version the theme schema and document theme files
+- **languages:** Add Lean support in [\#1978](https://github.com/leandrocp/lumis/pull/1978)
+- **themes:** Update themes in [\#1984](https://github.com/leandrocp/lumis/pull/1984)
+
 ## [6.0.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v5.0.0...cargo-lumis-core/v6.0.0) (2026-10-28)
 
 ### Features
