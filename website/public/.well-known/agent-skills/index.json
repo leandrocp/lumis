@@ -6,7 +6,7 @@
       "type": "skill-md",
       "description": "Add Lumis syntax highlighting to Rust, Elixir, JavaScript, TypeScript, browser, Java, or CLI projects. Use when choosing a Lumis runtime, formatter, theme, language-loading strategy, or integration.",
       "url": "/.well-known/agent-skills/lumis/SKILL.md",
-      "digest": "sha256:763410a6e25c2f8643385e3366f382a995dfbf331858f65b8398ff23570d1287"
+      "digest": "sha256:2af167665abab4bfe26272ac0e1372a692ed32bc07d0389b23dc2b1a4b6fd95d"
     }
   ]
 }
