@@ -86,12 +86,23 @@ use lumis_core::highlights::HIGHLIGHT_NAMES;
 use lumis_wasm_runtime::tree_sitter_highlight::HighlightConfiguration;
 use std::sync::LazyLock;
 
+// These grammar crates return their own tree-sitter's `Language`, so only their
+// C parsers are used, through the `extern` block below; this links them.
+#[cfg(feature = "lang-fish")]
+extern crate tree_sitter_fish as _;
+#[cfg(feature = "lang-jinja")]
+extern crate tree_sitter_jinja as _;
+
 unsafe extern "C" {
     fn tree_sitter_diff() -> *const ();
     #[cfg(feature = "lang-editorconfig")]
     fn tree_sitter_editorconfig() -> *const ();
     #[cfg(feature = "lang-angular")]
     fn tree_sitter_angular() -> *const ();
+    #[cfg(feature = "lang-fish")]
+    fn tree_sitter_fish() -> *const ();
+    #[cfg(feature = "lang-jinja")]
+    fn tree_sitter_jinja() -> *const ();
     #[cfg(feature = "lang-astro")]
     fn tree_sitter_astro() -> *const ();
     #[cfg(feature = "lang-bash")]
@@ -792,8 +803,9 @@ static EEX_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 
 #[cfg(feature = "lang-fish")]
 static FISH_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_fish) };
     let mut config = HighlightConfiguration::new(
-        tree_sitter_fish::language(),
+        tree_sitter::Language::new(language_fn),
         "fish",
         FISH_HIGHLIGHTS,
         FISH_INJECTIONS,
@@ -1249,8 +1261,9 @@ static JULIA_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 
 #[cfg(feature = "lang-jinja")]
 static JINJA_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_jinja) };
     let mut config = HighlightConfiguration::new(
-        tree_sitter_jinja::language(),
+        tree_sitter::Language::new(language_fn),
         "jinja",
         JINJA_HIGHLIGHTS,
         JINJA_INJECTIONS,

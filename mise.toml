@@ -597,7 +597,7 @@ assert tokens == ["'_'", "r###\"'\"##\"###", "'a"], f"lizard's Rust lexer change
 sys.exit(main(sys.argv))
 PY
 read -r -a python < <(sed -n '1s/^#!//p' "$(command -v lizard)")
-git ls-files -z --cached --others --exclude-standard -- '*.rs' |
+git ls-files -z --cached --others --exclude-standard -- '*.rs' ':!crates/lumis-tree-sitter/**' |
     xargs -0 "${python[@]}" -c "$lizard_rust" -l rust -C 20 -L 100000 -a 100000 -i 0 -w -W .lizard-whitelist --
 '''
 
@@ -670,6 +670,9 @@ mise run check-cli-versions
 echo ""
 echo "Checking crate dependency requirements..."
 mise run check-crate-deps
+echo ""
+echo "Checking lumis-tree-sitter against its pin and patches..."
+mise run tree-sitter-check
 echo ""
 echo "Checking theme licenses and notices..."
 mise run themes-check-notices
@@ -907,6 +910,14 @@ mise run langs-fetch-queries ${usage_name?}
 mise run langs-preprocess-queries ${usage_name?}
 mise run docs-gen-languages-md
 '''
+
+[tasks.'tree-sitter-sync']
+description = "Regenerate crates/lumis-tree-sitter from its pinned tree-sitter release and patches"
+run = "cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- tree-sitter-sync"
+
+[tasks.'tree-sitter-check']
+description = "Fail unless crates/lumis-tree-sitter is exactly what its pin and patches generate"
+run = "cargo run --quiet --manifest-path crates/dev/Cargo.toml --no-default-features -- tree-sitter-sync --check"
 
 [tasks.'docs-gen-themes-md']
 description = "Generate THEMES.md and themes/NOTICE.md from themes definition and the license recorded in each theme"
@@ -1257,13 +1268,14 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 cat <<'TABLE'
+cargo-lumis-tree-sitter|crates/lumis-tree-sitter
 cargo-lumis-core|crates/lumis-core
 cargo-lumis-build|crates/lumis-build
 cargo-lumis-wasm-runtime|crates/lumis-wasm-runtime
 cargo-lumis|crates/lumis
-cargo-lumis-cli|crates/lumis-cli|crates/lumis-wasm-runtime|crates/lumis/.gitattributes|crates/lumis-core/.gitattributes
+cargo-lumis-cli|crates/lumis-cli|crates/lumis-wasm-runtime|crates/lumis-tree-sitter|crates/lumis/.gitattributes|crates/lumis-core/.gitattributes
 npm-themes|packages/javascript/themes
-npm-lumis|packages/javascript/lumis|crates/lumis|crates/lumis-core|crates/lumis-wasm-runtime
+npm-lumis|packages/javascript/lumis|crates/lumis|crates/lumis-core|crates/lumis-wasm-runtime|crates/lumis-tree-sitter
 npm-markdown-it-lumis|packages/javascript/markdown-it-lumis
 npm-rehype-lumis|packages/javascript/rehype-lumis
 npm-vite|packages/javascript/vite

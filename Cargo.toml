@@ -8,6 +8,7 @@ members = [
     "crates/lumis-wasm-runtime",
     "packages/elixir/lumis/native/lumis_nif",
     "packages/javascript/lumis/native",
+    "crates/lumis-tree-sitter",
 ]
 
 [workspace.package]
@@ -65,9 +66,6 @@ lumis = { path = "crates/lumis" }
 lumis-core = { path = "crates/lumis-core" }
 lumis-build = { path = "crates/lumis-build" }
 lumis-wasm-runtime = { path = "crates/lumis-wasm-runtime" }
-# https://github.com/tree-sitter/tree-sitter/pull/6035
-tree-sitter = { git = "https://github.com/tree-sitter/tree-sitter", rev = "868eab666844fa42118af86e2893c104c50971cc" }
-tree-sitter-language = { git = "https://github.com/tree-sitter/tree-sitter", rev = "868eab666844fa42118af86e2893c104c50971cc" }
 
 [profile.release]
 lto = true

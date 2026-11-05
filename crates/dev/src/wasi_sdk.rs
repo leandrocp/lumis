@@ -8,7 +8,8 @@ use std::os::unix::fs::symlink;
 #[cfg(windows)]
 use std::os::windows::fs::symlink_dir as symlink;
 
-/// What the Tree-sitter release in `Cargo.toml` pins in `crates/loader/wasi-sdk-version`.
+/// What the Tree-sitter release in `crates/lumis-tree-sitter/upstream.toml` pins in
+/// `crates/loader/wasi-sdk-version`.
 pub(crate) const VERSION: &str = "34.0";
 
 /// The SDK directory, downloaded beside the CLI's own in Tree-sitter's cache on first use.

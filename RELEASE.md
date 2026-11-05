@@ -48,11 +48,12 @@ mise run release-prepare npm-lumis 0.10.1 --bump patch
 ## Publish order
 
 ```
+ 0. cargo-lumis-tree-sitter
  1. cargo-lumis-core
  2. cargo-lumis-build
- 3. cargo-lumis-wasm-runtime     needs 1
- 4. cargo-lumis                  needs 1, 2, 3
- 5. cargo-lumis-cli              needs 1, 3
+ 3. cargo-lumis-wasm-runtime     needs 0, 1
+ 4. cargo-lumis                  needs 0, 1, 2, 3
+ 5. cargo-lumis-cli              needs 0, 1, 3
  6. npm-themes
  7. npm-lumis                    builds against 6
  8. npm-markdown-it-lumis        needs 7
@@ -60,13 +61,33 @@ mise run release-prepare npm-lumis 0.10.1 --bump patch
 10. npm-vite                     needs 9
 11. npm-react                    needs 7
 12. npm-cli
-13. hex-lumis                    needs 1 and 3 published to crates.io
+13. hex-lumis                    needs 0, 1 and 3 published to crates.io
 14. npm-wasm-bundle-*            needs its members on npm
 15. hex-wasm-bundle-*            needs its members on Hex
 ```
 
 Merge order is publish order; nothing enforces it. This is every releasable package —
 the list itself lives in `mise run release-packages`.
+
+`cargo-lumis-tree-sitter` is the tree-sitter library the other crates build on, so a
+change to its pin or patches reaches users only once it is published and the crates
+after it are released against it. Its first release has to be published before any
+crate that depends on it can be, and with no `cargo-lumis-tree-sitter/v*` tag to plan
+from, `release-plan` opens no pull request for it: cut `0.1.0` [by hand](#by-hand)
+with `mise run release-prepare cargo-lumis-tree-sitter 0.1.0`, let it publish, then
+merge the release pull requests of the crates that depend on it.
+
+Everything in `crates/lumis-tree-sitter` is generated except `upstream.toml`,
+`patches/`, `CHANGELOG.md` and the manifest's `version`. `release-prepare` writes the
+version and the changelog as it does for any crate, and `tree-sitter-sync` keeps
+both. A release also moves the `lumis-tree-sitter` requirement in `lumis-wasm-runtime`
+and `lumis`, but inside the `chore(release)` commit, which opens no release for them.
+`cargo-lumis-cli` and `npm-lumis` link the library into their binaries, so a change
+under `crates/lumis-tree-sitter` releases them directly; `hex-lumis` follows through
+its lockfile, which `refresh-nif-lock` refreshes after each publish. Releasing
+`lumis-wasm-runtime` or `lumis` for a library fix alone is a judgement call: their
+users get a compatible patch from `cargo update` either way, and a release raises
+the minimum they accept.
 
 Each bundle releases once per registry, under that registry's own version:
 `npm-wasm-bundle-<bundle>` is `@lumis-sh/wasm-bundle-<bundle>` and

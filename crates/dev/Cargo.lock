@@ -352,6 +352,7 @@ name = "dev"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "cc",
  "clap",
  "etcetera",
  "flate2",
@@ -362,14 +363,18 @@ dependencies = [
  "lumis-build",
  "lumis-wasm-runtime",
  "md-5",
+ "object",
+ "proc-macro2",
  "semver",
  "serde",
  "serde_json",
  "sha2",
+ "syn 2.0.117",
  "tar",
  "toml",
  "toml_edit",
  "tree-sitter",
+ "tree-sitter-c",
  "tree-sitter-tsquery",
  "ureq",
  "xz2",
@@ -416,7 +421,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -800,6 +805,7 @@ dependencies = [
  "cc",
  "codebook-tree-sitter-typst",
  "lumis-core",
+ "lumis-tree-sitter",
  "lumis-wasm-runtime",
  "prettyplease",
  "proc-macro2",
@@ -812,7 +818,6 @@ dependencies = [
  "syn 3.0.3",
  "thiserror",
  "toml",
- "tree-sitter",
  "tree-sitter-arduino",
  "tree-sitter-asm",
  "tree-sitter-bicep",
@@ -905,11 +910,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "lumis-tree-sitter"
+version = "0.1.0"
+dependencies = [
+ "cc",
+ "regex",
+ "serde_json",
+ "streaming-iterator",
+ "tree-sitter-language",
+]
+
+[[package]]
 name = "lumis-wasm-runtime"
 version = "0.6.2"
 dependencies = [
  "etcetera",
  "lumis-core",
+ "lumis-tree-sitter",
  "semver",
  "serde",
  "serde_json",
@@ -918,7 +935,6 @@ dependencies = [
  "tempfile",
  "thiserror",
  "toml",
- "tree-sitter",
  "wasmparser",
 ]
 
@@ -957,6 +973,15 @@ checksum = "b63fbc4a50860e98e7b2aa7804ded1db5cbc3aff9193adaff57a6931bf7c4b4c"
 dependencies = [
  "adler2",
  "simd-adler32",
+]
+
+[[package]]
+name = "object"
+version = "0.39.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2e5a6c098c7a3b6547378093f5cc30bc54fd361ce711e05293a5cc589562739b"
+dependencies = [
+ "memchr",
 ]
 
 [[package]]
@@ -1105,7 +1130,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1349,7 +1374,7 @@ dependencies = [
  "getrandom 0.4.3",
  "once_cell",
  "rustix",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

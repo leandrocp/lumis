@@ -1704,6 +1704,7 @@ dependencies = [
  "cc",
  "codebook-tree-sitter-typst",
  "lumis-core",
+ "lumis-tree-sitter",
  "lumis-wasm-runtime",
  "pretty_assertions",
  "prettyplease",
@@ -1719,7 +1720,6 @@ dependencies = [
  "syn 3.0.9",
  "thiserror 2.0.21",
  "toml 1.1.8+spec-1.1.0",
- "tree-sitter",
  "tree-sitter-arduino",
  "tree-sitter-asm",
  "tree-sitter-bicep",
@@ -1807,6 +1807,7 @@ dependencies = [
  "etcetera",
  "lumis-build",
  "lumis-core",
+ "lumis-tree-sitter",
  "lumis-wasm-runtime",
  "predicates",
  "rustix",
@@ -1816,7 +1817,6 @@ dependencies = [
  "terminal-trx",
  "terminal_size",
  "toml 1.1.8+spec-1.1.0",
- "tree-sitter",
  "vte",
  "windows-sys 0.61.2",
  "xterm-color",
@@ -1858,11 +1858,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "lumis-tree-sitter"
+version = "0.1.0"
+dependencies = [
+ "cc",
+ "regex",
+ "serde_json",
+ "streaming-iterator",
+ "tree-sitter-language",
+ "wasmtime-c-api-impl",
+]
+
+[[package]]
 name = "lumis-wasm-runtime"
 version = "0.6.2"
 dependencies = [
  "etcetera",
  "lumis-core",
+ "lumis-tree-sitter",
  "semver",
  "serde",
  "serde_json",
@@ -1871,7 +1884,6 @@ dependencies = [
  "tempfile",
  "thiserror 2.0.21",
  "toml 1.1.8+spec-1.1.0",
- "tree-sitter",
  "tree-sitter-json",
  "typed-arena",
  "ureq",
@@ -3495,14 +3507,14 @@ checksum = "db97caf9d906fbde555dd62fa95ddba9eecfd14cb388e4f491a66d74cd5fb79a"
 [[package]]
 name = "tree-sitter"
 version = "0.27.1"
-source = "git+https://github.com/tree-sitter/tree-sitter?rev=868eab666844fa42118af86e2893c104c50971cc#868eab666844fa42118af86e2893c104c50971cc"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a5129de2ccc97808c4583d48f1fb44576d015cf241e432800572bda11ef30c3b"
 dependencies = [
  "cc",
  "regex",
  "serde_json",
  "streaming-iterator",
  "tree-sitter-language",
- "wasmtime-c-api-impl",
 ]
 
 [[package]]
@@ -3828,7 +3840,8 @@ dependencies = [
 [[package]]
 name = "tree-sitter-language"
 version = "0.1.9"
-source = "git+https://github.com/tree-sitter/tree-sitter?rev=868eab666844fa42118af86e2893c104c50971cc#868eab666844fa42118af86e2893c104c50971cc"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d0af592be68c579aa78a16846bd19422978c3c52e438523d45ff5d1bff1f9d4a"
 
 [[package]]
 name = "tree-sitter-llvm"

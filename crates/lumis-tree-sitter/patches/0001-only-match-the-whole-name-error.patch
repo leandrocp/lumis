@@ -1,0 +1,35 @@
+From eaab927d78d915c53e4699ef125514bcc4207b7c Mon Sep 17 00:00:00 2001
+From: Will Lillis <will.lillis24@gmail.com>
+Date: Thu, 8 Oct 2026 17:47:24 -0400
+Subject: [PATCH 1/2] fix(lib): only match the whole name `ERROR` in
+ `ts_language_symbol_for_name`
+
+`ts_language_symbol_for_name` compared named lookups against "ERROR"
+using the length of the name being looked up, so any prefix of "ERROR",
+including the empty string, resolved to the error symbol. Queries like
+`(ERR)` compiled as `(ERROR)` instead of failing with a node type error,
+and `Language::id_for_node_kind("ERR", true)` returned the error symbol
+instead of 0.
+
+Backport of tree-sitter/tree-sitter@e9930e0915685efb98a9d325b8f23dfdb9e99559,
+released after 0.27.1. Drop it when the pin moves past it.
+---
+ src/language.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/language.c b/src/language.c
+index 5bc83165..e82b5669 100644
+--- a/src/language.c
++++ b/src/language.c
+@@ -281,7 +281,7 @@ TSSymbol ts_language_symbol_for_name(
+   uint32_t length,
+   bool is_named
+ ) {
+-  if (is_named && !strncmp(string, "ERROR", length)) return ts_builtin_sym_error;
++  if (is_named && length == 5 && !strncmp(string, "ERROR", length)) return ts_builtin_sym_error;
+   uint16_t count = (uint16_t)ts_language_symbol_count(self);
+   for (TSSymbol i = 0; i < count; i++) {
+     TSSymbolMetadata metadata = ts_language_symbol_metadata(self, i);
+-- 
+2.55.0
+
