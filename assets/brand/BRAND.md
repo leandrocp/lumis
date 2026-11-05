@@ -2,7 +2,7 @@
 
 ![Lumis brand overview](overview.png)
 
-**One highlighter, 7 runtimes.** Powered by Tree-sitter and Neovim themes.
+**One highlighter, 8 runtimes.** Powered by Tree-sitter and Neovim themes.
 
 The mark is a friendly, lumpy oak with a short forked trunk. It stands on a small hill, set off-center to the left, in front of a striped retro sunset sun inside a circle. The tree nods to Tree-sitter, and the stripes are highlighted lines of code. The feel is warm, nostalgic and dusky: not game-like and not cute.
 
@@ -49,15 +49,15 @@ All paths below are relative to this folder (`assets/brand/`).
 
 | Line | Exact copy | Where |
 |---|---|---|
-| **Main message** | One highlighter, 7 runtimes. | README banner headline, social preview, lumis.sh `<title>` and hero H1, the GitHub repo About description, the docs home description, the site footer |
+| **Main message** | One highlighter, 8 runtimes. | README banner headline, social preview, lumis.sh `<title>` and hero H1, the GitHub repo About description, the docs home description, the site footer |
 | **Subline** | Powered by Tree-sitter and Neovim themes. | Always directly under the main message: README banner, social preview, lumis.sh hero subhead, the GitHub About description |
 | **Package tagline** | Syntax Highlighter powered by Tree-sitter and Neovim themes. | Package registries only: `Cargo.toml`, `mix.exs`, npm `package.json` `description`s and the `lib.rs` `//!` line |
 
-- **Write the number as a numeral:** "7 runtimes", never "seven runtimes". When the count changes, update the copy and the banners together.
-- **The main message and the subline go together.** Show the subline under the main message wherever there's room. In one-line places such as the About description, join them: "One highlighter, 7 runtimes. Powered by Tree-sitter and Neovim themes."
+- **Write the number as a numeral:** "8 runtimes", never "eight runtimes". When the count changes, update the copy and the banners together.
+- **The main message and the subline go together.** Show the subline under the main message wherever there's room. In one-line places such as the About description, join them: "One highlighter, 8 runtimes. Powered by Tree-sitter and Neovim themes."
 - **Keep the package tagline for packages.** Registry search shows a single description line, so it has to say what the package is.
 - **Casing:** sentence case. "Tree-sitter" and "Neovim" are always capitalized like this. In the package tagline, "Syntax Highlighter" is capitalized.
-- **Alt text for banners and the social preview:** "Lumis: One highlighter, 7 runtimes. Powered by Tree-sitter and Neovim themes."
+- **Alt text for banners and the social preview:** "Lumis: One highlighter, 8 runtimes. Powered by Tree-sitter and Neovim themes."
 
 ## Logo versions
 

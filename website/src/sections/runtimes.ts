@@ -56,6 +56,14 @@ const RUNTIME_LINKS = [
     ],
   },
   {
+    name: "Edge / Workers",
+    install: "npm install @lumis-sh/lumis",
+    links: [
+      { label: "Guide", href: "https://docs.lumis.sh/usage/edge" },
+      { label: "npm", href: "https://www.npmjs.com/package/@lumis-sh/lumis" },
+    ],
+  },
+  {
     name: "Java",
     install: "io.roastedroot:lumis4j:0.0.7",
     links: [
@@ -83,7 +91,7 @@ export function renderRuntimes() {
           <span class="text-accent">&lt;</span><span class="text-accent">Runtimes</span> <span class="text-accent">/&gt;</span>
         </a>
         <h2 class="mt-8 font-display text-4xl font-bold tracking-tight text-fg">
-          7 runtimes. Pick yours.
+          8 runtimes. Pick yours.
         </h2>
         <div class="mt-12">
           <div class="grid auto-rows-fr gap-4 sm:grid-cols-4 lg:grid-cols-8">
@@ -108,12 +116,12 @@ export function renderRuntimes() {
               </div>
             `,
             ).join("")}
-            <a href="#playground" class="flex flex-col justify-between rounded-lg bg-accent-soft p-4 no-underline sm:col-span-2">
-              <div><h3 class="font-mono text-sm font-bold tracking-wider text-fg uppercase">Not sure yet?</h3>
-              <p class="mt-4 font-mono text-xs text-muted">Explore code and switch between 200+ themes right in your browser.</p></div>
-              <span class="mt-4 font-display text-sm font-bold text-accent">Try the playground →</span>
-            </a>
           </div>
+          <a href="#playground" class="mt-4 flex flex-col justify-between gap-4 rounded-lg bg-accent-soft p-4 no-underline sm:flex-row sm:items-center">
+            <div><h3 class="font-mono text-sm font-bold tracking-wider text-fg uppercase">Not sure yet?</h3>
+            <p class="mt-2 font-mono text-xs text-muted">Explore code and switch between 200+ themes right in your browser.</p></div>
+            <span class="shrink-0 font-display text-sm font-bold text-accent">Try the playground →</span>
+          </a>
         </div>
       </div>
     </section>`;

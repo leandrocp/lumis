@@ -4,7 +4,7 @@
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="assets/brand/banners/readme-banner-dark.svg">
       <source media="(prefers-color-scheme: light)" srcset="assets/brand/banners/readme-banner-light.svg">
-      <img src="assets/brand/banners/readme-banner-light.svg" alt="Lumis: One highlighter, 7 runtimes. Powered by Tree-sitter and Neovim themes." width="640">
+      <img src="assets/brand/banners/readme-banner-light.svg" alt="Lumis: One highlighter, 8 runtimes. Powered by Tree-sitter and Neovim themes." width="640">
     </picture>
   </a>
 </p>
@@ -30,7 +30,7 @@
 
 - **110+ Tree-sitter languages** - Fast, accurate, and updated syntax parsing
 - **200+ built-in Neovim themes** - Updated and curated themes from the Neovim community
-- **7 runtimes** - CLI, Rust, Elixir, JavaScript / TypeScript, and Browsers / CDN, plus community-maintained Java and Python packages
+- **8 runtimes** - CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, and Edge / Workers, plus community-maintained Java and Python packages
 - **Built-in formatters** - HTML (inline/linked), Terminal (ANSI), Multi-theme (light/dark), BBCode
 - **Custom formatters** - Build your own output
 - **Language auto-detection** - File extension, shebang, and emacs-mode support
@@ -114,6 +114,11 @@ import javascript from 'https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-javascript/+
 const html = await highlight('const x = 1', htmlInline({ language: javascript, theme: dracula }))
 ```
 
+### [Edge / Workers](https://docs.lumis.sh/usage/edge)
+
+The same package runs on Supabase Edge Functions, Cloudflare Workers and Vercel.
+See the [Edge / Workers guide](https://docs.lumis.sh/usage/edge) for each host's setup.
+
 ### [Elixir](https://hex.pm/packages/lumis)
 
 ```elixir
@@ -177,6 +182,7 @@ Add the generated CSS to your page to apply the theme.
 | **Elixir** | `{:lumis, "~> 0.9"}` | [hex.pm/lumis](https://hex.pm/packages/lumis) | [README.md](packages/elixir/lumis/README.md) &bull; [hexdocs](https://hexdocs.pm/lumis) |
 | **JavaScript / TypeScript** | `npm install @lumis-sh/lumis` | [npmjs.com/@lumis-sh/lumis](https://www.npmjs.com/package/@lumis-sh/lumis) | [README.md](packages/javascript/lumis/README.md) |
 | **Browsers / CDN** | `npm install @lumis-sh/lumis` | [npmjs.com/@lumis-sh/lumis](https://www.npmjs.com/package/@lumis-sh/lumis) | [README.md](packages/javascript/lumis/README.md) |
+| **Edge / Workers** | `npm install @lumis-sh/lumis` | [npmjs.com/@lumis-sh/lumis](https://www.npmjs.com/package/@lumis-sh/lumis) | [Edge guide](https://docs.lumis.sh/usage/edge) |
 | **Java (community)** | `io.roastedroot:lumis4j:0.0.7` | [io.roastedroot/lumis4j](https://central.sonatype.com/artifact/io.roastedroot/lumis4j) | [Java guide](https://docs.lumis.sh/usage/java) |
 | **Python (community)** | `pip install fastpylight` | [PyPI](https://pypi.org/project/fastpylight/) | [Python guide](https://docs.lumis.sh/usage/python) |
 

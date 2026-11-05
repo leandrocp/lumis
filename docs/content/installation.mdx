@@ -1,6 +1,6 @@
 ---
 title: Installation
-description: Install Lumis for CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, Java, and Python.
+description: Install Lumis for CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, Edge / Workers, Java, and Python.
 keywords:
   - lumis installation
   - cargo
@@ -12,7 +12,7 @@ keywords:
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'Python', 'CLI', 'Browsers / CDN']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'Python', 'CLI', 'Browsers / CDN', 'Edge / Workers']}>
   <Tab value="JavaScript / TypeScript">
 
 ```bash
@@ -28,8 +28,8 @@ as `@lumis-sh/wasm-bundle-web`, and import the language from it:
 import javascript from '@lumis-sh/wasm-javascript';
 ```
 
-Node.js, Bun, Deno, edge runtimes such as Cloudflare Workers and Vercel Edge
-Functions, and browsers use the same imports. The packages include
+Node.js, Bun, Deno, edge runtimes such as Supabase Edge Functions, Cloudflare
+Workers and Vercel, and browsers use the same imports. The packages include
 TypeScript declarations; JavaScript and TypeScript apps use the same imports.
 The [language catalog](/reference/languages) has every npm package name.
 See [Declaring parsers](/advanced/lock) for package selection and
@@ -141,6 +141,16 @@ Run `lumis --help` to see the available commands.
 ```
 
   </Tab>
+  <Tab value="Edge / Workers">
+
+```bash
+npm install @lumis-sh/lumis @lumis-sh/themes @lumis-sh/wasm-javascript
+```
+
+The same package runs on Supabase Edge Functions, Cloudflare Workers and
+Vercel. See [Edge / Workers](/usage/edge) for each host's setup.
+
+  </Tab>
 </Tabs>
 
-Choose one of Lumis's 7 runtimes above. [Lumis4J](/usage/java) for Java and [fastpylight](/usage/python) for Python are community-maintained packages with their own APIs and releases.
+Choose one of Lumis's 8 runtimes above. [Lumis4J](/usage/java) for Java and [fastpylight](/usage/python) for Python are community-maintained packages with their own APIs and releases.

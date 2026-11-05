@@ -70,6 +70,30 @@ document.getElementById('output').innerHTML = await highlight(
     },
   },
   {
+    id: "edge",
+    label: "Edge / Workers",
+    install: {
+      language: "bash",
+      code: `npm install @lumis-sh/lumis @lumis-sh/themes @lumis-sh/wasm-javascript`,
+    },
+    usage: {
+      language: "javascript",
+      code: `import { createHighlighter } from '@lumis-sh/lumis'
+import { htmlInline } from '@lumis-sh/lumis/formatters'
+import dracula from '@lumis-sh/themes/dracula'
+import javascript from '@lumis-sh/wasm-javascript'
+
+const hl = await createHighlighter({ languages: [javascript] })
+
+export default {
+  async fetch() {
+    const html = hl.highlight('const x = 1', htmlInline({ language: javascript, theme: dracula }))
+    return new Response(html, { headers: { 'content-type': 'text/html' } })
+  },
+}`,
+    },
+  },
+  {
     id: "elixir",
     label: "Elixir",
     install: {
@@ -173,6 +197,7 @@ export function renderQuickstart() {
                   ? `<p class="font-mono text-xs leading-6 text-muted">The same package works in JavaScript and TypeScript, with types included. It loads exact parser WASM per language from the packages you install.</p>`
                   : ""
               }
+              ${tab.id === "edge" ? `<p class="font-mono text-xs leading-6 text-muted">Supabase Edge Functions, Cloudflare Workers and Vercel. <a href="https://docs.lumis.sh/usage/edge" class="underline underline-offset-2">Edge guide</a></p>` : ""}
               ${tab.id === "python" ? `<p class="font-mono text-xs leading-6 text-muted">fastpylight is maintained by Answer.AI. Add the generated CSS to your page to apply the theme. <a href="https://docs.lumis.sh/usage/python" class="underline underline-offset-2">Python guide</a></p>` : ""}
               ${tab.id === "java" ? `<p class="font-mono text-xs leading-6 text-muted">Lumis4J is maintained by roastedroot. <a href="https://docs.lumis.sh/usage/java" class="underline underline-offset-2">Java guide</a></p>` : ""}
               <div class="overflow-hidden rounded-lg bg-surface">

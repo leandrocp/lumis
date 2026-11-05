@@ -12,7 +12,7 @@ The community maintains the Java and Python packages. Each has its own API and r
 | Java | [Lumis4J](https://github.com/roastedroot/lumis4j) | [roastedroot](https://github.com/roastedroot) | [Java](/usage/java) |
 | Python | [fastpylight](https://github.com/AnswerDotAI/fastpylight) | [Answer.AI](https://github.com/AnswerDotAI) | [Python](/usage/python) |
 
-See the [runtime reference](/reference/runtimes) for all seven runtimes.
+See the [runtime reference](/reference/runtimes) for all 8 runtimes.
 
 For Kotlin on the JVM, see [kmp-play's Lumis4J example](https://github.com/sureshg/kmp-play/blob/main/jvm/app/src/App.kt).
 

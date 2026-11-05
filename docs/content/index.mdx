@@ -1,6 +1,6 @@
 ---
 title: Lumis
-description: One highlighter, 7 runtimes. Powered by Tree-sitter and Neovim themes.
+description: One highlighter, 8 runtimes. Powered by Tree-sitter and Neovim themes.
 keywords:
   - lumis
   - syntax highlighting
@@ -18,7 +18,7 @@ import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 Lumis is a syntax highlighter built on [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) and [Neovim themes](https://github.com/topics/neovim-colorscheme).
 
-Lumis supports **7 runtimes**: CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, and community-maintained [Java](/usage/java) and [Python](/usage/python). The community packages have their own APIs and release schedules.
+Lumis supports **8 runtimes**: CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, [Edge / Workers](/usage/edge), and community-maintained [Java](/usage/java) and [Python](/usage/python). The community packages have their own APIs and release schedules.
 
 The examples below cover the first-party runtimes and Lumis4J. See the [fastpylight guide](/usage/python) for Python examples.
 
@@ -32,7 +32,7 @@ To highlight code:
 
 ## 1. Install Lumis
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN', 'Edge / Workers']}>
   <Tab value="JavaScript / TypeScript">
 
 ```bash
@@ -92,13 +92,22 @@ import {highlight} from 'https://cdn.jsdelivr.net/npm/@lumis-sh/lumis/+esm';
 ```
 
   </Tab>
+  <Tab value="Edge / Workers">
+
+```bash
+npm install @lumis-sh/lumis @lumis-sh/themes
+```
+
+Supabase Edge Functions, Cloudflare Workers and Vercel each need a little setup: [Edge / Workers](/usage/edge).
+
+  </Tab>
 </Tabs>
 
 [Installation](/installation)
 
 ## 2. Pick a language
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN', 'Edge / Workers']}>
   <Tab value="JavaScript / TypeScript">
 
 A parser is an npm package:
@@ -158,13 +167,26 @@ import javascript from 'https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-javascript/+
 ```
 
   </Tab>
+  <Tab value="Edge / Workers">
+
+Import every language you highlight from its package, injected ones included:
+
+```bash
+npm install @lumis-sh/wasm-javascript
+```
+
+```js
+import javascript from '@lumis-sh/wasm-javascript';
+```
+
+  </Tab>
 </Tabs>
 
 [Languages](/languages) · [Language catalog](/reference/languages)
 
 ## 3. Pick a theme
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN', 'Edge / Workers']}>
   <Tab value="JavaScript / TypeScript">
 
 ```js
@@ -212,13 +234,20 @@ import frappe from 'https://cdn.jsdelivr.net/npm/@lumis-sh/themes/dist/themes/ca
 ```
 
   </Tab>
+  <Tab value="Edge / Workers">
+
+```js
+import frappe from '@lumis-sh/themes/catppuccin_frappe';
+```
+
+  </Tab>
 </Tabs>
 
 [Themes](/themes) · [Theme catalog](/reference/themes)
 
 ## 4. Pick a formatter
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN', 'Edge / Workers']}>
   <Tab value="JavaScript / TypeScript">
 
 ```js
@@ -274,13 +303,22 @@ const formatter = htmlInline({language: javascript, theme: frappe});
 ```
 
   </Tab>
+  <Tab value="Edge / Workers">
+
+```js
+import {htmlInline} from '@lumis-sh/lumis/formatters';
+
+const formatter = htmlInline({language: javascript, theme: frappe});
+```
+
+  </Tab>
 </Tabs>
 
 [Formatters](/formatters)
 
 ## 5. Render
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN', 'Edge / Workers']}>
   <Tab value="JavaScript / TypeScript">
 
 ```js
@@ -376,6 +414,25 @@ echo 'const x = 1' | lumis highlight \
 ```
 
   </Tab>
+  <Tab value="Edge / Workers">
+
+```js
+import {createHighlighter} from '@lumis-sh/lumis';
+import {htmlInline} from '@lumis-sh/lumis/formatters';
+import frappe from '@lumis-sh/themes/catppuccin_frappe';
+import javascript from '@lumis-sh/wasm-javascript';
+
+const hl = await createHighlighter({languages: [javascript]});
+
+export default {
+  async fetch() {
+    const html = hl.highlight('const x = 1', htmlInline({language: javascript, theme: frappe}));
+    return new Response(html, {headers: {'content-type': 'text/html'}});
+  },
+};
+```
+
+  </Tab>
 </Tabs>
 
 [Highlight](/usage/highlight)
@@ -387,7 +444,7 @@ echo 'const x = 1' | lumis highlight \
 - [200+ themes](/reference/themes) sourced from Neovim colorschemes, or [one you generate](/recipes/generate-theme-from-neovim-colorscheme)
 - 5 formatters: [HTML Inline](/formatters/html-inline), [HTML Linked](/formatters/html-linked), [HTML Multi-Themes](/formatters/html-multi-themes), [Terminal](/formatters/terminal), and [BBCode Scoped](/formatters/bbcode), or [one you write](/formatters/custom)
 - [handles incomplete code](/usage/highlight#incomplete-code), useful for streaming
-- 7 runtimes: [CLI](/usage/cli), [Rust](/usage/rust), [Elixir](/usage/elixir), [JavaScript / TypeScript](/usage/javascript), [Browsers / CDN](/recipes/browser-cdn), community-maintained [Java](/usage/java) and [Python](/usage/python)
+- 8 runtimes: [CLI](/usage/cli), [Rust](/usage/rust), [Elixir](/usage/elixir), [JavaScript / TypeScript](/usage/javascript), [Browsers / CDN](/recipes/browser-cdn), [Edge / Workers](/usage/edge), community-maintained [Java](/usage/java) and [Python](/usage/python)
 
 ## Community
 
