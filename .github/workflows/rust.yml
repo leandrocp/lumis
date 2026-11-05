@@ -133,7 +133,7 @@ jobs:
           mkdir -p "$archive_root"
           git archive --format=tar HEAD > "$archive_root.tar"
           bsdtar -xf "$archive_root.tar" -C "$archive_root"
-      - uses: Swatinem/rust-cache@v2.9.2
+      - uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: "${{ runner.temp }}/lumis-source -> target"
           shared-key: source-archive
@@ -148,11 +148,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
       - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: stable
-      - uses: Swatinem/rust-cache@v2.9.2
+      - uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: "crates/dev -> target"
           shared-key: language-catalog
@@ -178,7 +178,7 @@ jobs:
         with:
           toolchain: stable
 
-      - uses: Swatinem/rust-cache@v2.9.2
+      - uses: Swatinem/rust-cache@v2.9.3
 
       - name: Package Lumis and the crates released with it
         run: cargo package -p lumis -p lumis-core -p lumis-build -p lumis-wasm-runtime --no-verify
@@ -341,7 +341,7 @@ jobs:
         with:
           toolchain: stable
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
 
       - run: mise run check-crate-deps
 

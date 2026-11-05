@@ -94,7 +94,7 @@ jobs:
           toolchain: stable
         if: matrix.rust
 
-      - uses: Swatinem/rust-cache@v2.9.2
+      - uses: Swatinem/rust-cache@v2.9.3
         if: matrix.rust
 
       - uses: erlef/setup-beam@v1.24.1
@@ -115,7 +115,7 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
         with:
           install: false
 

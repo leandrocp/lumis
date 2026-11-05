@@ -42,7 +42,7 @@ jobs:
         with:
           toolchain: stable
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
         with:
           install: false
 

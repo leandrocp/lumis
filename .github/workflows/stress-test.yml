@@ -24,7 +24,7 @@ jobs:
         with:
           toolchain: stable
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
         with:
           install: false
 
@@ -98,11 +98,11 @@ jobs:
         with:
           node-version: 'lts/*'
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
         with:
           install: false
 
-      - uses: Swatinem/rust-cache@v2.9.2
+      - uses: Swatinem/rust-cache@v2.9.3
 
       - name: Download parser store
         uses: actions/download-artifact@v8.0.2
