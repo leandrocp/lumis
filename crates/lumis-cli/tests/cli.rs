@@ -1707,19 +1707,13 @@ fn cache_languages_skips_plaintext_aliases() {
 /// the same, so they cannot prepare different things.
 #[test]
 fn cache_languages_compiles_what_it_downloads() {
-    // Building a runtime at all compiles Tree-sitter's own module, so a
-    // non-empty cache proves nothing. Each additional parser adds an entry
-    // beside it, and only compiling produces that.
     fn cached_modules(store: &std::path::Path) -> usize {
-        let Ok(namespaces) = fs::read_dir(store.join("compiled").join("modules")) else {
-            return 0;
-        };
-        namespaces
-            .filter_map(Result::ok)
-            .filter_map(|namespace| fs::read_dir(namespace.path()).ok())
-            .flat_map(|entries| entries.filter_map(Result::ok))
-            .filter(|entry| entry.path().extension().is_none())
-            .count()
+        fs::read_dir(store.join("precompiled")).map_or(0, |entries| {
+            entries
+                .filter_map(Result::ok)
+                .filter(|entry| entry.path().extension().is_some_and(|ext| ext == "cwasm"))
+                .count()
+        })
     }
 
     let one = seeded_store();
@@ -1738,11 +1732,10 @@ fn cache_languages_compiles_what_it_downloads() {
         .assert()
         .success();
 
-    assert!(
-        cached_modules(two.path()) > cached_modules(one.path()),
-        "caching must compile each parser, not just download it: {} vs {}",
-        cached_modules(two.path()),
-        cached_modules(one.path())
+    assert_eq!(
+        (cached_modules(one.path()), cached_modules(two.path())),
+        (1, 2),
+        "caching must compile each parser, not just download it"
     );
 }
 

@@ -1131,7 +1131,8 @@ impl NativeRuntime {
             highlights: definition.highlights.clone(),
             injections: definition.injections.clone(),
             locals: definition.locals.clone(),
-            query_analysis: package.query_analysis(definition, wasm),
+            query_analysis: package
+                .query_analysis(definition, &lumis_wasm_runtime::sha256_hex(wasm)),
             brackets: definition.brackets.clone(),
         };
         let runtime = self.private_runtime()?;
@@ -1209,7 +1210,7 @@ impl NativeRuntime {
                     id: String::new(),
                     aliases: Vec::new(),
                     grammar_name: package.parser.grammar_name.clone(),
-                    query_analysis: package.query_analysis(definition, &wasm),
+                    query_analysis: package.query_analysis(definition, &package.parser.sha256),
                     wasm,
                     highlights: definition.highlights.clone(),
                     injections: definition.injections.clone(),

@@ -506,7 +506,7 @@ drift.
 
 | Variable | Read by | Purpose |
 | --- | --- | --- |
-| `LUMIS_DATA_DIR` | every runtime | Directory for parsers, themes, compiled modules, and query analysis snapshots |
+| `LUMIS_DATA_DIR` | every runtime | Directory for parsers, themes, precompiled and compiled modules, and query analysis snapshots |
 | `LUMIS_CONFIG` | CLI | Config file path, same as `--config` |
 | `LUMIS_VERSION` | CLI installers | Release version to install; the version-pinned URL sets it |
 | `LUMIS_INSTALL_DIR` | CLI installers | Directory for the installed `lumis` binary |

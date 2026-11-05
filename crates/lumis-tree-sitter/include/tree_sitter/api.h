@@ -1511,6 +1511,25 @@ const TSLanguage *ts_wasm_store_load_language(
 );
 
 /**
+ * Create a language like `ts_wasm_store_load_language`, taking its compiled
+ * code from `precompiled_path` instead of compiling `wasm`.
+ *
+ * The file must hold what `wasmtime::Engine::precompile_module` produced for
+ * `wasm` with an engine configured like this store's. The engine rejects one
+ * built by another Wasmtime version or configuration, but it maps the code
+ * it accepts without further checks, so the file must be trusted like the
+ * process's own code. `wasm` is still read, for its dylink section.
+ */
+const TSLanguage *ts_wasm_store_load_language_precompiled(
+  TSWasmStore *,
+  const char *name,
+  const char *wasm,
+  uint32_t wasm_len,
+  const char *precompiled_path,
+  TSWasmError *error
+);
+
+/**
  * Get the number of languages instantiated in the given Wasm store.
  */
 size_t ts_wasm_store_language_count(const TSWasmStore *);

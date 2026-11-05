@@ -95,8 +95,8 @@ publishes it to npm with
 
 ## The compiled-module cache
 
-Wasmtime compiles each parser to machine code and caches it under `compiled/`
-in the [data directory](/languages#point-every-process-at-one-directory). It
+Wasmtime compiles each parser to machine code and Lumis keeps it under
+`precompiled/` and `compiled/` in the [data directory](/languages#point-every-process-at-one-directory). It
 loads those files back as code without checking that it wrote them (the same
 caveat as
 [`Module::deserialize`](https://docs.rs/wasmtime/36.0.15/wasmtime/struct.Module.html#method.deserialize)),

@@ -180,14 +180,15 @@ impl LanguagePackage {
         Ok(())
     }
 
-    /// The decoded [`PackagedLanguage::query_analysis`] of `language`, when `wasm`
-    /// is the parser this package was published with, and nothing otherwise. A
-    /// snapshot only records the parser's symbols, so it is not offered to
-    /// replacement bytes that could share them and still parse differently.
+    /// The decoded [`PackagedLanguage::query_analysis`] of `language`, when
+    /// `wasm_digest`, the [`sha256_hex`] of the parser being loaded, is the one
+    /// this package was published with, and nothing otherwise. A snapshot only
+    /// records the parser's symbols, so it is not offered to replacement bytes
+    /// that could share them and still parse differently.
     #[must_use]
-    pub fn query_analysis(&self, language: &PackagedLanguage, wasm: &[u8]) -> Vec<u8> {
+    pub fn query_analysis(&self, language: &PackagedLanguage, wasm_digest: &str) -> Vec<u8> {
         use base64::Engine as _;
-        if language.query_analysis.is_empty() || sha256_hex(wasm) != self.parser.sha256 {
+        if language.query_analysis.is_empty() || wasm_digest != self.parser.sha256 {
             return Vec::new();
         }
         base64::engine::general_purpose::STANDARD
@@ -209,7 +210,7 @@ impl LanguagePackage {
             id: id.to_string(),
             aliases: language.aliases.clone(),
             grammar_name: self.parser.grammar_name.clone(),
-            query_analysis: self.query_analysis(language, &wasm),
+            query_analysis: self.query_analysis(language, &sha256_hex(&wasm)),
             wasm,
             highlights: language.highlights.clone(),
             injections: language.injections.clone(),
