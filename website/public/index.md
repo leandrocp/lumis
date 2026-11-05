@@ -1,17 +1,17 @@
 ---
 title: Lumis - Syntax Highlighter
-description: Syntax highlighting with Tree-sitter and Neovim themes in 7 runtimes, including community-maintained Java and Python packages.
+description: Syntax highlighting with Tree-sitter and Neovim themes in 8 runtimes, including community-maintained Java and Python packages.
 ---
 
 # Lumis
 
-Lumis is a syntax highlighter powered by Tree-sitter. It supports 7 runtimes: CLI, Rust, Elixir, JavaScript / TypeScript, browsers, Java, and Python. [Lumis4J](https://github.com/roastedroot/lumis4j) (Java) and [fastpylight](https://github.com/AnswerDotAI/fastpylight) (Python) are community packages with their own APIs and releases.
+Lumis is a syntax highlighter powered by Tree-sitter. It supports 8 runtimes: CLI, Rust, Elixir, JavaScript / TypeScript, browsers, edge and worker hosts, Java, and Python. [Lumis4J](https://github.com/roastedroot/lumis4j) (Java) and [fastpylight](https://github.com/AnswerDotAI/fastpylight) (Python) are community packages with their own APIs and releases.
 
 [Documentation](https://docs.lumis.sh) · [GitHub](https://github.com/leandrocp/lumis) · [Showcase](https://lumis.sh/showcase/) · [Visual comparison](https://lumis.sh/comparison/)
 
 ## At a glance
 
-- 7 runtimes: 5 first-party and 2 community-maintained
+- 8 runtimes: 6 first-party and 2 community-maintained
 - 110+ compiled Tree-sitter grammars with highlight and injection queries
 - 200+ themes generated from Neovim colorschemes
 - HTML inline, HTML linked, multi-theme HTML, terminal, and BBCode formatters, plus custom formatters
@@ -25,6 +25,7 @@ Lumis is a syntax highlighter powered by Tree-sitter. It supports 7 runtimes: CL
 | Rust                    | `cargo add lumis`                                                               |
 | JavaScript / TypeScript | `npm install @lumis-sh/lumis @lumis-sh/themes @lumis-sh/wasm-javascript`        |
 | Browsers / CDN          | `https://cdn.jsdelivr.net/npm/@lumis-sh/lumis/+esm`                             |
+| Edge / Workers          | `npm install @lumis-sh/lumis` ([guide](https://docs.lumis.sh/usage/edge))        |
 | Elixir                  | `{:lumis, "~> 0.10"}` plus a parser such as `{:lumis_wasm_elixir, "~> 0.26.0"}` |
 | Java (community)        | `io.roastedroot:lumis4j:0.0.7`                                                  |
 | Python (community)      | `pip install fastpylight`                                                       |

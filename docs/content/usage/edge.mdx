@@ -1,0 +1,169 @@
+---
+title: Edge / Workers
+description: Run Lumis on Supabase Edge Functions, Cloudflare Workers and Vercel, including Fluid compute and the Edge runtime.
+keywords:
+  - lumis edge
+  - cloudflare workers
+  - workerd
+  - supabase edge functions
+  - vercel edge
+  - vercel fluid compute
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+`@lumis-sh/lumis` runs on edge and worker hosts with the same API as Node and
+browsers. Install it with the parser packages for the languages you highlight:
+
+```bash
+npm install @lumis-sh/lumis @lumis-sh/themes @lumis-sh/wasm-rust
+```
+
+Tested on Supabase Edge Functions, Cloudflare Workers, and Vercel on both the
+Node.js runtime with Fluid compute and the Edge runtime.
+
+<Tabs groupId="edge-host" persist items={['Supabase Edge Functions', 'Cloudflare Workers', 'Vercel']}>
+  <Tab value="Supabase Edge Functions">
+
+Supabase Edge Functions run Deno, so import packages with `npm:` specifiers:
+
+```ts
+// supabase/functions/highlight/index.ts
+import { createHighlighter } from "npm:@lumis-sh/lumis";
+import { htmlInline } from "npm:@lumis-sh/lumis/formatters";
+import dracula from "npm:@lumis-sh/themes/dracula";
+import rust from "npm:@lumis-sh/wasm-rust";
+
+const highlighter = createHighlighter({ languages: [rust] });
+
+Deno.serve(async (req) => {
+  const { code } = await req.json();
+  const hl = await highlighter;
+  const html = hl.highlight(code, htmlInline({ language: rust, theme: dracula }));
+  return Response.json({ html });
+});
+```
+
+```bash
+npx supabase functions deploy highlight
+```
+
+Return the highlighted HTML inside JSON, as above. On a `*.supabase.co` URL,
+Supabase rewrites a `text/html` response to `text/plain`, so a browser shows
+the markup as text. Serving HTML directly needs a custom domain.
+
+  </Tab>
+  <Tab value="Cloudflare Workers">
+
+```ts
+// src/worker.ts
+import { createHighlighter } from "@lumis-sh/lumis";
+import { htmlInline } from "@lumis-sh/lumis/formatters";
+import dracula from "@lumis-sh/themes/dracula";
+import rust from "@lumis-sh/wasm-rust";
+
+const highlighter = createHighlighter({ languages: [rust] });
+
+export default {
+  async fetch() {
+    const hl = await highlighter;
+    const html = hl.highlight("fn main() {}", htmlInline({ language: rust, theme: dracula }));
+    return new Response(html, { headers: { "content-type": "text/html" } });
+  },
+};
+```
+
+Point Wrangler at the Worker:
+
+```jsonc
+// wrangler.jsonc
+{
+  "name": "highlight",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-11-01"
+}
+```
+
+```bash
+npx wrangler deploy
+```
+
+Lumis needs nothing else in the Wrangler configuration. Every language you highlight, including
+injected ones, ends up in the Worker, so its size grows with each parser: a
+Worker with Markdown, Rust and TypeScript uploads about 690 KB gzipped. Check
+the size against your plan's Worker size limit.
+
+  </Tab>
+  <Tab value="Vercel">
+
+Use the default Node.js runtime. Vercel runs it on Fluid compute, where a warm
+instance serves many requests and keeps parsers it already loaded, and Lumis
+uses its native runtime there: `runtimeKind()` returns `'native'`.
+
+```ts
+// app/highlight/route.ts
+import { createHighlighter } from "@lumis-sh/lumis";
+import { htmlInline } from "@lumis-sh/lumis/formatters";
+import dracula from "@lumis-sh/themes/dracula";
+import rust from "@lumis-sh/wasm-rust";
+
+const highlighter = createHighlighter({ languages: [rust] });
+
+export async function GET() {
+  const hl = await highlighter;
+  const html = hl.highlight("fn main() {}", htmlInline({ language: rust, theme: dracula }));
+  return new Response(html, { headers: { "content-type": "text/html" } });
+}
+```
+
+Next.js has to leave `@lumis-sh/lumis` unbundled so the native addon is
+deployed with the function:
+
+```js
+// next.config.mjs
+export default { serverExternalPackages: ["@lumis-sh/lumis"] };
+```
+
+The Edge runtime works too. Add `export const runtime = "edge"` to the route
+and drop the `next.config.mjs` change. Next.js has deprecated that route
+setting, and Vercel recommends Node.js over the Edge runtime, so prefer Node.js
+for new projects.
+
+  </Tab>
+</Tabs>
+
+## How it works
+
+Cloudflare Workers and Vercel's Edge runtime cannot compile WebAssembly while a
+request runs, only modules their build step compiled at deploy time. Under the
+`workerd` export condition, which Wrangler selects, and the `edge-light`
+condition, which Next.js selects for the Edge runtime, Lumis and every
+`@lumis-sh/wasm-*` package import their `.wasm` files as modules. It follows
+that, on those two hosts:
+
+- every language highlighted there, injected ones included, has to come from a
+  package the code imports
+- a resolver cannot work, because the parser bytes it fetches could not be
+  compiled
+- a parser you supply yourself must be a `WebAssembly.Module`, such as
+  `import parser from "./tree-sitter-rust.wasm"` on Workers or
+  `"./tree-sitter-rust.wasm?module"` on Vercel, not bytes or a URL
+
+Supabase Edge Functions, Deno and Vercel's Node.js runtime compile WebAssembly
+at run time, so none of this applies there.
+
+On edge hosts `runtimeKind()` returns `'wasm'`. Workers stops the clock while a
+request runs, so timing a highlight with `performance.now()` there reports 0.
+
+## Other hosts
+
+Another edge host works when it does one of these:
+
+- compiles WebAssembly from bytes at run time, as Deno does; the ordinary
+  entries work there
+- imports `.wasm` files as compiled modules and resolves the `workerd` or
+  `edge-light` export condition, as Wrangler and Next.js do
+
+A host that does neither cannot run Lumis.
+
+See [JavaScript / TypeScript](/usage/javascript) for the rest of the API.
