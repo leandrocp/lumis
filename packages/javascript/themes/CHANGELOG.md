@@ -1,3 +1,15 @@
+## [0.4.4](https://github.com/leandrocp/lumis/compare/npm-themes/v0.4.3...npm-themes/v0.4.4) (2026-11-05)
+
+### Features
+
+- **themes:** Add a JSON Schema for theme files
+- **themes:** Version the theme schema and document theme files
+- **themes:** Update themes in [\#1984](https://github.com/leandrocp/lumis/pull/1984)
+
+### Bug Fixes
+
+- **javascript:** Publish $schema in theme packages and enforce it
+
 ## [0.4.3](https://github.com/leandrocp/lumis/compare/npm-themes/v0.4.2...npm-themes/v0.4.3) (2026-10-28)
 
 ### Features
