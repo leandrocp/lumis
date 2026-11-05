@@ -115,6 +115,10 @@ struct TSWasmStore {
   wasm_globaltype_t *const_i32_type;
   bool has_error;
   uint32_t lexer_address;
+  // Wasm memory while a generated lex function runs, which never grows it, so
+  // `advance` need not ask Wasmtime for it on every character. NULL otherwise,
+  // because a scanner can allocate.
+  uint8_t *lex_memory;
 };
 
 typedef Array(char) StringData;
@@ -178,7 +182,28 @@ typedef struct {
   int32_t get_column;
   int32_t is_at_included_range_start;
   int32_t eof;
+  // Not part of `TSLexer`: the host's answer to `eof`, kept current so that
+  // `eof` can be a Wasm function that reads it instead of a host call.
+  int32_t at_eof;
 } LexerInWasmMemory;
+
+// A module whose one export, `eof(lexer)`, returns `lexer->at_eof`. Generated
+// lexers call `eof` once per character, as often as `advance`, and a Wasm to
+// host call costs more than the lexer state it reads.
+//
+// (module
+//   (import "env" "memory" (memory 0))
+//   (func (export "eof") (param i32) (result i32)
+//     (i32.load offset=28 (local.get 0))))
+static const uint8_t LEXER_EOF_WASM[] = {
+  0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+  0x01, 0x06, 0x01, 0x60, 0x01, 0x7f, 0x01, 0x7f,
+  0x02, 0x0f, 0x01, 0x03, 'e', 'n', 'v', 0x06, 'm', 'e', 'm', 'o', 'r', 'y', 0x02, 0x00, 0x00,
+  0x03, 0x02, 0x01, 0x00,
+  0x07, 0x07, 0x01, 0x03, 'e', 'o', 'f', 0x00, 0x00,
+  0x0a, 0x09, 0x01, 0x07, 0x00, 0x20, 0x00, 0x28, 0x02, 0x1c, 0x0b,
+};
+_Static_assert(offsetof(LexerInWasmMemory, at_eof) == 0x1c, "LEXER_EOF_WASM reads at_eof at offset 28");
 
 // Linear memory layout:
 // [ <-- stack | stdlib statics | lexer | language statics --> | serialization_buffer | heap --> ]
@@ -325,6 +350,15 @@ static wasm_trap_t *callback__noop(
   return NULL;
 }
 
+// Copy the lexer state that changes on `advance` into Wasm memory.
+static void ts_wasm_store__write_lexer_state(TSWasmStore *self, uint8_t *memory) {
+  TSLexer *lexer = self->current_lexer;
+  int32_t at_eof = lexer->eof(lexer);
+  uint8_t *wasm_lexer = &memory[self->lexer_address];
+  memcpy(&wasm_lexer[offsetof(LexerInWasmMemory, lookahead)], &lexer->lookahead, sizeof(lexer->lookahead));
+  memcpy(&wasm_lexer[offsetof(LexerInWasmMemory, at_eof)], &at_eof, sizeof(at_eof));
+}
+
 static wasm_trap_t *callback__lexer_advance(
   void *env,
   wasmtime_caller_t* caller,
@@ -339,8 +373,9 @@ static wasm_trap_t *callback__lexer_advance(
   bool skip = args_and_results[1].i32;
   lexer->advance(lexer, skip);
 
-  uint8_t *memory = wasmtime_memory_data(context, &store->memory);
-  memcpy(&memory[store->lexer_address], &lexer->lookahead, sizeof(lexer->lookahead));
+  uint8_t *memory = store->lex_memory;
+  if (!memory) memory = wasmtime_memory_data(context, &store->memory);
+  ts_wasm_store__write_lexer_state(store, memory);
   return NULL;
 }
 
@@ -378,19 +413,6 @@ static wasm_trap_t *callback__lexer_is_at_included_range_start(
   TSWasmStore *store = env;
   TSLexer *lexer = store->current_lexer;
   bool result = lexer->is_at_included_range_start(lexer);
-  args_and_results[0].i32 = result;
-  return NULL;
-}
-
-static wasm_trap_t *callback__lexer_eof(
-  void *env,
-  wasmtime_caller_t* caller,
-  wasmtime_val_raw_t *args_and_results,
-  size_t args_and_results_len
-) {
-  TSWasmStore *store = env;
-  TSLexer *lexer = store->current_lexer;
-  bool result = lexer->eof(lexer);
   args_and_results[0].i32 = result;
   return NULL;
 }
@@ -737,11 +759,6 @@ TSWasmStore *ts_wasm_store_new(TSWasmEngine *engine, TSWasmError *wasm_error) {
       callback__lexer_is_at_included_range_start,
       wasm_functype_new_1_1(wasm_valtype_new_i32(), wasm_valtype_new_i32())
     },
-    {
-      &lexer.eof,
-      callback__lexer_eof,
-      wasm_functype_new_1_1(wasm_valtype_new_i32(), wasm_valtype_new_i32())
-    },
   };
 
   // Define builtin functions that can be imported by scanners.
@@ -1020,11 +1037,36 @@ TSWasmStore *ts_wasm_store_new(TSWasmEngine *engine, TSWasmError *wasm_error) {
 
   wasm_exporttype_vec_delete(&export_types);
   wasmtime_module_delete(stdlib_module);
+  stdlib_module = NULL;
+
+  wasmtime_func_t lexer_eof_func;
+  error = wasmtime_module_new(engine, LEXER_EOF_WASM, sizeof(LEXER_EOF_WASM), &stdlib_module);
+  if (!error) {
+    wasmtime_extern_t memory_import = {.kind = WASMTIME_EXTERN_MEMORY, .of.memory = memory};
+    error = wasmtime_instance_new(context, stdlib_module, &memory_import, 1, &instance, &trap);
+  }
+  wasmtime_module_delete(stdlib_module);
+  stdlib_module = NULL;
+  if (error || trap) {
+    if (error) wasmtime_error_message(error, &message);
+    else wasm_trap_message(trap, &message);
+    wasm_error->kind = TSWasmErrorKindInstantiate;
+    format(
+      &wasm_error->message,
+      "failed to instantiate Wasm lexer module: %.*s",
+      (int)message.size, message.data
+    );
+    goto error;
+  }
+  wasmtime_extern_t lexer_eof_export;
+  bool lexer_eof_exists = wasmtime_instance_export_get(context, &instance, "eof", 3, &lexer_eof_export);
+  ts_assert(lexer_eof_exists && lexer_eof_export.kind == WASMTIME_EXTERN_FUNC);
+  lexer_eof_func = lexer_eof_export.of.func;
 
   // Add all of the lexer callback functions to the function table. Store their function table
   // indices on the in-memory lexer.
   uint64_t table_index;
-  error = wasmtime_table_grow(context, &function_table, lexer_definitions_len, &initializer, &table_index);
+  error = wasmtime_table_grow(context, &function_table, lexer_definitions_len + 1, &initializer, &table_index);
   if (error) {
     wasmtime_error_message(error, &message);
     wasm_error->kind = TSWasmErrorKindAllocate;
@@ -1044,6 +1086,11 @@ TSWasmStore *ts_wasm_store_new(TSWasmEngine *engine, TSWasmError *wasm_error) {
     table_index++;
   }
   ts_free(lexer_funcs);
+  wasmtime_val_t lexer_eof_val = {.kind = WASMTIME_FUNCREF, .of.funcref = lexer_eof_func};
+  error = wasmtime_table_set(context, &function_table, table_index, &lexer_eof_val);
+  ts_assert(!error);
+  lexer.eof = table_index;
+  table_index++;
 
   self->current_function_table_offset = table_index;
   self->lexer_address = initial_memory_pages * MEMORY_PAGE_SIZE;
@@ -1926,12 +1973,15 @@ static bool ts_wasm_store__call_lex_function(TSWasmStore *self, wasmtime_func_t 
     self->current_lexer,
     sizeof(TSLexerDataPrefix)
   );
+  ts_wasm_store__write_lexer_state(self, memory_data);
 
   wasmtime_val_raw_t args[2] = {
     {.i32 = self->lexer_address},
     {.i32 = state},
   };
+  self->lex_memory = memory_data;
   ts_wasm_store__call(self, func, args, 2);
+  self->lex_memory = NULL;
   if (self->has_error) return false;
   bool result = args[0].i32;
 
@@ -1986,6 +2036,7 @@ bool ts_wasm_store_call_scanner_scan(
     self->current_lexer,
     sizeof(TSLexerDataPrefix)
   );
+  ts_wasm_store__write_lexer_state(self, memory_data);
 
   uint32_t valid_tokens_address =
     self->current_instance->external_states_address +
