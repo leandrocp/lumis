@@ -47,7 +47,7 @@ jobs:
           toolchain: stable
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2.9.2
+        uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: "crates/dev -> target"
           shared-key: update-langs-dev
@@ -83,13 +83,13 @@ jobs:
           toolchain: stable
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2.9.2
+        uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: "crates/dev -> target"
           shared-key: update-langs-dev
           save-if: false
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
 
       - name: Update default queries
         run: |
@@ -145,13 +145,13 @@ jobs:
           toolchain: stable
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2.9.2
+        uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: "crates/dev -> target"
           shared-key: update-langs-dev
           save-if: false
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
 
       - uses: pnpm/action-setup@v6.1.0
         with:
