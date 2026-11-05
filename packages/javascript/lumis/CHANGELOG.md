@@ -1,3 +1,9 @@
+## [0.10.4](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.3...npm-lumis/v0.10.4) (2026-11-05)
+
+### Documentation
+
+- Promote Edge / Workers to the eighth runtime in [\#1989](https://github.com/leandrocp/lumis/pull/1989)
+
 ## [0.10.3](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.2...npm-lumis/v0.10.3) (2026-11-05)
 
 ### Features
