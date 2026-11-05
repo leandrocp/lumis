@@ -43,20 +43,16 @@ Never copy a version number from memory, an old example, or this file. Look up t
 - Rust: `cargo add lumis`, which picks the current version and lets you enable `lang-*` features
 - CLI: the [installation guide](https://docs.lumis.sh/installation)
 
-Parser packages (`lumis_wasm_*`, `@lumis-sh/wasm-*`) must stay inside the version range the installed Lumis supports. Lumis refuses a parser outside it and reports `:incompatible_version` (Elixir `Lumis.ParserError`) or "does not satisfy the supported range" (JavaScript, CLI). The range is a `MAJOR.MINOR` series defined by the installed Lumis release, so after upgrading Lumis, upgrade every parser package with it. In Elixir, `Lumis.Packages.requirement()` returns the requirement to put in `mix.exs`, and the error message prints it.
+Keep parser packages (`lumis_wasm_*`, `@lumis-sh/wasm-*`) in the range the installed Lumis supports, and upgrade them together with Lumis. Lumis refuses an out-of-range parser and reports `:incompatible_version` in Elixir (`Lumis.Packages.requirement()` returns the right requirement) or "does not satisfy the supported range" elsewhere.
 
 ## When a parser is missing
 
-Behavior differs by runtime. Do not assume it is the same everywhere.
+- **Elixir**: `Lumis.highlight/2` returns `{:ok, html}` as plain text and logs a warning. Invalid options still raise, and `highlight!/2` raises `Lumis.HighlightError` only for formatter failures. To detect a missing parser, call `Lumis.Languages.load/1`, which returns a `Lumis.ParserError` with reason `:not_installed` (add the dependency) or `:parser_missing` (run `mix deps.get` again).
+- **JavaScript and TypeScript**: on Node, a missing root language throws (`@lumis-sh/wasm-regex is not installed`); a missing injected language stays plain for that block with a one-time warning. Synchronous `hl.highlight()` and React throw `Language "x" is not loaded` until `createHighlighter({ languages })` or `hl.loadLanguage()` has loaded it. Browsers fetch nothing while highlighting, so load every language first.
+- **Rust**: a language whose `lang-*` feature is disabled renders as plain text without an error. Enable the features you need.
+- **CLI**: a missing parser is downloaded on demand; an unknown language exits non-zero with `unknown language: <name>`.
 
-- **Elixir**: `Lumis.highlight/2` returns `{:ok, html}` with the source rendered as plain text and logs a warning. No `Lumis.ParserError` ever reaches a `highlight/2` caller. Invalid options still raise. `Lumis.highlight!/2` raises `Lumis.HighlightError` only when the formatter fails, not for a missing parser. `Lumis.highlight_events/3` returns one `:source` event spanning the document. To detect it, call `Lumis.Languages.load/1` (for example at boot), which returns `{:error, %Lumis.ParserError{}}`. Reasons include `:not_installed` (add the `lumis_wasm_*` dependency) and `:parser_missing` (the dependency is present but its `.wasm` is not; run `mix deps.get` again).
-- **JavaScript and TypeScript on Node**: the root language loads from the installed package, and a missing one throws, for example `@lumis-sh/wasm-regex is not installed`. A language injected inside a document stays plain for that block, and Lumis warns once naming it. Synchronous `hl.highlight()` throws `Language "x" is not loaded` when the language was not passed to `createHighlighter({ languages })` or `hl.loadLanguage()`; an unknown name throws `Unknown language "x"`. Catch the error or call `hl.loadLanguage()` first to detect it.
-- **Browser**: nothing is fetched during highlighting. A language that was not imported and loaded throws `Language "x" is not loaded`, and an injected language that no highlighter on the page loaded stays plain. Load every language the document can name before highlighting.
-- **React** (`useLumis`): a language that is not loaded rejects with `Language "x" is not loaded`.
-- **Rust**: a language whose `lang-*` feature is disabled is highlighted as plain text without an error. Enable the feature, or `all-languages`, for every language you highlight. Language names that cannot be resolved fall back to detection, then to plain text.
-- **CLI**: a missing compatible parser is downloaded on demand, and an unknown language exits non-zero with `unknown language: <name>`. A root language that cannot be downloaded is an error, and only an injected block that cannot be fetched stays plain. Run `lumis languages download <names>` to fetch parsers ahead of time.
-
-A plain-text result is not an error signal. If highlighted output must be guaranteed, load the language explicitly (`Lumis.Languages.load/1`, `hl.loadLanguage()`) and handle its failure.
+Plain text is not an error signal. When highlighting must not silently degrade, load the language explicitly and handle the failure.
 
 ## Verify
 
