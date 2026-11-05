@@ -345,11 +345,22 @@ unpublished parser must not cost the rest.
 
 **A cold parser is expensive; a warm one is not.** It costs a download and then
 a Wasmtime compile, and the compile is the larger half: seven parsers already on
-disk take about 8 s to compile against 1.3 s once `compiled/` holds their
-compiled forms. Registering an already-compiled parser is 3-15 ms, and about
+disk took about 8 s to compile with Cranelift against 1.3 s once their
+compiled forms were on disk. Registering an already-compiled parser is 3-15 ms, and about
 0.3 ms after. That is why loading in the request path is fine once the store is
 warm, and why `load` still exists: to move both costs off a user's first
 request, not to gate anything.
+
+**Parsers compile with Winch, not Cranelift.** A parser is mostly one huge
+lexer function, and Cranelift spent 61% of a cold C++ highlight optimizing it.
+Winch, Wasmtime's baseline compiler, compiles the same parser 4-8x faster and
+the code it produces runs the lexer 1.2-1.6x slower. Only the lexer and external
+scanners run in Wasm; queries and rendering are native. End to end, the first
+highlight of every sample with an empty data directory takes 4.7 s instead of
+17 s, and a warm one 2.45 s instead of 2.25 s. Winch targets x86-64 and
+AArch64, which covers every platform Lumis ships; anything else falls back to
+Cranelift. Compiled code is never shipped: each machine compiles its own, so
+nothing in a package depends on the architecture.
 
 **A warm parser is mapped, not looked up.** Wasmtime's own cache hashes a
 module, decompresses its entry and copies it on every load, 13 ms for the C++

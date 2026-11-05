@@ -1583,6 +1583,11 @@ fn engine_with_compile_cache(
     root: std::path::PathBuf,
 ) -> Result<(Engine, Option<PathBuf>), wasmtime::Error> {
     let mut config = Config::new();
+    // Winch compiles a parser 4-8x faster than Cranelift, and a parser is mostly
+    // one huge lexer function that only runs during the parse, so a cold
+    // highlight is dominated by the compile. Winch only targets these two.
+    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+    config.strategy(wasmtime::Strategy::Winch);
     let mut cache_config = CacheConfig::new();
     cache_config.with_directory(root.join("compiled"));
 
