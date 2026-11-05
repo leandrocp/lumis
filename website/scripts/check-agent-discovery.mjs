@@ -20,7 +20,7 @@ function headerMap(config, source) {
   return new Map(entry?.headers?.map(({ key, value }) => [key.toLowerCase(), value]) ?? []);
 }
 
-const skillPath = "public/.well-known/agent-skills/lumis/SKILL.md";
+const skillPath = "../skills/lumis/SKILL.md";
 const indexPath = "public/.well-known/agent-skills/index.json";
 const cardPath = "public/.well-known/mcp/server-card.json";
 const catalogPath = "public/.well-known/ai-catalog.json";

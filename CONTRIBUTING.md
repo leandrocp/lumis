@@ -5,6 +5,7 @@ See `ARCHITECTURE.md` for how the crates, packages, website, and build pipeline 
 ## Table of contents
 
 - [Getting started](#getting-started)
+- [Agent skills](#agent-skills)
 - [Testing](#testing)
 - [Linting](#linting)
 - [Releases](#releases)
@@ -39,6 +40,28 @@ its integrations; pnpm builds Vite after rehype. The theme, Lumis and integratio
 builds declare their inputs, so a rerun skips any whose inputs have not changed
 since its last build. `mise run --force setup-js-integrations` rebuilds Lumis and
 its integrations regardless.
+
+## Agent skills
+
+`skills/` publishes [agent skills](https://skills.sh/) for this repository, one directory per skill:
+
+| Skill | Use |
+| --- | --- |
+| `lumis` | Add Lumis to a project. The website serves it at `https://lumis.sh/.well-known/agent-skills/lumis/SKILL.md`. |
+| `lumis-add-theme` | Add a built-in theme from a permissively licensed Neovim colorscheme. |
+| `lumis-add-language` | Add a Tree-sitter grammar, its queries and a sample. |
+
+Install one into a project, or run it once without installing:
+
+```sh
+npx skills add leandrocp/lumis --skill lumis-add-theme
+npx skills add leandrocp/lumis --skill lumis-add-language
+npx skills use leandrocp/lumis@lumis-add-theme --agent claude-code
+```
+
+Without `--agent`, `skills use` prints the skill as a prompt to pipe into an agent, as in `npx skills use leandrocp/lumis@lumis-add-theme | claude`.
+
+`npx skills add leandrocp/lumis --list` lists them. A skill is named `lumis-<verb>`, except the usage skill, which is `lumis`. `skills/lumis/SKILL.md` is the only copy of the usage skill: the website build emits it at its `.well-known` path, and `pnpm run check:discovery` in `website/` fails when `public/.well-known/agent-skills/index.json` carries a stale digest or description for it. Keep the contributor skills in step with the sections below when a workflow changes.
 
 ## Testing
 

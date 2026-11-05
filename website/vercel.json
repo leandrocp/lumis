@@ -4,7 +4,7 @@
   "installCommand": "npx --yes pnpm@11.15.1 install --frozen-lockfile",
   "buildCommand": "npx --yes pnpm@11.15.1 build",
   "outputDirectory": "dist",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- .",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ../skills/lumis",
   "headers": [
     {
       "source": "/",
