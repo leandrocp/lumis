@@ -56,8 +56,10 @@ Install one into a project, or run it once without installing:
 ```sh
 npx skills add leandrocp/lumis --skill lumis-add-theme
 npx skills add leandrocp/lumis --skill lumis-add-language
-npx skills use leandrocp/lumis@lumis-add-theme
+npx skills use leandrocp/lumis@lumis-add-theme --agent claude-code
 ```
+
+Without `--agent`, `skills use` prints the skill as a prompt to pipe into an agent, as in `npx skills use leandrocp/lumis@lumis-add-theme | claude`.
 
 `npx skills add leandrocp/lumis --list` lists them. A skill is named `lumis-<verb>`, except the usage skill, which is `lumis`. `skills/lumis/SKILL.md` is the only copy of the usage skill: the website build emits it at its `.well-known` path, and `pnpm run check:discovery` in `website/` fails when `public/.well-known/agent-skills/index.json` carries a stale digest or description for it. Keep the contributor skills in step with the sections below when a workflow changes.
 

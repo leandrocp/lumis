@@ -34,7 +34,7 @@ globs = ["*.lean"]
 
 Give the entry the names a reader will type: the id, common aliases, and every file extension. Those become the published language table.
 
-If the queries come from the grammar repository rather than nvim-treesitter, add a query source with the same key:
+If the queries come from the grammar repository rather than nvim-treesitter, add a query source. Its key is the parser's `query_name` when the entry sets one, and the parser id otherwise:
 
 ```toml
 [queries.lean]
@@ -62,9 +62,14 @@ In `crates/lumis/Cargo.toml`:
 For a vendored parser (no crate, or an unreleased fix), add its compilation to `vendored_parsers()` in `crates/lumis/build.rs` and declare it in `crates/lumis/src/languages.rs`:
 
 ```rust
-#[cfg(feature = "lang-{name}")]
-fn tree_sitter_{name}() -> *const ();
+unsafe extern "C" {
+    // ...existing declarations...
+    #[cfg(feature = "lang-{name}")]
+    fn tree_sitter_{name}() -> *const ();
+}
 ```
+
+Add the two lines to the existing `unsafe extern "C"` block, in alphabetical order; do not open a second block.
 
 Then, in `crates/lumis/src/languages.rs`, add a `{NAME}_CONFIG` static `LazyLock<HighlightConfiguration>`, return it from the `config()` match under `#[cfg(feature = "lang-{name}")]`, and add a `test_{name}_config_loads` row to the config test table. Copy the shape of a neighbouring language.
 
@@ -74,11 +79,14 @@ Then, in `crates/lumis/src/languages.rs`, add a `{NAME}_CONFIG` static `LazyLock
 mise run langs-fetch-vendored-parsers {name}
 cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- cargo-update-dep {name}
 mise run cargo-update-features
+mise run langs-sync-lockfiles
 mise run langs-gen-catalog
-mise run langs-fetch-queries {name}
-mise run langs-preprocess-queries {name}
+mise run langs-fetch-queries {query_name}
+mise run langs-preprocess-queries {query_name}
 pnpm --filter @lumis-sh/lumis run build:generate
 ```
+
+`{query_name}` is the entry's `query_name` if it sets one, otherwise the parser id. `langs-sync-lockfiles` re-resolves both `Cargo.lock` files so `--locked` builds keep working after a manifest change.
 
 This writes `queries/upstream/{name}/`, the preprocessed `queries/processed/{name}/` that every runtime reads, `crates/lumis-wasm-runtime/src/catalog.rs`, the bundle feature lists, and the generated JavaScript modules.
 
@@ -87,7 +95,9 @@ Never edit `queries/upstream/` or `queries/processed/`. When a fetched query is 
 - `queries/override/{name}/{query}.scm` replaces the upstream query entirely.
 - `queries/append/{name}/{query}.scm` adds patterns after it.
 
-Say in a comment what upstream does and why it is wrong, then run `mise run langs-preprocess-queries {name}` again. Use Neovim's query semantics: `#lua-match?` takes a Lua pattern, `#match?` a regex.
+Say in a comment what upstream does and why it is wrong, then run `mise run langs-preprocess-queries {query_name}` again.
+
+Bracket matching and rainbow brackets read `queries/brackets/default/brackets.scm`. If that default does not fit the grammar, add `queries/brackets/{name}/brackets.scm` with `@open`/`@close` pairs, and tag string or template delimiters with `(#set! rainbow.exclude)`. Use Neovim's query semantics: `#lua-match?` takes a Lua pattern, `#match?` a regex.
 
 ## 5. Add a sample and lookup cases
 
@@ -131,7 +141,7 @@ These are the checks CI runs for a language change, from `CONTRIBUTING.md`, `mis
 - [ ] `mise run test-queries` passes: every processed query compiles against the pinned grammar and the regexes are portable. At minimum, `mise run wasm-check {name}`.
 - [ ] `mise run test-conformance` passes.
 - [ ] `mise run fmt` leaves nothing to commit and `mise run lint` passes.
-- [ ] Every generated file is committed: `languages.toml`, both Cargo manifests, `crates/lumis-wasm-runtime/src/catalog.rs`, `queries/upstream/{name}/`, `queries/processed/{name}/`, any vendored parser sources, `samples/{name}.{ext}`, `fixtures/language-lookup.json`, `LANGUAGES.md` and `docs/content/reference/languages.md`.
+- [ ] Every generated file is committed: `languages.toml`, both Cargo manifests, `crates/lumis-wasm-runtime/src/catalog.rs`, both `Cargo.lock` files, `packages/javascript/lumis/bundles/*.ts` when a bundle changed, `queries/upstream/{name}/`, `queries/processed/{name}/`, any vendored parser sources, `samples/{name}.{ext}`, `fixtures/language-lookup.json`, `LANGUAGES.md` and `docs/content/reference/languages.md`.
 - [ ] No changelog edit and no version bump. Changelogs are generated from Conventional Commits at release time, so the commit subject is the changelog entry: `feat(languages): add <Language> support`. Parser packages are published by the `wasm-release` workflow after merge.
 
 Open the pull request with the grammar URL and revision, where the queries come from, any override or append patch and why, the bundle the language joined or was excluded from, and the commands you ran.
