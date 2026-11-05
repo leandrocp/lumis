@@ -74,14 +74,14 @@ importers:
         specifier: 0.26.3
         version: 0.26.3(@lumis-sh/lumis@packages+javascript+lumis)
       '@pierre/highlights':
-        specifier: 0.2.0
-        version: 0.2.0
+        specifier: 0.3.0
+        version: 0.3.0
       '@speed-highlight/core':
         specifier: 2.1.0
         version: 2.1.0
       '@tanstack/highlight':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 1.2.0
+        version: 1.2.0
       '@wooorm/starry-night':
         specifier: 3.11.0
         version: 3.11.0
@@ -101,8 +101,8 @@ importers:
         specifier: 4.5.0
         version: 4.5.0
       sugar-high:
-        specifier: 2.6.2
-        version: 2.6.2
+        specifier: 2.6.4
+        version: 2.6.4
     devDependencies:
       oxfmt:
         specifier: ^0.74.0
@@ -189,7 +189,7 @@ importers:
         version: link:../themes
       '@lumis-sh/wasm-json':
         specifier: 0.26.5
-        version: 0.26.5(@lumis-sh/lumis@0.10.1)
+        version: 0.26.5(@lumis-sh/lumis@0.10.4)
       '@microsoft/api-extractor':
         specifier: ^7.59.4
         version: 7.59.4(@types/node@26.6.5)
@@ -756,60 +756,60 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@lumis-sh/lumis-native-darwin-arm64@0.10.1':
-    resolution: {integrity: sha512-Tm/WYxcBjRojIWWXfRAxkJjxwlfwYrfs5tlCyFXd0O2QnUpFkBlsnzd8SqWVERB+4rLWpIicypGdIP5RvWmsKQ==}
+  '@lumis-sh/lumis-native-darwin-arm64@0.10.4':
+    resolution: {integrity: sha512-z8nseEjomaDHU3MJKyo5NIP/otVJoCmEcxeyEwqv3pHU8fTfEOmtU08s8pIENB3GJ/rsOo2u/Hi5NQ8fb8Dxug==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [darwin]
 
-  '@lumis-sh/lumis-native-darwin-x64@0.10.1':
-    resolution: {integrity: sha512-fuAbLci/gzGzaxfF6Ir+QIbMgMuwxhKP5pKRXmN1ayjgWfcRTB7TBgw3paf2cgX+Z3LUf9OHogpCzYgD+i1wPA==}
+  '@lumis-sh/lumis-native-darwin-x64@0.10.4':
+    resolution: {integrity: sha512-pSMcACy9nuEm6eowwRrhOR//iJgar3bP1O0u6/ce3uQSXjvT1OTLZE4kSytlBhjrmgKeVmklTd+AzTExRSL5Zw==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [darwin]
 
-  '@lumis-sh/lumis-native-linux-arm64-gnu@0.10.1':
-    resolution: {integrity: sha512-XOToF7mMX+9HMpkHOiNr2zmSrJ1NJ5HeafwnvAch6m3s2PrYCcE0F554zssN//Hbj2fNmrZvTRzNPyCUzoBZfQ==}
+  '@lumis-sh/lumis-native-linux-arm64-gnu@0.10.4':
+    resolution: {integrity: sha512-u36L6FsebItckUdAazGb68Wcp3Awa6WoEjiCWxdGEbPIS9yw0C/i6cNFa4yEv3psWvYDo+8FNUkUNHZpfQ6E5g==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@lumis-sh/lumis-native-linux-arm64-musl@0.10.1':
-    resolution: {integrity: sha512-ucQobYUMaESNvrzTRY8hHvgjpWCsLXRqIPAK0ji9zj6T7Vyk6cLAwQxuH+V/stlvgovztq0ipuQhwHmpk7Ow2w==}
+  '@lumis-sh/lumis-native-linux-arm64-musl@0.10.4':
+    resolution: {integrity: sha512-gfod5iPQn2OOZyNpH7R1WfWvvIkoYCKT35FDTs8KAgTKKes+GlqsnlAgRTL55cFIAX9i7rwoX0WYXJKI0xy7XA==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@lumis-sh/lumis-native-linux-x64-gnu@0.10.1':
-    resolution: {integrity: sha512-a0FvI5apPmLUX4s9fmTKaTtR9PN6N1/+bfL15egVLzD2xqaXMtIRfkxcCRkciKKMLFzpey17fylsXcfuvvGDag==}
+  '@lumis-sh/lumis-native-linux-x64-gnu@0.10.4':
+    resolution: {integrity: sha512-HUUbfIWa+vhJZZClqZcJ5mhYX8Gpbh8hy0JUfaM0zhrN/Fgn/b6j+vgiZW4l1en08o862vznV75yWXLYyxzdKA==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@lumis-sh/lumis-native-linux-x64-musl@0.10.1':
-    resolution: {integrity: sha512-OghEmCfKoC7mV5SEerMKDT0YyU0tn2TNIn3k8nCcqRLEoSIvmXJHhHbI6GXY4s92bK1F3fojVkP/VoNsyQeHGw==}
+  '@lumis-sh/lumis-native-linux-x64-musl@0.10.4':
+    resolution: {integrity: sha512-9BBRdJJf9cw+WGG/buGmnt7AjLeJPtU9e0TsNOrrpL1YTEe7c9GEF5Pn40fjrB/h+nYfrJDCMYpgyeh90Ah4sw==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@lumis-sh/lumis-native-win32-arm64-msvc@0.10.1':
-    resolution: {integrity: sha512-xG9+VA1/FreJbfCN0Byl5f+Gvyxo7o+8hL8/mSoMKLJ2V6ZXp433s/orWKRaqe0ZJbLTtiEV2FRUYU47nzvk8g==}
+  '@lumis-sh/lumis-native-win32-arm64-msvc@0.10.4':
+    resolution: {integrity: sha512-vkk91gLF0HD73JQCbQ/qtJiPUR3s9RasumIf9atpFXowByyq2/DaLmbX5BV7gJy7VjL9k1GLylzpmYsoY/0raw==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [win32]
 
-  '@lumis-sh/lumis-native-win32-x64-msvc@0.10.1':
-    resolution: {integrity: sha512-VK0ggeB9rf0Ll22QsEai54F/Ms6WLBnvGhl/u9fjpQpZUsUREpaODn8z68yWptSGB+ENuplOwYJoSuSuGsrozQ==}
+  '@lumis-sh/lumis-native-win32-x64-msvc@0.10.4':
+    resolution: {integrity: sha512-vGgJlM/pDjzNEQ/TzdHUJ5+9FuRDQDcUuw8gU/AkDwraUWqGAtNvyJGjv6GRTwDO67JO6T7eagBODcERA7gtow==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
 
-  '@lumis-sh/lumis@0.10.1':
-    resolution: {integrity: sha512-qlCzm7UhbMI+3SYQypiqIOg65Gz7vAwzzGkrx7Wc7EAQY9I6MFS1xmNHuDKPQrHczB/pyYKTqE58qX/1eyUg4Q==}
+  '@lumis-sh/lumis@0.10.4':
+    resolution: {integrity: sha512-luRXoto/kX+gd6lYAJpsUdO2lN88TIfM3g11fWpzIB4vn5SjVfLNwAXQnnyzWx5igA5fj1wT4jdUK1WpyAPQvA==}
     engines: {node: '>=18'}
 
   '@lumis-sh/wasm-bash@0.26.6':
@@ -1259,8 +1259,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@pierre/highlights@0.2.0':
-    resolution: {integrity: sha512-hTpcOU1EzDAP4bYtEhxmMu2jwMvtkUydRUBUpWMSHTs3dw0IaC3Ld5ansMy18L0GE3b6Vfl2OGkLK+pWWpnBmw==}
+  '@pierre/highlights@0.3.0':
+    resolution: {integrity: sha512-s6xZ/giPPrSeCO2w254GiysUXD4ditKMTOrl1vHynvPqP7VdlujYi01O9joxJ0T16XkoXGQMN6zkRi9+O8NCzg==}
 
   '@playwright/test@1.64.1':
     resolution: {integrity: sha512-IaYGml/nSOiZWROfPtuIL7neuu9qDOZ3TNvNljUIrhDMxiGTgPjzj/g9p9RxpS2tSepPDRY+UwAaEeiKtUvIAg==}
@@ -1593,8 +1593,8 @@ packages:
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
-  '@tanstack/highlight@1.1.0':
-    resolution: {integrity: sha512-mDn/fhny+WgSVHUH0sAcARlSfbXCQJWebu2NRmCOcD+3I4/73m2D9rcMISgIiXJrhl1vyk9hmAJn7sSnWAbfvQ==}
+  '@tanstack/highlight@1.2.0':
+    resolution: {integrity: sha512-rC9pPLrZXW6Col4ugZlx6EHfIcrx8p6geKkYdTWH1XFAZ2xTYDIIHoxo0QhqZPBEfrWQobkm8dEVrjW0V9r5YA==}
     engines: {node: '>=18'}
 
   '@types/argparse@1.0.38':
@@ -2518,8 +2518,8 @@ packages:
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
 
-  sugar-high@2.6.2:
-    resolution: {integrity: sha512-5mO9Zscg++wspkvgWwJ5YXY3fdkEAeIV/8C4YAjw5rbyYT+tvfyb3SDo3a3jGLpXOtXEpBXz5ymOLDB6j5dmDA==}
+  sugar-high@2.6.4:
+    resolution: {integrity: sha512-GJkKsIyzqPMCJabhM8c4IKBg3aKUtI62DMPGdgFuXDo0Z5LY+q3SIT3PsSjGkOT9IglhCR6dZBDVQYmdIfumsw==}
 
   supports-color@8.1.1:
     resolution: {integrity: sha512-MpUEN2OodtUzxvKQl72cUF7RQ5EiHsGvSsVG0ia9c5RbWGL2CI4C7EpPS8UTBIplnlzZiNuV56w+FuNxy3ty2Q==}
@@ -2957,44 +2957,44 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@lumis-sh/lumis-native-darwin-arm64@0.10.1':
+  '@lumis-sh/lumis-native-darwin-arm64@0.10.4':
     optional: true
 
-  '@lumis-sh/lumis-native-darwin-x64@0.10.1':
+  '@lumis-sh/lumis-native-darwin-x64@0.10.4':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-arm64-gnu@0.10.1':
+  '@lumis-sh/lumis-native-linux-arm64-gnu@0.10.4':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-arm64-musl@0.10.1':
+  '@lumis-sh/lumis-native-linux-arm64-musl@0.10.4':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-x64-gnu@0.10.1':
+  '@lumis-sh/lumis-native-linux-x64-gnu@0.10.4':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-x64-musl@0.10.1':
+  '@lumis-sh/lumis-native-linux-x64-musl@0.10.4':
     optional: true
 
-  '@lumis-sh/lumis-native-win32-arm64-msvc@0.10.1':
+  '@lumis-sh/lumis-native-win32-arm64-msvc@0.10.4':
     optional: true
 
-  '@lumis-sh/lumis-native-win32-x64-msvc@0.10.1':
+  '@lumis-sh/lumis-native-win32-x64-msvc@0.10.4':
     optional: true
 
-  '@lumis-sh/lumis@0.10.1':
+  '@lumis-sh/lumis@0.10.4':
     dependencies:
       '@noble/hashes': 2.4.0
       pathe: 2.0.3
       semver: 7.8.5
     optionalDependencies:
-      '@lumis-sh/lumis-native-darwin-arm64': 0.10.1
-      '@lumis-sh/lumis-native-darwin-x64': 0.10.1
-      '@lumis-sh/lumis-native-linux-arm64-gnu': 0.10.1
-      '@lumis-sh/lumis-native-linux-arm64-musl': 0.10.1
-      '@lumis-sh/lumis-native-linux-x64-gnu': 0.10.1
-      '@lumis-sh/lumis-native-linux-x64-musl': 0.10.1
-      '@lumis-sh/lumis-native-win32-arm64-msvc': 0.10.1
-      '@lumis-sh/lumis-native-win32-x64-msvc': 0.10.1
+      '@lumis-sh/lumis-native-darwin-arm64': 0.10.4
+      '@lumis-sh/lumis-native-darwin-x64': 0.10.4
+      '@lumis-sh/lumis-native-linux-arm64-gnu': 0.10.4
+      '@lumis-sh/lumis-native-linux-arm64-musl': 0.10.4
+      '@lumis-sh/lumis-native-linux-x64-gnu': 0.10.4
+      '@lumis-sh/lumis-native-linux-x64-musl': 0.10.4
+      '@lumis-sh/lumis-native-win32-arm64-msvc': 0.10.4
+      '@lumis-sh/lumis-native-win32-x64-msvc': 0.10.4
     optional: true
 
   '@lumis-sh/wasm-bash@0.26.6(@lumis-sh/lumis@packages+javascript+lumis)':
@@ -3041,9 +3041,9 @@ snapshots:
     optionalDependencies:
       '@lumis-sh/lumis': link:packages/javascript/lumis
 
-  '@lumis-sh/wasm-json@0.26.5(@lumis-sh/lumis@0.10.1)':
+  '@lumis-sh/wasm-json@0.26.5(@lumis-sh/lumis@0.10.4)':
     optionalDependencies:
-      '@lumis-sh/lumis': 0.10.1
+      '@lumis-sh/lumis': 0.10.4
 
   '@lumis-sh/wasm-json@0.26.5(@lumis-sh/lumis@packages+javascript+lumis)':
     optionalDependencies:
@@ -3249,7 +3249,7 @@ snapshots:
   '@oxlint/binding-win32-x64-msvc@1.89.0':
     optional: true
 
-  '@pierre/highlights@0.2.0': {}
+  '@pierre/highlights@0.3.0': {}
 
   '@playwright/test@1.64.1':
     dependencies:
@@ -3483,7 +3483,7 @@ snapshots:
   '@standard-schema/spec@1.1.0':
     optional: true
 
-  '@tanstack/highlight@1.1.0': {}
+  '@tanstack/highlight@1.2.0': {}
 
   '@types/argparse@1.0.38': {}
 
@@ -4588,7 +4588,7 @@ snapshots:
       tinyglobby: 0.2.17
       ts-interface-checker: 0.1.13
 
-  sugar-high@2.6.2: {}
+  sugar-high@2.6.4: {}
 
   supports-color@8.1.1:
     dependencies:
