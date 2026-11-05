@@ -90,6 +90,20 @@ parser. Wasmtime still rejects a file from another version or engine
 configuration, so a caller can fall back to compiling. The Wasm bytes are
 still passed, because the dylink section is read from them.
 
+### perf(rust): count a query's rows once, not once per pattern
+
+`patches/0005-count-a-query-s-rows-once.patch`
+
+`Query::from_raw_parts` computes each pattern's row, for predicate error
+messages, by counting newlines from the start of the source up to that
+pattern. That makes building a query quadratic in its size: nvim-treesitter's
+C++ highlights, injections and locals together are about 600 patterns over
+100 KB, and the count was 9% of a warm highlight that loads C++.
+
+Patterns start in source order, so the count now continues from the
+previous pattern, and restarts only if one starts earlier. The rows, and
+the errors that report them, are unchanged.
+
 ### Every exported C symbol is prefixed with `lumis_`
 
 Applied last, so it covers what the patches add. `src/lumis_prefix.h` renames
