@@ -1,3 +1,10 @@
+## [0.10.7](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.6...hex-lumis/v0.10.7) (2026-11-05)
+
+### Features
+
+- **bundles:** Cap wasm-bundle-full at 64 MB of Wasm store memory in [\#1968](https://github.com/leandrocp/lumis/pull/1968)
+- **themes:** Update themes in [\#1984](https://github.com/leandrocp/lumis/pull/1984)
+
 ## [0.10.6](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.5...hex-lumis/v0.10.6) (2026-10-28)
 
 ### Features
