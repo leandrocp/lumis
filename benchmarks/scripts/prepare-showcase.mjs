@@ -49,7 +49,7 @@ const documents = [
       "https://github.com/livebook-dev/livebook/blob/5133601d9678fb8ef0c87484e5d52eff193813e5/lib/livebook_web/components/core_components.ex",
     injections: ["HEEx", "Markdown", "Comment"],
     load: ["elixir", "heex", "comment", "markdown", "markdown_inline"],
-    unsupported: ["tanstack-highlight", "sugar-high", "speed-highlight"],
+    unsupported: ["sugar-high", "speed-highlight"],
   },
   {
     id: "go",

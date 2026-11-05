@@ -37,7 +37,7 @@
     {
       "id": "pierre-highlights",
       "label": "Highlights",
-      "version": "@pierre/highlights 0.2.0",
+      "version": "@pierre/highlights 0.3.0",
       "theme": "Highlights' bundled Catppuccin themes, which match catppuccin/zed"
     },
     {
@@ -67,7 +67,7 @@
     {
       "id": "sugar-high",
       "label": "Sugar High",
-      "version": "sugar-high 2.6.2",
+      "version": "sugar-high 2.6.4",
       "theme": "@catppuccin/highlightjs 1.0.1 colours, mapped onto its token classes by this repository"
     },
     {
@@ -79,7 +79,7 @@
     {
       "id": "tanstack-highlight",
       "label": "TanStack Highlight",
-      "version": "@tanstack/highlight 1.1.0",
+      "version": "@tanstack/highlight 1.2.0",
       "theme": "@catppuccin/highlightjs 1.0.1 colours, mapped onto its token classes by this repository"
     }
   ],
@@ -234,7 +234,6 @@
         "Comment"
       ],
       "unsupported": [
-        "tanstack-highlight",
         "sugar-high",
         "speed-highlight"
       ],
@@ -245,7 +244,8 @@
         "prism": 1928,
         "shiki": 3668,
         "starry-night": 2519,
-        "syntect": 3242
+        "syntect": 3242,
+        "tanstack-highlight": 834
       },
       "outputSha256": {
         "lumis": {
@@ -275,6 +275,10 @@
         "syntect": {
           "latte": "a2abb6fa2adacf8d5632fe9a5644b6d7077de55d0daaadcfaa2bc4e0e9a6f11f",
           "frappe": "5eaf0e4a3befded462756d3d8744ef65dee234ff04de983ac77f5538e230e84b"
+        },
+        "tanstack-highlight": {
+          "latte": "1502195c08f997e1b3e96437d9eb74f22a4d85c72206ec6f81b6c40df9d6dd65",
+          "frappe": "a022d3f86db1d659346eacc45acd95536a845106c687a4f0ce212a041997e6e5"
         }
       }
     },
@@ -371,7 +375,7 @@
         "starry-night": 567,
         "sugar-high": 385,
         "syntect": 839,
-        "tanstack-highlight": 266
+        "tanstack-highlight": 274
       },
       "outputSha256": {
         "lumis": {
@@ -411,8 +415,8 @@
           "frappe": "8ec7a9935e1bdcf2dcaccc3991d316964d3aed560f63bf43817124e27299044d"
         },
         "tanstack-highlight": {
-          "latte": "4a10a9c3d09319259e26f3034adf64125516fd4ae3757d69fbfab5fb3e207304",
-          "frappe": "3a011263d7f397b60a35e796644a7834b3431019ae29d4b695f39572bbba29a3"
+          "latte": "8f70a2fa43e5ac369015edf66ffbc69674158fc1058bee62e9c7f70891bbc5ac",
+          "frappe": "4477d6f2129d14d8898cc8b0eed6a419ae4b31cc8f9ed349abf399aba57fb4e6"
         }
       }
     },
