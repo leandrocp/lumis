@@ -1,3 +1,11 @@
+## [0.6.2](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.6.1...cargo-lumis-wasm-runtime/v0.6.2) (2026-11-05)
+
+### Features
+
+- **bundles:** Cap wasm-bundle-full at 64 MB of Wasm store memory in [\#1968](https://github.com/leandrocp/lumis/pull/1968)
+- **languages:** Add Bend support in [\#1965](https://github.com/leandrocp/lumis/pull/1965)
+- **languages:** Add Lean support in [\#1978](https://github.com/leandrocp/lumis/pull/1978)
+
 ## [0.6.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.6.0...cargo-lumis-wasm-runtime/v0.6.1) (2026-10-31)
 
 ### Bug Fixes
