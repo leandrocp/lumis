@@ -1,3 +1,9 @@
+## [0.4.3](https://github.com/leandrocp/lumis/compare/npm-react/v0.4.2...npm-react/v0.4.3) (2026-11-05)
+
+### Features
+
+- **react:** Add InlineCode and renderInlineCode in [\#1963](https://github.com/leandrocp/lumis/pull/1963)
+
 ## [0.4.2](https://github.com/leandrocp/lumis/compare/npm-react/v0.4.1...npm-react/v0.4.2) (2026-10-28)
 
 ## [0.4.1](https://github.com/leandrocp/lumis/compare/npm-react/v0.4.0...npm-react/v0.4.1) (2026-10-23)
