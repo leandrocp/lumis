@@ -96,6 +96,7 @@ fn build_language_fixtures() -> PathBuf {
                         highlights: query("highlights"),
                         injections: query("injections"),
                         locals: query("locals"),
+                        query_analysis: String::new(),
                         brackets,
                     },
                 )

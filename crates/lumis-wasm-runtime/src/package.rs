@@ -60,6 +60,11 @@ pub struct PackagedLanguage {
     pub locals: String,
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub brackets: String,
+    /// Base64 of a snapshot of the highlight query's structural analysis, taken
+    /// at publish time against this package's parser. Optional, and ignored when
+    /// it does not decode or does not match: it only saves the analysis.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub query_analysis: String,
 }
 
 #[derive(Debug, Error)]
@@ -175,6 +180,21 @@ impl LanguagePackage {
         Ok(())
     }
 
+    /// The decoded [`PackagedLanguage::query_analysis`] of `language`, when `wasm`
+    /// is the parser this package was published with, and nothing otherwise. A
+    /// snapshot only records the parser's symbols, so it is not offered to
+    /// replacement bytes that could share them and still parse differently.
+    #[must_use]
+    pub fn query_analysis(&self, language: &PackagedLanguage, wasm: &[u8]) -> Vec<u8> {
+        use base64::Engine as _;
+        if language.query_analysis.is_empty() || sha256_hex(wasm) != self.parser.sha256 {
+            return Vec::new();
+        }
+        base64::engine::general_purpose::STANDARD
+            .decode(&language.query_analysis)
+            .unwrap_or_default()
+    }
+
     /// What loading `name` from this package takes, with `wasm` as its parser.
     ///
     /// The bytes are taken as given; [`Self::verify_wasm`] checks downloaded ones.
@@ -189,6 +209,7 @@ impl LanguagePackage {
             id: id.to_string(),
             aliases: language.aliases.clone(),
             grammar_name: self.parser.grammar_name.clone(),
+            query_analysis: self.query_analysis(language, &wasm),
             wasm,
             highlights: language.highlights.clone(),
             injections: language.injections.clone(),
@@ -448,13 +469,22 @@ mod tests {
         assert!(package.verify_wasm(JSON_WASM).is_ok());
     }
 
+    /// The shipped analysis snapshot describes the declared parser, so other
+    /// bytes are loaded without it.
     #[test]
     fn takes_the_parser_bytes_it_is_given() {
-        let spec = package()
+        let mut package = package();
+        package.languages.get_mut("json").unwrap().query_analysis = "c25hcHNob3Q=".into();
+
+        let spec = package
             .language_spec("jsonc", b"not the declared parser".to_vec())
             .unwrap();
         assert_eq!(spec.id, "json");
         assert_eq!(spec.wasm, b"not the declared parser");
+        assert_eq!(spec.query_analysis, b"");
+
+        let spec = package.language_spec("json", JSON_WASM.to_vec()).unwrap();
+        assert_eq!(spec.query_analysis, b"snapshot");
     }
 
     /// The store budget is spent by what a parser reserves, which is not its

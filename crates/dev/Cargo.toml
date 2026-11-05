@@ -32,8 +32,9 @@ lumis-stress-languages = [
 [dependencies]
 lumis = { path = "../lumis", default-features = false }
 lumis-build = { path = "../lumis-build", features = ["license"] }
-lumis-wasm-runtime = { path = "../lumis-wasm-runtime", default-features = false }
+lumis-wasm-runtime = { path = "../lumis-wasm-runtime" }
 anyhow = "1"
+base64 = "0.23"
 cc = "1"
 clap = { version = "4", features = ["derive"] }
 etcetera = "0.11"
@@ -50,6 +51,7 @@ proc-macro2 = { version = "1", features = ["span-locations"] }
 sha2 = "0.11"
 syn = { version = "2", features = ["full", "parsing", "visit"] }
 tar = "0.4"
+tempfile = "3"
 toml = "1.1"
 toml_edit = "0.25"
 tree-sitter = "0.27.1"

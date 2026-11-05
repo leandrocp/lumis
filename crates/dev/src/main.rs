@@ -4158,7 +4158,7 @@ fn staged_language_package(
 ) -> Result<(LanguagePackage, String)> {
     let languages = packaged_languages(toml, wasm_name)?;
     let definition_hash = language_definition_hash(toml, wasm_name, &languages)?;
-    let package = LanguagePackage {
+    let mut package = LanguagePackage {
         package_name: format!("@lumis-sh/wasm-{}", wasm_package_suffix(wasm_name)),
         version: npm_version.to_string(),
         parser: ParserMetadata {
@@ -4171,7 +4171,31 @@ fn staged_language_package(
         languages,
     };
     package.validate()?;
+    attach_query_analysis(&mut package, wasm)?;
     Ok((package, definition_hash))
+}
+
+/// Compile each language's queries against the parser and ship the analysis,
+/// so a runtime's first highlight restores it instead of computing it.
+///
+/// The runtime caches into a throwaway directory rather than the developer's
+/// own, which a build step has no business filling.
+fn attach_query_analysis(package: &mut LanguagePackage, wasm: &[u8]) -> Result<()> {
+    use base64::Engine as _;
+
+    let cache = tempfile::tempdir()?;
+    let runtime = lumis_wasm_runtime::Runtime::with_compile_cache_dir(1, cache.path().into())?;
+    let ids: Vec<String> = package.languages.keys().cloned().collect();
+    for id in ids {
+        let spec = package.language_spec(&id, wasm.to_vec())?;
+        runtime
+            .load_language(spec)
+            .with_context(|| format!("{id}'s queries do not compile against its parser"))?;
+        let analysis = runtime.query_analysis(&id)?;
+        let language = package.languages.get_mut(&id).expect("listed above");
+        language.query_analysis = base64::engine::general_purpose::STANDARD.encode(analysis);
+    }
+    Ok(())
 }
 
 /// A copy of the staged package in a store directory the local runtimes read.
@@ -4285,6 +4309,7 @@ fn packaged_languages(
                 highlights: query("highlights"),
                 injections: query("injections"),
                 locals: query("locals"),
+                query_analysis: String::new(),
                 brackets,
             },
         );
@@ -4319,6 +4344,13 @@ fn language_definition_hash(
     let mut digest = Sha256::new();
     hash_definition_field(&mut digest, b"lumis-language-package-v3");
     hash_definition_field(&mut digest, wasm_name.as_bytes());
+    // The package ships a query analysis snapshot that only a library with this
+    // fingerprint accepts, so a new one is a new package.
+    hash_definition_field(&mut digest, b"query-analysis");
+    hash_definition_field(
+        &mut digest,
+        tree_sitter_fork::query_analysis_fingerprint()?.as_bytes(),
+    );
     hash_definition_field(
         &mut digest,
         revisions.into_iter().next().unwrap_or_default().as_bytes(),

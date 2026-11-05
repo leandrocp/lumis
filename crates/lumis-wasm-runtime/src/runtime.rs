@@ -32,6 +32,10 @@ pub struct LanguageSpec {
     pub injections: String,
     pub locals: String,
     pub brackets: String,
+    /// A query analysis snapshot shipped with the language, restored instead of
+    /// computing the analysis when it matches the parser and queries. Empty when
+    /// the language ships none.
+    pub query_analysis: Vec<u8>,
 }
 
 struct LoadedLanguage {
@@ -118,36 +122,44 @@ impl Loader {
 
 /// Compile a language's highlight configuration against its loaded parser.
 ///
-/// With `analysis_dir`, the query's structural analysis, which is most of the
-/// compile, is read from a snapshot an earlier compile of the same parser and
-/// queries left there, and written there when it had to be computed. A missing,
-/// stale or unreadable snapshot only costs the analysis.
+/// The query's structural analysis, which is most of the compile, is restored
+/// from a snapshot when one matches: first one an earlier compile of the same
+/// parser and queries left in `analysis_dir`, then `shipped`, the one the
+/// language was published with. Whatever the local snapshot did not supply is
+/// written to `analysis_dir`, so a stale local snapshot costs one compile.
 fn compile_highlight(
     analysis_dir: Option<&Path>,
     wasm: &[u8],
-    language: Language,
+    language: &Language,
     id: &str,
     queries: [&str; 3],
+    shipped: &[u8],
 ) -> Result<HighlightConfiguration, RuntimeError> {
     let [highlights, injections, locals] = queries;
+    let compile = |analysis: &[u8]| {
+        HighlightConfiguration::new_with_analysis(
+            language.clone(),
+            id.to_string(),
+            highlights,
+            injections,
+            locals,
+            analysis,
+        )
+        .map_err(|error| RuntimeError::Query {
+            language: id.to_string(),
+            message: error.to_string(),
+        })
+    };
     let snapshot = analysis_dir.map(|dir| dir.join(analysis_filename(wasm, queries)));
-    let cached = snapshot
+    let local = snapshot
         .as_deref()
-        .and_then(|path| std::fs::read(path).ok())
-        .unwrap_or_default();
-    let mut highlight = HighlightConfiguration::new_with_analysis(
-        language,
-        id.to_string(),
-        highlights,
-        injections,
-        locals,
-        &cached,
-    )
-    .map_err(|error| RuntimeError::Query {
-        language: id.to_string(),
-        message: error.to_string(),
-    })?;
-    if let Some(path) = snapshot.filter(|_| !highlight.analysis_imported()) {
+        .and_then(|path| std::fs::read(path).ok());
+    let mut highlight = compile(local.as_deref().unwrap_or(shipped))?;
+    let local_rejected = local.is_some() && !highlight.analysis_imported();
+    if local_rejected && !shipped.is_empty() {
+        highlight = compile(shipped)?;
+    }
+    if let Some(path) = snapshot.filter(|_| local_rejected || !highlight.analysis_imported()) {
         let _ = crate::store::write_atomic(&path, &highlight.query_analysis());
     }
     highlight.configure(&HIGHLIGHT_NAMES);
@@ -598,13 +610,14 @@ impl Runtime {
         compile_highlight(
             self.analysis_dir.as_deref(),
             &wasm,
-            language,
+            &language,
             id,
             [
                 &definition.highlights,
                 &definition.injections,
                 &definition.locals,
             ],
+            &package.query_analysis(definition, &wasm),
         )
         .map(drop)
     }
@@ -660,6 +673,7 @@ impl Runtime {
             id: resolved_id.to_string(),
             aliases: definition.aliases.clone(),
             grammar_name: package.parser.grammar_name.clone(),
+            query_analysis: package.query_analysis(definition, &wasm),
             wasm,
             highlights: definition.highlights.clone(),
             injections: definition.injections.clone(),
@@ -750,9 +764,10 @@ impl Runtime {
                 compile_highlight(
                     self.analysis_dir.as_deref(),
                     &spec.wasm,
-                    (*language).clone(),
+                    language,
                     &spec.id,
                     [&spec.highlights, &spec.injections, &spec.locals],
+                    &spec.query_analysis,
                 )
             })
             .into_iter();
@@ -902,6 +917,17 @@ impl Runtime {
         ids
     }
 
+    /// A snapshot of a loaded language's query analysis, to publish as
+    /// [`LanguageSpec::query_analysis`] with its parser and queries.
+    ///
+    /// # Errors
+    /// Fails when the language is not loaded.
+    pub fn query_analysis(&self, name_or_alias: &str) -> Result<Vec<u8>, RuntimeError> {
+        self.loaded(name_or_alias)
+            .map(|loaded| loaded.highlight.query_analysis())
+            .ok_or_else(|| RuntimeError::LanguageNotLoaded(name_or_alias.to_string()))
+    }
+
     pub fn configure_language(
         &self,
         name_or_alias: &str,
@@ -927,8 +953,14 @@ impl Runtime {
                 loaded.brackets_source.clone(),
             )
         };
-        let highlight =
-            compile_highlight(None, &[], language, &id, [highlights, injections, locals])?;
+        let highlight = compile_highlight(
+            None,
+            &[],
+            &language,
+            &id,
+            [highlights, injections, locals],
+            &[],
+        )?;
 
         let mut catalog = self
             .catalog
@@ -1646,6 +1678,7 @@ mod tests {
             highlights: "(number) @number".into(),
             injections: String::new(),
             locals: String::new(),
+            query_analysis: Vec::new(),
             brackets: String::new(),
         };
 
@@ -1677,6 +1710,7 @@ mod tests {
             highlights: "(pair key: (string) @property)\n(array (number) @number . (number) @constant)\n(_ (null) @constant.builtin)\n[(true) (false)] @boolean".into(),
             injections: String::new(),
             locals: String::new(),
+            query_analysis: Vec::new(),
             brackets: String::new(),
         }
         };
@@ -1713,7 +1747,8 @@ mod tests {
         stale[8] ^= 1;
         let mut corrupt = valid.clone();
         corrupt[72] ^= 1;
-        for broken in [stale, corrupt, valid[..valid.len() - 1].to_vec()] {
+        let corrupt_local = corrupt.clone();
+        for broken in [stale.clone(), corrupt, valid[..valid.len() - 1].to_vec()] {
             std::fs::write(&snapshot, broken).unwrap();
             let (imported, recomputed) = load();
             assert!(
@@ -1723,6 +1758,41 @@ mod tests {
             assert_eq!(recomputed, computed);
             assert_eq!(std::fs::read(&snapshot).unwrap(), valid, "and replaced");
         }
+
+        // A first run restores what the package shipped and writes nothing; a
+        // shipped snapshot that does not validate is computed and cached.
+        for (shipped, expect_imported) in [(valid.clone(), true), (stale, false)] {
+            let _ = std::fs::remove_dir_all(dir.path().join("queries"));
+            let runtime = Runtime::with_compile_cache_dir(1, dir.path().to_path_buf()).unwrap();
+            runtime
+                .load_language(LanguageSpec {
+                    query_analysis: shipped,
+                    ..spec()
+                })
+                .unwrap();
+            let loaded = runtime.loaded("json").unwrap();
+            assert_eq!(loaded.highlight.analysis_imported(), expect_imported);
+            let events = format!("{:?}", runtime.highlight(source, "json", false).unwrap());
+            assert_eq!(events, computed);
+            assert_eq!(snapshots().len(), usize::from(!expect_imported));
+        }
+
+        // A local snapshot another build left behind gives way to a shipped one
+        // that matches, and is replaced so the next run reads it directly.
+        std::fs::write(&snapshot, &corrupt_local).unwrap();
+        let runtime = Runtime::with_compile_cache_dir(1, dir.path().to_path_buf()).unwrap();
+        runtime
+            .load_language(LanguageSpec {
+                query_analysis: valid.clone(),
+                ..spec()
+            })
+            .unwrap();
+        assert!(runtime
+            .loaded("json")
+            .unwrap()
+            .highlight
+            .analysis_imported());
+        assert_eq!(std::fs::read(&snapshot).unwrap(), valid);
     }
 
     #[test]
@@ -1736,6 +1806,7 @@ mod tests {
             highlights: "(definitely_not_a_json_node) @string".into(),
             injections: String::new(),
             locals: String::new(),
+            query_analysis: Vec::new(),
             brackets: String::new(),
         };
 
@@ -1768,6 +1839,7 @@ mod tests {
             highlights: "(number) @number".into(),
             injections: String::new(),
             locals: String::new(),
+            query_analysis: Vec::new(),
             brackets: String::new(),
         };
         let error = runtime.load_language(wrong_grammar.clone()).unwrap_err();
@@ -1803,6 +1875,7 @@ mod tests {
             highlights: "(_) @variable".into(),
             injections: String::new(),
             locals: String::new(),
+            query_analysis: Vec::new(),
             brackets: String::new(),
         };
 
@@ -1888,6 +1961,7 @@ mod tests {
             highlights: highlights.into(),
             injections: String::new(),
             locals: String::new(),
+            query_analysis: Vec::new(),
             brackets: String::new(),
         };
         let broken = LanguageSpec {
@@ -2156,6 +2230,7 @@ mod tests {
                 highlights: "(identifier) @variable".into(),
                 injections: String::new(),
                 locals: format!("(binary_operator left: [{alternatives}] operator: \"=\")"),
+                query_analysis: Vec::new(),
                 brackets: String::new(),
             })
             .unwrap();
@@ -2418,6 +2493,7 @@ mod tests {
                 highlights: "(addition) @diff.plus\n(deletion) @diff.minus".into(),
                 injections: String::new(),
                 locals: String::new(),
+                query_analysis: Vec::new(),
                 brackets: String::new(),
             })
             .unwrap();
@@ -2443,6 +2519,7 @@ mod tests {
                 highlights: "(addition) @diff.plus\n(deletion) @diff.minus".into(),
                 injections: String::new(),
                 locals: String::new(),
+                query_analysis: Vec::new(),
                 brackets: String::new(),
             })
             .unwrap();
@@ -2496,6 +2573,7 @@ mod tests {
                 highlights: "(identifier) @variable\n(alias) @module".into(),
                 injections: String::new(),
                 locals: String::new(),
+                query_analysis: Vec::new(),
                 brackets: String::new(),
             })
             .unwrap();

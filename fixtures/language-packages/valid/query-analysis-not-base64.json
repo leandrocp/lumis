@@ -1,0 +1,18 @@
+{
+  "packageName": "@lumis-sh/wasm-json",
+  "version": "0.26.3",
+  "parser": {
+    "name": "tree-sitter-json",
+    "grammarName": "json",
+    "sha256": "336154bf67f765f8f75d16a0accee61b5ee5f6a75b2a2905703df913bd550f3e"
+  },
+  "languages": {
+    "json": {
+      "aliases": [
+        "jsonc"
+      ],
+      "highlights": "(string) @string",
+      "queryAnalysis": "not base64 at all!"
+    }
+  }
+}

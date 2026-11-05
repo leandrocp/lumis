@@ -1873,6 +1873,7 @@ dependencies = [
 name = "lumis-wasm-runtime"
 version = "0.6.2"
 dependencies = [
+ "base64 0.23.1",
  "etcetera",
  "lumis-core",
  "lumis-tree-sitter",

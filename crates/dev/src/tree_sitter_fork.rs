@@ -425,6 +425,41 @@ fn declared_name(
     }
 }
 
+/// The fingerprint `crates/lumis-tree-sitter` stamps on query analysis
+/// snapshots, read from its generated header. A published snapshot is only
+/// accepted by a library with the same one.
+pub(crate) fn query_analysis_fingerprint() -> Result<String> {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../lumis-tree-sitter/src")
+        .join(PREFIX_HEADER);
+    let text =
+        fs::read_to_string(&path).with_context(|| format!("failed to read {}", path.display()))?;
+    let mut parser = tree_sitter::Parser::new();
+    parser.set_language(&tree_sitter_c::LANGUAGE.into())?;
+    let tree = parser
+        .parse(&text, None)
+        .with_context(|| format!("failed to parse {}", path.display()))?;
+    let field = |node: tree_sitter::Node<'_>, name: &str| {
+        node.child_by_field_name(name)
+            .and_then(|child| child.utf8_text(text.as_bytes()).ok())
+    };
+    let mut stack = vec![tree.root_node()];
+    while let Some(node) = stack.pop() {
+        if node.kind() == "preproc_def"
+            && field(node, "name") == Some("LUMIS_QUERY_ANALYSIS_FINGERPRINT")
+        {
+            let value = field(node, "value").context("the fingerprint has no value")?;
+            return Ok(value.trim().to_string());
+        }
+        let mut cursor = node.walk();
+        stack.extend(node.named_children(&mut cursor));
+    }
+    bail!(
+        "{} defines no LUMIS_QUERY_ANALYSIS_FINGERPRINT",
+        path.display()
+    )
+}
+
 /// A digest of the patched C sources, taken before prefixing. Query analysis
 /// snapshots carry it, so a library whose analysis code changed rejects
 /// snapshots another one wrote instead of trusting them.

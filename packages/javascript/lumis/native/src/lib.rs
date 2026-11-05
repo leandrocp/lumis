@@ -1131,6 +1131,7 @@ impl NativeRuntime {
             highlights: definition.highlights.clone(),
             injections: definition.injections.clone(),
             locals: definition.locals.clone(),
+            query_analysis: package.query_analysis(definition, wasm),
             brackets: definition.brackets.clone(),
         };
         let runtime = self.private_runtime()?;
@@ -1208,6 +1209,7 @@ impl NativeRuntime {
                     id: String::new(),
                     aliases: Vec::new(),
                     grammar_name: package.parser.grammar_name.clone(),
+                    query_analysis: package.query_analysis(definition, &wasm),
                     wasm,
                     highlights: definition.highlights.clone(),
                     injections: definition.injections.clone(),
@@ -1281,6 +1283,7 @@ impl NativeRuntime {
                 highlights: spec.highlights,
                 injections: spec.injections.unwrap_or_default(),
                 locals: spec.locals.unwrap_or_default(),
+                query_analysis: Vec::new(),
                 brackets: spec.brackets.unwrap_or_default(),
             },
         )

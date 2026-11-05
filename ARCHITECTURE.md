@@ -199,6 +199,7 @@ containing:
 - one parser WASM
 - every Lumis language backed by that parser
 - the matching highlight, injection, locals, and bracket queries
+- a snapshot of each language's query analysis, taken against that parser
 - parser SHA-256, grammar name, and package version
 
 During staging, `crates/dev` serializes those inputs into `lumis.json`. The
@@ -366,6 +367,19 @@ which is why snapshots are keyed by the exact parser. It sits beside
 because Wasmtime's cache cleanup deletes files it did not write. Highlighting
 every sample once per process takes 3.7 s with snapshots against 11.9 s without;
 C++ goes from 553 ms to 78 ms.
+
+Language packages ship the same snapshot as each language's `queryAnalysis`, so
+a first run restores it too, before anything is cached. It is only offered to
+the parser whose SHA-256 the package declares, and it also replaces a local
+snapshot that no longer validates. `crates/dev` takes it
+when it stages a package, by compiling the queries against the parser it is
+publishing. A snapshot from one library build is rejected by another, so the
+library's fingerprint is part of `definitionHash`: a change to
+`lumis-tree-sitter`'s C sources republishes every language package, or each
+one's first run would compute the analysis again. With an empty data directory
+the CLI's first C++ highlight drops from about 500 ms to 245 ms. What is left
+is the Wasmtime compile, which is why a document that injects several languages
+gains little on its first run.
 
 Once a parser is warm, most of what remains is compiling its queries, and Tree-sitter
 spends nearly all of that analysing the grammar's parse table. That work is

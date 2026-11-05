@@ -89,6 +89,12 @@ its lockfile, which `refresh-nif-lock` refreshes after each publish. Releasing
 users get a compatible patch from `cargo update` either way, and a release raises
 the minimum they accept.
 
+A change to its C sources also changes the fingerprint on query analysis snapshots, and
+that fingerprint is part of every language package's `definitionHash`. The next WASM
+release therefore republishes every `@lumis-sh/wasm-*` package and its Hex twin with a
+fresh snapshot. Release the runtimes built on the new library first, or users on an older
+runtime receive snapshots their library rejects and compute the analysis again.
+
 Each bundle releases once per registry, under that registry's own version:
 `npm-wasm-bundle-<bundle>` is `@lumis-sh/wasm-bundle-<bundle>` and
 `hex-wasm-bundle-<bundle>` is `lumis_wasm_bundle_<bundle>`. `wasm-bundles.json`

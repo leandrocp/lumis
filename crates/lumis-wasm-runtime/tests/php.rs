@@ -18,6 +18,7 @@ fn runtime(wasm: &[u8]) -> Runtime {
             highlights: include_str!("../../../queries/processed/php_only/highlights.scm").into(),
             injections: String::new(),
             locals: String::new(),
+            query_analysis: Vec::new(),
             brackets: String::new(),
         })
         .unwrap();
