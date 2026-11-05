@@ -1,3 +1,33 @@
+## [0.10.3](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.2...npm-lumis/v0.10.3) (2026-11-05)
+
+### Features
+
+- **themes:** Add a JSON Schema for theme files
+- Update lang clojure in [\#1957](https://github.com/leandrocp/lumis/pull/1957)
+- Update lang cmake in [\#1958](https://github.com/leandrocp/lumis/pull/1958)
+- Update lang powershell in [\#1959](https://github.com/leandrocp/lumis/pull/1959)
+- Update lang perl in [\#1960](https://github.com/leandrocp/lumis/pull/1960)
+- Update lang scala in [\#1961](https://github.com/leandrocp/lumis/pull/1961)
+- **bundles:** Cap wasm-bundle-full at 64 MB of Wasm store memory in [\#1968](https://github.com/leandrocp/lumis/pull/1968)
+- **languages:** Add Bend support in [\#1965](https://github.com/leandrocp/lumis/pull/1965)
+- **javascript:** Run on Cloudflare Workers and Vercel Edge in [\#1966](https://github.com/leandrocp/lumis/pull/1966)
+- **themes:** Version the theme schema and document theme files
+- **languages:** Add Lean support in [\#1978](https://github.com/leandrocp/lumis/pull/1978)
+- **themes:** Update themes in [\#1984](https://github.com/leandrocp/lumis/pull/1984)
+
+### Bug Fixes
+
+- **rust:** Compile vendored parsers as UTF-8 on MSVC in [\#1975](https://github.com/leandrocp/lumis/pull/1975)
+- **javascript:** Publish $schema in theme packages and enforce it
+
+### Performance
+
+- **javascript:** Decode runtime Wasm lazily in [\#1964](https://github.com/leandrocp/lumis/pull/1964)
+
+### Testing
+
+- **javascript:** Type the published-themes check with the lumis Theme
+
 ## [0.10.2](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.1...npm-lumis/v0.10.2) (2026-10-31)
 
 ### Features
