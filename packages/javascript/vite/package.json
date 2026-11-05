@@ -45,15 +45,15 @@
     "hast-util-from-html": "^2.0.3",
     "hast-util-to-html": "^9.0.5",
     "unified": "^11.0.5",
-    "unist-util-visit": "^5.1.0"
+    "unist-util-visit": "^5.2.0"
   },
   "devDependencies": {
     "@lumis-sh/lumis": "workspace:^",
     "@lumis-sh/themes": "workspace:^",
-    "@microsoft/api-extractor": "^7.59.4",
-    "oxfmt": "^0.74.0",
-    "oxlint": "1.89.0",
-    "oxlint-tsgolint": "7.0.2004",
+    "@microsoft/api-extractor": "^7.60.0",
+    "oxfmt": "^0.75.0",
+    "oxlint": "1.90.0",
+    "oxlint-tsgolint": "7.0.2005",
     "tsup": "^9.0.0",
     "typescript": "^6.0.3",
     "vite": "^8.3.5",
