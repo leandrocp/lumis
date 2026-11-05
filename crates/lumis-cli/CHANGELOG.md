@@ -1,3 +1,13 @@
+## [0.8.6](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.5...cargo-lumis-cli/v0.8.6) (2026-11-05)
+
+### Features
+
+- **themes:** Add a JSON Schema for theme files
+- **bundles:** Cap wasm-bundle-full at 64 MB of Wasm store memory in [\#1968](https://github.com/leandrocp/lumis/pull/1968)
+- **languages:** Add Bend support in [\#1965](https://github.com/leandrocp/lumis/pull/1965)
+- **themes:** Version the theme schema and document theme files
+- **languages:** Add Lean support in [\#1978](https://github.com/leandrocp/lumis/pull/1978)
+
 ## [0.8.5](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.4...cargo-lumis-cli/v0.8.5) (2026-10-31)
 
 ### Bug Fixes
