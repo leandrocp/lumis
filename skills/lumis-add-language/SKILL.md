@@ -88,16 +88,16 @@ pnpm --filter @lumis-sh/lumis run build:generate
 
 `{query_name}` is the entry's `query_name` if it sets one, otherwise the parser id. `langs-sync-lockfiles` re-resolves both `Cargo.lock` files so `--locked` builds keep working after a manifest change.
 
-This writes `queries/upstream/{name}/`, the preprocessed `queries/processed/{name}/` that every runtime reads, `crates/lumis-wasm-runtime/src/catalog.rs`, the bundle feature lists, and the generated JavaScript modules.
+This writes `queries/upstream/{query_name}/`, the preprocessed `queries/processed/{query_name}/` that every runtime reads, `crates/lumis-wasm-runtime/src/catalog.rs`, the bundle feature lists, and the generated JavaScript modules.
 
 Never edit `queries/upstream/` or `queries/processed/`. When a fetched query is wrong for the pinned grammar:
 
-- `queries/override/{name}/{query}.scm` replaces the upstream query entirely.
-- `queries/append/{name}/{query}.scm` adds patterns after it.
+- `queries/override/{query_name}/{query}.scm` replaces the upstream query entirely.
+- `queries/append/{query_name}/{query}.scm` adds patterns after it.
 
 Say in a comment what upstream does and why it is wrong, then run `mise run langs-preprocess-queries {query_name}` again.
 
-Bracket matching and rainbow brackets read `queries/brackets/default/brackets.scm`. If that default does not fit the grammar, add `queries/brackets/{name}/brackets.scm` with `@open`/`@close` pairs, and tag string or template delimiters with `(#set! rainbow.exclude)`. Use Neovim's query semantics: `#lua-match?` takes a Lua pattern, `#match?` a regex.
+Bracket matching and rainbow brackets read `queries/brackets/default/brackets.scm`. If that default does not fit the grammar, add `queries/brackets/{query_name}/brackets.scm` with `@open`/`@close` pairs, and tag string or template delimiters with `(#set! rainbow.exclude)`. Use Neovim's query semantics: `#lua-match?` takes a Lua pattern, `#match?` a regex.
 
 ## 5. Add a sample and lookup cases
 
@@ -141,7 +141,7 @@ These are the checks CI runs for a language change, from `CONTRIBUTING.md`, `mis
 - [ ] `mise run test-queries` passes: every processed query compiles against the pinned grammar and the regexes are portable. At minimum, `mise run wasm-check {name}`.
 - [ ] `mise run test-conformance` passes.
 - [ ] `mise run fmt` leaves nothing to commit and `mise run lint` passes.
-- [ ] Every generated file is committed: `languages.toml`, both Cargo manifests, `crates/lumis-wasm-runtime/src/catalog.rs`, both `Cargo.lock` files, `packages/javascript/lumis/bundles/*.ts` when a bundle changed, `queries/upstream/{name}/`, `queries/processed/{name}/`, any vendored parser sources, `samples/{name}.{ext}`, `fixtures/language-lookup.json`, `LANGUAGES.md` and `docs/content/reference/languages.md`.
+- [ ] Every generated file is committed: `languages.toml`, both Cargo manifests, `crates/lumis-wasm-runtime/src/catalog.rs`, both `Cargo.lock` files, `packages/javascript/lumis/bundles/*.ts` when a bundle changed, `queries/upstream/{query_name}/`, `queries/processed/{query_name}/`, any vendored parser sources, `samples/{name}.{ext}`, `fixtures/language-lookup.json`, `LANGUAGES.md` and `docs/content/reference/languages.md`.
 - [ ] No changelog edit and no version bump. Changelogs are generated from Conventional Commits at release time, so the commit subject is the changelog entry: `feat(languages): add <Language> support`. Parser packages are published by the `wasm-release` workflow after merge.
 
 Open the pull request with the grammar URL and revision, where the queries come from, any override or append patch and why, the bundle the language joined or was excluded from, and the commands you ran.
