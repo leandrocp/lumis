@@ -358,11 +358,11 @@ queries and library. `lumis-tree-sitter` can snapshot that analysis and restore
 it, and the runtime keeps one snapshot per parser, query set and library
 fingerprint in `queries/`, named by a digest of the three, so two Lumis versions
 sharing a data directory do not overwrite each other's. A snapshot records a
-fingerprint of the library's C sources and the language's shape, so one written
-by another build is ignored and recomputed rather than trusted, and a checksum
-of its payload, so one damaged on disk is too. The checksum catches corruption,
-not tampering, and the language check covers symbols, not the parse table,
-which is why snapshots are keyed by the exact parser. It sits beside
+fingerprint of the C sources the analysis reads and the language's shape, so
+one written by another build is ignored and recomputed rather than trusted, and
+a checksum of its payload, so one damaged on disk is too. The checksum catches
+corruption, not tampering, and the language check covers symbols, not the parse
+table, which is why snapshots are keyed by the exact parser. It sits beside
 `compiled/` rather than in it
 because Wasmtime's cache cleanup deletes files it did not write. Highlighting
 every sample once per process takes 3.7 s with snapshots against 11.9 s without;
@@ -375,8 +375,11 @@ snapshot that no longer validates. `crates/dev` takes it
 when it stages a package, by compiling the queries against the parser it is
 publishing. A snapshot from one library build is rejected by another, so the
 library's fingerprint is part of `definitionHash`: a change to
-`lumis-tree-sitter`'s C sources republishes every language package, or each
-one's first run would compute the analysis again. With an empty data directory
+the sources it covers republishes every language package, or each one's first
+run would compute the analysis again. It covers every file except those listed
+as outside the analysis, such as the parser and lexer, so a patch there leaves
+packages alone; `tree-sitter-sync` refuses a listed file the analysis sources
+include. With an empty data directory
 the CLI's first C++ highlight drops from about 500 ms to 245 ms. What is left
 is the Wasmtime compile, which is why a document that injects several languages
 gains little on its first run.

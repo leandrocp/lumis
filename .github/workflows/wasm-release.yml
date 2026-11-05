@@ -21,6 +21,8 @@ on:
     paths:
       - "languages.toml"
       - "crates/dev/**"
+      # Holds the query analysis fingerprint, which is part of every definitionHash.
+      - "crates/lumis-tree-sitter/src/lumis_prefix.h"
       - "crates/lumis/vendored_parsers/**"
       - "queries/**"
       - "packages/javascript/lumis/bundles/**"
@@ -40,6 +42,8 @@ on:
       - "wasm-bundles.json"
       - "languages.toml"
       - "crates/dev/**"
+      # Holds the query analysis fingerprint, which is part of every definitionHash.
+      - "crates/lumis-tree-sitter/src/lumis_prefix.h"
       - "crates/lumis/vendored_parsers/**"
       - "queries/**"
       - "packages/javascript/lumis/bundles/**"
