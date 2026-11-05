@@ -424,6 +424,7 @@ import javascript from '@lumis-sh/wasm-javascript';
 
 const hl = await createHighlighter({languages: [javascript]});
 
+// A Cloudflare Worker. Supabase and Vercel use their own entry points; see the Edge / Workers guide.
 export default {
   async fetch() {
     const html = hl.highlight('const x = 1', htmlInline({language: javascript, theme: frappe}));

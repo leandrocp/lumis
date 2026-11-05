@@ -73,11 +73,22 @@ export default {
 };
 ```
 
+Point Wrangler at the Worker:
+
+```jsonc
+// wrangler.jsonc
+{
+  "name": "highlight",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-11-01"
+}
+```
+
 ```bash
 npx wrangler deploy
 ```
 
-Wrangler needs no extra configuration. Every language you highlight, including
+Lumis needs nothing else in the Wrangler configuration. Every language you highlight, including
 injected ones, ends up in the Worker, so its size grows with each parser: a
 Worker with Markdown, Rust and TypeScript uploads about 690 KB gzipped. Check
 the size against your plan's Worker size limit.
@@ -114,8 +125,9 @@ export default { serverExternalPackages: ["@lumis-sh/lumis"] };
 ```
 
 The Edge runtime works too. Add `export const runtime = "edge"` to the route
-and drop the `next.config.mjs` change. Vercel and Next.js have deprecated
-the Edge runtime in favor of Node.js, so prefer Node.js for new projects.
+and drop the `next.config.mjs` change. Next.js has deprecated that route
+setting, and Vercel recommends Node.js over the Edge runtime, so prefer Node.js
+for new projects.
 
   </Tab>
 </Tabs>
