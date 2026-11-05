@@ -28,6 +28,11 @@ browser supports the current API. `pnpm run check:discovery` verifies these
 files, the OpenAPI description of the installer, and their production headers
 before every build.
 
+The Lumis skill itself is `skills/lumis/SKILL.md` at the repository root, which
+`npx skills add leandrocp/lumis` also installs. `vite.config.ts` emits it at
+`/.well-known/agent-skills/lumis/SKILL.md` in the build and serves it there in
+development; there is no copy under `public/`.
+
 Lumis serves no protected API, so the site publishes no OAuth or OpenID Connect
 discovery document. Adding one would advertise an authorization server that does
 not exist.
