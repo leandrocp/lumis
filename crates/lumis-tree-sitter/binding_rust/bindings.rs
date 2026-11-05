@@ -679,6 +679,34 @@ unsafe extern "C" {
     ) -> *mut TSQuery;
 }
 unsafe extern "C" {
+    #[doc = " Create a new query like `ts_query_new`, restoring its structural analysis\n from `analysis` instead of computing it.\n\n `analysis` must be a snapshot that `ts_query_analysis` took of a query\n compiled from the same source against the same parser by the same build of\n this library. A snapshot of another query or library build, of a language\n whose counts or symbol names differ, or one damaged on disk is ignored, as is\n `NULL`, and the analysis runs as it does in `ts_query_new`;\n `ts_query_analysis_imported` reports which happened. A snapshot of another\n build of the same grammar with the same symbols is not detected, so keep\n snapshots keyed by the exact parser they came from."]
+    #[link_name = "lumis_ts_query_new_with_analysis"]
+    pub fn ts_query_new_with_analysis(
+        language: *const TSLanguage,
+        source: *const ::core::ffi::c_char,
+        source_len: u32,
+        analysis: *const u8,
+        analysis_len: u32,
+        error_offset: *mut u32,
+        error_type: *mut TSQueryError,
+    ) -> *mut TSQuery;
+}
+unsafe extern "C" {
+    #[doc = " Write a snapshot of the query's structural analysis to `buffer`, for\n `ts_query_new_with_analysis`, and return its length in bytes. Nothing is\n written when `buffer` is `NULL` or shorter than that."]
+    #[link_name = "lumis_ts_query_analysis"]
+    pub fn ts_query_analysis(self_: *const TSQuery, buffer: *mut u8, buffer_len: u32) -> u32;
+}
+unsafe extern "C" {
+    #[doc = " Whether the query was created from an analysis snapshot rather than by\n computing its analysis."]
+    #[link_name = "lumis_ts_query_analysis_imported"]
+    pub fn ts_query_analysis_imported(self_: *const TSQuery) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " A fingerprint of this library's query analysis code, which every snapshot\n records. Two builds with the same fingerprint read each other's snapshots."]
+    #[link_name = "lumis_ts_query_analysis_fingerprint"]
+    pub fn ts_query_analysis_fingerprint() -> u64;
+}
+unsafe extern "C" {
     #[doc = " Delete a query, freeing all of the memory that it used."]
     #[link_name = "lumis_ts_query_delete"]
     pub fn ts_query_delete(self_: *mut TSQuery);

@@ -103,6 +103,12 @@ caveat as
 so anyone who can write that directory can run code in your process. Give it
 the permissions you give your application's code.
 
+The same directory holds `queries/`, where Lumis saves the analysis of each
+language's highlight queries so the next process can skip it. These files are
+checked against the parser and queries they were written for, and a file that
+does not match is ignored. A file crafted to match can still change which
+scopes Lumis assigns, so give `queries/` the same permissions as `compiled/`.
+
 ## Content Security Policy
 
 Lumis works under a policy without `'unsafe-eval'`. It needs

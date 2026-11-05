@@ -4,6 +4,8 @@
 #ifndef LUMIS_TREE_SITTER_PREFIX_H_
 #define LUMIS_TREE_SITTER_PREFIX_H_
 
+#define LUMIS_QUERY_ANALYSIS_FINGERPRINT 0x36c8877925dbc262ull
+
 #define STDLIB_SYMBOLS lumis_STDLIB_SYMBOLS
 #define STDLIB_WASM lumis_STDLIB_WASM
 #define STDLIB_WASM_LEN lumis_STDLIB_WASM_LEN
@@ -130,6 +132,9 @@
 #define ts_parser_take_wasm_store lumis_ts_parser_take_wasm_store
 #define ts_point_edit lumis_ts_point_edit
 #define ts_query__step_is_fallible lumis_ts_query__step_is_fallible
+#define ts_query_analysis lumis_ts_query_analysis
+#define ts_query_analysis_fingerprint lumis_ts_query_analysis_fingerprint
+#define ts_query_analysis_imported lumis_ts_query_analysis_imported
 #define ts_query_capture_count lumis_ts_query_capture_count
 #define ts_query_capture_name_for_id lumis_ts_query_capture_name_for_id
 #define ts_query_capture_quantifier_for_id lumis_ts_query_capture_quantifier_for_id
@@ -159,6 +164,7 @@
 #define ts_query_is_pattern_non_local lumis_ts_query_is_pattern_non_local
 #define ts_query_is_pattern_rooted lumis_ts_query_is_pattern_rooted
 #define ts_query_new lumis_ts_query_new
+#define ts_query_new_with_analysis lumis_ts_query_new_with_analysis
 #define ts_query_pattern_count lumis_ts_query_pattern_count
 #define ts_query_predicates_for_pattern lumis_ts_query_predicates_for_pattern
 #define ts_query_start_byte_for_pattern lumis_ts_query_start_byte_for_pattern

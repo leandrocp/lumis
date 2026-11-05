@@ -2492,22 +2492,79 @@ impl Query {
         unsafe { Self::from_raw_parts(ptr, source) }
     }
 
+    /// Create a new query like [`Query::new`], restoring its structural analysis from
+    /// `analysis` instead of computing it.
+    ///
+    /// `analysis` must be what [`Query::analysis`] returned for a query compiled from the
+    /// same source against the same parser by the same build of this library. A snapshot
+    /// of another query or library build, of a language whose counts or symbol names
+    /// differ, or one damaged on disk is ignored, as is an empty slice, and the analysis
+    /// is computed; [`Query::analysis_imported`] reports which happened. A snapshot of
+    /// another build of the same grammar with the same symbols is not detected, so keep
+    /// snapshots keyed by the exact parser they came from.
+    #[doc(alias = "ts_query_new_with_analysis")]
+    pub fn new_with_analysis(
+        language: &Language,
+        source: &str,
+        analysis: &[u8],
+    ) -> Result<Self, QueryError> {
+        let ptr = Self::new_raw_with_analysis(language, source, analysis)?;
+        unsafe { Self::from_raw_parts(ptr, source) }
+    }
+
+    /// A snapshot of this query's structural analysis, for [`Query::new_with_analysis`].
+    #[doc(alias = "ts_query_analysis")]
+    #[must_use]
+    pub fn analysis(&self) -> Vec<u8> {
+        let length = unsafe { ffi::ts_query_analysis(self.ptr.as_ptr(), core::ptr::null_mut(), 0) };
+        let mut buffer = vec![0u8; length as usize];
+        unsafe { ffi::ts_query_analysis(self.ptr.as_ptr(), buffer.as_mut_ptr(), length) };
+        buffer
+    }
+
+    /// Whether this query was created from an analysis snapshot rather than by computing
+    /// its analysis.
+    #[doc(alias = "ts_query_analysis_imported")]
+    #[must_use]
+    pub fn analysis_imported(&self) -> bool {
+        unsafe { ffi::ts_query_analysis_imported(self.ptr.as_ptr()) }
+    }
+
+    /// A fingerprint of this library's query analysis code, which every
+    /// [`Query::analysis`] snapshot records. Builds with the same fingerprint read each
+    /// other's snapshots.
+    #[doc(alias = "ts_query_analysis_fingerprint")]
+    #[must_use]
+    pub fn analysis_fingerprint() -> u64 {
+        unsafe { ffi::ts_query_analysis_fingerprint() }
+    }
+
     /// Constructs a raw [`TSQuery`](ffi::TSQuery) pointer without performing extra checks specific to the rust
     /// bindings, such as predicate validation. A [`Query`] object can be constructed from the
     /// returned pointer using [`from_raw_parts`](Query::from_raw_parts). The caller is
     /// responsible for ensuring that the returned pointer is eventually freed by calling
     /// [`ts_query_delete`](ffi::ts_query_delete).
     pub fn new_raw(language: &Language, source: &str) -> Result<*mut ffi::TSQuery, QueryError> {
+        Self::new_raw_with_analysis(language, source, &[])
+    }
+
+    fn new_raw_with_analysis(
+        language: &Language,
+        source: &str,
+        analysis: &[u8],
+    ) -> Result<*mut ffi::TSQuery, QueryError> {
         let mut error_offset = 0u32;
         let mut error_type: ffi::TSQueryError = 0;
         let bytes = source.as_bytes();
 
         // Compile the query.
         let ptr = unsafe {
-            ffi::ts_query_new(
+            ffi::ts_query_new_with_analysis(
                 language.0,
                 bytes.as_ptr().cast::<c_char>(),
                 bytes.len() as u32,
+                if analysis.is_empty() { core::ptr::null() } else { analysis.as_ptr() },
+                analysis.len() as u32,
                 core::ptr::addr_of_mut!(error_offset),
                 core::ptr::addr_of_mut!(error_type),
             )

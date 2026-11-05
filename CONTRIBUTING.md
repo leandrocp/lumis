@@ -492,8 +492,8 @@ user can hit without cloning anything: `LUMIS_CONFIG` for the CLI, and
 `LUMIS_BUILD`, `LUMIS_USE_LEGACY_ARTIFACTS` and `LUMIS_ARTIFACT_SOURCE` for the
 Hex package.
 
-`LUMIS_DATA_DIR` names the directory Lumis persists parsers, themes, and
-compiled modules under. An empty value counts as unset, in every runtime.
+`LUMIS_DATA_DIR` names the directory Lumis persists parsers, themes, compiled
+modules and query analysis snapshots under. An empty value counts as unset, in every runtime.
 
 Unset, the CLI and both native addons call
 `lumis_wasm_runtime::store::default_data_dir`, which uses [`etcetera`]'s base
@@ -506,7 +506,7 @@ drift.
 
 | Variable | Read by | Purpose |
 | --- | --- | --- |
-| `LUMIS_DATA_DIR` | every runtime | Directory for parsers, themes, and compiled modules |
+| `LUMIS_DATA_DIR` | every runtime | Directory for parsers, themes, compiled modules, and query analysis snapshots |
 | `LUMIS_CONFIG` | CLI | Config file path, same as `--config` |
 | `LUMIS_VERSION` | CLI installers | Release version to install; the version-pinned URL sets it |
 | `LUMIS_INSTALL_DIR` | CLI installers | Directory for the installed `lumis` binary |
@@ -969,7 +969,8 @@ again. Changing the Tree-sitter minor series changes the compatibility range
 and does require runtime releases.
 
 The CLI's cache persists on disk under `LUMIS_DATA_DIR`. Elixir and Node load
-the parser packages a project installed and keep only compiled modules there;
+the parser packages a project installed and keep only compiled modules and
+query analysis snapshots there;
 browsers keep parsers a resolver fetched in CacheStorage, with an IndexedDB
 fallback. Local and benchmark execution should provide both
 `lumis.json` and its matching parser so queries and parser bytes remain

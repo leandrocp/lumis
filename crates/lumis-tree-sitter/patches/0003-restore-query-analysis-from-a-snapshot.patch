@@ -1,0 +1,493 @@
+From 44403b6f4252f2c80e0e0c8dc6e64bdcfaee284a Mon Sep 17 00:00:00 2001
+From: Leandro Pereira <leandro@leandro.io>
+Date: Thu, 5 Nov 2026 16:14:45 +0000
+Subject: [PATCH 3/6] feat(query): restore a query's structural analysis from a
+ snapshot
+
+Almost all of `ts_query_new` is `ts_query__analyze_patterns` walking the
+grammar's parse table to decide which steps are guaranteed to match, which
+contain captures, and which patterns are non-local. For nvim-treesitter's
+highlight queries that is 82% of a warm highlight of a small file, and it
+gives the same answer every time for the same query, language and library.
+
+`ts_query_analysis` serializes what the analysis writes: three flags per
+step, one per pattern, and the repeat symbols with rootless patterns.
+`ts_query_new_with_analysis` parses the query as usual and restores those
+instead of computing them. The snapshot header pins the analysis code (a
+fingerprint of this library's sources, generated as
+`LUMIS_QUERY_ANALYSIS_FINGERPRINT`), the language's ABI, counts and symbol
+names, and a hash of the query source, so a snapshot taken from anything
+else is ignored and the analysis runs. A hash of the payload rejects a
+snapshot damaged on disk; it detects corruption, not tampering.
+`ts_query_analysis_imported` says which happened, and
+`ts_query_analysis_fingerprint` exposes the fingerprint so callers can keep
+snapshots from different builds apart. Integers are little-endian, so a
+snapshot generated on one machine is valid on every other.
+
+The language check covers counts and symbol names, not the parse table or
+field maps, so two builds of a grammar with the same symbols share a header.
+Callers that keep snapshots key them by the exact parser they came from.
+
+Across 118 languages this took query compilation from 5.7 s to 71 ms with
+byte-identical highlighting output.
+---
+ binding_rust/bindings.rs  |  24 ++++
+ binding_rust/lib.rs       |  59 +++++++++-
+ include/tree_sitter/api.h |  42 +++++++
+ src/query.c               | 229 +++++++++++++++++++++++++++++++++++++-
+ 4 files changed, 351 insertions(+), 3 deletions(-)
+
+diff --git a/binding_rust/bindings.rs b/binding_rust/bindings.rs
+index 39fdca7..771380a 100644
+--- a/binding_rust/bindings.rs
++++ b/binding_rust/bindings.rs
+@@ -592,6 +592,30 @@ unsafe extern "C" {
+         error_type: *mut TSQueryError,
+     ) -> *mut TSQuery;
+ }
++unsafe extern "C" {
++    #[doc = " Create a new query like `ts_query_new`, restoring its structural analysis\n from `analysis` instead of computing it.\n\n `analysis` must be a snapshot that `ts_query_analysis` took of a query\n compiled from the same source against the same parser by the same build of\n this library. A snapshot of another query or library build, of a language\n whose counts or symbol names differ, or one damaged on disk is ignored, as is\n `NULL`, and the analysis runs as it does in `ts_query_new`;\n `ts_query_analysis_imported` reports which happened. A snapshot of another\n build of the same grammar with the same symbols is not detected, so keep\n snapshots keyed by the exact parser they came from."]
++    pub fn ts_query_new_with_analysis(
++        language: *const TSLanguage,
++        source: *const ::core::ffi::c_char,
++        source_len: u32,
++        analysis: *const u8,
++        analysis_len: u32,
++        error_offset: *mut u32,
++        error_type: *mut TSQueryError,
++    ) -> *mut TSQuery;
++}
++unsafe extern "C" {
++    #[doc = " Write a snapshot of the query's structural analysis to `buffer`, for\n `ts_query_new_with_analysis`, and return its length in bytes. Nothing is\n written when `buffer` is `NULL` or shorter than that."]
++    pub fn ts_query_analysis(self_: *const TSQuery, buffer: *mut u8, buffer_len: u32) -> u32;
++}
++unsafe extern "C" {
++    #[doc = " Whether the query was created from an analysis snapshot rather than by\n computing its analysis."]
++    pub fn ts_query_analysis_imported(self_: *const TSQuery) -> bool;
++}
++unsafe extern "C" {
++    #[doc = " A fingerprint of this library's query analysis code, which every snapshot\n records. Two builds with the same fingerprint read each other's snapshots."]
++    pub fn ts_query_analysis_fingerprint() -> u64;
++}
+ unsafe extern "C" {
+     #[doc = " Delete a query, freeing all of the memory that it used."]
+     pub fn ts_query_delete(self_: *mut TSQuery);
+diff --git a/binding_rust/lib.rs b/binding_rust/lib.rs
+index a35de20..2ec5a5c 100644
+--- a/binding_rust/lib.rs
++++ b/binding_rust/lib.rs
+@@ -2492,22 +2492,79 @@ impl Query {
+         unsafe { Self::from_raw_parts(ptr, source) }
+     }
+ 
++    /// Create a new query like [`Query::new`], restoring its structural analysis from
++    /// `analysis` instead of computing it.
++    ///
++    /// `analysis` must be what [`Query::analysis`] returned for a query compiled from the
++    /// same source against the same parser by the same build of this library. A snapshot
++    /// of another query or library build, of a language whose counts or symbol names
++    /// differ, or one damaged on disk is ignored, as is an empty slice, and the analysis
++    /// is computed; [`Query::analysis_imported`] reports which happened. A snapshot of
++    /// another build of the same grammar with the same symbols is not detected, so keep
++    /// snapshots keyed by the exact parser they came from.
++    #[doc(alias = "ts_query_new_with_analysis")]
++    pub fn new_with_analysis(
++        language: &Language,
++        source: &str,
++        analysis: &[u8],
++    ) -> Result<Self, QueryError> {
++        let ptr = Self::new_raw_with_analysis(language, source, analysis)?;
++        unsafe { Self::from_raw_parts(ptr, source) }
++    }
++
++    /// A snapshot of this query's structural analysis, for [`Query::new_with_analysis`].
++    #[doc(alias = "ts_query_analysis")]
++    #[must_use]
++    pub fn analysis(&self) -> Vec<u8> {
++        let length = unsafe { ffi::ts_query_analysis(self.ptr.as_ptr(), core::ptr::null_mut(), 0) };
++        let mut buffer = vec![0u8; length as usize];
++        unsafe { ffi::ts_query_analysis(self.ptr.as_ptr(), buffer.as_mut_ptr(), length) };
++        buffer
++    }
++
++    /// Whether this query was created from an analysis snapshot rather than by computing
++    /// its analysis.
++    #[doc(alias = "ts_query_analysis_imported")]
++    #[must_use]
++    pub fn analysis_imported(&self) -> bool {
++        unsafe { ffi::ts_query_analysis_imported(self.ptr.as_ptr()) }
++    }
++
++    /// A fingerprint of this library's query analysis code, which every
++    /// [`Query::analysis`] snapshot records. Builds with the same fingerprint read each
++    /// other's snapshots.
++    #[doc(alias = "ts_query_analysis_fingerprint")]
++    #[must_use]
++    pub fn analysis_fingerprint() -> u64 {
++        unsafe { ffi::ts_query_analysis_fingerprint() }
++    }
++
+     /// Constructs a raw [`TSQuery`](ffi::TSQuery) pointer without performing extra checks specific to the rust
+     /// bindings, such as predicate validation. A [`Query`] object can be constructed from the
+     /// returned pointer using [`from_raw_parts`](Query::from_raw_parts). The caller is
+     /// responsible for ensuring that the returned pointer is eventually freed by calling
+     /// [`ts_query_delete`](ffi::ts_query_delete).
+     pub fn new_raw(language: &Language, source: &str) -> Result<*mut ffi::TSQuery, QueryError> {
++        Self::new_raw_with_analysis(language, source, &[])
++    }
++
++    fn new_raw_with_analysis(
++        language: &Language,
++        source: &str,
++        analysis: &[u8],
++    ) -> Result<*mut ffi::TSQuery, QueryError> {
+         let mut error_offset = 0u32;
+         let mut error_type: ffi::TSQueryError = 0;
+         let bytes = source.as_bytes();
+ 
+         // Compile the query.
+         let ptr = unsafe {
+-            ffi::ts_query_new(
++            ffi::ts_query_new_with_analysis(
+                 language.0,
+                 bytes.as_ptr().cast::<c_char>(),
+                 bytes.len() as u32,
++                if analysis.is_empty() { core::ptr::null() } else { analysis.as_ptr() },
++                analysis.len() as u32,
+                 core::ptr::addr_of_mut!(error_offset),
+                 core::ptr::addr_of_mut!(error_type),
+             )
+diff --git a/include/tree_sitter/api.h b/include/tree_sitter/api.h
+index 334b25f..bb4a8c2 100644
+--- a/include/tree_sitter/api.h
++++ b/include/tree_sitter/api.h
+@@ -935,6 +935,48 @@ TSQuery *ts_query_new(
+   TSQueryError *error_type
+ );
+ 
++/**
++ * Create a new query like `ts_query_new`, restoring its structural analysis
++ * from `analysis` instead of computing it.
++ *
++ * `analysis` must be a snapshot that `ts_query_analysis` took of a query
++ * compiled from the same source against the same parser by the same build of
++ * this library. A snapshot of another query or library build, of a language
++ * whose counts or symbol names differ, or one damaged on disk is ignored, as is
++ * `NULL`, and the analysis runs as it does in `ts_query_new`;
++ * `ts_query_analysis_imported` reports which happened. A snapshot of another
++ * build of the same grammar with the same symbols is not detected, so keep
++ * snapshots keyed by the exact parser they came from.
++ */
++TSQuery *ts_query_new_with_analysis(
++  const TSLanguage *language,
++  const char *source,
++  uint32_t source_len,
++  const uint8_t *analysis,
++  uint32_t analysis_len,
++  uint32_t *error_offset,
++  TSQueryError *error_type
++);
++
++/**
++ * Write a snapshot of the query's structural analysis to `buffer`, for
++ * `ts_query_new_with_analysis`, and return its length in bytes. Nothing is
++ * written when `buffer` is `NULL` or shorter than that.
++ */
++uint32_t ts_query_analysis(const TSQuery *self, uint8_t *buffer, uint32_t buffer_len);
++
++/**
++ * Whether the query was created from an analysis snapshot rather than by
++ * computing its analysis.
++ */
++bool ts_query_analysis_imported(const TSQuery *self);
++
++/**
++ * A fingerprint of this library's query analysis code, which every snapshot
++ * records. Two builds with the same fingerprint read each other's snapshots.
++ */
++uint64_t ts_query_analysis_fingerprint(void);
++
+ /**
+  * Delete a query, freeing all of the memory that it used.
+  */
+diff --git a/src/query.c b/src/query.c
+index 5f6e284..d597c6b 100644
+--- a/src/query.c
++++ b/src/query.c
+@@ -321,6 +321,8 @@ struct TSQuery {
+   Array(TSSymbol) repeat_symbols_with_rootless_patterns;
+   const TSLanguage *language;
+   uint16_t wildcard_root_pattern_count;
++  uint64_t source_hash;
++  bool analysis_imported;
+ };
+ 
+ /*
+@@ -3020,10 +3022,27 @@ static TSQueryError ts_query__parse_pattern(
+   return 0;
+ }
+ 
+-TSQuery *ts_query_new(
++#ifndef LUMIS_QUERY_ANALYSIS_FINGERPRINT
++#error "LUMIS_QUERY_ANALYSIS_FINGERPRINT is defined by the generated lumis_prefix.h"
++#endif
++
++#define QUERY_ANALYSIS_MAGIC 0x41515354u /* "TSQA" */
++#define QUERY_ANALYSIS_FORMAT 2u
++#define QUERY_ANALYSIS_HEADER_WORDS 18u
++#define QUERY_ANALYSIS_HEADER_SIZE (QUERY_ANALYSIS_HEADER_WORDS * 4u)
++#define QUERY_ANALYSIS_REPEAT_COUNT_WORD 11u
++#define QUERY_ANALYSIS_PAYLOAD_HASH_WORD 16u
++#define QUERY_ANALYSIS_HASH_SEED 14695981039346656037ull
++
++static uint64_t query_analysis__hash(uint64_t hash, const char *bytes, uint32_t length);
++static bool ts_query__import_analysis(TSQuery *self, const uint8_t *analysis, uint32_t length);
++
++static TSQuery *ts_query__new(
+   const TSLanguage *language,
+   const char *source,
+   uint32_t source_len,
++  const uint8_t *analysis,
++  uint32_t analysis_len,
+   uint32_t *error_offset,
+   TSQueryError *error_type
+ ) {
+@@ -3051,6 +3070,8 @@ TSQuery *ts_query_new(
+     .repeat_symbols_with_rootless_patterns = array_new(),
+     .wildcard_root_pattern_count = 0,
+     .language = ts_language_copy(language),
++    .source_hash = query_analysis__hash(QUERY_ANALYSIS_HASH_SEED, source, source_len),
++    .analysis_imported = false,
+   };
+ 
+   array_push(&self->negated_fields, 0);
+@@ -3196,7 +3217,8 @@ TSQuery *ts_query_new(
+     ts_query__dump_steps(self, "post-parse");
+   #endif
+ 
+-  if (!ts_query__analyze_patterns(self, error_offset)) {
++  self->analysis_imported = analysis && ts_query__import_analysis(self, analysis, analysis_len);
++  if (!self->analysis_imported && !ts_query__analyze_patterns(self, error_offset)) {
+     *error_type = TSQueryErrorStructure;
+     ts_query_delete(self);
+     return NULL;
+@@ -3210,6 +3232,207 @@ TSQuery *ts_query_new(
+   return self;
+ }
+ 
++TSQuery *ts_query_new(
++  const TSLanguage *language,
++  const char *source,
++  uint32_t source_len,
++  uint32_t *error_offset,
++  TSQueryError *error_type
++) {
++  return ts_query__new(language, source, source_len, NULL, 0, error_offset, error_type);
++}
++
++TSQuery *ts_query_new_with_analysis(
++  const TSLanguage *language,
++  const char *source,
++  uint32_t source_len,
++  const uint8_t *analysis,
++  uint32_t analysis_len,
++  uint32_t *error_offset,
++  TSQueryError *error_type
++) {
++  return ts_query__new(language, source, source_len, analysis, analysis_len, error_offset, error_type);
++}
++
++/*
++ * Analysis snapshots
++ *
++ * `ts_query__analyze_patterns` writes three step flags, each pattern's
++ * `is_non_local`, and the repeat symbols with rootless patterns, and nothing
++ * else. A snapshot records exactly those, so a query compiled again from the
++ * same source and language can restore them instead of walking the parse table.
++ *
++ * Layout, every integer little-endian:
++ *   QUERY_ANALYSIS_HEADER_WORDS u32: see `query_analysis__header`
++ *   one byte per step: contains_captures | root_pattern_guaranteed << 1 |
++ *                      parent_pattern_guaranteed << 2
++ *   one byte per pattern: is_non_local
++ *   one u16 per repeat symbol, ascending
++ *
++ * The header pins what the analysis depends on: this library's analysis code
++ * (`LUMIS_QUERY_ANALYSIS_FINGERPRINT`), the language's shape and symbols, and
++ * the query source. A snapshot that differs in any of them is ignored. Its last
++ * two words hash the bytes after it, so a snapshot damaged on disk is ignored
++ * too; the hash detects corruption, not a snapshot crafted to pass it.
++ *
++ * The language check covers counts and symbol names, not the parse table, so
++ * two builds of a grammar that differ only in their tables share a header. A
++ * caller that keeps snapshots keys them by the exact parser they came from.
++ */
++static uint64_t query_analysis__hash(uint64_t hash, const char *bytes, uint32_t length) {
++  for (uint32_t i = 0; i < length; i++) {
++    hash ^= (uint8_t)bytes[i];
++    hash *= 1099511628211ull;
++  }
++  return hash;
++}
++
++static uint64_t query_analysis__language_hash(const TSLanguage *language) {
++  uint64_t hash = QUERY_ANALYSIS_HASH_SEED;
++  uint32_t symbol_count = ts_language_symbol_count(language);
++  for (uint32_t i = 0; i < symbol_count; i++) {
++    const char *name = ts_language_symbol_name(language, (TSSymbol)i);
++    char type = (char)ts_language_symbol_type(language, (TSSymbol)i);
++    hash = query_analysis__hash(hash, name ? name : "", name ? (uint32_t)strlen(name) + 1 : 1);
++    hash = query_analysis__hash(hash, &type, 1);
++  }
++  return hash;
++}
++
++static void query_analysis__header(const TSQuery *self, uint32_t repeat_count, uint32_t *header) {
++  const TSLanguage *language = self->language;
++  uint64_t fingerprint = LUMIS_QUERY_ANALYSIS_FINGERPRINT;
++  uint64_t language_hash = query_analysis__language_hash(language);
++  header[0] = QUERY_ANALYSIS_MAGIC;
++  header[1] = QUERY_ANALYSIS_FORMAT;
++  header[2] = (uint32_t)fingerprint;
++  header[3] = (uint32_t)(fingerprint >> 32);
++  header[4] = language->abi_version;
++  header[5] = language->symbol_count;
++  header[6] = language->state_count;
++  header[7] = language->large_state_count;
++  header[8] = language->field_count;
++  header[9] = self->steps.size;
++  header[10] = self->patterns.size;
++  header[QUERY_ANALYSIS_REPEAT_COUNT_WORD] = repeat_count;
++  header[12] = (uint32_t)self->source_hash;
++  header[13] = (uint32_t)(self->source_hash >> 32);
++  header[14] = (uint32_t)language_hash;
++  header[15] = (uint32_t)(language_hash >> 32);
++}
++
++static void query_analysis__write_u32(uint8_t *out, uint32_t value) {
++  for (unsigned i = 0; i < 4; i++) out[i] = (uint8_t)(value >> (8 * i));
++}
++
++static uint32_t query_analysis__read_u32(const uint8_t *in) {
++  uint32_t value = 0;
++  for (unsigned i = 0; i < 4; i++) value |= (uint32_t)in[i] << (8 * i);
++  return value;
++}
++
++static uint32_t query_analysis__length(const TSQuery *self, uint32_t repeat_count) {
++  return QUERY_ANALYSIS_HEADER_SIZE + self->steps.size + self->patterns.size + repeat_count * 2;
++}
++
++uint64_t ts_query_analysis_fingerprint(void) {
++  return LUMIS_QUERY_ANALYSIS_FINGERPRINT;
++}
++
++uint32_t ts_query_analysis(const TSQuery *self, uint8_t *buffer, uint32_t buffer_len) {
++  uint32_t repeat_count = self->repeat_symbols_with_rootless_patterns.size;
++  uint32_t length = query_analysis__length(self, repeat_count);
++  if (!buffer || buffer_len < length) return length;
++
++  uint8_t *out = buffer + QUERY_ANALYSIS_HEADER_SIZE;
++  for (uint32_t i = 0; i < self->steps.size; i++) {
++    const QueryStep *step = array_get(&self->steps, i);
++    *out++ = (uint8_t)(
++      (step->contains_captures ? 1 : 0) |
++      (step->root_pattern_guaranteed ? 2 : 0) |
++      (step->parent_pattern_guaranteed ? 4 : 0)
++    );
++  }
++  for (uint32_t i = 0; i < self->patterns.size; i++) {
++    *out++ = array_get(&self->patterns, i)->is_non_local ? 1 : 0;
++  }
++  for (uint32_t i = 0; i < repeat_count; i++) {
++    TSSymbol symbol = *array_get(&self->repeat_symbols_with_rootless_patterns, i);
++    *out++ = (uint8_t)symbol;
++    *out++ = (uint8_t)(symbol >> 8);
++  }
++
++  uint32_t header[QUERY_ANALYSIS_HEADER_WORDS];
++  query_analysis__header(self, repeat_count, header);
++  uint64_t payload_hash = query_analysis__hash(
++    QUERY_ANALYSIS_HASH_SEED,
++    (const char *)buffer + QUERY_ANALYSIS_HEADER_SIZE,
++    length - QUERY_ANALYSIS_HEADER_SIZE
++  );
++  header[QUERY_ANALYSIS_PAYLOAD_HASH_WORD] = (uint32_t)payload_hash;
++  header[QUERY_ANALYSIS_PAYLOAD_HASH_WORD + 1] = (uint32_t)(payload_hash >> 32);
++  for (unsigned i = 0; i < QUERY_ANALYSIS_HEADER_WORDS; i++) {
++    query_analysis__write_u32(buffer + i * 4, header[i]);
++  }
++  return length;
++}
++
++bool ts_query_analysis_imported(const TSQuery *self) {
++  return self->analysis_imported;
++}
++
++static bool ts_query__import_analysis(TSQuery *self, const uint8_t *analysis, uint32_t length) {
++  if (length < QUERY_ANALYSIS_HEADER_SIZE) return false;
++  uint32_t repeat_count = query_analysis__read_u32(analysis + QUERY_ANALYSIS_REPEAT_COUNT_WORD * 4);
++  if (repeat_count > self->language->symbol_count) return false;
++  if (length != query_analysis__length(self, repeat_count)) return false;
++  uint32_t header[QUERY_ANALYSIS_HEADER_WORDS];
++  query_analysis__header(self, repeat_count, header);
++  for (unsigned i = 0; i < QUERY_ANALYSIS_PAYLOAD_HASH_WORD; i++) {
++    if (query_analysis__read_u32(analysis + i * 4) != header[i]) return false;
++  }
++  uint64_t payload_hash = query_analysis__hash(
++    QUERY_ANALYSIS_HASH_SEED,
++    (const char *)analysis + QUERY_ANALYSIS_HEADER_SIZE,
++    length - QUERY_ANALYSIS_HEADER_SIZE
++  );
++  if (
++    query_analysis__read_u32(analysis + QUERY_ANALYSIS_PAYLOAD_HASH_WORD * 4) != (uint32_t)payload_hash ||
++    query_analysis__read_u32(analysis + (QUERY_ANALYSIS_PAYLOAD_HASH_WORD + 1) * 4) != (uint32_t)(payload_hash >> 32)
++  ) return false;
++
++  const uint8_t *steps = analysis + QUERY_ANALYSIS_HEADER_SIZE;
++  const uint8_t *patterns = steps + self->steps.size;
++  const uint8_t *repeats = patterns + self->patterns.size;
++  for (uint32_t i = 0; i < self->steps.size; i++) {
++    if (steps[i] > 7) return false;
++  }
++  for (uint32_t i = 0; i < self->patterns.size; i++) {
++    if (patterns[i] > 1) return false;
++  }
++  uint32_t previous = 0;
++  for (uint32_t i = 0; i < repeat_count; i++) {
++    uint32_t symbol = repeats[2 * i] | (uint32_t)repeats[2 * i + 1] << 8;
++    if (symbol >= self->language->symbol_count || (i > 0 && symbol <= previous)) return false;
++    previous = symbol;
++  }
++
++  for (uint32_t i = 0; i < self->steps.size; i++) {
++    QueryStep *step = array_get(&self->steps, i);
++    step->contains_captures = steps[i] & 1;
++    step->root_pattern_guaranteed = (steps[i] & 2) != 0;
++    step->parent_pattern_guaranteed = (steps[i] & 4) != 0;
++  }
++  for (uint32_t i = 0; i < self->patterns.size; i++) {
++    array_get(&self->patterns, i)->is_non_local = patterns[i] != 0;
++  }
++  array_clear(&self->repeat_symbols_with_rootless_patterns);
++  for (uint32_t i = 0; i < repeat_count; i++) {
++    array_push(&self->repeat_symbols_with_rootless_patterns, (TSSymbol)(repeats[2 * i] | repeats[2 * i + 1] << 8));
++  }
++  return true;
++}
++
+ void ts_query_delete(TSQuery *self) {
+   if (self) {
+     array_delete(&self->steps);
+@@ -3239,6 +3462,8 @@ TSQuery *ts_query_copy(const TSQuery *self) {
+     .predicate_values = symbol_table_new(),
+     .language = ts_language_copy(self->language),
+     .wildcard_root_pattern_count = self->wildcard_root_pattern_count,
++    .source_hash = self->source_hash,
++    .analysis_imported = self->analysis_imported,
+   };
+ 
+   array_assign(&copy->steps, &self->steps);
+-- 
+2.55.0
+
