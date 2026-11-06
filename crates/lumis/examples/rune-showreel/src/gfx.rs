@@ -1,7 +1,7 @@
 //! The compositor: every `El::effect` slot becomes one rune-fx layer. The slot's mark says which
 //! effect and its `effect_data` the effect's live numbers. The lava takes its colours from Lumis
-//! themes: `[theme a, theme b, mix, intensity]`. A sparkle burst's data starts with its age, so a
-//! scene's clock need not match the compositor's.
+//! themes: `[theme a, theme b, mix, intensity]`. Effects run on the scenes' clock, `start + t`,
+//! so a recording that starts partway into the reel draws the same frames as the whole reel.
 
 use rune::compose::{Compositor, Frame};
 use rune::render::{EffectPhase, EffectSite, KIND_EFFECT};
@@ -94,7 +94,7 @@ impl Compositor<State> for Gfx {
 
     fn render(&mut self, frame: &mut Frame<'_, State>) {
         let (device, queue, size) = (frame.device, frame.queue, frame.size);
-        let time = (frame.rt.state.start + frame.rt.t) as f32;
+        let time = (frame.rt.state.start + frame.rt.state.t) as f32;
         let marks = &frame.rt.marks;
         let mut at: Vec<u32> = Vec::new();
         let mut layers: Vec<FxLayer> = Vec::new();
