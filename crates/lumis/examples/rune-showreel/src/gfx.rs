@@ -6,8 +6,8 @@
 use rune::compose::{Compositor, Frame};
 use rune::render::{EffectPhase, EffectSite, KIND_EFFECT};
 use rune_fx::{
-    Fx, FxFrame, FxLayer, FxOptions, FxRenderer, FxSlot, GlowParams, GlowStyle, GrainParams,
-    MetaballParams, Rgb, Shape, SparkleParams, Stops, rgb,
+    FireParams, FireStyle, Fx, FxFrame, FxLayer, FxOptions, FxRenderer, FxSlot, GlowParams,
+    GlowStyle, GrainParams, MetaballParams, Rgb, Shape, SparkleParams, Stops, rgb,
 };
 
 use crate::State;
@@ -18,6 +18,7 @@ pub(crate) const LAVA: u32 = 1;
 pub(crate) const GLOW: u32 = 2;
 pub(crate) const SPARKLES: u32 = 3;
 pub(crate) const GRAIN: u32 = 4;
+pub(crate) const FIRE: u32 = 5;
 
 fn mix(a: Rgb, b: Rgb, k: f32) -> Rgb {
     Rgb([0, 1, 2].map(|i| a.0[i] + (b.0[i] - a.0[i]) * k))
@@ -77,6 +78,18 @@ fn layer(kind: u32, d: [f32; 4], shape: Shape, t: f32) -> Option<FxLayer> {
             fps: d[1],
             ..Default::default()
         }),
+        FIRE => {
+            let p = FireParams {
+                style: FireStyle::Top,
+                height: d[0],
+                intensity: d[1],
+                smoke: d[3],
+                embers: 24,
+                scale: 26.0,
+                ..FireParams::default()
+            };
+            return Some(Fx::fire(p).on(shape).at(t).opacity(d[2]));
+        }
         _ => return None,
     };
     Some(fx.on(shape).at(t))
@@ -99,6 +112,7 @@ impl Compositor<State> for Gfx {
         let mut at: Vec<u32> = Vec::new();
         let mut layers: Vec<FxLayer> = Vec::new();
         let mut placements: Vec<FxSlot> = Vec::new();
+        let mut fire = false;
         for (slot, inst) in frame.rt.instances.iter().enumerate() {
             if inst.params[1] != KIND_EFFECT {
                 continue;
@@ -111,12 +125,15 @@ impl Compositor<State> for Gfx {
             else {
                 continue;
             };
+            fire |= kind == FIRE;
             at.push(slot as u32);
             layers.push(fx_layer);
             placements.push(FxSlot::default().scale(scale).clip(inst.clip, inst.fade));
         }
         let fx = self.fx.get_or_insert_with(|| {
-            FxRenderer::new(device, frame.format, FxOptions { dither: true })
+            let mut fx = FxRenderer::new(device, frame.format, FxOptions { dither: true });
+            fx.set_fire_sim(device, true);
+            fx
         });
         fx.set_srgb_blend(frame.srgb_blend());
         fx.add_format(device, wgpu::TextureFormat::Rgba16Float);
@@ -132,6 +149,9 @@ impl Compositor<State> for Gfx {
             },
             &placements,
         );
+        if fire {
+            fx.simulate(queue, frame.encoder, None);
+        }
         let clear = frame.rt.clear_color();
         frame.ui.prepare(
             device,

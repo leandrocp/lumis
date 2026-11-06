@@ -8,7 +8,10 @@ use std::ops::Range;
 use std::rc::Rc;
 use std::sync::OnceLock;
 
-use lumis::highlight::highlight_iter;
+use lumis::HighlightOptions;
+use lumis::annotations::Annotation;
+use lumis::events::HighlightEvent;
+use lumis::highlight::{highlight_events_with_options, highlight_iter};
 use lumis::languages::Language;
 use lumis::themes::{self, Appearance, Theme};
 use rune::color::{Color, hex};
@@ -267,6 +270,71 @@ pub(crate) fn palette(t: &Theme) -> Vec<u32> {
     }
     if out.is_empty() {
         out.push(0x0088_8888);
+    }
+    out
+}
+
+/// A stretch of source with one Lumis style and the same annotations open over it.
+pub(crate) struct Run<M: 'static> {
+    pub(crate) range: Range<usize>,
+    pub(crate) color: Color,
+    pub(crate) bold: bool,
+    pub(crate) italic: bool,
+    /// The caller's annotations around this stretch, outermost first.
+    pub(crate) marks: Vec<&'static M>,
+}
+
+/// `code` cut wherever its syntax or its annotations change. Lumis splits the source at every
+/// annotation boundary, even inside a token, and reports which annotations are open over each
+/// piece; the style of each piece is the one Lumis gives the token it falls in.
+pub(crate) fn annotated<M>(
+    code: &str,
+    lang: Language,
+    theme: &Theme,
+    annotations: &'static [Annotation<M>],
+) -> Vec<Run<M>> {
+    let mut looks: Vec<(Range<usize>, Look)> = Vec::new();
+    let _ = highlight_iter(code, lang, Some(theme.clone()), |_, _, range, _, st| {
+        looks.push((
+            range,
+            Look {
+                color: st.fg.as_deref().map_or_else(|| fg(theme), color),
+                bold: st.bold,
+                italic: st.italic,
+            },
+        ));
+        Ok::<_, std::fmt::Error>(())
+    });
+    let plain = Look {
+        color: fg(theme),
+        bold: false,
+        italic: false,
+    };
+    let options = HighlightOptions::new().annotations(annotations);
+    let events = highlight_events_with_options(code, lang, options).expect("annotations in range");
+    let mut open: Vec<&'static M> = Vec::new();
+    let mut out = Vec::new();
+    for event in events {
+        match event {
+            HighlightEvent::AnnotationStart { data, .. } => open.push(data),
+            HighlightEvent::AnnotationEnd => {
+                open.pop();
+            }
+            HighlightEvent::Source { start, end } => {
+                let look = looks
+                    .iter()
+                    .find(|(r, _)| r.start <= start && start < r.end)
+                    .map_or(plain, |(_, l)| *l);
+                out.push(Run {
+                    range: start..end,
+                    color: look.color,
+                    bold: look.bold,
+                    italic: look.italic,
+                    marks: open.clone(),
+                });
+            }
+            _ => {}
+        }
     }
     out
 }
