@@ -1000,9 +1000,9 @@ globs = ["*.hurl"]
 
 [parsers.jinja]
 git = "https://github.com/cathaysia/tree-sitter-jinja.git"
-rev = "c213d3745ccdcaaa858869181c7b1bf9557a025f"
+rev = "f46e979278123e3b6949381896f3917f378af068"
 crate = "tree-sitter-jinja"
-version = "0.13.0"
+version = "0.13.1"
 location = "tree-sitter-jinja"
 aliases = ["jinja2"]
 display_name = "Jinja"
@@ -1011,12 +1011,12 @@ requires = ["jinja_inline"]
 
 [parsers.jinja_inline]
 git = "https://github.com/cathaysia/tree-sitter-jinja.git"
-rev = "c213d3745ccdcaaa858869181c7b1bf9557a025f"
+rev = "f46e979278123e3b6949381896f3917f378af068"
 location = "tree-sitter-jinja_inline"
 wasm_name = "tree-sitter-jinja_inline"
 variant = "JinjaInline"
 display_name = "Jinja Inline"
-version = "0.13.0"
+version = "0.13.1"
 
 [parsers.json5]
 git = "https://github.com/Joakker/tree-sitter-json5.git"
