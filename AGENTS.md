@@ -143,9 +143,10 @@ it.
 
 `ARCHITECTURE.md` has the full reasoning, including why pre-loading is an
 optimization rather than a requirement. A cold parser costs a download and then
-a Wasmtime compile, and the compile is the larger half: seven parsers already on
-disk take about 8 s to compile and 1.3 s once `compiled/` is warm. `load` exists
-to move both off the first request, not to gate anything.
+a Wasmtime compile, and the compile is the larger half. Parsers compile with
+Winch, Wasmtime's baseline compiler, because Cranelift made the compile most of
+a first highlight; once compiled, a parser is mapped from `precompiled/`. `load`
+exists to move both off the first request, not to gate anything.
 
 ### Route work through `mise`
 

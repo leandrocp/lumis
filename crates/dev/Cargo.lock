@@ -2919,6 +2919,7 @@ dependencies = [
  "wasmtime-internal-jit-icache-coherence",
  "wasmtime-internal-unwinder",
  "wasmtime-internal-versioned-export-macros",
+ "wasmtime-internal-winch",
  "windows-sys 0.61.2",
 ]
 
@@ -3097,6 +3098,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "wasmtime-internal-winch"
+version = "48.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8f185c58f9c3c34989c371332fba95085fa8bcde87aa3d5669c35ce61b91751"
+dependencies = [
+ "cranelift-codegen",
+ "gimli",
+ "log",
+ "object",
+ "target-lexicon",
+ "wasmparser 0.254.2",
+ "wasmtime-environ",
+ "wasmtime-internal-cranelift",
+ "winch-codegen",
+]
+
+[[package]]
 name = "webpki-roots"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3135,6 +3153,25 @@ name = "winapi-x86_64-pc-windows-gnu"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
+
+[[package]]
+name = "winch-codegen"
+version = "48.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8035757948b41f21010be3bdd6d27ab2ba0f15d09f8f10c8fb0647b46bc0d6b9"
+dependencies = [
+ "cranelift-assembler-x64",
+ "cranelift-codegen",
+ "gimli",
+ "regalloc2",
+ "smallvec",
+ "target-lexicon",
+ "thiserror 2.0.21",
+ "wasmparser 0.254.2",
+ "wasmtime-environ",
+ "wasmtime-internal-core",
+ "wasmtime-internal-cranelift",
+]
 
 [[package]]
 name = "windows-link"

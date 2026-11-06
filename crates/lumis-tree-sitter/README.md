@@ -104,6 +104,20 @@ Patterns start in source order, so the count now continues from the
 previous pattern, and restarts only if one starts earlier. The rows, and
 the errors that report them, are unchanged.
 
+### perf(wasm): keep a lexer's host calls off the per-character path
+
+`patches/0006-keep-lexer-host-calls-off-the-per-character-path.patch`
+
+Generated lexers call `eof` once per character, as often as `advance`,
+and each call crossed from Wasm into the host. The host now writes the
+answer beside the lexer after every `advance` and on entry to a lex or
+scan function, and `eof` is a Wasm function that reads it.
+
+`advance` still runs on the host, but no longer asks Wasmtime for the
+memory base on every character while a generated lex function runs: those
+never grow memory, so the base read on entry stays valid. Scanners can
+allocate, so they keep the lookup.
+
 ### Every exported C symbol is prefixed with `lumis_`
 
 Applied last, so it covers what the patches add. `src/lumis_prefix.h` renames
