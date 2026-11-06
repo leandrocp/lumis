@@ -7,15 +7,15 @@ fn jinja_member_access_and_filters_highlight() {
     for (language, source) in [
         (
             Language::Jinja,
-            "{{ user.profile.name | escape }} {{ user.age + offset }}",
+            "{{ user.profile.name | escape }} {{ account.age + offset }}",
         ),
         (
             Language::JinjaInline,
-            "# user.profile.name | escape\n# user.age + offset\n",
+            "# user.profile.name | escape\n# account.age + offset\n",
         ),
         (
             Language::Jinja,
-            "# set label = user.profile.name | escape\n# set age = user.age + offset\n",
+            "# set label = user.profile.name | escape\n# set age = account.age + offset\n",
         ),
     ] {
         let mut tokens = Vec::new();
@@ -27,6 +27,7 @@ fn jinja_member_access_and_filters_highlight() {
 
         for (text, scope) in [
             ("user", "variable"),
+            ("account", "variable"),
             ("profile", "variable.member"),
             ("name", "variable.member"),
             ("age", "variable.member"),
