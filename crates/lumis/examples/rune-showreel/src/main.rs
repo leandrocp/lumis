@@ -1,47 +1,30 @@
-//! Lumis in Rune: every bundled language and theme, animated. Each scene runs off the (virtual)
-//! clock, so a headless `--video` run records it frame-exact:
+//! Lumis in Rune: a 30-second reel of an editor whose code Lumis colours, cut like a trailer.
+//! Every frame is a function of the (virtual) clock, so a headless `--video` run records it
+//! frame-exact:
 //!
-//!     lumis-rune-showreel --scene reel --video reel.mp4 --size 960x540 --scale 2 --duration 33
+//!     lumis-rune-showreel --video reel.mp4 --size 960x540 --scale 2 --duration 30
 //!
 //! `reel@N` starts the reel N seconds in, on a fresh clock, so a long recording can be made in
 //! segments without simulating the frames before each one.
 
 mod data;
 mod gfx;
+mod ide;
 mod kit;
 mod scenes;
 
 use rune::{AppSpec, Cx, El};
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
-pub(crate) enum Scene {
-    #[default]
-    Reel,
-    Type,
-    Themes,
-    Langs,
-    Annotate,
-}
-
 #[derive(Default)]
 pub(crate) struct State {
-    pub(crate) scene: Scene,
     /// Seconds since the scene started (Rune's virtual clock when headless).
     pub(crate) t: f64,
-    /// Seconds into the scene the clock starts at.
+    /// Seconds into the reel the clock starts at.
     pub(crate) start: f64,
 }
 
 fn view(s: &State, _: &mut Cx<State>) -> El {
-    let t = s.start + s.t;
-    let root = match s.scene {
-        Scene::Reel => scenes::reel(t),
-        Scene::Type => scenes::type_::view(t),
-        Scene::Themes => scenes::themes::view(t),
-        Scene::Langs => scenes::langs::view(t),
-        Scene::Annotate => scenes::annotate::view(t),
-    };
-    root.instant_changes()
+    scenes::reel(s.start + s.t).instant_changes()
 }
 
 fn main() {
@@ -49,11 +32,7 @@ fn main() {
     let _ = data::snippets();
     let app = rune::App::new(AppSpec::<State> {
         scenes: &[
-            ("reel", |s| s.scene = Scene::Reel),
-            ("type", |s| s.scene = Scene::Type),
-            ("themes", |s| s.scene = Scene::Themes),
-            ("langs", |s| s.scene = Scene::Langs),
-            ("annotate", |s| s.scene = Scene::Annotate),
+            ("reel", |_| {}),
             ("reel@2", |s| s.start = 2.0),
             ("reel@4", |s| s.start = 4.0),
             ("reel@6", |s| s.start = 6.0),
@@ -69,7 +48,6 @@ fn main() {
             ("reel@26", |s| s.start = 26.0),
             ("reel@28", |s| s.start = 28.0),
             ("reel@30", |s| s.start = 30.0),
-            ("reel@32", |s| s.start = 32.0),
         ],
         fonts: &[
             include_bytes!("../assets/Inter-Regular.ttf"),

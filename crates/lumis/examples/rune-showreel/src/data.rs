@@ -10,6 +10,7 @@ use std::sync::OnceLock;
 
 use lumis::HighlightOptions;
 use lumis::annotations::Annotation;
+use lumis::decorations::{Decoration, DiffWordKind};
 use lumis::events::HighlightEvent;
 use lumis::highlight::{highlight_events_with_options, highlight_iter};
 use lumis::languages::Language;
@@ -19,7 +20,7 @@ use rune::{Span, rich};
 
 pub(crate) struct Snippet {
     pub(crate) name: &'static str,
-    lang: Language,
+    pub(crate) lang: Language,
     pub(crate) code: String,
     pub(crate) tokens: Vec<(Range<usize>, &'static str)>,
 }
@@ -64,17 +65,6 @@ pub(crate) fn snippets() -> &'static [Snippet] {
         out.dedup_by_key(|s| s.name);
         out
     })
-}
-
-/// A hand-written snippet in `lang` (a name or alias), tokenised once.
-pub(crate) fn custom(lang: &str, code: &str) -> Snippet {
-    let l = Language::guess(Some(lang), code);
-    Snippet {
-        name: l.name(),
-        lang: l,
-        tokens: tokenize(l, code),
-        code: code.to_string(),
-    }
 }
 
 fn tokenize(lang: Language, code: &str) -> Vec<(Range<usize>, &'static str)> {
@@ -337,4 +327,79 @@ pub(crate) fn annotated<M>(
         }
     }
     out
+}
+
+type Styled = Rc<[Run<()>]>;
+
+/// `code` as Lumis styles it in `theme`, highlighted once per pair.
+pub(crate) fn styled(code: &'static str, lang: Language, theme: &'static Theme) -> Rc<[Run<()>]> {
+    thread_local! {
+        static STYLED: RefCell<HashMap<(usize, Pair), Styled>> = RefCell::default();
+    }
+    let key = (
+        code.len(),
+        (code.as_ptr() as usize, std::ptr::from_ref(theme) as usize),
+    );
+    if let Some(hit) = STYLED.with_borrow(|m| m.get(&key).cloned()) {
+        return hit;
+    }
+    let out: Rc<[Run<()>]> = annotated(code, lang, theme, &[]).into();
+    STYLED.with_borrow_mut(|m| m.insert(key, out.clone()));
+    out
+}
+
+/// The words Lumis marks as changed between a diff's removed lines and the added lines that
+/// replace them.
+pub(crate) fn diff_words(diff: &str) -> Vec<(Range<usize>, DiffWordKind)> {
+    let options = HighlightOptions::new().word_diff(true);
+    let events = highlight_events_with_options::<()>(diff, Language::Diff, options).expect("diff");
+    let mut open: Vec<Option<DiffWordKind>> = Vec::new();
+    let mut out = Vec::new();
+    for event in events {
+        match event {
+            HighlightEvent::DecorationStart { decoration } => open.push(match decoration {
+                Decoration::DiffWord { kind } => Some(kind),
+                _ => None,
+            }),
+            HighlightEvent::DecorationEnd => {
+                open.pop();
+            }
+            HighlightEvent::Source { start, end } => {
+                if let Some(kind) = open.iter().rev().find_map(|k| *k) {
+                    out.push((start..end, kind));
+                }
+            }
+            _ => {}
+        }
+    }
+    out
+}
+
+/// A colour packed as `0xRRGGBB` in an `f32`, for effect data.
+#[allow(clippy::cast_precision_loss)]
+pub(crate) fn packed(c: Color) -> f32 {
+    u32::from_str_radix(&c.hex()[1..7], 16).unwrap_or(0) as f32
+}
+
+/// A theme's colour for `scope`, or its text colour.
+pub(crate) fn scope(t: &Theme, scope: &str) -> Color {
+    first(t, &[scope])
+}
+
+/// A theme's colour for the first of `scopes` it sets, or its text colour.
+pub(crate) fn first(t: &Theme, scopes: &[&str]) -> Color {
+    scopes
+        .iter()
+        .find_map(|s| t.get_style(s).and_then(|st| st.fg.as_deref()))
+        .map_or_else(|| fg(t), color)
+}
+
+/// The theme's colour for errors and removals.
+pub(crate) fn danger(t: &Theme) -> Color {
+    first(t, &["diff.minus", "error", "comment.error"])
+}
+
+/// A theme's background for `scope`, if it sets one.
+pub(crate) fn scope_bg(t: &Theme, scope: &str) -> Option<Color> {
+    t.get_style(scope).and_then(|s| s.bg.as_deref()).map(color)
 }

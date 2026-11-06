@@ -3,7 +3,7 @@
 
 use rune::{El, col, el};
 
-use crate::data::{bg, code, fg, snippets, theme, themes};
+use crate::data::{bg, code, fg, packed, snippets, theme, themes};
 use crate::gfx::{GRAIN, SPARKLES};
 use crate::kit::{H, W, ease, float, fx, mono, sp, t, track};
 
@@ -12,6 +12,7 @@ const CARD: (f32, f32) = (236.0, 150.0);
 const GAP: f32 = 14.0;
 const PULL: (f64, f64) = (0.6, 5.2);
 const END: f64 = 5.6;
+pub(crate) const LEN: f64 = 7.0;
 
 pub(crate) fn view(t_: f64) -> El {
     let all = themes();
@@ -57,8 +58,6 @@ pub(crate) fn view(t_: f64) -> El {
     let base = theme("tokyonight_night");
     let fin = ease(t_, END, 0.5);
     let pop = track(t_, 0.0, &[(END, 1.0, sp(0.55, 0.35))]);
-    let ti = all.iter().position(|x| x.name == base.name).unwrap_or(0);
-    let ti = float(ti);
     let banner = col()
         .gap(10.0)
         .items_center()
@@ -87,7 +86,7 @@ pub(crate) fn view(t_: f64) -> El {
         )
         .child(col().absolute(0.0, 0.0).size(W, H).center().child(banner))
         .child(
-            fx(SPARKLES, [(t_ - END) as f32, 30.0, 10.0, ti])
+            fx(SPARKLES, [(t_ - END) as f32, 30.0, 10.0, packed(fg(base))])
                 .absolute(W / 2.0 - 260.0, H / 2.0 - 60.0)
                 .size(520.0, 120.0)
                 .effect_bleed(60.0),

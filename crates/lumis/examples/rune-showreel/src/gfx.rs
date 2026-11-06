@@ -1,95 +1,152 @@
 //! The compositor: every `El::effect` slot becomes one rune-fx layer. The slot's mark says which
-//! effect and its `effect_data` the effect's live numbers. The lava takes its colours from Lumis
-//! themes: `[theme a, theme b, mix, intensity]`. Effects run on the scenes' clock, `start + t`,
-//! so a recording that starts partway into the reel draws the same frames as the whole reel.
+//! effect and its `effect_data` the effect's live numbers. Colours arrive as `0xRRGGBB` packed in
+//! an `f32` (exact below 2^24), so they come from Lumis themes like the code does. One-shot
+//! effects take their age rather than a start time, so a scene keeps its own clock while effects
+//! run on the reel's, `start + t`, and a recording that starts partway draws the same frames.
 
 use rune::compose::{Compositor, Frame};
 use rune::render::{EffectPhase, EffectSite, KIND_EFFECT};
 use rune_fx::{
-    FireParams, FireStyle, Fx, FxFrame, FxLayer, FxOptions, FxRenderer, FxSlot, GlowParams,
-    GlowStyle, GrainParams, MetaballParams, Rgb, Shape, SparkleParams, Stops, rgb,
+    DistortParams, ElectricParams, FireParams, FireStyle, Fx, FxFrame, FxLayer, FxOptions,
+    FxRenderer, FxSlot, GlowParams, GlowStyle, GrainParams, LensParams, PlasticParams, PulseParams,
+    PulseStyle, Rgb, Shape, ShimmerParams, SparkleParams, rgb,
 };
 
 use crate::State;
-use crate::data::{bg_hex, palette, themes};
-use crate::kit::index;
 
-pub(crate) const LAVA: u32 = 1;
-pub(crate) const GLOW: u32 = 2;
-pub(crate) const SPARKLES: u32 = 3;
-pub(crate) const GRAIN: u32 = 4;
-pub(crate) const FIRE: u32 = 5;
+/// `[height, intensity, smoke, opacity]`
+pub(crate) const FIRE: u32 = 1;
+/// `[intensity, amplitude, charged (0 or 1), colour]`
+pub(crate) const ELECTRIC: u32 = 2;
+/// `[intensity, radius, aura (0 or 1), colour]`
+pub(crate) const GLOW: u32 = 3;
+/// `[age (no burst below 0), count, size, colour]`
+pub(crate) const SPARKLES: u32 = 4;
+/// `[period, reach, intensity, colour]`
+pub(crate) const PULSE: u32 = 5;
+/// `[intensity, period, band, colour]`
+pub(crate) const SHIMMER: u32 = 6;
+/// `[presence, magnification, frost, unused]`
+pub(crate) const LENS: u32 = 7;
+/// `[x, y, age, amount]`
+pub(crate) const SHOCK: u32 = 8;
+/// `[height, amount, unused, unused]`
+pub(crate) const HAZE: u32 = 9;
+/// `[colour, roughness, dome, bevel]`
+pub(crate) const PLASTIC: u32 = 10;
+/// `[amount, fps, unused, unused]`
+pub(crate) const GRAIN: u32 = 11;
 
-fn mix(a: Rgb, b: Rgb, k: f32) -> Rgb {
-    Rgb([0, 1, 2].map(|i| a.0[i] + (b.0[i] - a.0[i]) * k))
+#[allow(clippy::cast_sign_loss)]
+fn hue(x: f32) -> Rgb {
+    rgb(x.max(0.0) as u32)
 }
 
-fn theme_rgb(i: f32, slot: usize) -> Rgb {
-    let all = themes();
-    let p = palette(all[index(f64::from(i)).min(all.len() - 1)]);
-    rgb(p[slot % p.len()])
-}
-
-fn theme_bg(i: f32) -> Rgb {
-    let all = themes();
-    let hex = bg_hex(all[index(f64::from(i)).min(all.len() - 1)]);
-    rgb(
-        u32::from_str_radix(hex.trim_start_matches('#').get(..6).unwrap_or("000000"), 16)
-            .unwrap_or(0),
-    )
+#[allow(clippy::cast_sign_loss)]
+fn count(x: f32) -> u32 {
+    x.max(0.0) as u32
 }
 
 fn layer(kind: u32, d: [f32; 4], shape: Shape, t: f32) -> Option<FxLayer> {
     let fx = match kind {
-        LAVA => {
-            let colors: Vec<Rgb> = (0..5)
-                .map(|s| mix(theme_rgb(d[0], s), theme_rgb(d[1], s), d[2]))
-                .collect();
-            let base = mix(theme_bg(d[0]), theme_bg(d[1]), d[2]);
-            let p = MetaballParams {
-                colors: Stops::new(&colors),
-                base,
-                count: 9,
-                size: 0.12,
-                speed: 0.45,
-                gloss: 0.3,
+        FIRE => {
+            let p = FireParams {
+                style: FireStyle::Top,
+                height: d[0],
+                intensity: d[1],
+                smoke: d[2],
+                embers: 24,
+                scale: 26.0,
+                ..FireParams::default()
             };
-            return Some(Fx::fill(p).on(shape).at(t).seed(7).opacity(d[3]));
+            return Some(Fx::fire(p).on(shape).at(t).opacity(d[3]));
+        }
+        ELECTRIC => {
+            let base = if d[2] > 0.5 {
+                ElectricParams::charged()
+            } else {
+                ElectricParams::default()
+            };
+            Fx::electric(ElectricParams {
+                intensity: d[0],
+                amplitude: d[1],
+                color: hue(d[3]),
+                ..base
+            })
         }
         GLOW => Fx::glow(GlowParams {
-            style: GlowStyle::Aura,
-            color: theme_rgb(d[0], 0),
-            intensity: d[1],
-            radius: d[2],
+            style: if d[2] > 0.5 {
+                GlowStyle::Aura
+            } else {
+                GlowStyle::Soft
+            },
+            color: hue(d[3]),
+            intensity: d[0],
+            radius: d[1],
             aura_speed: 0.35,
             ..Default::default()
         }),
         SPARKLES if d[0] < 0.0 => return None,
         SPARKLES => Fx::sparkles(SparkleParams {
             burst: Some(t - d[0]),
-            count: index(f64::from(d[1])) as u32,
+            count: count(d[1]),
             size: d[2],
-            color: theme_rgb(d[3], 1),
+            color: hue(d[3]),
             margin: 30.0,
             ..Default::default()
+        }),
+        PULSE => Fx::pulse(PulseParams {
+            style: PulseStyle::Radar,
+            color: hue(d[3]),
+            period: d[0],
+            reach: d[1],
+            intensity: d[2],
+            ..Default::default()
+        }),
+        SHIMMER => Fx::shimmer(ShimmerParams {
+            intensity: d[0],
+            period: d[1],
+            band: d[2],
+            color: hue(d[3]),
+            ..Default::default()
+        }),
+        LENS => Fx::lens(LensParams {
+            presence: d[0],
+            magnification: d[1],
+            frost: d[2],
+            bevel: 18.0,
+            depth: 22.0,
+            dispersion: 0.2,
+            ..Default::default()
+        }),
+        SHOCK => Fx::distort(DistortParams::Shockwave {
+            at: [d[0], d[1]],
+            reach: 1100.0,
+            width: 90.0,
+            amount: d[3],
+            chroma: 0.6,
+            t0: t - d[2],
+            duration: 1.1,
+        }),
+        HAZE => Fx::distort(DistortParams::HeatHaze {
+            height: d[0],
+            scale: 14.0,
+            speed: 1.4,
+            amount: d[1],
+            whole_shape: false,
+        }),
+        PLASTIC => Fx::fill(PlasticParams {
+            color: hue(d[0]),
+            roughness: d[1],
+            dome: d[2],
+            bevel: d[3],
+            angle: -0.6,
         }),
         GRAIN => Fx::grain(GrainParams {
             amount: d[0],
             fps: d[1],
             ..Default::default()
         }),
-        FIRE => {
-            let p = FireParams {
-                style: FireStyle::Top,
-                height: d[0],
-                intensity: d[1],
-                smoke: d[3],
-                embers: 24,
-                scale: 26.0,
-                ..FireParams::default()
-            };
-            return Some(Fx::fire(p).on(shape).at(t).opacity(d[2]));
-        }
         _ => return None,
     };
     Some(fx.on(shape).at(t))
