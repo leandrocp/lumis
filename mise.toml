@@ -639,6 +639,7 @@ echo ""
 echo "Running Rust fmt check..."
 cargo fmt --all -- --check
 cargo fmt --manifest-path crates/dev/Cargo.toml --check
+cargo fmt --manifest-path crates/lumis/examples/rune-showreel/Cargo.toml --check
 echo ""
 echo "Running Elixir checks..."
 mise run lint-elixir
@@ -714,6 +715,7 @@ set -euo pipefail
 echo "Formatting Rust..."
 cargo fmt --all
 cargo fmt --manifest-path crates/dev/Cargo.toml
+cargo fmt --manifest-path crates/lumis/examples/rune-showreel/Cargo.toml
 echo ""
 echo "Formatting Elixir..."
 (cd packages/elixir/lumis && mix format)

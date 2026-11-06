@@ -62,5 +62,6 @@ benchmarks/webgpu_compute_reduce.html linguist-vendored
 crates/lumis/vendored_parsers/** linguist-vendored
 crates/lumis-wasm-runtime/src/tree_sitter_highlight.rs linguist-vendored
 packages/elixir/lumis/examples/nimble_publisher/assets/vendor/** linguist-vendored
+crates/lumis/examples/rune-showreel/assets/** linguist-vendored
 queries/upstream/** linguist-vendored
 samples/** linguist-vendored

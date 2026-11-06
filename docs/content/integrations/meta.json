@@ -12,6 +12,7 @@
     "unified-rehype",
     "react-markdown",
     "ratatui",
+    "rune",
     "nimble-publisher",
     "tableau",
     "docusaurus",

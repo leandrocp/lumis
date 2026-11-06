@@ -19,6 +19,7 @@ packages/javascript/*/examples/**/npm-shrinkwrap.json
 benchmarks/elixir/_build/
 benchmarks/elixir/deps/
 benchmarks/rust/target/
+crates/lumis/examples/rune-showreel/target/
 
 # Built native addon, produced by `pnpm --filter @lumis-sh/lumis build:native`
 packages/javascript/lumis/native/*.node

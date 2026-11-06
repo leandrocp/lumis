@@ -348,6 +348,13 @@ performance and maintainability; rule counts are not a quality target.
 | Lua | selene | every lint selene ships, warnings included | `selene.toml`, `neovim.yml` |
 | GitHub Actions | actionlint | its default, which is already strict | `.github/actionlint.yaml` |
 
+Crates that are their own workspace (`crates/dev`, `benchmarks/rust` and the
+Rune showreel in `crates/lumis/examples/rune-showreel`) cannot inherit the root
+lint table, so each copies it, and the lint workflow's "Rust crates outside the
+workspace" job runs rustfmt and clippy on them. `mise run lint` also checks the
+showreel's formatting, but leaves its clippy run to CI, because that compiles
+Rune and its GPU stack.
+
 Every runtime implemented in this repository enforces a complexity ceiling with
 its language-specific analyzer, at the number the other projects in this family
 hold: **9**, classic McCabe, for Elixir and for JavaScript.

@@ -168,9 +168,11 @@ jobs:
           workspaces: |
             benchmarks/rust -> target
             crates/dev -> target
+            crates/lumis/examples/rune-showreel -> target
           shared-key: outside-workspace
       - run: cargo fmt --manifest-path benchmarks/rust/Cargo.toml --check
       - run: cargo fmt --manifest-path crates/dev/Cargo.toml --check
+      - run: cargo fmt --manifest-path crates/lumis/examples/rune-showreel/Cargo.toml --check
       - run: cargo test --manifest-path crates/dev/Cargo.toml --no-default-features
       - run: cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- gen-themes-md --check
       # Each of these is its own workspace, so it carries its own `[lints]`
@@ -180,3 +182,6 @@ jobs:
       - run: >-
           cargo clippy --manifest-path crates/dev/Cargo.toml
           --all-targets --no-default-features -- -D warnings
+      - run: >-
+          cargo clippy --manifest-path crates/lumis/examples/rune-showreel/Cargo.toml
+          --all-targets --locked -- -D warnings

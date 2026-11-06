@@ -1,0 +1,63 @@
+---
+title: Rune
+description: Color Rune Markdown code fences and diffs with Lumis through rune-kit's Highlighter.
+keywords:
+  - lumis rune
+  - rune syntax highlighting
+  - rune-kit highlighter
+  - rust gpu ui code blocks
+---
+
+[Full example on GitHub](https://github.com/leandrocp/lumis/tree/main/crates/lumis/examples/rune-showreel)
+
+[Rune](https://github.com/anomalyco/rune) is a GPU-rendered Rust UI framework. Its component crate, `rune-kit`, colors code in `Markdown` fences and in its diff view through a `Highlighter`: a function that takes the fence's language and the code, and returns byte ranges with a color. `highlight_iter` returns exactly that, so Lumis plugs in without a custom formatter.
+
+## Add dependencies
+
+Rune is pre-release and published only through git, so pin a revision:
+
+```toml
+[dependencies]
+lumis = "0.19"
+rune = { git = "https://github.com/anomalyco/rune", rev = "<rev>" }
+rune-kit = { git = "https://github.com/anomalyco/rune", rev = "<rev>", features = ["markdown"] }
+```
+
+## Color code fences
+
+```rust
+use lumis::{highlight::highlight_iter, languages::Language, themes};
+use rune::color::hex;
+use rune_kit::syntax::{builtin, Highlight, Highlighter, Paint};
+use rune_kit::Markdown;
+
+fn lumis_highlighter(theme_name: &'static str) -> Highlighter {
+    let theme = themes::get(theme_name).expect("bundled theme");
+    Highlighter::new(move |lang, code| {
+        let language = Language::guess(lang, code);
+        if language == Language::PlainText {
+            // Rune's own scanners for fences Lumis doesn't recognize.
+            return builtin(lang, code);
+        }
+        let mut out: Vec<Highlight> = Vec::new();
+        let _ = highlight_iter(code, language, Some(theme.clone()), |_, _, range, _, style| {
+            if let Some(color) = style.fg.as_deref().and_then(hex) {
+                out.push((range, Paint::Color(color)));
+            }
+            Ok::<_, std::fmt::Error>(())
+        });
+        out
+    })
+    .key(theme_name)
+}
+
+let view = Markdown::new(answer).highlighter(lumis_highlighter("catppuccin_mocha"));
+```
+
+Rune caches the result per highlighter, language and code, so a view that rebuilds every frame highlights each block once. `.key(theme_name)` keeps two themes' results apart in that cache. The diff view takes the same highlighter through `set_highlighter`.
+
+A `Highlighter` sets color only: Rune keeps glyph positions identical with and without highlighting, so a theme's bold and italic are dropped. To draw code with the full style, build the text yourself with `rune::rich` and one `Span` per token, setting `color`, `weight` and `italic` from the `Style` that `highlight_iter` passes. The showreel example does this.
+
+## Showreel
+
+The example also animates every bundled language and theme in Rune: code typing into a card, one snippet running through all themes, and a wall of one card per language. Its README shows how to run it in a window or record it headless.
