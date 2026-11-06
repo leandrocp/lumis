@@ -1316,11 +1316,42 @@ static bool ts_wasm_store__sentinel_lex_fn(TSLexer *_lexer, TSStateId state) {
   return false;
 }
 
+static const TSLanguage *ts_wasm_store__load_language(
+  TSWasmStore *self,
+  const char *language_name,
+  const char *wasm,
+  uint32_t wasm_len,
+  const char *precompiled_path,
+  TSWasmError *wasm_error
+);
+
 const TSLanguage *ts_wasm_store_load_language(
   TSWasmStore *self,
   const char *language_name,
   const char *wasm,
   uint32_t wasm_len,
+  TSWasmError *wasm_error
+) {
+  return ts_wasm_store__load_language(self, language_name, wasm, wasm_len, NULL, wasm_error);
+}
+
+const TSLanguage *ts_wasm_store_load_language_precompiled(
+  TSWasmStore *self,
+  const char *language_name,
+  const char *wasm,
+  uint32_t wasm_len,
+  const char *precompiled_path,
+  TSWasmError *wasm_error
+) {
+  return ts_wasm_store__load_language(self, language_name, wasm, wasm_len, precompiled_path, wasm_error);
+}
+
+static const TSLanguage *ts_wasm_store__load_language(
+  TSWasmStore *self,
+  const char *language_name,
+  const char *wasm,
+  uint32_t wasm_len,
+  const char *precompiled_path,
   TSWasmError *wasm_error
 ) {
   WasmDylinkInfo dylink_info;
@@ -1340,13 +1371,22 @@ const TSLanguage *ts_wasm_store_load_language(
     goto error;
   }
 
-  // Compile the Wasm code.
-  error = wasmtime_module_new(self->engine, (const uint8_t *)wasm, wasm_len, &module);
+  // Compile the Wasm code, or map the code a previous compile of it left.
+  if (precompiled_path) {
+    error = wasmtime_module_deserialize_file(self->engine, precompiled_path, &module);
+  } else {
+    error = wasmtime_module_new(self->engine, (const uint8_t *)wasm, wasm_len, &module);
+  }
   if (error) {
     wasm_message_t message;
     wasmtime_error_message(error, &message);
     wasm_error->kind = TSWasmErrorKindCompile;
-    format(&wasm_error->message, "error compiling Wasm module: %.*s", (int)message.size, message.data);
+    format(
+      &wasm_error->message,
+      precompiled_path ? "error loading precompiled Wasm module: %.*s" : "error compiling Wasm module: %.*s",
+      (int)message.size,
+      message.data
+    );
     wasm_byte_vec_delete(&message);
     goto error;
   }

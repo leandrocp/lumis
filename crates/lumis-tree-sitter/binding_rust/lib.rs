@@ -2716,7 +2716,10 @@ impl Query {
             })
             .collect::<Vec<_>>();
 
-        // Build a vector of predicates for each pattern.
+        // Build a vector of predicates for each pattern. Patterns start in source
+        // order, so each one's row continues the count from the previous one.
+        let source_bytes = source.as_bytes();
+        let (mut counted_to, mut counted_rows) = (0usize, 0usize);
         for i in 0..pattern_count {
             let predicate_steps = unsafe {
                 let mut length = 0u32;
@@ -2733,11 +2736,16 @@ impl Query {
             };
 
             let byte_offset = unsafe { ffi::ts_query_start_byte_for_pattern(ptr.0, i as u32) };
-            let row = source
-                .char_indices()
-                .take_while(|(i, _)| *i < byte_offset as usize)
-                .filter(|(_, c)| *c == '\n')
+            let byte_offset = (byte_offset as usize).min(source_bytes.len());
+            if byte_offset < counted_to {
+                (counted_to, counted_rows) = (0, 0);
+            }
+            counted_rows += source_bytes[counted_to..byte_offset]
+                .iter()
+                .filter(|&&byte| byte == b'\n')
                 .count();
+            counted_to = byte_offset;
+            let row = counted_rows;
 
             use ffi::TSQueryPredicateStepType as T;
             const TYPE_DONE: T = ffi::TSQueryPredicateStepTypeDone;

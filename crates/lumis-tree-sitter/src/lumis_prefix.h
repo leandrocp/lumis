@@ -4,7 +4,7 @@
 #ifndef LUMIS_TREE_SITTER_PREFIX_H_
 #define LUMIS_TREE_SITTER_PREFIX_H_
 
-#define LUMIS_QUERY_ANALYSIS_FINGERPRINT 0xe15e630445685a5dull
+#define LUMIS_QUERY_ANALYSIS_FINGERPRINT 0xacd37a0e88327fccull
 
 #define STDLIB_SYMBOLS lumis_STDLIB_SYMBOLS
 #define STDLIB_WASM lumis_STDLIB_WASM
@@ -285,6 +285,7 @@
 #define ts_wasm_store_has_error lumis_ts_wasm_store_has_error
 #define ts_wasm_store_language_count lumis_ts_wasm_store_language_count
 #define ts_wasm_store_load_language lumis_ts_wasm_store_load_language
+#define ts_wasm_store_load_language_precompiled lumis_ts_wasm_store_load_language_precompiled
 #define ts_wasm_store_new lumis_ts_wasm_store_new
 #define ts_wasm_store_reset lumis_ts_wasm_store_reset
 #define ts_wasm_store_reset_heap lumis_ts_wasm_store_reset_heap

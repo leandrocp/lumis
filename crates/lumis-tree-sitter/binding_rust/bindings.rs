@@ -1106,6 +1106,18 @@ unsafe extern "C" {
     ) -> *const TSLanguage;
 }
 unsafe extern "C" {
+    #[doc = " Create a language like `ts_wasm_store_load_language`, taking its compiled\n code from `precompiled_path` instead of compiling `wasm`.\n\n The file must hold what `wasmtime::Engine::precompile_module` produced for\n `wasm` with an engine configured like this store's. The engine rejects one\n built by another Wasmtime version or configuration, but it maps the code\n it accepts without further checks, so the file must be trusted like the\n process's own code. `wasm` is still read, for its dylink section."]
+    #[link_name = "lumis_ts_wasm_store_load_language_precompiled"]
+    pub fn ts_wasm_store_load_language_precompiled(
+        arg1: *mut TSWasmStore,
+        name: *const ::core::ffi::c_char,
+        wasm: *const ::core::ffi::c_char,
+        wasm_len: u32,
+        precompiled_path: *const ::core::ffi::c_char,
+        error: *mut TSWasmError,
+    ) -> *const TSLanguage;
+}
+unsafe extern "C" {
     #[doc = " Get the number of languages instantiated in the given Wasm store."]
     #[link_name = "lumis_ts_wasm_store_language_count"]
     pub fn ts_wasm_store_language_count(arg1: *const TSWasmStore) -> usize;

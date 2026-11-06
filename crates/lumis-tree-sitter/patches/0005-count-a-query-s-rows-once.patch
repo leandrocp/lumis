@@ -1,0 +1,59 @@
+From 33b07f37841ba1798ca71f49e4362ddee8e6da40 Mon Sep 17 00:00:00 2001
+From: Leandro Pereira <leandro@leandro.io>
+Date: Thu, 5 Nov 2026 18:34:31 +0000
+Subject: [PATCH 5/6] perf(rust): count a query's rows once, not once per
+ pattern
+
+`Query::from_raw_parts` computes each pattern's row, for predicate error
+messages, by counting newlines from the start of the source up to that
+pattern. That makes building a query quadratic in its size: nvim-treesitter's
+C++ highlights, injections and locals together are about 600 patterns over
+100 KB, and the count was 9% of a warm highlight that loads C++.
+
+Patterns start in source order, so the count now continues from the
+previous pattern, and restarts only if one starts earlier. The rows, and
+the errors that report them, are unchanged.
+---
+ binding_rust/lib.rs | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/binding_rust/lib.rs b/binding_rust/lib.rs
+index 2ec5a5c..a6d2f3e 100644
+--- a/binding_rust/lib.rs
++++ b/binding_rust/lib.rs
+@@ -2716,7 +2716,10 @@ impl Query {
+             })
+             .collect::<Vec<_>>();
+ 
+-        // Build a vector of predicates for each pattern.
++        // Build a vector of predicates for each pattern. Patterns start in source
++        // order, so each one's row continues the count from the previous one.
++        let source_bytes = source.as_bytes();
++        let (mut counted_to, mut counted_rows) = (0usize, 0usize);
+         for i in 0..pattern_count {
+             let predicate_steps = unsafe {
+                 let mut length = 0u32;
+@@ -2733,11 +2736,16 @@ impl Query {
+             };
+ 
+             let byte_offset = unsafe { ffi::ts_query_start_byte_for_pattern(ptr.0, i as u32) };
+-            let row = source
+-                .char_indices()
+-                .take_while(|(i, _)| *i < byte_offset as usize)
+-                .filter(|(_, c)| *c == '\n')
++            let byte_offset = (byte_offset as usize).min(source_bytes.len());
++            if byte_offset < counted_to {
++                (counted_to, counted_rows) = (0, 0);
++            }
++            counted_rows += source_bytes[counted_to..byte_offset]
++                .iter()
++                .filter(|&&byte| byte == b'\n')
+                 .count();
++            counted_to = byte_offset;
++            let row = counted_rows;
+ 
+             use ffi::TSQueryPredicateStepType as T;
+             const TYPE_DONE: T = ffi::TSQueryPredicateStepTypeDone;
+-- 
+2.55.0
+

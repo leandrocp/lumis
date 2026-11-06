@@ -73,10 +73,41 @@ Callers that keep snapshots key them by the exact parser they came from.
 Across 118 languages this took query compilation from 5.7 s to 71 ms with
 byte-identical highlighting output.
 
+### feat(wasm): load a language from a precompiled module file
+
+`patches/0004-load-a-language-from-a-precompiled-module.patch`
+
+`ts_wasm_store_load_language` always hands the Wasm bytes to
+`wasmtime_module_new`. With Wasmtime's cache configured that is still a
+SHA-256 of the module, a zstd decompression and a copy on every load:
+13 ms for the C++ parser, which is most of what a warm highlight of a
+small C++ file spends outside parsing.
+
+`ts_wasm_store_load_language_precompiled` takes the compiled code from a
+file `wasmtime::Engine::precompile_module` wrote instead, through
+`wasmtime_module_deserialize_file`, which maps it: 0.4 ms for the same
+parser. Wasmtime still rejects a file from another version or engine
+configuration, so a caller can fall back to compiling. The Wasm bytes are
+still passed, because the dylink section is read from them.
+
+### perf(rust): count a query's rows once, not once per pattern
+
+`patches/0005-count-a-query-s-rows-once.patch`
+
+`Query::from_raw_parts` computes each pattern's row, for predicate error
+messages, by counting newlines from the start of the source up to that
+pattern. That makes building a query quadratic in its size: nvim-treesitter's
+C++ highlights, injections and locals together are about 600 patterns over
+100 KB, and the count was 9% of a warm highlight that loads C++.
+
+Patterns start in source order, so the count now continues from the
+previous pattern, and restarts only if one starts earlier. The rows, and
+the errors that report them, are unchanged.
+
 ### Every exported C symbol is prefixed with `lumis_`
 
 Applied last, so it covers what the patches add. `src/lumis_prefix.h` renames
-283 names: every function and variable the library defines with external
+284 names: every function and variable the library defines with external
 linkage, plus a few static ones a macro hides from the source reader, which renaming
 does not affect. The Rust bindings import them under the new names. The crate's `links` key is
 `lumis-tree-sitter`, so it builds and links beside upstream `tree-sitter` instead of

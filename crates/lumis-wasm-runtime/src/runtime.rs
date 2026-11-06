@@ -53,6 +53,7 @@ type ModuleKey = (String, String);
 struct Loader {
     modules: HashMap<ModuleKey, Result<Language, String>>,
     store: WasmStore,
+    precompiled: Option<Arc<Precompiled>>,
     #[cfg(test)]
     module_load_attempts: usize,
 }
@@ -98,7 +99,13 @@ impl Loader {
         {
             self.module_load_attempts += 1;
         }
-        match self.store.load_language(&spec.grammar_name, &spec.wasm) {
+        let loaded = match &self.precompiled {
+            Some(precompiled) => {
+                precompiled.load(&mut self.store, &spec.grammar_name, &spec.wasm, &key.1)
+            }
+            None => self.store.load_language(&spec.grammar_name, &spec.wasm),
+        };
+        match loaded {
             Ok(language) => {
                 self.modules.insert(key, Ok(language.clone()));
                 Ok(language)
@@ -120,6 +127,79 @@ impl Loader {
     }
 }
 
+/// Parser modules compiled once and kept as files the engine maps on load.
+///
+/// Wasmtime's own cache hashes the module, decompresses its entry and copies
+/// it on every load, 13 ms for the C++ parser against 0.4 ms to map the file
+/// `Engine::precompile_module` wrote. Files are named by the parser's SHA-256,
+/// which the store already verified, and by the engine's compatibility hash,
+/// so another Wasmtime or engine configuration never reads them. They sit
+/// beside `compiled/` rather than in it, because Wasmtime's cache cleanup
+/// deletes files it did not write.
+struct Precompiled {
+    engine: Engine,
+    dir: PathBuf,
+    engine_tag: String,
+}
+
+impl Precompiled {
+    fn new(engine: Engine, dir: PathBuf) -> Self {
+        use std::hash::{Hash as _, Hasher as _};
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        engine.precompile_compatibility_hash().hash(&mut hasher);
+        let engine_tag = format!("{:016x}", hasher.finish());
+        Self {
+            engine,
+            dir,
+            engine_tag,
+        }
+    }
+
+    fn path(&self, digest: &str) -> PathBuf {
+        self.dir.join(format!("{digest}-{}.cwasm", self.engine_tag))
+    }
+
+    /// The file holding `wasm`'s compiled code, compiling it first if needed.
+    /// `None` when it cannot be compiled or written, for the caller to compile
+    /// in memory and report what is wrong.
+    fn ensure(&self, wasm: &[u8], digest: &str) -> Option<PathBuf> {
+        let path = self.path(digest);
+        if path.is_file() {
+            return Some(path);
+        }
+        let code = self.engine.precompile_module(wasm).ok()?;
+        crate::store::write_atomic(&path, &code).ok()?;
+        Some(path)
+    }
+
+    /// Load `wasm` into `store` from its precompiled file. A file the engine
+    /// refuses is replaced once; after that the module is compiled in memory.
+    fn load(
+        &self,
+        store: &mut WasmStore,
+        grammar: &str,
+        wasm: &[u8],
+        digest: &str,
+    ) -> Result<Language, tree_sitter::WasmError> {
+        for _ in 0..2 {
+            let Some(path) = self.ensure(wasm, digest) else {
+                break;
+            };
+            // SAFETY: the file is one `ensure` wrote under the data directory,
+            // which is trusted like `compiled/`, and the engine checks that it
+            // was built by this Wasmtime with this configuration.
+            match unsafe { store.load_language_precompiled(grammar, wasm, &path) } {
+                Ok(language) => return Ok(language),
+                Err(error) if error.kind == tree_sitter::WasmErrorKind::Compile => {
+                    let _ = std::fs::remove_file(&path);
+                }
+                Err(error) => return Err(error),
+            }
+        }
+        store.load_language(grammar, wasm)
+    }
+}
+
 /// Compile a language's highlight configuration against its loaded parser.
 ///
 /// The query's structural analysis, which is most of the compile, is restored
@@ -129,7 +209,7 @@ impl Loader {
 /// written to `analysis_dir`, so a stale local snapshot costs one compile.
 fn compile_highlight(
     analysis_dir: Option<&Path>,
-    wasm: &[u8],
+    wasm_digest: &str,
     language: &Language,
     id: &str,
     queries: [&str; 3],
@@ -150,7 +230,7 @@ fn compile_highlight(
             message: error.to_string(),
         })
     };
-    let snapshot = analysis_dir.map(|dir| dir.join(analysis_filename(wasm, queries)));
+    let snapshot = analysis_dir.map(|dir| dir.join(analysis_filename(wasm_digest, queries)));
     let local = snapshot
         .as_deref()
         .and_then(|path| std::fs::read(path).ok());
@@ -169,11 +249,11 @@ fn compile_highlight(
 /// Where a parser and its highlights, injections and locals queries keep their
 /// analysis snapshot: one file per combination and analysis code version, so
 /// a new parser, query or Lumis version never reads or overwrites another's.
-fn analysis_filename(wasm: &[u8], queries: [&str; 3]) -> String {
+fn analysis_filename(wasm_digest: &str, queries: [&str; 3]) -> String {
     use sha2::Digest as _;
     let mut hasher = sha2::Sha256::new();
     hasher.update(Query::analysis_fingerprint().to_le_bytes());
-    hasher.update(wasm);
+    hasher.update(wasm_digest.as_bytes());
     for query in queries {
         hasher.update((query.len() as u64).to_le_bytes());
         hasher.update(query.as_bytes());
@@ -317,13 +397,11 @@ pub struct Runtime {
     /// bounded by the catalog: a Markdown fence can name anything, and an
     /// owned key would let a caller grow this map without limit.
     loading: Mutex<HashMap<&'static str, Arc<Mutex<()>>>>,
-    /// Whether the engine persists compiled modules, which is what makes
-    /// compiling a batch's parsers ahead of the store worth doing.
-    compile_cache: bool,
     /// Where query analysis snapshots are kept, beside the compiled modules
     /// rather than among them: Wasmtime's cache cleanup deletes any file under
     /// its own directory that it did not write.
     analysis_dir: Option<PathBuf>,
+    precompiled: Option<Arc<Precompiled>>,
 }
 
 /// Turn a failed `load_language` into something a caller can act on.
@@ -447,10 +525,14 @@ impl Runtime {
     ) -> Result<Self, RuntimeError> {
         let store =
             WasmStore::new(&engine).map_err(|error| RuntimeError::TreeSitter(error.to_string()))?;
+        let precompiled = cache_root
+            .as_ref()
+            .map(|root| Arc::new(Precompiled::new(engine.clone(), root.join("precompiled"))));
         Ok(Self {
             loader: Mutex::new(Loader {
                 modules: HashMap::new(),
                 store,
+                precompiled: precompiled.clone(),
                 #[cfg(test)]
                 module_load_attempts: 0,
             }),
@@ -458,8 +540,8 @@ impl Runtime {
             workers: WorkerPool::new(engine, worker_limit),
             store: None,
             loading: Mutex::new(HashMap::new()),
-            compile_cache: cache_root.is_some(),
             analysis_dir: cache_root.map(|root| root.join("queries")),
+            precompiled,
         })
     }
 
@@ -525,10 +607,11 @@ impl Runtime {
             let location = crate::catalog::find(name)
                 .filter(|location| !self.has_language(name) && claimed.insert(location.id));
             slots.push(location.map(|location| {
-                Self::store_spec(store, name, location).map(|spec| specs.push(spec))
+                Self::store_spec(store, name, location)
+                    .map(|(spec, digest)| specs.push((spec, Some(digest))))
             }));
         }
-        let mut loaded = self.load_languages(specs).into_iter();
+        let mut loaded = self.load_languages_with_digests(specs).into_iter();
         let results: Vec<Option<Result<(), RuntimeError>>> = slots
             .into_iter()
             .map(|slot| {
@@ -601,15 +684,20 @@ impl Runtime {
 
         let mut wasm_store = WasmStore::new(self.workers.engine())
             .map_err(|error| RuntimeError::TreeSitter(error.to_string()))?;
-        let language = wasm_store
-            .load_language(&package.parser.grammar_name, &wasm)
-            .map_err(|error| classify_load_error(name, error.to_string()))?;
+        let grammar = &package.parser.grammar_name;
+        let language = match self.precompiled.as_deref() {
+            Some(precompiled) => {
+                precompiled.load(&mut wasm_store, grammar, &wasm, &package.parser.sha256)
+            }
+            None => wasm_store.load_language(grammar, &wasm),
+        }
+        .map_err(|error| classify_load_error(name, error.to_string()))?;
         let (id, definition) = package
             .language(name)
             .ok_or_else(|| RuntimeError::UnknownLanguage(name.into()))?;
         compile_highlight(
             self.analysis_dir.as_deref(),
-            &wasm,
+            &package.parser.sha256,
             &language,
             id,
             [
@@ -617,7 +705,7 @@ impl Runtime {
                 &definition.injections,
                 &definition.locals,
             ],
-            &package.query_analysis(definition, &wasm),
+            &package.query_analysis(definition, &package.parser.sha256),
         )
         .map(drop)
     }
@@ -645,9 +733,11 @@ impl Runtime {
             return Ok(loaded);
         }
 
-        let spec = Self::store_spec(store, id, location)?;
+        let (spec, digest) = Self::store_spec(store, id, location)?;
         let resolved_id = spec.id.clone();
-        self.load_language(spec)?;
+        self.load_distinct(vec![spec], vec![Some(digest)])
+            .pop()
+            .expect("one result per spec")?;
 
         self.loaded(&resolved_id)
             .ok_or_else(|| RuntimeError::LanguageNotLoaded(id.into()))
@@ -658,7 +748,7 @@ impl Runtime {
         store: &LanguageStore,
         name: &str,
         location: &crate::catalog::LanguagePackageRef,
-    ) -> Result<LanguageSpec, RuntimeError> {
+    ) -> Result<(LanguageSpec, String), RuntimeError> {
         let store_error = |error: StoreError| RuntimeError::Store {
             language: name.to_string(),
             source: Box::new(error),
@@ -668,18 +758,24 @@ impl Runtime {
             .language(name)
             .ok_or_else(|| RuntimeError::LanguageNotLoaded(name.into()))?;
         let wasm = store.parser(&package).map_err(store_error)?;
+        let digest = if store.verifies_parsers() {
+            package.parser.sha256.clone()
+        } else {
+            crate::sha256_hex(&wasm)
+        };
 
-        Ok(LanguageSpec {
+        let spec = LanguageSpec {
             id: resolved_id.to_string(),
             aliases: definition.aliases.clone(),
             grammar_name: package.parser.grammar_name.clone(),
-            query_analysis: package.query_analysis(definition, &wasm),
+            query_analysis: package.query_analysis(definition, &digest),
             wasm,
             highlights: definition.highlights.clone(),
             injections: definition.injections.clone(),
             locals: definition.locals.clone(),
             brackets: definition.brackets.clone(),
-        })
+        };
+        Ok((spec, digest))
     }
 
     fn loaded(&self, name_or_alias: &str) -> Option<Arc<LoadedLanguage>> {
@@ -727,20 +823,34 @@ impl Runtime {
     /// [`Runtime::load_language`] would, after the batch.
     #[must_use]
     pub fn load_languages(&self, specs: Vec<LanguageSpec>) -> Vec<Result<(), RuntimeError>> {
+        self.load_languages_with_digests(specs.into_iter().map(|spec| (spec, None)).collect())
+    }
+
+    /// [`Runtime::load_languages`], with each parser's SHA-256 where the caller
+    /// already knows it.
+    fn load_languages_with_digests(
+        &self,
+        specs: Vec<(LanguageSpec, Option<String>)>,
+    ) -> Vec<Result<(), RuntimeError>> {
         let count = specs.len();
         let mut seen = std::collections::HashSet::new();
         let (distinct, repeated): (Vec<_>, Vec<_>) = specs
             .into_iter()
             .enumerate()
-            .partition(|(_, spec)| seen.insert(spec.id.clone()));
-        let (indices, distinct): (Vec<usize>, Vec<LanguageSpec>) = distinct.into_iter().unzip();
+            .partition(|(_, (spec, _))| seen.insert(spec.id.clone()));
+        let (indices, distinct): (Vec<usize>, Vec<(LanguageSpec, Option<String>)>) =
+            distinct.into_iter().unzip();
+        let (distinct, digests) = distinct.into_iter().unzip();
 
         let mut results: Vec<Option<Result<(), RuntimeError>>> = (0..count).map(|_| None).collect();
-        for (index, result) in indices.into_iter().zip(self.load_distinct(distinct)) {
+        for (index, result) in indices
+            .into_iter()
+            .zip(self.load_distinct(distinct, digests))
+        {
             results[index] = Some(result);
         }
-        for (index, spec) in repeated {
-            results[index] = self.load_distinct(vec![spec]).pop();
+        for (index, (spec, digest)) in repeated {
+            results[index] = self.load_distinct(vec![spec], vec![digest]).pop();
         }
         results
             .into_iter()
@@ -749,21 +859,39 @@ impl Runtime {
     }
 
     /// [`Runtime::load_languages`] for specs whose ids are all different.
-    fn load_distinct(&self, specs: Vec<LanguageSpec>) -> Vec<Result<(), RuntimeError>> {
-        let modules = self.load_modules(&specs);
-        let pending: Vec<(&LanguageSpec, &Language)> = specs
+    ///
+    /// `digests` holds each parser's SHA-256 where the caller already knows it,
+    /// so a 3 MB parser is not hashed again on every load.
+    fn load_distinct(
+        &self,
+        specs: Vec<LanguageSpec>,
+        digests: Vec<Option<String>>,
+    ) -> Vec<Result<(), RuntimeError>> {
+        let keys: Vec<Option<ModuleKey>> = specs
+            .iter()
+            .zip(digests)
+            .map(|(spec, digest)| {
+                (!self.is_loaded(&spec.id)).then(|| {
+                    let digest = digest.unwrap_or_else(|| crate::sha256_hex(&spec.wasm));
+                    (spec.grammar_name.clone(), digest)
+                })
+            })
+            .collect();
+        let modules = self.load_modules(&specs, &keys);
+        let pending: Vec<(&LanguageSpec, &Language, &str)> = specs
             .iter()
             .zip(&modules)
-            .filter_map(|(spec, module)| match module {
-                Some(Ok(language)) => Some((spec, language)),
+            .zip(&keys)
+            .filter_map(|((spec, module), key)| match (module, key) {
+                (Some(Ok(language)), Some((_, digest))) => Some((spec, language, digest.as_str())),
                 _ => None,
             })
             .collect();
         let mut compiled =
-            crate::parallel_map(&pending, query_concurrency(), |(spec, language)| {
+            crate::parallel_map(&pending, query_concurrency(), |(spec, language, digest)| {
                 compile_highlight(
                     self.analysis_dir.as_deref(),
-                    &spec.wasm,
+                    digest,
                     language,
                     &spec.id,
                     [&spec.highlights, &spec.injections, &spec.locals],
@@ -789,22 +917,19 @@ impl Runtime {
     }
 
     /// Load each spec's parser module, or `None` for an id already loaded.
-    fn load_modules(&self, specs: &[LanguageSpec]) -> Vec<Option<Result<Language, RuntimeError>>> {
-        let keys: Vec<Option<ModuleKey>> = specs
-            .iter()
-            .map(|spec| {
-                (!self.is_loaded(&spec.id))
-                    .then(|| (spec.grammar_name.clone(), crate::sha256_hex(&spec.wasm)))
-            })
-            .collect();
-        self.warm_compile_cache(specs, &keys);
+    fn load_modules(
+        &self,
+        specs: &[LanguageSpec],
+        keys: &[Option<ModuleKey>],
+    ) -> Vec<Option<Result<Language, RuntimeError>>> {
+        self.warm_compile_cache(specs, keys);
 
         let mut loader = self.loader.lock().expect("language loader lock poisoned");
         specs
             .iter()
             .zip(keys)
             .map(|(spec, key)| {
-                let key = key?;
+                let key = key.clone()?;
                 // Checked again under the lock: a concurrent load may have
                 // finished while this one waited for it.
                 (!self.is_loaded(&spec.id)).then(|| loader.load(spec, key))
@@ -821,10 +946,10 @@ impl Runtime {
     /// pay the cache lookup twice, so it is skipped. Errors are ignored here:
     /// the load that follows reports them with the parser they belong to.
     fn warm_compile_cache(&self, specs: &[LanguageSpec], keys: &[Option<ModuleKey>]) {
-        if !self.compile_cache {
+        let Some(precompiled) = self.precompiled.as_deref() else {
             return;
-        }
-        let cold: Vec<&[u8]> = {
+        };
+        let cold: Vec<(&[u8], &str)> = {
             let loader = self.loader.lock().expect("language loader lock poisoned");
             let mut seen = std::collections::HashSet::new();
             specs
@@ -833,16 +958,15 @@ impl Runtime {
                 .filter_map(|(spec, key)| {
                     let key = key.as_ref()?;
                     (!loader.modules.contains_key(key) && seen.insert(key))
-                        .then_some(spec.wasm.as_slice())
+                        .then_some((spec.wasm.as_slice(), key.1.as_str()))
                 })
                 .collect()
         };
         if cold.len() < 2 {
             return;
         }
-        let engine = self.workers.engine();
-        crate::parallel_map(&cold, crate::compile_concurrency(), |wasm| {
-            let _ = wasmtime::Module::new(engine, wasm);
+        crate::parallel_map(&cold, crate::compile_concurrency(), |(wasm, digest)| {
+            let _ = precompiled.ensure(wasm, digest);
         });
     }
 
@@ -955,7 +1079,7 @@ impl Runtime {
         };
         let highlight = compile_highlight(
             None,
-            &[],
+            "",
             &language,
             &id,
             [highlights, injections, locals],
@@ -1795,6 +1919,46 @@ mod tests {
         assert_eq!(std::fs::read(&snapshot).unwrap(), valid);
     }
 
+    /// A parser's compiled code is kept as a file the next runtime maps, and a
+    /// file the engine refuses is compiled again rather than failing the load.
+    #[test]
+    fn parser_modules_are_precompiled_beside_the_compiled_modules() {
+        let dir = tempfile::tempdir().unwrap();
+        let spec = || LanguageSpec {
+            id: "json".into(),
+            aliases: Vec::new(),
+            grammar_name: "json".into(),
+            wasm: JSON_WASM.to_vec(),
+            highlights: "(number) @number".into(),
+            injections: String::new(),
+            locals: String::new(),
+            brackets: String::new(),
+            query_analysis: Vec::new(),
+        };
+        let highlight = || {
+            let runtime = Runtime::with_compile_cache_dir(1, dir.path().to_path_buf()).unwrap();
+            runtime.load_language(spec()).unwrap();
+            format!("{:?}", runtime.highlight("[1, 2]", "json", false).unwrap())
+        };
+        let files = || -> Vec<_> {
+            std::fs::read_dir(dir.path().join("precompiled"))
+                .map(|entries| entries.map(|entry| entry.unwrap().path()).collect())
+                .unwrap_or_default()
+        };
+
+        let expected = highlight();
+        let [file] = files().try_into().unwrap();
+        let name = file.file_name().unwrap().to_string_lossy().into_owned();
+        assert!(name.starts_with(&crate::sha256_hex(JSON_WASM)), "{name}");
+        let valid = std::fs::read(&file).unwrap();
+
+        for broken in [b"not a module".to_vec(), valid[..valid.len() / 2].to_vec()] {
+            std::fs::write(&file, broken).unwrap();
+            assert_eq!(highlight(), expected);
+            assert_eq!(std::fs::read(&file).unwrap(), valid, "and replaced");
+        }
+    }
+
     #[test]
     fn a_parser_module_survives_query_failure_for_a_corrected_retry() {
         let runtime = Runtime::with_worker_limit(1).unwrap();
@@ -2059,6 +2223,57 @@ mod tests {
             assert!(forward.join().unwrap().iter().all(Result::is_ok));
             assert!(backward.join().unwrap().iter().all(Result::is_ok));
         }
+    }
+
+    /// Installed parsers are taken unchecked, so their compiled code is keyed by
+    /// the bytes on disk: a parser replaced under the manifest is compiled anew
+    /// rather than run from the code compiled for the one it replaced.
+    #[test]
+    fn a_replaced_installed_parser_is_not_run_from_the_old_compiled_code() {
+        let dir = tempfile::tempdir().unwrap();
+        let installed = dir.path().join("installed");
+        std::fs::create_dir_all(&installed).unwrap();
+        let package = json_package(JSON_WASM);
+        std::fs::write(
+            installed.join("json.lumis.json"),
+            serde_json::to_vec(&package).unwrap(),
+        )
+        .unwrap();
+        let parser = installed.join(crate::store::parser_filename(&package));
+        let load = || {
+            let store = LanguageStore::new(
+                StoreConfig {
+                    cache_dir: dir.path().join("cache"),
+                    installed_dirs: Some(vec![installed.clone()]),
+                },
+                Box::new(crate::NoNetwork),
+            );
+            Runtime::with_compile_cache_dir(1, dir.path().join("compiled"))
+                .unwrap()
+                .with_store(store)
+                .load_named_language("json")
+                .unwrap();
+        };
+        let precompiled = || -> Vec<String> {
+            std::fs::read_dir(dir.path().join("compiled/precompiled"))
+                .unwrap()
+                .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+                .collect()
+        };
+
+        std::fs::write(&parser, JSON_WASM).unwrap();
+        load();
+        // The same parser with an empty custom section `lumi` appended.
+        let replaced = [JSON_WASM, &[0, 5, 4, b'l', b'u', b'm', b'i']].concat();
+        std::fs::write(&parser, &replaced).unwrap();
+        load();
+
+        let digest = crate::sha256_hex(&replaced);
+        assert!(
+            precompiled().iter().any(|name| name.starts_with(&digest)),
+            "{:?}",
+            precompiled()
+        );
     }
 
     #[test]

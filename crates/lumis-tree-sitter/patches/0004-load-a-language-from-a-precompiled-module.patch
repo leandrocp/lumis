@@ -1,0 +1,206 @@
+From 34d7d3e5e0cade55d2769f886b271598779fad26 Mon Sep 17 00:00:00 2001
+From: Leandro Pereira <leandro@leandro.io>
+Date: Thu, 5 Nov 2026 17:58:17 +0000
+Subject: [PATCH 4/6] feat(wasm): load a language from a precompiled module
+ file
+
+`ts_wasm_store_load_language` always hands the Wasm bytes to
+`wasmtime_module_new`. With Wasmtime's cache configured that is still a
+SHA-256 of the module, a zstd decompression and a copy on every load:
+13 ms for the C++ parser, which is most of what a warm highlight of a
+small C++ file spends outside parsing.
+
+`ts_wasm_store_load_language_precompiled` takes the compiled code from a
+file `wasmtime::Engine::precompile_module` wrote instead, through
+`wasmtime_module_deserialize_file`, which maps it: 0.4 ms for the same
+parser. Wasmtime still rejects a file from another version or engine
+configuration, so a caller can fall back to compiling. The Wasm bytes are
+still passed, because the dylink section is read from them.
+---
+ binding_rust/bindings.rs      | 11 +++++++++
+ binding_rust/wasm_language.rs | 41 +++++++++++++++++++++++++++++++
+ include/tree_sitter/api.h     | 19 +++++++++++++++
+ src/wasm_store.c              | 46 ++++++++++++++++++++++++++++++++---
+ 4 files changed, 114 insertions(+), 3 deletions(-)
+
+diff --git a/binding_rust/bindings.rs b/binding_rust/bindings.rs
+index 771380a..6551311 100644
+--- a/binding_rust/bindings.rs
++++ b/binding_rust/bindings.rs
+@@ -956,6 +956,17 @@ unsafe extern "C" {
+         error: *mut TSWasmError,
+     ) -> *const TSLanguage;
+ }
++unsafe extern "C" {
++    #[doc = " Create a language like `ts_wasm_store_load_language`, taking its compiled\n code from `precompiled_path` instead of compiling `wasm`.\n\n The file must hold what `wasmtime::Engine::precompile_module` produced for\n `wasm` with an engine configured like this store's. The engine rejects one\n built by another Wasmtime version or configuration, but it maps the code\n it accepts without further checks, so the file must be trusted like the\n process's own code. `wasm` is still read, for its dylink section."]
++    pub fn ts_wasm_store_load_language_precompiled(
++        arg1: *mut TSWasmStore,
++        name: *const ::core::ffi::c_char,
++        wasm: *const ::core::ffi::c_char,
++        wasm_len: u32,
++        precompiled_path: *const ::core::ffi::c_char,
++        error: *mut TSWasmError,
++    ) -> *const TSLanguage;
++}
+ unsafe extern "C" {
+     #[doc = " Get the number of languages instantiated in the given Wasm store."]
+     pub fn ts_wasm_store_language_count(arg1: *const TSWasmStore) -> usize;
+diff --git a/binding_rust/wasm_language.rs b/binding_rust/wasm_language.rs
+index edf09b8..a5788f9 100644
+--- a/binding_rust/wasm_language.rs
++++ b/binding_rust/wasm_language.rs
+@@ -80,6 +80,47 @@ impl WasmStore {
+         }
+     }
+ 
++    /// Load a language like [`WasmStore::load_language`], taking its compiled code
++    /// from `precompiled`, a file holding what [`wasmtime::Engine::precompile_module`]
++    /// produced for `bytes` with this store's engine.
++    ///
++    /// # Safety
++    ///
++    /// The engine rejects a file built by another Wasmtime version or configuration,
++    /// but runs the code in one it accepts without further checks, as
++    /// [`wasmtime::Module::deserialize_file`] does. The file must be trusted like the
++    /// process's own code.
++    pub unsafe fn load_language_precompiled(
++        &mut self,
++        name: &str,
++        bytes: &[u8],
++        precompiled: &std::path::Path,
++    ) -> Result<Language, WasmError> {
++        let name = CString::new(name).unwrap();
++        let Some(path) = precompiled.to_str().and_then(|path| CString::new(path).ok()) else {
++            return Err(WasmError {
++                kind: WasmErrorKind::Compile,
++                message: format!("unusable precompiled module path {}", precompiled.display()),
++            });
++        };
++        unsafe {
++            let mut error = MaybeUninit::<ffi::TSWasmError>::uninit();
++            let language = ffi::ts_wasm_store_load_language_precompiled(
++                self.0,
++                name.as_ptr(),
++                bytes.as_ptr().cast::<c_char>(),
++                bytes.len() as u32,
++                path.as_ptr(),
++                error.as_mut_ptr(),
++            );
++            if language.is_null() {
++                Err(WasmError::new(error.assume_init()))
++            } else {
++                Ok(Language(language))
++            }
++        }
++    }
++
+     #[must_use]
+     pub fn language_count(&self) -> usize {
+         unsafe { ffi::ts_wasm_store_language_count(self.0) }
+diff --git a/include/tree_sitter/api.h b/include/tree_sitter/api.h
+index bb4a8c2..8f3a772 100644
+--- a/include/tree_sitter/api.h
++++ b/include/tree_sitter/api.h
+@@ -1510,6 +1510,25 @@ const TSLanguage *ts_wasm_store_load_language(
+   TSWasmError *error
+ );
+ 
++/**
++ * Create a language like `ts_wasm_store_load_language`, taking its compiled
++ * code from `precompiled_path` instead of compiling `wasm`.
++ *
++ * The file must hold what `wasmtime::Engine::precompile_module` produced for
++ * `wasm` with an engine configured like this store's. The engine rejects one
++ * built by another Wasmtime version or configuration, but it maps the code
++ * it accepts without further checks, so the file must be trusted like the
++ * process's own code. `wasm` is still read, for its dylink section.
++ */
++const TSLanguage *ts_wasm_store_load_language_precompiled(
++  TSWasmStore *,
++  const char *name,
++  const char *wasm,
++  uint32_t wasm_len,
++  const char *precompiled_path,
++  TSWasmError *error
++);
++
+ /**
+  * Get the number of languages instantiated in the given Wasm store.
+  */
+diff --git a/src/wasm_store.c b/src/wasm_store.c
+index dbf6203..b080272 100644
+--- a/src/wasm_store.c
++++ b/src/wasm_store.c
+@@ -1316,12 +1316,43 @@ static bool ts_wasm_store__sentinel_lex_fn(TSLexer *_lexer, TSStateId state) {
+   return false;
+ }
+ 
++static const TSLanguage *ts_wasm_store__load_language(
++  TSWasmStore *self,
++  const char *language_name,
++  const char *wasm,
++  uint32_t wasm_len,
++  const char *precompiled_path,
++  TSWasmError *wasm_error
++);
++
+ const TSLanguage *ts_wasm_store_load_language(
+   TSWasmStore *self,
+   const char *language_name,
+   const char *wasm,
+   uint32_t wasm_len,
+   TSWasmError *wasm_error
++) {
++  return ts_wasm_store__load_language(self, language_name, wasm, wasm_len, NULL, wasm_error);
++}
++
++const TSLanguage *ts_wasm_store_load_language_precompiled(
++  TSWasmStore *self,
++  const char *language_name,
++  const char *wasm,
++  uint32_t wasm_len,
++  const char *precompiled_path,
++  TSWasmError *wasm_error
++) {
++  return ts_wasm_store__load_language(self, language_name, wasm, wasm_len, precompiled_path, wasm_error);
++}
++
++static const TSLanguage *ts_wasm_store__load_language(
++  TSWasmStore *self,
++  const char *language_name,
++  const char *wasm,
++  uint32_t wasm_len,
++  const char *precompiled_path,
++  TSWasmError *wasm_error
+ ) {
+   WasmDylinkInfo dylink_info;
+   wasmtime_module_t *module = NULL;
+@@ -1340,13 +1371,22 @@ const TSLanguage *ts_wasm_store_load_language(
+     goto error;
+   }
+ 
+-  // Compile the Wasm code.
+-  error = wasmtime_module_new(self->engine, (const uint8_t *)wasm, wasm_len, &module);
++  // Compile the Wasm code, or map the code a previous compile of it left.
++  if (precompiled_path) {
++    error = wasmtime_module_deserialize_file(self->engine, precompiled_path, &module);
++  } else {
++    error = wasmtime_module_new(self->engine, (const uint8_t *)wasm, wasm_len, &module);
++  }
+   if (error) {
+     wasm_message_t message;
+     wasmtime_error_message(error, &message);
+     wasm_error->kind = TSWasmErrorKindCompile;
+-    format(&wasm_error->message, "error compiling Wasm module: %.*s", (int)message.size, message.data);
++    format(
++      &wasm_error->message,
++      precompiled_path ? "error loading precompiled Wasm module: %.*s" : "error compiling Wasm module: %.*s",
++      (int)message.size,
++      message.data
++    );
+     wasm_byte_vec_delete(&message);
+     goto error;
+   }
+-- 
+2.55.0
+

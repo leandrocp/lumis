@@ -351,6 +351,20 @@ compiled forms. Registering an already-compiled parser is 3-15 ms, and about
 warm, and why `load` still exists: to move both costs off a user's first
 request, not to gate anything.
 
+**A warm parser is mapped, not looked up.** Wasmtime's own cache hashes a
+module, decompresses its entry and copies it on every load, 13 ms for the C++
+parser. The runtime instead writes each parser's compiled code once to
+`precompiled/`, named by the parser's SHA-256 and by the engine's compatibility
+hash. That is the digest the store already verified, except for a parser a
+package manager installed, which the store takes as given and the runtime
+hashes, so a replaced file is compiled anew. The runtime maps the file with
+`lumis-tree-sitter`'s `load_language_precompiled`: 0.4 ms. Wasmtime still rejects a file from another
+version or engine configuration, and the runtime then compiles it again. The
+files are uncompressed, so they take about ten times the disk of `compiled/`:
+168 MB for every parser in the catalog. `compiled/` now only holds Tree-sitter's
+small Wasm standard library. Highlighting every sample once per process with a
+warm data directory takes 2.2 s, against 3.3 s through Wasmtime's cache.
+
 **Compiling the queries is the other cost, and it is cached too.** Almost all of
 building a highlight query is Tree-sitter's structural analysis, which walks the
 grammar's parse table and gives the same answer every time for the same parser,
@@ -470,11 +484,11 @@ highlighting. Already discovered package versions keep their identity.
 
 Everything a runtime persists lives under one directory, named by
 `LUMIS_DATA_DIR`: `parsers/` for language packages and parser WASM, `themes/`
-for the CLI's custom themes, `compiled/` for Wasmtime's module cache, and
-`queries/` for query analysis snapshots. Only the CLI reads `parsers/`, whether
-the files were downloaded or staged there by a build step; Elixir and Node load
-the parser packages a project installed, and share `compiled/` and `queries/`
-with the CLI. Browsers keep parsers a configured resolver fetched in CacheStorage instead, having no filesystem. Parser
+for the CLI's custom themes, `precompiled/` for each parser's compiled code,
+`compiled/` for Wasmtime's module cache, and `queries/` for query analysis
+snapshots. Only the CLI reads `parsers/`, whether the files were downloaded or
+staged there by a build step; Elixir and Node load the parser packages a project
+installed, and share `precompiled/`, `compiled/` and `queries/` with the CLI. Browsers keep parsers a configured resolver fetched in CacheStorage instead, having no filesystem. Parser
 cache keys contain the parser name, package version, and digest, so upgrades do
 not overwrite older verified assets. A compatible package already in the
 directory is an exact lock and is never revalidated during highlighting; a

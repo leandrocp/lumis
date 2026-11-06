@@ -419,6 +419,13 @@ impl LanguageStore {
         self.fetch_parser(package, &path)
     }
 
+    /// Whether [`Self::parser`] checks the bytes it returns against the package's
+    /// digest. Installed dependencies are taken as the package manager left them.
+    #[must_use]
+    pub fn verifies_parsers(&self) -> bool {
+        self.config.installed_dirs.is_none()
+    }
+
     /// The package as an installed dependency supplies it, if one does.
     fn installed_package(
         dirs: &[PathBuf],
