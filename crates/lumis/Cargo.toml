@@ -336,7 +336,7 @@ tree-sitter-ini = { version = "1.4.0", optional = true }
 tree-sitter-java = { version = "0.23.5", optional = true }
 tree-sitter-javascript = { version = "0.25.0", optional = true }
 tree-sitter-javadoc = { version = "0.3.1", optional = true }
-tree-sitter-jinja = { version = "0.13.0", optional = true }
+tree-sitter-jinja = { version = "0.13.1", optional = true }
 tree-sitter-json = { version = "0.24.8", optional = true }
 tree-sitter-julia = { version = "0.23.1", optional = true }
 tree-sitter-language = "0.1.7"
