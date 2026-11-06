@@ -37,6 +37,18 @@ pub fn documents(assets_dir: &Path) -> Vec<Document> {
     .expect("parse showcase documents")
 }
 
+/// The gallery documents, then the ones only the timing passes highlight.
+pub fn timed_documents(assets_dir: &Path) -> Vec<Document> {
+    let timed_only: Vec<Document> = serde_json::from_slice(
+        &fs::read(assets_dir.join("timed-documents.json")).expect("read timed documents"),
+    )
+    .expect("parse timed documents");
+    documents(assets_dir)
+        .into_iter()
+        .chain(timed_only)
+        .collect()
+}
+
 pub fn themes(assets_dir: &Path) -> Vec<ShowcaseTheme> {
     serde_json::from_slice(&fs::read(assets_dir.join("themes.json")).expect("read showcase themes"))
         .expect("parse showcase themes")

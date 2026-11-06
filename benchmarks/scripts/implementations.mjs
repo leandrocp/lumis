@@ -33,6 +33,12 @@ export const implementations = [
  */
 export const lumisReference = "lumis-rust";
 
+/** The files the comparison table measures: a small one and a large one. */
+export const comparisonTableDocuments = [
+  { id: "shadcn", size: "Small" },
+  { id: "three-core", size: "Large" },
+];
+
 /** The implementations the benchmark suite times. */
 export const benchmarkImplementations = implementations.filter(
   (implementation) => implementation.benchmark !== false,

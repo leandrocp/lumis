@@ -43,12 +43,21 @@ of this. Both sets of numbers are committed, and these refresh them:
 
 ```sh
 mise run -C benchmarks showcase-publish
+mise run -C benchmarks comparison-timings
+mise run -C benchmarks comparison-timings-publish
 ```
 
 `showcase-publish` writes the gallery, and CI fails when the committed bytes stop
-matching. `mise run -C benchmarks comparison-timings` times every library on every
-document the gallery renders and takes the median peak RSS of five fresh
-processes doing the same; its report stays under `target/benchmarks/runs/`.
+matching. `comparison-timings` times every library on every document the gallery
+renders, plus a pinned 1.4 MB three.js build that is timed but never rendered. It
+also takes the median setup time and peak RSS of five fresh processes that each
+build one highlighter and highlight once. Lumis is timed twice, through Rust and
+through the Node addon. The report keeps two of those files, the shadcn/ui sidebar
+as the small one and the three.js build as the large one, and
+`comparison-timings-publish` copies it to
+`website/public/benchmark-data/comparison.json`, which fills the table on
+[lumis.sh/comparison](https://lumis.sh/comparison/) and its Markdown export.
+Publish timings from one machine at a time; the page names it.
 
 ## Package size
 

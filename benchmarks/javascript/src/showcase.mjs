@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { implementationById } from "../../scripts/implementations.mjs";
-import { loadLibraries } from "./libraries.mjs";
+import { libraryIds, loadLibraries } from "./libraries.mjs";
 import { parserBytes } from "./parsers.mjs";
 import { createHighlighter, runtimeKind } from "@lumis-sh/lumis";
 import { withWasm } from "@lumis-sh/lumis/languages";
@@ -74,7 +74,12 @@ const lumisThemes = new Map(
 const others =
   process.env.BENCH_SHOWCASE_LUMIS_ONLY === "1"
     ? undefined
-    : await loadLibraries({ assetsDir, documents, themes });
+    : await loadLibraries({
+        assetsDir,
+        documents,
+        themes,
+        ids: libraryIds.filter((id) => !id.startsWith("lumis-")),
+      });
 
 for (const document of documents) {
   const source = await readFile(resolve(assetsDir, document.file), "utf8");

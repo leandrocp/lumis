@@ -1,4 +1,5 @@
-// Renders public/comparison/index.md from the published comparison, so the
+// Renders public/comparison/index.md from the published comparison and its
+// timing report, so the
 // Markdown page states what the data says rather than what someone last wrote
 // about it. Without `--write` it fails when the committed
 // page is not what the data renders.
@@ -8,6 +9,10 @@ const markdownUrl = new URL("../public/comparison/index.md", import.meta.url);
 const vercelUrl = new URL("../vercel.json", import.meta.url);
 const publishedManifest = await readJson(
   new URL("../public/comparison-data/manifest.json", import.meta.url),
+);
+const timings = await readJson(
+  new URL("../public/benchmark-data/comparison.json", import.meta.url),
+  true,
 );
 
 const markdown = render(publishedManifest);
@@ -52,6 +57,7 @@ function render(manifest) {
     "",
     ...manifest.documents.map(documentLine),
     "",
+    ...(timings ? timingSection(timings) : []),
     "The source files, rendering pipeline, themes, and generated outputs are available in the " +
       "[Lumis repository](https://github.com/leandrocp/lumis).",
     "",
@@ -82,6 +88,85 @@ function listOf(items) {
   return `${items.slice(0, -1).join(", ")}${items.length > 2 ? "," : ""} and ${items.at(-1)}`;
 }
 
-async function readJson(url) {
-  return JSON.parse(await readFile(url, "utf8"));
+// Rows are libraries and columns are the report's small and large files, as on
+// the page.
+function timingSection(report) {
+  const { documents } = report;
+  const table = (title, note, format, value) => [
+    `### ${title}`,
+    "",
+    note,
+    "",
+    `| Library | ${documents.map((document) => `${document.size}: ${document.label} (${formatBytes(document.bytes)})`).join(" | ")} |`,
+    `| --- | ${documents.map(() => "---:").join(" | ")} |`,
+    ...report.implementations.map(
+      ({ id, label }) =>
+        `| ${label} | ${documents
+          .map((document) => {
+            const result = document.results.find((entry) => entry.id === id);
+            return result ? format(value(result)) : "—";
+          })
+          .join(" | ")} |`,
+    ),
+    "",
+  ];
+  return [
+    "## Speed and output",
+    "",
+    `Measured ${report.measuredAt.slice(0, 10)} on ${report.system.cpu} ` +
+      `(${report.system.cores} cores, ${report.system.os}), Node.js ${report.runtimes.node}, ` +
+      `${report.runtimes.rust}. Each figure is a median. ` +
+      documents
+        .map(
+          (document) =>
+            `The ${document.size.toLowerCase()} file is [${document.label}](${document.source}), ` +
+            `${document.languageLabel}, ${document.lines.toLocaleString("en")} lines.`,
+        )
+        .join(" "),
+    "",
+    ...table(
+      "Highlight",
+      `Time: ${report.timingBoundary}.`,
+      formatDuration,
+      (result) => result.totalNs,
+    ),
+    ...table(
+      "Setup + first highlight",
+      `Time: ${report.setupBoundary}.`,
+      formatDuration,
+      (result) => result.setupNs,
+    ),
+    ...table(
+      "Peak RSS",
+      "The most memory that fresh process held, its runtime included.",
+      formatBytes,
+      (result) => result.peakRssBytes,
+    ),
+    ...table(
+      "Tokens",
+      "Spans the highlighter gave a colour to: how finely the file was resolved, not a score.",
+      (value) => value.toLocaleString("en"),
+      (result) => result.tokens,
+    ),
+  ];
+}
+
+function formatDuration(ns) {
+  if (ns >= 1e9) return `${(ns / 1e9).toFixed(2)} s`;
+  if (ns >= 1e6) return `${(ns / 1e6).toFixed(ns >= 1e8 ? 0 : 1)} ms`;
+  return `${(ns / 1e3).toFixed(0)} µs`;
+}
+
+function formatBytes(bytes) {
+  if (bytes >= 2 ** 20) return `${(bytes / 2 ** 20).toFixed(1)} MiB`;
+  return `${(bytes / 2 ** 10).toFixed(0)} KiB`;
+}
+
+async function readJson(url, optional = false) {
+  try {
+    return JSON.parse(await readFile(url, "utf8"));
+  } catch (error) {
+    if (optional && error.code === "ENOENT") return;
+    throw error;
+  }
 }
