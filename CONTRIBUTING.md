@@ -9,6 +9,7 @@ See `ARCHITECTURE.md` for how the crates, packages, website, and build pipeline 
 - [Testing](#testing)
 - [Linting](#linting)
 - [Releases](#releases)
+- [The tree-sitter library](#the-tree-sitter-library)
 - [Benchmarks](#benchmarks)
 - [Environment variables](#environment-variables)
 - [Configuration files](#configuration-files)
@@ -342,7 +343,7 @@ performance and maintainability; rule counts are not a quality target.
 
 | Runtime | Linter | Policy | Configuration |
 | --- | --- | --- | --- |
-| Rust | clippy, lizard | clippy's `pedantic` group plus `rust_2018_idioms` and `unreachable_pub`, all denied; cognitive complexity at most 10; classic cyclomatic complexity at most 20 | `[workspace.lints]` in the root `Cargo.toml`, `clippy.toml`, `.lizard-whitelist` |
+| Rust | clippy, lizard | clippy's `pedantic` group plus `rust_2018_idioms` and `unreachable_pub`, all denied; cognitive complexity at most 10; classic cyclomatic complexity at most 20. `crates/lumis-tree-sitter` is generated upstream code and exempt | `[workspace.lints]` in the root `Cargo.toml`, `clippy.toml`, `.lizard-whitelist` |
 | JavaScript, TypeScript | oxlint | explicitly reviewed safety and maintainability rules, as errors; classic cyclomatic complexity at most 9 | `.oxlintrc.json` |
 | Elixir | credo | `mix credo --strict`; cyclomatic complexity at most 9 | `packages/elixir/lumis/.credo.exs` |
 | Lua | selene | every lint selene ships, warnings included | `selene.toml`, `neovim.yml` |
@@ -425,6 +426,44 @@ Releases are prepared by `release-prepare.yml`, one pull request per package, an
 - A successful `cargo-lumis-cli` publish opens `align-npm-cli`, which updates only the npm package's `binaryVersion`. This generated `chore(javascript)` commit is explicitly included by the release filters. Merging it lets the normal release workflow prepare npm's own version and changelog.
 
 Do not hand-edit release versions or changelog sections when `mise run release-prepare` can generate them.
+
+## The tree-sitter library
+
+Every Lumis crate uses tree-sitter's parsing library through `crates/lumis-tree-sitter`,
+a dependency renamed back to `tree-sitter`, so code still says `tree_sitter::`. The crate
+is the crates.io `tree-sitter` release named in `upstream.toml`, with `patches/` applied
+in file-name order. Everything else in that directory is generated; only
+`upstream.toml`, `patches/` and `CHANGELOG.md` are edited by hand.
+
+```sh
+mise run tree-sitter-sync    # regenerate the crate
+mise run tree-sitter-check   # fail unless the committed crate is what sync produces
+```
+
+- **Add a change as a patch.** Write it as a `git format-patch` file with paths relative
+  to the crate root (`src/query.c`, not `lib/src/query.c`). Its subject and message are
+  what the crate's README lists, so say why upstream cannot serve as it is. An upstream
+  commit not yet released exports as one with
+  `git format-patch -1 <sha> --relative=lib -- lib/`. Drop the patch when the pin moves
+  past it.
+- **Move the pin** by editing `version` and `sha256` in `upstream.toml`, then sync. A
+  patch that no longer applies fails the sync.
+- **Every exported C symbol gets a `lumis_` prefix**, applied after the patches, and the
+  crate links as `lumis-tree-sitter`. That is what lets a binary contain both this
+  library and upstream `tree-sitter`, as `lumis` already does through grammar crates
+  that depend on upstream. Without it the build succeeds and calls silently reach
+  whichever copy the linker picked. The sync finds the symbols by parsing the C sources,
+  then compiles the result and fails if any exported symbol is still unprefixed.
+  Wasmtime cannot be renamed the same way: its C API crate declares
+  `links = "wasmtime-c-api"`, so a project that also turns on upstream's `wasm` feature
+  resolves only when both use the same Wasmtime major. Move the pin to each new
+  tree-sitter release to keep them aligned.
+- A patch must not change what a Wasm parser imports or exports, so every published
+  parser keeps loading in upstream tree-sitter and `web-tree-sitter`. The browser
+  runtime uses `web-tree-sitter` from npm and gets none of these patches.
+- The crate is a workspace member only so it packages and publishes with the crates
+  that depend on it. Its manifest opts it out of this workspace's tests, lints and
+  formatting, and `lint-complexity-rust` skips it.
 
 ## Benchmarks
 

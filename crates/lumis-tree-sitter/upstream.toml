@@ -1,0 +1,4 @@
+# The tree-sitter release this crate is generated from, checked against the
+# SHA-256 of its crates.io archive. Change it, then run `mise run tree-sitter-sync`.
+version = "0.27.1"
+sha256 = "a5129de2ccc97808c4583d48f1fb44576d015cf241e432800572bda11ef30c3b"

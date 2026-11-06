@@ -19,6 +19,7 @@ use xz2::write::XzEncoder;
 
 mod stress;
 mod theme_licenses;
+mod tree_sitter_fork;
 mod wasi_sdk;
 
 #[derive(Parser)]
@@ -144,6 +145,13 @@ enum Commands {
         package: String,
         version: String,
     },
+    /// Regenerate `crates/lumis-tree-sitter` from its pinned tree-sitter release
+    /// and patches.
+    TreeSitterSync {
+        /// Fail if the committed crate is not what generation produces.
+        #[arg(long)]
+        check: bool,
+    },
     /// Write the committed test parsers as a Lumis store directory.
     StageTestParsers {
         #[arg(default_value = "target/test-parsers")]
@@ -257,6 +265,7 @@ fn main() -> Result<()> {
         Commands::WasmBundlePublishPlan { package, version } => {
             wasm_bundle_publish_plan(&package, &version)
         }
+        Commands::TreeSitterSync { check } => tree_sitter_fork::sync(check),
         Commands::StageTestParsers { out } => stage_test_parsers(Path::new(&out)),
         Commands::WasmNeeded { filter, force } => wasm_needed(&filter, &force),
         Commands::WasmMeta { name } => wasm_meta(&name),
@@ -2161,6 +2170,7 @@ const RELEASED_CRATES: &[&str] = &[
     "lumis-build",
     "lumis-cli",
     "lumis-core",
+    "lumis-tree-sitter",
     "lumis-wasm-runtime",
 ];
 

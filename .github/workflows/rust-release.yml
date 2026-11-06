@@ -9,6 +9,7 @@ on:
         type: string
   push:
     tags:
+      - "cargo-lumis-tree-sitter/v*"
       - "cargo-lumis/v*"
       - "cargo-lumis-core/v*"
       - "cargo-lumis-build/v*"
@@ -36,6 +37,9 @@ jobs:
       - name: Check crate dependency requirements
         run: mise run check-crate-deps
 
+      - name: Check lumis-tree-sitter against its pin and patches
+        run: mise run tree-sitter-check
+
       - name: Determine crate to publish
         id: crate
         env:
@@ -47,6 +51,10 @@ jobs:
             cargo-lumis)
               crate="lumis"
               manifest="crates/lumis/Cargo.toml"
+              ;;
+            cargo-lumis-tree-sitter)
+              crate="lumis-tree-sitter"
+              manifest="crates/lumis-tree-sitter/Cargo.toml"
               ;;
             cargo-lumis-core)
               crate="lumis-core"

@@ -21,6 +21,12 @@ packages/javascript/wasm-bundle-*/index.js linguist-generated
 packages/javascript/wasm-bundle-*/package.json linguist-generated
 parser-sizes.json linguist-generated
 queries/processed/** linguist-generated
+# Generated from upstream tree-sitter plus patches/; upstream.toml, patches/ and
+# CHANGELOG.md are the authored part.
+crates/lumis-tree-sitter/** linguist-generated
+crates/lumis-tree-sitter/upstream.toml -linguist-generated
+crates/lumis-tree-sitter/patches/** -linguist-generated
+crates/lumis-tree-sitter/CHANGELOG.md -linguist-generated
 
 # Generated themes and formatter output.
 crates/lumis-core/themes/*.json linguist-generated
