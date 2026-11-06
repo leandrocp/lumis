@@ -22,7 +22,7 @@ fn comparison(c: &mut Criterion) {
     let syntect_theme = showcase::syntect_theme(&assets_dir, &showcase_theme);
     let syntaxes = showcase::syntect_syntaxes();
 
-    for document in showcase::documents(&assets_dir) {
+    for document in showcase::timed_documents(&assets_dir) {
         let source =
             fs::read_to_string(assets_dir.join(&document.file)).expect("read showcase fixture");
         // Building the formatter and loading the syntaxes is setup, as building a

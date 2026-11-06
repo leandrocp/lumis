@@ -102,6 +102,25 @@ const documents = [
   },
 ];
 
+// Timed beside the gallery documents but never rendered on the page: at 1.4 MB
+// the outputs would outweigh the rest of the comparison together.
+const timedDocuments = [
+  {
+    id: "three-core",
+    label: "three.js core build",
+    language: "javascript",
+    languageLabel: "JavaScript",
+    file: "three.core.js",
+    sha256: "84b1f0dbca6f48721a302f4919278486fda06a42a16be897576de13be13e6e8f",
+    url: "https://raw.githubusercontent.com/mrdoob/three.js/6365c1a0af6a32ed45f99712197555fee2f4b24a/build/three.core.js",
+    source:
+      "https://github.com/mrdoob/three.js/blob/6365c1a0af6a32ed45f99712197555fee2f4b24a/build/three.core.js",
+    injections: ["Comment"],
+    load: ["javascript", "comment"],
+    unsupported: [],
+  },
+];
+
 // The website renders Catppuccin Latte in light and Frappé in dark, and the
 // comparison is a page of pre-rendered files that cannot follow the reader the
 // way a live highlighter does. Rendering both is what lets it try: the page
@@ -154,6 +173,11 @@ const assets = [
     source: resolve(benchmarksDir, document.file),
     sha256: document.sha256,
   })),
+  ...timedDocuments.map((document) => ({
+    name: document.file,
+    url: document.url,
+    sha256: document.sha256,
+  })),
   ...themes.map((theme) => ({
     name: theme.tmTheme,
     url: theme.tmThemeUrl,
@@ -196,6 +220,10 @@ for (const asset of assets) {
 }
 
 await writeFile(resolve(assetsDir, "documents.json"), `${JSON.stringify(documents, null, 2)}\n`);
+await writeFile(
+  resolve(assetsDir, "timed-documents.json"),
+  `${JSON.stringify(timedDocuments, null, 2)}\n`,
+);
 await writeFile(resolve(assetsDir, "themes.json"), `${JSON.stringify(themes, null, 2)}\n`);
 
 console.log(generatedDir);

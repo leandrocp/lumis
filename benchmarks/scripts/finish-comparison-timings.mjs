@@ -5,7 +5,12 @@ import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { cpus, platform, release, totalmem } from "node:os";
 import { resolve } from "node:path";
-import { implementationById, lumisReference } from "./implementations.mjs";
+import {
+  comparisonTableDocuments,
+  implementationById,
+  lumisReference,
+} from "./implementations.mjs";
+import { countTokens } from "./tokens.mjs";
 
 const benchmarksDir = resolve(import.meta.dirname, "..");
 const repoDir = resolve(benchmarksDir, "..");
@@ -23,57 +28,109 @@ if (memory.theme !== theme) {
   throw new Error(`the memory pass rendered ${memory.theme}, not ${theme}; rerun it`);
 }
 
+const assetsDir = resolve(benchmarksDir, "showcase/generated/assets");
+const timedOnly = await readJson(resolve(assetsDir, "timed-documents.json"));
+// The published manifest leaves out each document's file, which the showcase keeps.
+const assetDocuments = [...(await readJson(resolve(assetsDir, "documents.json"))), ...timedOnly];
+// The Lumis column is its reference runtime. The Node addon is reported beside
+// it, as what a JavaScript caller of Lumis pays.
+const lumisRows = [
+  { row: "lumis", implementation: lumisReference },
+  { row: "lumis-js-node", implementation: "lumis-js-node" },
+];
+
 const documents = [];
-for (const document of manifest.documents) {
+for (const { id: documentId, size } of comparisonTableDocuments) {
+  const document = [...manifest.documents, ...timedOnly].find((entry) => entry.id === documentId);
+  if (!document) throw new Error(`no comparison document is named ${documentId}`);
+  const published = manifest.documents.includes(document);
+  const { file } = assetDocuments.find((entry) => entry.id === document.id);
+  const source = await readFile(resolve(assetsDir, file));
   const results = [];
   for (const { id, label } of manifest.implementations) {
-    // The published Lumis column is its reference runtime's output.
-    const implementation = id === "lumis" ? lumisReference : id;
-    const timing = await timingFor(implementation, document.id);
-    const peakRssBytes = memory.results.find(
-      (result) => result.document === document.id && result.implementation === implementation,
-    )?.peakRssBytes;
-    // Every output on the page gets its own time and nothing else does, so a pair
-    // with no output has no time and a pair with output cannot go untimed.
-    if (document.unsupported.includes(id)) {
-      if (timing !== undefined || peakRssBytes !== undefined) {
-        throw new Error(`${label} measured ${document.id}, which it does not support`);
-      }
-      continue;
-    }
-    if (!(timing?.totalNs > 0)) throw new Error(`${label} has no timing for ${document.id}`);
-    // The memory pass checked each of its outputs against the published one, so
-    // a figure here belongs to the same output as the time.
-    if (!(peakRssBytes > 0)) throw new Error(`${label} has no peak RSS for ${document.id}`);
-
-    // The time is published beside the output, so it has to be the time to produce
-    // that output. One that differs from the published output means the comparison
-    // is stale, and its time would describe a page no one can see. The hash goes
-    // out with the time, so the page can drop a time once the output it measured
-    // has been replaced.
-    const fragment = await readFile(
-      resolve(runDir, "fragments", document.id, `${implementation}.html`),
-    );
-    const sha256 = createHash("sha256").update(fragment).digest("hex");
-    if (sha256 !== document.outputSha256[id]?.[theme]) {
-      throw new Error(
-        `${label} does not render ${document.id} as the published comparison shows it; ` +
-          "run `mise run -C benchmarks showcase-publish` first",
+    for (const { row, implementation } of id === "lumis"
+      ? lumisRows
+      : [{ row: id, implementation: id }]) {
+      const timing = await timingFor(implementation, document.id);
+      const measured = memory.results.find(
+        (result) => result.document === document.id && result.implementation === implementation,
       );
+      // Every output on the page gets its own time and nothing else does, so a pair
+      // with no output has no time and a pair with output cannot go untimed.
+      if (document.unsupported.includes(id)) {
+        if (timing !== undefined || measured !== undefined) {
+          throw new Error(`${label} measured ${document.id}, which it does not support`);
+        }
+        continue;
+      }
+      if (!(timing?.totalNs > 0)) throw new Error(`${label} has no timing for ${document.id}`);
+      // The memory pass checked each of its outputs against the timed one, so a
+      // figure here belongs to the same output as the time.
+      if (!(measured?.peakRssBytes > 0)) {
+        throw new Error(`${label} has no peak RSS for ${document.id}`);
+      }
+
+      // The time is published beside the output, so it has to be the time to
+      // produce that output. A gallery output that differs from the published one
+      // means the comparison is stale. A timed-only document has no published
+      // output, so every Lumis runtime has to agree with the reference instead.
+      const fragment = await readFile(
+        resolve(runDir, "fragments", document.id, `${implementation}.html`),
+      );
+      const sha256 = createHash("sha256").update(fragment).digest("hex");
+      const expected = published
+        ? document.outputSha256[id]?.[theme]
+        : await fileSha256(
+            resolve(
+              runDir,
+              "fragments",
+              document.id,
+              `${id === "lumis" ? lumisReference : id}.html`,
+            ),
+          );
+      if (sha256 !== expected) {
+        throw new Error(
+          `${implementationById(implementation).label} does not render ${document.id} as ` +
+            `${published ? "the published comparison shows it" : "Lumis Rust does"}; ` +
+            "run `mise run -C benchmarks showcase-publish` first",
+        );
+      }
+      results.push({
+        id: row,
+        totalNs: timing.totalNs,
+        samples: timing.samples,
+        setupNs: measured.setupNs,
+        peakRssBytes: measured.peakRssBytes,
+        // Counted as the gallery counts it, so a timed-only document has one too.
+        tokens: countTokens(fragment.toString("utf8"), label),
+        sha256,
+      });
     }
-    results.push({ id, totalNs: timing.totalNs, samples: timing.samples, peakRssBytes, sha256 });
   }
-  documents.push({ id: document.id, results });
+  documents.push({
+    id: document.id,
+    size,
+    label: document.label,
+    languageLabel: document.languageLabel,
+    source: document.source,
+    bytes: source.byteLength,
+    lines: source.toString("utf8").split("\n").length - (source.at(-1) === 0x0a ? 1 : 0),
+    results,
+  });
 }
 
 const report = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   measuredAt: new Date().toISOString(),
   metric: "median",
   timingBoundary:
     "one highlight of the whole document through the call that rendered the published output, " +
     `with Lumis as ${implementationById(lumisReference).label}; ` +
     "building the highlighter and loading its languages are excluded",
+  setupBoundary:
+    "a fresh process building one library's highlighter, loading the languages the document " +
+    "needs and highlighting it once, timed inside the process; the Lumis data directory " +
+    "already holds its compiled parsers, as it does after a first run",
   memory: {
     metric: "median",
     runs: memory.runs,
@@ -101,11 +158,15 @@ const report = {
     node: javascript.run.node,
     rust: execFileSync("rustc", ["--version"], { encoding: "utf8" }).trim(),
   },
-  implementations: manifest.implementations.map(({ id, label, version }) => ({
-    id,
-    label,
-    version,
-  })),
+  implementations: manifest.implementations.flatMap(({ id, label, version }) =>
+    id === "lumis"
+      ? lumisRows.map(({ row, implementation }) => ({
+          id: row,
+          label: implementationById(implementation).label,
+          version,
+        }))
+      : [{ id, label, version }],
+  ),
   documents,
 };
 const output = resolve(runDir, "timings.json");
@@ -145,6 +206,12 @@ function operatingSystem() {
 
 function product(key) {
   return execFileSync("sw_vers", [key], { encoding: "utf8" }).trim();
+}
+
+async function fileSha256(path) {
+  return createHash("sha256")
+    .update(await readFile(path))
+    .digest("hex");
 }
 
 async function readJson(path, optional = false) {

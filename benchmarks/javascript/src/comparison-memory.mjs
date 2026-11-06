@@ -11,7 +11,11 @@ if (!implementation || !documentId) {
 }
 
 const assetsDir = resolve(import.meta.dirname, "../../showcase/generated/assets");
-const documents = JSON.parse(await readFile(resolve(assetsDir, "documents.json"), "utf8"));
+// The gallery documents, then the ones only the timing passes highlight.
+const documents = [
+  ...JSON.parse(await readFile(resolve(assetsDir, "documents.json"), "utf8")),
+  ...JSON.parse(await readFile(resolve(assetsDir, "timed-documents.json"), "utf8")),
+];
 const themes = JSON.parse(await readFile(resolve(assetsDir, "themes.json"), "utf8"));
 const document = documents.find((entry) => entry.id === documentId);
 if (!document) throw new Error(`no showcase document is named ${documentId}`);
@@ -19,12 +23,15 @@ if (!document) throw new Error(`no showcase document is named ${documentId}`);
 const theme = themes[0];
 const source = await readFile(resolve(assetsDir, document.file), "utf8");
 
+// Setup is building the highlighter and its first highlight, so it covers
+// whatever a library defers to that first call.
+const started = performance.now();
 let fragment;
 if (implementation !== "baseline") {
   const { libraries } = await loadLibraries({
     assetsDir,
-    documents,
-    themes,
+    documents: [document],
+    themes: [theme],
     ids: [implementation],
   });
   const [library] = libraries;
@@ -35,9 +42,10 @@ if (implementation !== "baseline") {
 
 // Read before the fragment is written, so the peak is building the highlighter
 // and the one highlight, not this harness's file I/O. Node reports kibibytes.
+const setupNs = Math.round((performance.now() - started) * 1e6);
 const peakRssBytes = process.resourceUsage().maxRSS * 1024;
 if (fragment !== undefined) {
   if (!fragmentPath) throw new Error("a fragment path is required to check the output");
   await writeFile(fragmentPath, fragment);
 }
-process.stdout.write(`${JSON.stringify({ peakRssBytes })}\n`);
+process.stdout.write(`${JSON.stringify({ peakRssBytes, setupNs })}\n`);

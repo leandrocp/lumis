@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 3,
+  "measuredAt": "2026-11-06T19:48:01.818Z",
+  "metric": "median",
+  "timingBoundary": "one highlight of the whole document through the call that rendered the published output, with Lumis as Lumis Rust; building the highlighter and loading its languages are excluded",
+  "setupBoundary": "a fresh process building one library's highlighter, loading the languages the document needs and highlighting it once, timed inside the process; the Lumis data directory already holds its compiled parsers, as it does after a first run",
+  "memory": {
+    "metric": "median",
+    "runs": 5,
+    "boundary": "peak resident set size of a fresh process that builds one library's highlighter, loads its languages and highlights the document once; each process holds only that library",
+    "definition": "resident set size counts the runtime (Node.js and V8, or the Rust executable), compiled code, WebAssembly memory and allocator overhead, not only the live heap",
+    "baselines": {
+      "node": 53428224,
+      "rust": 53428224
+    }
+  },
+  "theme": "latte",
+  "system": {
+    "platform": "linux",
+    "release": "6.1.158+",
+    "os": "Debian GNU/Linux 12 (bookworm)",
+    "architecture": "x64",
+    "cpu": "Intel(R) Xeon(R) Processor @ 2.60GHz",
+    "cores": 4,
+    "memoryBytes": 8343150592
+  },
+  "runtimes": {
+    "node": "v24.18.0",
+    "rust": "rustc 1.99.1 (58cf8f9c3 2026-10-13)"
+  },
+  "implementations": [
+    {
+      "id": "lumis",
+      "label": "Lumis Rust",
+      "version": "Lumis 0.10.4"
+    },
+    {
+      "id": "lumis-js-node",
+      "label": "Lumis JavaScript (Node, Wasmtime)",
+      "version": "Lumis 0.10.4"
+    },
+    {
+      "id": "highlight-js",
+      "label": "highlight.js",
+      "version": "highlight.js 11.12.0"
+    },
+    {
+      "id": "pierre-highlights",
+      "label": "Highlights",
+      "version": "@pierre/highlights 0.3.0"
+    },
+    {
+      "id": "prism",
+      "label": "Prism",
+      "version": "prismjs 1.30.0"
+    },
+    {
+      "id": "shiki",
+      "label": "Shiki",
+      "version": "shiki 4.5.0"
+    },
+    {
+      "id": "speed-highlight",
+      "label": "speed-highlight",
+      "version": "@speed-highlight/core 2.1.0"
+    },
+    {
+      "id": "starry-night",
+      "label": "starry-night",
+      "version": "@wooorm/starry-night 3.11.0"
+    },
+    {
+      "id": "sugar-high",
+      "label": "Sugar High",
+      "version": "sugar-high 2.6.4"
+    },
+    {
+      "id": "syntect",
+      "label": "syntect",
+      "version": "syntect 5.3 with two-face 0.5.1"
+    },
+    {
+      "id": "tanstack-highlight",
+      "label": "TanStack Highlight",
+      "version": "@tanstack/highlight 1.2.0"
+    }
+  ],
+  "documents": [
+    {
+      "id": "shadcn",
+      "size": "Small",
+      "label": "shadcn/ui sidebar",
+      "languageLabel": "TSX",
+      "source": "https://github.com/shadcn-ui/ui/blob/607e8a9717fe6ff0d374ba74c651012f9c052534/apps/v4/registry/new-york-v4/ui/sidebar.tsx",
+      "bytes": 21743,
+      "lines": 726,
+      "results": [
+        {
+          "id": "lumis",
+          "totalNs": 5988048.75,
+          "samples": 20,
+          "setupNs": 173271482,
+          "peakRssBytes": 9117696,
+          "tokens": 2422,
+          "sha256": "1333e776389c11b053a2521ed854a1caf0ca023c9af5c3ff707020c2aef2fb9d"
+        },
+        {
+          "id": "lumis-js-node",
+          "totalNs": 8928828,
+          "samples": 20,
+          "setupNs": 72107500,
+          "peakRssBytes": 81985536,
+          "tokens": 2422,
+          "sha256": "1333e776389c11b053a2521ed854a1caf0ca023c9af5c3ff707020c2aef2fb9d"
+        },
+        {
+          "id": "highlight-js",
+          "totalNs": 8642104,
+          "samples": 20,
+          "setupNs": 103730207,
+          "peakRssBytes": 76406784,
+          "tokens": 1259,
+          "sha256": "1a991a58ed8b42afd451342013c910b7e3da7e42124100333c6b3d9b28048ef7"
+        },
+        {
+          "id": "pierre-highlights",
+          "totalNs": 276719,
+          "samples": 23,
+          "setupNs": 26247390,
+          "peakRssBytes": 63221760,
+          "tokens": 2177,
+          "sha256": "94e78393346ef93030a69ab43398054eb009e0911383bc60c6b84ee669ab3903"
+        },
+        {
+          "id": "prism",
+          "totalNs": 10033385,
+          "samples": 20,
+          "setupNs": 252651122,
+          "peakRssBytes": 76640256,
+          "tokens": 2631,
+          "sha256": "948845deded5ff9c50392a9e5a31dc354c12b0790c84a0255f52faab9f409cf1"
+        },
+        {
+          "id": "shiki",
+          "totalNs": 40105411,
+          "samples": 13,
+          "setupNs": 354361207,
+          "peakRssBytes": 145477632,
+          "tokens": 2474,
+          "sha256": "b5211d42d9f8b40676de7640fe3209bd43ba09860838976b5591d7285d7a9cf2"
+        },
+        {
+          "id": "speed-highlight",
+          "totalNs": 2523623,
+          "samples": 21,
+          "setupNs": 16648029,
+          "peakRssBytes": 55099392,
+          "tokens": 1487,
+          "sha256": "9e9765931570f4bd98dedaeb29ac67fb66c53ad3c7b9facfbcbe0fbf8bcd3897"
+        },
+        {
+          "id": "starry-night",
+          "totalNs": 40053286,
+          "samples": 13,
+          "setupNs": 898155293,
+          "peakRssBytes": 276291584,
+          "tokens": 2026,
+          "sha256": "1b2d068857bbf6232699cc54eb5e7f5cf3dbb9ed66b937686253280134a92f29"
+        },
+        {
+          "id": "sugar-high",
+          "totalNs": 3428532,
+          "samples": 18,
+          "setupNs": 32255617,
+          "peakRssBytes": 69058560,
+          "tokens": 3228,
+          "sha256": "f898674b89952dd0122b7644f9ca4e550159402c7acd811dc11aa3e0df6bffd2"
+        },
+        {
+          "id": "syntect",
+          "totalNs": 29786837,
+          "samples": 20,
+          "setupNs": 52114373,
+          "peakRssBytes": 13381632,
+          "tokens": 2946,
+          "sha256": "f116cf85c8fb576fc0adcf9d208088e3562ceac4a8925739525c0c42e79fd802"
+        },
+        {
+          "id": "tanstack-highlight",
+          "totalNs": 2813278,
+          "samples": 22,
+          "setupNs": 42727407,
+          "peakRssBytes": 66007040,
+          "tokens": 838,
+          "sha256": "04abbb89d5abec4322d40c73fcf22eefe06c92eaf736b300cd7457d165b323ac"
+        }
+      ]
+    },
+    {
+      "id": "three-core",
+      "size": "Large",
+      "label": "three.js core build",
+      "languageLabel": "JavaScript",
+      "source": "https://github.com/mrdoob/three.js/blob/6365c1a0af6a32ed45f99712197555fee2f4b24a/build/three.core.js",
+      "bytes": 1455808,
+      "lines": 60392,
+      "results": [
+        {
+          "id": "lumis",
+          "totalNs": 628881212.5,
+          "samples": 20,
+          "setupNs": 707610097,
+          "peakRssBytes": 95514624,
+          "tokens": 192011,
+          "sha256": "f66355bf4c3aab5ce2aabcbc9d71bc5d571b5a7ec24e52732c60c5e4b22faf4f"
+        },
+        {
+          "id": "lumis-js-node",
+          "totalNs": 754292706,
+          "samples": 10,
+          "setupNs": 799632295,
+          "peakRssBytes": 179978240,
+          "tokens": 192011,
+          "sha256": "f66355bf4c3aab5ce2aabcbc9d71bc5d571b5a7ec24e52732c60c5e4b22faf4f"
+        },
+        {
+          "id": "highlight-js",
+          "totalNs": 466634344,
+          "samples": 10,
+          "setupNs": 573111056,
+          "peakRssBytes": 183885824,
+          "tokens": 69071,
+          "sha256": "fd8885f907c6079d43d0f350dd758477973db3da3e909830a6f7d66fb8c8b04d"
+        },
+        {
+          "id": "pierre-highlights",
+          "totalNs": 16181367,
+          "samples": 16,
+          "setupNs": 48333327,
+          "peakRssBytes": 100311040,
+          "tokens": 191439,
+          "sha256": "e67b5d6267d174748d806e42330bf952dd43e9a3fd48ab90c28084f53153d603"
+        },
+        {
+          "id": "prism",
+          "totalNs": 497606643,
+          "samples": 10,
+          "setupNs": 877120404,
+          "peakRssBytes": 241180672,
+          "tokens": 177972,
+          "sha256": "1abc4a9c44d89b4253025f7ca1b5ae1647f12e7eca7a0f7553ad907e5e7a2c3b"
+        },
+        {
+          "id": "shiki",
+          "totalNs": 2659453913,
+          "samples": 10,
+          "setupNs": 3222676711,
+          "peakRssBytes": 405176320,
+          "tokens": 213728,
+          "sha256": "4f5497886ebd089019dc7b6ffe6d6415b40092b1b10e2b31ab7b679b6c826017"
+        },
+        {
+          "id": "speed-highlight",
+          "totalNs": 174783833,
+          "samples": 10,
+          "setupNs": 221246247,
+          "peakRssBytes": 122040320,
+          "tokens": 107956,
+          "sha256": "b2b07c33598c7571d76f5e6a54ae4a15a02bbd08a271329f30d7cb9b8f8710a5"
+        },
+        {
+          "id": "starry-night",
+          "totalNs": 1421097883,
+          "samples": 10,
+          "setupNs": 2153790495,
+          "peakRssBytes": 323264512,
+          "tokens": 94427,
+          "sha256": "cd11b48bd6e573a953e2c71812f476eb538c6464c7ff2f2597841934c13923bc"
+        },
+        {
+          "id": "sugar-high",
+          "totalNs": 126293257,
+          "samples": 10,
+          "setupNs": 259367558,
+          "peakRssBytes": 165769216,
+          "tokens": 202958,
+          "sha256": "de6243adfa054469c8b7040a525bd3efc82ac5726d4e63b3caa61565bdb75adc"
+        },
+        {
+          "id": "syntect",
+          "totalNs": 1612083115.5,
+          "samples": 20,
+          "setupNs": 1592548142,
+          "peakRssBytes": 74797056,
+          "tokens": 199271,
+          "sha256": "6b0f3e9b15c4f16420a9001a607d54f5ddcfb519fbcbcafee923b93b78842701"
+        },
+        {
+          "id": "tanstack-highlight",
+          "totalNs": 62823031,
+          "samples": 9,
+          "setupNs": 173299806,
+          "peakRssBytes": 111431680,
+          "tokens": 55122,
+          "sha256": "947617483bfe45149d4a5245e622ca08fa7358109cc2479f4b6894cb2034008f"
+        }
+      ]
+    }
+  ]
+}

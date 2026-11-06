@@ -1,11 +1,19 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { parserBytes } from "./parsers.mjs";
 
 // speed-highlight names its grammars after file extensions and renders a name it
 // cannot load as plain text, so the name is given here. It has no TSX grammar, and
 // TSX goes to TypeScript, as highlight.js's and Sugar High's own aliases send it.
-const speedHighlightLanguages = { html: "html", rust: "rs", go: "go", markdown: "md", tsx: "ts" };
+const speedHighlightLanguages = {
+  html: "html",
+  rust: "rs",
+  go: "go",
+  markdown: "md",
+  tsx: "ts",
+  javascript: "js",
+};
 
 /**
  * The libraries the comparison sets beside Lumis. Each one imports and builds
@@ -19,6 +27,54 @@ const speedHighlightLanguages = { html: "html", rust: "rs", go: "go", markdown: 
  * element the library leaves its caller to write.
  */
 const loaders = {
+  // The Node addon, built from local language packages as the showcase builds
+  // it, so its output is the published Lumis output byte for byte.
+  async "lumis-js-node"({ documents, themes }) {
+    const [{ createHighlighter, runtimeKind }, { withWasm }, { htmlInline }] = await Promise.all([
+      import("@lumis-sh/lumis"),
+      import("@lumis-sh/lumis/languages"),
+      import("@lumis-sh/lumis/formatters"),
+    ]);
+    if (runtimeKind() !== "native") throw new Error("the Lumis Node addon did not load");
+    const localPackages = JSON.parse(
+      await readFile(
+        resolve(import.meta.dirname, "../../../target/benchmarks/language-packages/index.json"),
+        "utf8",
+      ),
+    );
+    const languages = await Promise.all(
+      [...new Set(documents.flatMap((document) => document.load))].map(async (id) => {
+        const { default: language } = await import(`@lumis-sh/lumis/langs/${id}`);
+        return withWasm(language, await parserBytes(id));
+      }),
+    );
+    const byId = new Map(languages.map((language) => [language.id, language]));
+    const lumis = await createHighlighter({
+      languages,
+      languagePackageResolver: (packageName) => {
+        const local = localPackages[packageName];
+        if (!local) throw new Error(`missing local language package ${packageName}`);
+        return pathToFileURL(local.metadataPath);
+      },
+    });
+    const lumisThemes = new Map(
+      await Promise.all(
+        themes.map(async (theme) => [
+          theme.id,
+          (await import(`@lumis-sh/themes/${theme.lumis}`)).default,
+        ]),
+      ),
+    );
+    return {
+      highlight: (source, document, theme) =>
+        lumis.highlight(
+          source,
+          htmlInline({ language: byId.get(document.language), theme: lumisThemes.get(theme.id) }),
+        ),
+      fragment: (output) => output,
+    };
+  },
+
   async shiki({ documents, themes }) {
     const [{ createHighlighter }, { createOnigurumaEngine }] = await Promise.all([
       import("shiki"),
@@ -104,7 +160,10 @@ const loaders = {
     return {
       highlight(source, document) {
         const result = tanStack.highlight(source, { lang: document.language });
-        return result.lang === document.language ? result.html : undefined;
+        // It answers an alias, `javascript`, under its own name, `js`.
+        return result.lang === tanStack.normalizeLanguage(document.language)
+          ? result.html
+          : undefined;
       },
       fragment: (output, document, theme) => `<style>${styles.get(theme.id)}</style>${output}`,
     };

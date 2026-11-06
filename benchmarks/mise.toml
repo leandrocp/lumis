@@ -185,6 +185,8 @@ sources = [
 outputs = [
   "benchmarks/showcase/generated/assets/webgpu_compute_reduce.html",
   "benchmarks/showcase/generated/assets/ripgrep_searcher.rs",
+  "benchmarks/showcase/generated/assets/three.core.js",
+  "benchmarks/showcase/generated/assets/timed-documents.json",
   "benchmarks/showcase/generated/assets/catppuccin-latte.tmTheme",
   "benchmarks/showcase/generated/assets/catppuccin-frappe.tmTheme",
   "benchmarks/showcase/generated/assets/themes.json",
@@ -217,22 +219,33 @@ node website/scripts/comparison-markdown.mjs --write
 '''
 
 # Each time is that library highlighting that document through the call that
-# rendered its gallery output, and the memory is the median peak RSS of five fresh
-# processes doing the same. Every pass keeps what it rendered and fails unless that
+# rendered its gallery output, and the memory and setup are the medians of five
+# fresh processes doing the same once, after the timing pass has left the Lumis
+# data directory warm. Every pass keeps what it rendered and fails unless that
 # is byte for byte the published output, so publish the comparison before timing
 # it.
 [tasks."comparison-timings"]
 description = "Time and measure the memory of every library on every document of the visual comparison"
-depends = ["install", "prepare:showcase"]
+depends = ["install", "prepare:languages", "build:javascript", "prepare:showcase"]
 run = '''
 export BENCH_SHOWCASE_DIR="$MISE_CONFIG_ROOT/showcase/generated"
 export BENCH_FRAGMENTS_DIR="$BENCH_RUN_DIR/comparison/fragments"
+export LUMIS_DATA_DIR="$BENCH_RUN_DIR/comparison/data"
+export LUMIS_TEST_RUNTIME=native
 rm -rf "$BENCH_RUN_DIR/comparison"
 CRITERION_HOME="$BENCH_RUN_DIR/comparison/criterion" cargo bench --manifest-path benchmarks/rust/Cargo.toml --bench comparison -- --noplot
 BENCH_OUTPUT="$BENCH_RUN_DIR/comparison/javascript.json" pnpm --filter @lumis-sh/benchmarks run comparison-timings
 cargo build --manifest-path benchmarks/rust/Cargo.toml --release --bin comparison-memory
 node benchmarks/scripts/comparison-memory.mjs
 node benchmarks/scripts/finish-comparison-timings.mjs
+'''
+
+[tasks."comparison-timings-publish"]
+description = "Copy the last comparison timing report into the website"
+run = '''
+mkdir -p website/public/benchmark-data
+cp "$BENCH_RUN_DIR/comparison/timings.json" website/public/benchmark-data/comparison.json
+node website/scripts/comparison-markdown.mjs --write
 '''
 
 [tasks.build]

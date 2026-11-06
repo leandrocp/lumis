@@ -11,7 +11,11 @@ const fragmentsDir = process.env.BENCH_FRAGMENTS_DIR;
 if (!outputPath) throw new Error("BENCH_OUTPUT is required");
 if (!fragmentsDir) throw new Error("BENCH_FRAGMENTS_DIR is required");
 
-const documents = JSON.parse(await readFile(resolve(assetsDir, "documents.json"), "utf8"));
+// The gallery documents, then the ones only the timing passes highlight.
+const documents = [
+  ...JSON.parse(await readFile(resolve(assetsDir, "documents.json"), "utf8")),
+  ...JSON.parse(await readFile(resolve(assetsDir, "timed-documents.json"), "utf8")),
+];
 const themes = JSON.parse(await readFile(resolve(assetsDir, "themes.json"), "utf8"));
 // A flavour changes the colours a library writes, not how much work it does to
 // find them, so one flavour is timed: the first, as in the Rust bench.

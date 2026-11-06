@@ -4,7 +4,7 @@
 //! resident set size. With `baseline` it renders nothing.
 
 use lumis_benchmarks::showcase;
-use std::{env, fs, mem::MaybeUninit};
+use std::{env, fs, mem::MaybeUninit, time::Instant};
 
 fn main() {
     let mut args = env::args().skip(1);
@@ -14,7 +14,7 @@ fn main() {
     let fragment_path = args.next();
 
     let assets_dir = showcase::generated_dir().join("assets");
-    let document = showcase::documents(&assets_dir)
+    let document = showcase::timed_documents(&assets_dir)
         .into_iter()
         .find(|document| document.id == document_id)
         .unwrap_or_else(|| panic!("no showcase document is named {document_id}"));
@@ -26,6 +26,9 @@ fn main() {
     let source =
         fs::read_to_string(assets_dir.join(&document.file)).expect("read showcase fixture");
 
+    // Setup is building the highlighter and its first highlight, so it covers
+    // whatever a library defers to that first call.
+    let started = Instant::now();
     let fragment = match implementation.as_str() {
         "baseline" => None,
         "lumis-rust" => {
@@ -45,12 +48,13 @@ fn main() {
 
     // Read before the fragment is written, so the peak is building the
     // highlighter and the one highlight, not this harness's file I/O.
+    let setup_ns = started.elapsed().as_nanos();
     let peak_rss_bytes = peak_rss_bytes();
     if let Some(fragment) = fragment {
         let path = fragment_path.expect("a fragment path is required to check the output");
         fs::write(path, fragment).expect("write fragment");
     }
-    println!("{{\"peakRssBytes\":{peak_rss_bytes}}}");
+    println!("{{\"peakRssBytes\":{peak_rss_bytes},\"setupNs\":{setup_ns}}}");
 }
 
 fn peak_rss_bytes() -> u64 {
