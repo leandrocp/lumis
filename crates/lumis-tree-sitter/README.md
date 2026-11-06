@@ -42,10 +42,41 @@ Backport of tree-sitter/tree-sitter@fbfb07e93de82e12784cd0f646e291b8f2e4126e
 (tree-sitter/tree-sitter#6035), released after 0.27.1. Drop it when the
 pin moves past it.
 
+### feat(query): restore a query's structural analysis from a snapshot
+
+`patches/0003-restore-query-analysis-from-a-snapshot.patch`
+
+Almost all of `ts_query_new` is `ts_query__analyze_patterns` walking the
+grammar's parse table to decide which steps are guaranteed to match, which
+contain captures, and which patterns are non-local. For nvim-treesitter's
+highlight queries that is 82% of a warm highlight of a small file, and it
+gives the same answer every time for the same query, language and library.
+
+`ts_query_analysis` serializes what the analysis writes: three flags per
+step, one per pattern, and the repeat symbols with rootless patterns.
+`ts_query_new_with_analysis` parses the query as usual and restores those
+instead of computing them. The snapshot header pins the analysis code (a
+fingerprint of this library's sources, generated as
+`LUMIS_QUERY_ANALYSIS_FINGERPRINT`), the language's ABI, counts and symbol
+names, and a hash of the query source, so a snapshot taken from anything
+else is ignored and the analysis runs. A hash of the payload rejects a
+snapshot damaged on disk; it detects corruption, not tampering.
+`ts_query_analysis_imported` says which happened, and
+`ts_query_analysis_fingerprint` exposes the fingerprint so callers can keep
+snapshots from different builds apart. Integers are little-endian, so a
+snapshot generated on one machine is valid on every other.
+
+The language check covers counts and symbol names, not the parse table or
+field maps, so two builds of a grammar with the same symbols share a header.
+Callers that keep snapshots key them by the exact parser they came from.
+
+Across 118 languages this took query compilation from 5.7 s to 71 ms with
+byte-identical highlighting output.
+
 ### Every exported C symbol is prefixed with `lumis_`
 
 Applied last, so it covers what the patches add. `src/lumis_prefix.h` renames
-279 names: every function and variable the library defines with external
+283 names: every function and variable the library defines with external
 linkage, plus a few static ones a macro hides from the source reader, which renaming
 does not affect. The Rust bindings import them under the new names. The crate's `links` key is
 `lumis-tree-sitter`, so it builds and links beside upstream `tree-sitter` instead of

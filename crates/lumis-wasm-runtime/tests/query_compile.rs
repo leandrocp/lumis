@@ -129,6 +129,7 @@ fn check(parser: &Parser, wasm: &Path) -> Result<(), String> {
             highlights: query("highlights"),
             injections: query("injections"),
             locals: query("locals"),
+            query_analysis: Vec::new(),
             brackets: query("brackets"),
         })
         .map_err(|error| error.to_string())?;

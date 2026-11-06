@@ -199,6 +199,7 @@ containing:
 - one parser WASM
 - every Lumis language backed by that parser
 - the matching highlight, injection, locals, and bracket queries
+- a snapshot of each language's query analysis, taken against that parser
 - parser SHA-256, grammar name, and package version
 
 During staging, `crates/dev` serializes those inputs into `lumis.json`. The
@@ -350,6 +351,39 @@ compiled forms. Registering an already-compiled parser is 3-15 ms, and about
 warm, and why `load` still exists: to move both costs off a user's first
 request, not to gate anything.
 
+**Compiling the queries is the other cost, and it is cached too.** Almost all of
+building a highlight query is Tree-sitter's structural analysis, which walks the
+grammar's parse table and gives the same answer every time for the same parser,
+queries and library. `lumis-tree-sitter` can snapshot that analysis and restore
+it, and the runtime keeps one snapshot per parser, query set and library
+fingerprint in `queries/`, named by a digest of the three, so two Lumis versions
+sharing a data directory do not overwrite each other's. A snapshot records a
+fingerprint of the C sources the analysis reads and the language's shape, so
+one written by another build is ignored and recomputed rather than trusted, and
+a checksum of its payload, so one damaged on disk is too. The checksum catches
+corruption, not tampering, and the language check covers symbols, not the parse
+table, which is why snapshots are keyed by the exact parser. It sits beside
+`compiled/` rather than in it
+because Wasmtime's cache cleanup deletes files it did not write. Highlighting
+every sample once per process takes 3.7 s with snapshots against 11.9 s without;
+C++ goes from 553 ms to 78 ms.
+
+Language packages ship the same snapshot as each language's `queryAnalysis`, so
+a first run restores it too, before anything is cached. It is only offered to
+the parser whose SHA-256 the package declares, and it also replaces a local
+snapshot that no longer validates. `crates/dev` takes it
+when it stages a package, by compiling the queries against the parser it is
+publishing. A snapshot from one library build is rejected by another, so the
+library's fingerprint is part of `definitionHash`: a change to
+the sources it covers republishes every language package, or each one's first
+run would compute the analysis again. It covers every file except those listed
+as outside the analysis, such as the parser and lexer, so a patch there leaves
+packages alone; `tree-sitter-sync` refuses a listed file the analysis sources
+include. With an empty data directory
+the CLI's first C++ highlight drops from about 500 ms to 245 ms. What is left
+is the Wasmtime compile, which is why a document that injects several languages
+gains little on its first run.
+
 Once a parser is warm, most of what remains is compiling its queries, and Tree-sitter
 spends nearly all of that analysing the grammar's parse table. That work is
 independent per language, so `Runtime::load_languages` and
@@ -436,10 +470,11 @@ highlighting. Already discovered package versions keep their identity.
 
 Everything a runtime persists lives under one directory, named by
 `LUMIS_DATA_DIR`: `parsers/` for language packages and parser WASM, `themes/`
-for the CLI's custom themes, `compiled/` for Wasmtime's module cache. Only the
-CLI reads `parsers/`, whether the files were downloaded or staged there by a
-build step; Elixir and Node load the parser packages a project installed, and
-share `compiled/` with the CLI. Browsers keep parsers a configured resolver fetched in CacheStorage instead, having no filesystem. Parser
+for the CLI's custom themes, `compiled/` for Wasmtime's module cache, and
+`queries/` for query analysis snapshots. Only the CLI reads `parsers/`, whether
+the files were downloaded or staged there by a build step; Elixir and Node load
+the parser packages a project installed, and share `compiled/` and `queries/`
+with the CLI. Browsers keep parsers a configured resolver fetched in CacheStorage instead, having no filesystem. Parser
 cache keys contain the parser name, package version, and digest, so upgrades do
 not overwrite older verified assets. A compatible package already in the
 directory is an exact lock and is never revalidated during highlighting; a

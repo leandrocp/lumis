@@ -1781,6 +1781,7 @@ mod tests {
                     )
                     .into(),
                     locals: String::new(),
+                    query_analysis: String::new(),
                     brackets: include_str!(
                         "../../../../../../queries/processed/default/brackets.scm"
                     )
@@ -1817,6 +1818,7 @@ mod tests {
             highlights: "(definitely_not_a_json_node) @string".into(),
             injections: String::new(),
             locals: String::new(),
+            query_analysis: Vec::new(),
             brackets: String::new(),
         };
 

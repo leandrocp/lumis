@@ -89,6 +89,18 @@ its lockfile, which `refresh-nif-lock` refreshes after each publish. Releasing
 users get a compatible patch from `cargo update` either way, and a release raises
 the minimum they accept.
 
+A change to the C sources query analysis reads (`query.c`, `language.c`, `wasm_store.c`
+and what they include; `OUTSIDE_QUERY_ANALYSIS` in `crates/dev/src/tree_sitter_fork.rs`
+lists the rest) also changes the fingerprint on query analysis snapshots, which
+`tree-sitter-sync` writes into `src/lumis_prefix.h`. That fingerprint is part of every
+language package's `definitionHash`, so `wasm-release.yml` runs on the push to `main`
+and republishes every `@lumis-sh/wasm-*` package and its Hex twin with a fresh
+snapshot, before any runtime built on the new library is released. Publishing out of
+step is safe: an older runtime ignores `queryAnalysis`, and a runtime whose
+fingerprint differs rejects the snapshot and computes the analysis, which costs one
+slower first highlight per language. Batch library changes that move the fingerprint
+into one merge where you can, since each one republishes every parser.
+
 Each bundle releases once per registry, under that registry's own version:
 `npm-wasm-bundle-<bundle>` is `@lumis-sh/wasm-bundle-<bundle>` and
 `hex-wasm-bundle-<bundle>` is `lumis_wasm_bundle_<bundle>`. `wasm-bundles.json`

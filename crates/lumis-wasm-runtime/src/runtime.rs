@@ -6,7 +6,9 @@ use lumis_core::events::{Coalescing, HighlightEvent};
 use lumis_core::formatter::BudgetExhausted;
 use lumis_core::highlights::HIGHLIGHT_NAMES;
 use std::collections::HashMap;
+use std::fmt::Write as _;
 use std::ops::ControlFlow;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Condvar, Mutex, OnceLock, RwLock};
 use std::time::{Duration, Instant};
 use thiserror::Error;
@@ -30,6 +32,10 @@ pub struct LanguageSpec {
     pub injections: String,
     pub locals: String,
     pub brackets: String,
+    /// A query analysis snapshot shipped with the language, restored instead of
+    /// computing the analysis when it matches the parser and queries. Empty when
+    /// the language ships none.
+    pub query_analysis: Vec<u8>,
 }
 
 struct LoadedLanguage {
@@ -115,21 +121,70 @@ impl Loader {
 }
 
 /// Compile a language's highlight configuration against its loaded parser.
+///
+/// The query's structural analysis, which is most of the compile, is restored
+/// from a snapshot when one matches: first one an earlier compile of the same
+/// parser and queries left in `analysis_dir`, then `shipped`, the one the
+/// language was published with. Whatever the local snapshot did not supply is
+/// written to `analysis_dir`, so a stale local snapshot costs one compile.
 fn compile_highlight(
-    language: Language,
+    analysis_dir: Option<&Path>,
+    wasm: &[u8],
+    language: &Language,
     id: &str,
-    highlights: &str,
-    injections: &str,
-    locals: &str,
+    queries: [&str; 3],
+    shipped: &[u8],
 ) -> Result<HighlightConfiguration, RuntimeError> {
-    let mut highlight =
-        HighlightConfiguration::new(language, id.to_string(), highlights, injections, locals)
-            .map_err(|error| RuntimeError::Query {
-                language: id.to_string(),
-                message: error.to_string(),
-            })?;
+    let [highlights, injections, locals] = queries;
+    let compile = |analysis: &[u8]| {
+        HighlightConfiguration::new_with_analysis(
+            language.clone(),
+            id.to_string(),
+            highlights,
+            injections,
+            locals,
+            analysis,
+        )
+        .map_err(|error| RuntimeError::Query {
+            language: id.to_string(),
+            message: error.to_string(),
+        })
+    };
+    let snapshot = analysis_dir.map(|dir| dir.join(analysis_filename(wasm, queries)));
+    let local = snapshot
+        .as_deref()
+        .and_then(|path| std::fs::read(path).ok());
+    let mut highlight = compile(local.as_deref().unwrap_or(shipped))?;
+    let local_rejected = local.is_some() && !highlight.analysis_imported();
+    if local_rejected && !shipped.is_empty() {
+        highlight = compile(shipped)?;
+    }
+    if let Some(path) = snapshot.filter(|_| local_rejected || !highlight.analysis_imported()) {
+        let _ = crate::store::write_atomic(&path, &highlight.query_analysis());
+    }
     highlight.configure(&HIGHLIGHT_NAMES);
     Ok(highlight)
+}
+
+/// Where a parser and its highlights, injections and locals queries keep their
+/// analysis snapshot: one file per combination and analysis code version, so
+/// a new parser, query or Lumis version never reads or overwrites another's.
+fn analysis_filename(wasm: &[u8], queries: [&str; 3]) -> String {
+    use sha2::Digest as _;
+    let mut hasher = sha2::Sha256::new();
+    hasher.update(Query::analysis_fingerprint().to_le_bytes());
+    hasher.update(wasm);
+    for query in queries {
+        hasher.update((query.len() as u64).to_le_bytes());
+        hasher.update(query.as_bytes());
+    }
+    let digest = hasher.finalize();
+    let mut name = String::with_capacity(digest.len() * 2 + 5);
+    for byte in digest {
+        let _ = write!(name, "{byte:02x}");
+    }
+    name.push_str(".tsqa");
+    name
 }
 
 /// Threads to compile a batch's queries across. Query analysis is CPU-bound
@@ -265,6 +320,10 @@ pub struct Runtime {
     /// Whether the engine persists compiled modules, which is what makes
     /// compiling a batch's parsers ahead of the store worth doing.
     compile_cache: bool,
+    /// Where query analysis snapshots are kept, beside the compiled modules
+    /// rather than among them: Wasmtime's cache cleanup deletes any file under
+    /// its own directory that it did not write.
+    analysis_dir: Option<PathBuf>,
 }
 
 /// Turn a failed `load_language` into something a caller can act on.
@@ -351,16 +410,16 @@ impl Runtime {
     ///
     /// Values below one are treated as one.
     pub fn with_worker_limit(worker_limit: usize) -> Result<Self, RuntimeError> {
-        static ENGINE: OnceLock<(Engine, bool)> = OnceLock::new();
+        static ENGINE: OnceLock<(Engine, Option<PathBuf>)> = OnceLock::new();
 
-        if let Some((engine, compile_cache)) = ENGINE.get() {
-            return Self::with_engine(engine.clone(), *compile_cache, worker_limit);
+        if let Some((engine, cache_root)) = ENGINE.get() {
+            return Self::with_engine(engine.clone(), cache_root.clone(), worker_limit);
         }
 
         let built = cached_engine()?;
         let _ = ENGINE.set(built.clone());
-        let (engine, compile_cache) = ENGINE.get().cloned().unwrap_or(built);
-        Self::with_engine(engine, compile_cache, worker_limit)
+        let (engine, cache_root) = ENGINE.get().cloned().unwrap_or(built);
+        Self::with_engine(engine, cache_root, worker_limit)
     }
 
     /// Construct a runtime with an independent engine whose compiled modules
@@ -377,13 +436,13 @@ impl Runtime {
         data_dir: std::path::PathBuf,
     ) -> Result<Self, RuntimeError> {
         let data_dir = crate::store::resolve_data_dir(Some(data_dir));
-        let (engine, compile_cache) = engine_with_compile_cache(data_dir)?;
-        Self::with_engine(engine, compile_cache, worker_limit)
+        let (engine, cache_root) = engine_with_compile_cache(data_dir)?;
+        Self::with_engine(engine, cache_root, worker_limit)
     }
 
     fn with_engine(
         engine: Engine,
-        compile_cache: bool,
+        cache_root: Option<PathBuf>,
         worker_limit: usize,
     ) -> Result<Self, RuntimeError> {
         let store =
@@ -399,7 +458,8 @@ impl Runtime {
             workers: WorkerPool::new(engine, worker_limit),
             store: None,
             loading: Mutex::new(HashMap::new()),
-            compile_cache,
+            compile_cache: cache_root.is_some(),
+            analysis_dir: cache_root.map(|root| root.join("queries")),
         })
     }
 
@@ -548,11 +608,16 @@ impl Runtime {
             .language(name)
             .ok_or_else(|| RuntimeError::UnknownLanguage(name.into()))?;
         compile_highlight(
-            language,
+            self.analysis_dir.as_deref(),
+            &wasm,
+            &language,
             id,
-            &definition.highlights,
-            &definition.injections,
-            &definition.locals,
+            [
+                &definition.highlights,
+                &definition.injections,
+                &definition.locals,
+            ],
+            &package.query_analysis(definition, &wasm),
         )
         .map(drop)
     }
@@ -608,6 +673,7 @@ impl Runtime {
             id: resolved_id.to_string(),
             aliases: definition.aliases.clone(),
             grammar_name: package.parser.grammar_name.clone(),
+            query_analysis: package.query_analysis(definition, &wasm),
             wasm,
             highlights: definition.highlights.clone(),
             injections: definition.injections.clone(),
@@ -696,11 +762,12 @@ impl Runtime {
         let mut compiled =
             crate::parallel_map(&pending, query_concurrency(), |(spec, language)| {
                 compile_highlight(
-                    (*language).clone(),
+                    self.analysis_dir.as_deref(),
+                    &spec.wasm,
+                    language,
                     &spec.id,
-                    &spec.highlights,
-                    &spec.injections,
-                    &spec.locals,
+                    [&spec.highlights, &spec.injections, &spec.locals],
+                    &spec.query_analysis,
                 )
             })
             .into_iter();
@@ -850,6 +917,17 @@ impl Runtime {
         ids
     }
 
+    /// A snapshot of a loaded language's query analysis, to publish as
+    /// [`LanguageSpec::query_analysis`] with its parser and queries.
+    ///
+    /// # Errors
+    /// Fails when the language is not loaded.
+    pub fn query_analysis(&self, name_or_alias: &str) -> Result<Vec<u8>, RuntimeError> {
+        self.loaded(name_or_alias)
+            .map(|loaded| loaded.highlight.query_analysis())
+            .ok_or_else(|| RuntimeError::LanguageNotLoaded(name_or_alias.to_string()))
+    }
+
     pub fn configure_language(
         &self,
         name_or_alias: &str,
@@ -875,7 +953,14 @@ impl Runtime {
                 loaded.brackets_source.clone(),
             )
         };
-        let highlight = compile_highlight(language, &id, highlights, injections, locals)?;
+        let highlight = compile_highlight(
+            None,
+            &[],
+            &language,
+            &id,
+            [highlights, injections, locals],
+            &[],
+        )?;
 
         let mut catalog = self
             .catalog
@@ -1358,8 +1443,9 @@ pub fn set_compile_cache_dir(dir: std::path::PathBuf) {
         .expect("compile cache lock poisoned") = Some(dir);
 }
 
-/// The engine, and whether it persists compiled modules.
-fn cached_engine() -> Result<(Engine, bool), wasmtime::Error> {
+/// The engine, and the data directory it persists compiled modules under, if
+/// it can.
+fn cached_engine() -> Result<(Engine, Option<PathBuf>), wasmtime::Error> {
     let root = crate::store::resolve_data_dir(
         COMPILE_CACHE_DIR
             .read()
@@ -1369,16 +1455,18 @@ fn cached_engine() -> Result<(Engine, bool), wasmtime::Error> {
     engine_with_compile_cache(root)
 }
 
-fn engine_with_compile_cache(root: std::path::PathBuf) -> Result<(Engine, bool), wasmtime::Error> {
+fn engine_with_compile_cache(
+    root: std::path::PathBuf,
+) -> Result<(Engine, Option<PathBuf>), wasmtime::Error> {
     let mut config = Config::new();
     let mut cache_config = CacheConfig::new();
     cache_config.with_directory(root.join("compiled"));
 
     let cache = Cache::new(cache_config).ok();
-    let compile_cache = cache.is_some();
+    let cache_root = cache.is_some().then_some(root);
     config.cache(cache);
 
-    Ok((Engine::new(&config)?, compile_cache))
+    Ok((Engine::new(&config)?, cache_root))
 }
 
 /// Parse the whole document as the root language, with the render's interrupt.
@@ -1470,7 +1558,6 @@ fn rainbow_ranges(
 mod tests {
     use super::*;
     use crate::store::StoreConfig;
-    use std::fmt::Write as _;
     use std::sync::mpsc;
     use std::thread;
     use std::time::Duration;
@@ -1591,6 +1678,7 @@ mod tests {
             highlights: "(number) @number".into(),
             injections: String::new(),
             locals: String::new(),
+            query_analysis: Vec::new(),
             brackets: String::new(),
         };
 
@@ -1607,6 +1695,106 @@ mod tests {
         );
     }
 
+    /// A second process reads the query analysis the first one computed, and
+    /// highlights exactly as if it had computed it; a snapshot that does not
+    /// pass validation is recomputed and replaced rather than trusted.
+    #[test]
+    fn query_analysis_is_cached_beside_the_compiled_modules() {
+        let dir = tempfile::tempdir().unwrap();
+        let spec = || {
+            LanguageSpec {
+            id: "json".into(),
+            aliases: Vec::new(),
+            grammar_name: "json".into(),
+            wasm: JSON_WASM.to_vec(),
+            highlights: "(pair key: (string) @property)\n(array (number) @number . (number) @constant)\n(_ (null) @constant.builtin)\n[(true) (false)] @boolean".into(),
+            injections: String::new(),
+            locals: String::new(),
+            query_analysis: Vec::new(),
+            brackets: String::new(),
+        }
+        };
+        let source = r#"{"a": [1, 2, null], "b": {"c": true, "d": [false, 3, 4]}}"#;
+        let load = || {
+            let runtime = Runtime::with_compile_cache_dir(1, dir.path().to_path_buf()).unwrap();
+            runtime.load_language(spec()).unwrap();
+            let imported = runtime
+                .loaded("json")
+                .unwrap()
+                .highlight
+                .analysis_imported();
+            let events = format!("{:?}", runtime.highlight(source, "json", false).unwrap());
+            (imported, events)
+        };
+        let snapshots = || -> Vec<_> {
+            std::fs::read_dir(dir.path().join("queries"))
+                .map(|entries| entries.map(|entry| entry.unwrap().path()).collect())
+                .unwrap_or_default()
+        };
+
+        let (imported, computed) = load();
+        assert!(!imported, "nothing was cached yet");
+        let [snapshot] = snapshots().try_into().unwrap();
+        let valid = std::fs::read(&snapshot).unwrap();
+
+        let (imported, restored) = load();
+        assert!(imported, "the second runtime must reuse the snapshot");
+        assert_eq!(restored, computed);
+
+        // The fingerprint of the analysis code, a flipped bit in the analysis
+        // itself, then a truncated file.
+        let mut stale = valid.clone();
+        stale[8] ^= 1;
+        let mut corrupt = valid.clone();
+        corrupt[72] ^= 1;
+        let corrupt_local = corrupt.clone();
+        for broken in [stale.clone(), corrupt, valid[..valid.len() - 1].to_vec()] {
+            std::fs::write(&snapshot, broken).unwrap();
+            let (imported, recomputed) = load();
+            assert!(
+                !imported,
+                "a snapshot that does not validate must be ignored"
+            );
+            assert_eq!(recomputed, computed);
+            assert_eq!(std::fs::read(&snapshot).unwrap(), valid, "and replaced");
+        }
+
+        // A first run restores what the package shipped and writes nothing; a
+        // shipped snapshot that does not validate is computed and cached.
+        for (shipped, expect_imported) in [(valid.clone(), true), (stale, false)] {
+            let _ = std::fs::remove_dir_all(dir.path().join("queries"));
+            let runtime = Runtime::with_compile_cache_dir(1, dir.path().to_path_buf()).unwrap();
+            runtime
+                .load_language(LanguageSpec {
+                    query_analysis: shipped,
+                    ..spec()
+                })
+                .unwrap();
+            let loaded = runtime.loaded("json").unwrap();
+            assert_eq!(loaded.highlight.analysis_imported(), expect_imported);
+            let events = format!("{:?}", runtime.highlight(source, "json", false).unwrap());
+            assert_eq!(events, computed);
+            assert_eq!(snapshots().len(), usize::from(!expect_imported));
+        }
+
+        // A local snapshot another build left behind gives way to a shipped one
+        // that matches, and is replaced so the next run reads it directly.
+        std::fs::write(&snapshot, &corrupt_local).unwrap();
+        let runtime = Runtime::with_compile_cache_dir(1, dir.path().to_path_buf()).unwrap();
+        runtime
+            .load_language(LanguageSpec {
+                query_analysis: valid.clone(),
+                ..spec()
+            })
+            .unwrap();
+        assert!(runtime
+            .loaded("json")
+            .unwrap()
+            .highlight
+            .analysis_imported());
+        assert_eq!(std::fs::read(&snapshot).unwrap(), valid);
+    }
+
     #[test]
     fn a_parser_module_survives_query_failure_for_a_corrected_retry() {
         let runtime = Runtime::with_worker_limit(1).unwrap();
@@ -1618,6 +1806,7 @@ mod tests {
             highlights: "(definitely_not_a_json_node) @string".into(),
             injections: String::new(),
             locals: String::new(),
+            query_analysis: Vec::new(),
             brackets: String::new(),
         };
 
@@ -1650,6 +1839,7 @@ mod tests {
             highlights: "(number) @number".into(),
             injections: String::new(),
             locals: String::new(),
+            query_analysis: Vec::new(),
             brackets: String::new(),
         };
         let error = runtime.load_language(wrong_grammar.clone()).unwrap_err();
@@ -1685,6 +1875,7 @@ mod tests {
             highlights: "(_) @variable".into(),
             injections: String::new(),
             locals: String::new(),
+            query_analysis: Vec::new(),
             brackets: String::new(),
         };
 
@@ -1770,6 +1961,7 @@ mod tests {
             highlights: highlights.into(),
             injections: String::new(),
             locals: String::new(),
+            query_analysis: Vec::new(),
             brackets: String::new(),
         };
         let broken = LanguageSpec {
@@ -2038,6 +2230,7 @@ mod tests {
                 highlights: "(identifier) @variable".into(),
                 injections: String::new(),
                 locals: format!("(binary_operator left: [{alternatives}] operator: \"=\")"),
+                query_analysis: Vec::new(),
                 brackets: String::new(),
             })
             .unwrap();
@@ -2300,6 +2493,7 @@ mod tests {
                 highlights: "(addition) @diff.plus\n(deletion) @diff.minus".into(),
                 injections: String::new(),
                 locals: String::new(),
+                query_analysis: Vec::new(),
                 brackets: String::new(),
             })
             .unwrap();
@@ -2325,6 +2519,7 @@ mod tests {
                 highlights: "(addition) @diff.plus\n(deletion) @diff.minus".into(),
                 injections: String::new(),
                 locals: String::new(),
+                query_analysis: Vec::new(),
                 brackets: String::new(),
             })
             .unwrap();
@@ -2378,6 +2573,7 @@ mod tests {
                 highlights: "(identifier) @variable\n(alias) @module".into(),
                 injections: String::new(),
                 locals: String::new(),
+                query_analysis: Vec::new(),
                 brackets: String::new(),
             })
             .unwrap();

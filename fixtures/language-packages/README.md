@@ -19,6 +19,11 @@ only. There is no `formatVersion` field and no version gate: the format is addit
 compatibility is decided by shape. Unknown fields are ignored by both runtimes, and a missing
 required field is rejected by name.
 
+A language's optional `queryAnalysis` is a Base64 query analysis snapshot. Only the native
+runtimes read it, and a value that does not decode, or does not match the parser and queries, is
+ignored rather than rejected, because it only saves work: `valid/query-analysis-not-base64.json`
+pins that.
+
 No runtime reads `definitionHash` or `parser.size` any more. Older releases still require them, so
 published packages carry both, and `valid/unread-fields.json` pins that no value in them rejects a
 document. `languages` must be a non-empty JSON object, never an array.

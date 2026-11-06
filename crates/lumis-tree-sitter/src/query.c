@@ -321,6 +321,8 @@ struct TSQuery {
   Array(TSSymbol) repeat_symbols_with_rootless_patterns;
   const TSLanguage *language;
   uint16_t wildcard_root_pattern_count;
+  uint64_t source_hash;
+  bool analysis_imported;
 };
 
 /*
@@ -3020,10 +3022,27 @@ static TSQueryError ts_query__parse_pattern(
   return 0;
 }
 
-TSQuery *ts_query_new(
+#ifndef LUMIS_QUERY_ANALYSIS_FINGERPRINT
+#error "LUMIS_QUERY_ANALYSIS_FINGERPRINT is defined by the generated lumis_prefix.h"
+#endif
+
+#define QUERY_ANALYSIS_MAGIC 0x41515354u /* "TSQA" */
+#define QUERY_ANALYSIS_FORMAT 2u
+#define QUERY_ANALYSIS_HEADER_WORDS 18u
+#define QUERY_ANALYSIS_HEADER_SIZE (QUERY_ANALYSIS_HEADER_WORDS * 4u)
+#define QUERY_ANALYSIS_REPEAT_COUNT_WORD 11u
+#define QUERY_ANALYSIS_PAYLOAD_HASH_WORD 16u
+#define QUERY_ANALYSIS_HASH_SEED 14695981039346656037ull
+
+static uint64_t query_analysis__hash(uint64_t hash, const char *bytes, uint32_t length);
+static bool ts_query__import_analysis(TSQuery *self, const uint8_t *analysis, uint32_t length);
+
+static TSQuery *ts_query__new(
   const TSLanguage *language,
   const char *source,
   uint32_t source_len,
+  const uint8_t *analysis,
+  uint32_t analysis_len,
   uint32_t *error_offset,
   TSQueryError *error_type
 ) {
@@ -3051,6 +3070,8 @@ TSQuery *ts_query_new(
     .repeat_symbols_with_rootless_patterns = array_new(),
     .wildcard_root_pattern_count = 0,
     .language = ts_language_copy(language),
+    .source_hash = query_analysis__hash(QUERY_ANALYSIS_HASH_SEED, source, source_len),
+    .analysis_imported = false,
   };
 
   array_push(&self->negated_fields, 0);
@@ -3196,7 +3217,8 @@ TSQuery *ts_query_new(
     ts_query__dump_steps(self, "post-parse");
   #endif
 
-  if (!ts_query__analyze_patterns(self, error_offset)) {
+  self->analysis_imported = analysis && ts_query__import_analysis(self, analysis, analysis_len);
+  if (!self->analysis_imported && !ts_query__analyze_patterns(self, error_offset)) {
     *error_type = TSQueryErrorStructure;
     ts_query_delete(self);
     return NULL;
@@ -3208,6 +3230,207 @@ TSQuery *ts_query_new(
 
   array_delete(&self->string_buffer);
   return self;
+}
+
+TSQuery *ts_query_new(
+  const TSLanguage *language,
+  const char *source,
+  uint32_t source_len,
+  uint32_t *error_offset,
+  TSQueryError *error_type
+) {
+  return ts_query__new(language, source, source_len, NULL, 0, error_offset, error_type);
+}
+
+TSQuery *ts_query_new_with_analysis(
+  const TSLanguage *language,
+  const char *source,
+  uint32_t source_len,
+  const uint8_t *analysis,
+  uint32_t analysis_len,
+  uint32_t *error_offset,
+  TSQueryError *error_type
+) {
+  return ts_query__new(language, source, source_len, analysis, analysis_len, error_offset, error_type);
+}
+
+/*
+ * Analysis snapshots
+ *
+ * `ts_query__analyze_patterns` writes three step flags, each pattern's
+ * `is_non_local`, and the repeat symbols with rootless patterns, and nothing
+ * else. A snapshot records exactly those, so a query compiled again from the
+ * same source and language can restore them instead of walking the parse table.
+ *
+ * Layout, every integer little-endian:
+ *   QUERY_ANALYSIS_HEADER_WORDS u32: see `query_analysis__header`
+ *   one byte per step: contains_captures | root_pattern_guaranteed << 1 |
+ *                      parent_pattern_guaranteed << 2
+ *   one byte per pattern: is_non_local
+ *   one u16 per repeat symbol, ascending
+ *
+ * The header pins what the analysis depends on: this library's analysis code
+ * (`LUMIS_QUERY_ANALYSIS_FINGERPRINT`), the language's shape and symbols, and
+ * the query source. A snapshot that differs in any of them is ignored. Its last
+ * two words hash the bytes after it, so a snapshot damaged on disk is ignored
+ * too; the hash detects corruption, not a snapshot crafted to pass it.
+ *
+ * The language check covers counts and symbol names, not the parse table, so
+ * two builds of a grammar that differ only in their tables share a header. A
+ * caller that keeps snapshots keys them by the exact parser they came from.
+ */
+static uint64_t query_analysis__hash(uint64_t hash, const char *bytes, uint32_t length) {
+  for (uint32_t i = 0; i < length; i++) {
+    hash ^= (uint8_t)bytes[i];
+    hash *= 1099511628211ull;
+  }
+  return hash;
+}
+
+static uint64_t query_analysis__language_hash(const TSLanguage *language) {
+  uint64_t hash = QUERY_ANALYSIS_HASH_SEED;
+  uint32_t symbol_count = ts_language_symbol_count(language);
+  for (uint32_t i = 0; i < symbol_count; i++) {
+    const char *name = ts_language_symbol_name(language, (TSSymbol)i);
+    char type = (char)ts_language_symbol_type(language, (TSSymbol)i);
+    hash = query_analysis__hash(hash, name ? name : "", name ? (uint32_t)strlen(name) + 1 : 1);
+    hash = query_analysis__hash(hash, &type, 1);
+  }
+  return hash;
+}
+
+static void query_analysis__header(const TSQuery *self, uint32_t repeat_count, uint32_t *header) {
+  const TSLanguage *language = self->language;
+  uint64_t fingerprint = LUMIS_QUERY_ANALYSIS_FINGERPRINT;
+  uint64_t language_hash = query_analysis__language_hash(language);
+  header[0] = QUERY_ANALYSIS_MAGIC;
+  header[1] = QUERY_ANALYSIS_FORMAT;
+  header[2] = (uint32_t)fingerprint;
+  header[3] = (uint32_t)(fingerprint >> 32);
+  header[4] = language->abi_version;
+  header[5] = language->symbol_count;
+  header[6] = language->state_count;
+  header[7] = language->large_state_count;
+  header[8] = language->field_count;
+  header[9] = self->steps.size;
+  header[10] = self->patterns.size;
+  header[QUERY_ANALYSIS_REPEAT_COUNT_WORD] = repeat_count;
+  header[12] = (uint32_t)self->source_hash;
+  header[13] = (uint32_t)(self->source_hash >> 32);
+  header[14] = (uint32_t)language_hash;
+  header[15] = (uint32_t)(language_hash >> 32);
+}
+
+static void query_analysis__write_u32(uint8_t *out, uint32_t value) {
+  for (unsigned i = 0; i < 4; i++) out[i] = (uint8_t)(value >> (8 * i));
+}
+
+static uint32_t query_analysis__read_u32(const uint8_t *in) {
+  uint32_t value = 0;
+  for (unsigned i = 0; i < 4; i++) value |= (uint32_t)in[i] << (8 * i);
+  return value;
+}
+
+static uint32_t query_analysis__length(const TSQuery *self, uint32_t repeat_count) {
+  return QUERY_ANALYSIS_HEADER_SIZE + self->steps.size + self->patterns.size + repeat_count * 2;
+}
+
+uint64_t ts_query_analysis_fingerprint(void) {
+  return LUMIS_QUERY_ANALYSIS_FINGERPRINT;
+}
+
+uint32_t ts_query_analysis(const TSQuery *self, uint8_t *buffer, uint32_t buffer_len) {
+  uint32_t repeat_count = self->repeat_symbols_with_rootless_patterns.size;
+  uint32_t length = query_analysis__length(self, repeat_count);
+  if (!buffer || buffer_len < length) return length;
+
+  uint8_t *out = buffer + QUERY_ANALYSIS_HEADER_SIZE;
+  for (uint32_t i = 0; i < self->steps.size; i++) {
+    const QueryStep *step = array_get(&self->steps, i);
+    *out++ = (uint8_t)(
+      (step->contains_captures ? 1 : 0) |
+      (step->root_pattern_guaranteed ? 2 : 0) |
+      (step->parent_pattern_guaranteed ? 4 : 0)
+    );
+  }
+  for (uint32_t i = 0; i < self->patterns.size; i++) {
+    *out++ = array_get(&self->patterns, i)->is_non_local ? 1 : 0;
+  }
+  for (uint32_t i = 0; i < repeat_count; i++) {
+    TSSymbol symbol = *array_get(&self->repeat_symbols_with_rootless_patterns, i);
+    *out++ = (uint8_t)symbol;
+    *out++ = (uint8_t)(symbol >> 8);
+  }
+
+  uint32_t header[QUERY_ANALYSIS_HEADER_WORDS];
+  query_analysis__header(self, repeat_count, header);
+  uint64_t payload_hash = query_analysis__hash(
+    QUERY_ANALYSIS_HASH_SEED,
+    (const char *)buffer + QUERY_ANALYSIS_HEADER_SIZE,
+    length - QUERY_ANALYSIS_HEADER_SIZE
+  );
+  header[QUERY_ANALYSIS_PAYLOAD_HASH_WORD] = (uint32_t)payload_hash;
+  header[QUERY_ANALYSIS_PAYLOAD_HASH_WORD + 1] = (uint32_t)(payload_hash >> 32);
+  for (unsigned i = 0; i < QUERY_ANALYSIS_HEADER_WORDS; i++) {
+    query_analysis__write_u32(buffer + i * 4, header[i]);
+  }
+  return length;
+}
+
+bool ts_query_analysis_imported(const TSQuery *self) {
+  return self->analysis_imported;
+}
+
+static bool ts_query__import_analysis(TSQuery *self, const uint8_t *analysis, uint32_t length) {
+  if (length < QUERY_ANALYSIS_HEADER_SIZE) return false;
+  uint32_t repeat_count = query_analysis__read_u32(analysis + QUERY_ANALYSIS_REPEAT_COUNT_WORD * 4);
+  if (repeat_count > self->language->symbol_count) return false;
+  if (length != query_analysis__length(self, repeat_count)) return false;
+  uint32_t header[QUERY_ANALYSIS_HEADER_WORDS];
+  query_analysis__header(self, repeat_count, header);
+  for (unsigned i = 0; i < QUERY_ANALYSIS_PAYLOAD_HASH_WORD; i++) {
+    if (query_analysis__read_u32(analysis + i * 4) != header[i]) return false;
+  }
+  uint64_t payload_hash = query_analysis__hash(
+    QUERY_ANALYSIS_HASH_SEED,
+    (const char *)analysis + QUERY_ANALYSIS_HEADER_SIZE,
+    length - QUERY_ANALYSIS_HEADER_SIZE
+  );
+  if (
+    query_analysis__read_u32(analysis + QUERY_ANALYSIS_PAYLOAD_HASH_WORD * 4) != (uint32_t)payload_hash ||
+    query_analysis__read_u32(analysis + (QUERY_ANALYSIS_PAYLOAD_HASH_WORD + 1) * 4) != (uint32_t)(payload_hash >> 32)
+  ) return false;
+
+  const uint8_t *steps = analysis + QUERY_ANALYSIS_HEADER_SIZE;
+  const uint8_t *patterns = steps + self->steps.size;
+  const uint8_t *repeats = patterns + self->patterns.size;
+  for (uint32_t i = 0; i < self->steps.size; i++) {
+    if (steps[i] > 7) return false;
+  }
+  for (uint32_t i = 0; i < self->patterns.size; i++) {
+    if (patterns[i] > 1) return false;
+  }
+  uint32_t previous = 0;
+  for (uint32_t i = 0; i < repeat_count; i++) {
+    uint32_t symbol = repeats[2 * i] | (uint32_t)repeats[2 * i + 1] << 8;
+    if (symbol >= self->language->symbol_count || (i > 0 && symbol <= previous)) return false;
+    previous = symbol;
+  }
+
+  for (uint32_t i = 0; i < self->steps.size; i++) {
+    QueryStep *step = array_get(&self->steps, i);
+    step->contains_captures = steps[i] & 1;
+    step->root_pattern_guaranteed = (steps[i] & 2) != 0;
+    step->parent_pattern_guaranteed = (steps[i] & 4) != 0;
+  }
+  for (uint32_t i = 0; i < self->patterns.size; i++) {
+    array_get(&self->patterns, i)->is_non_local = patterns[i] != 0;
+  }
+  array_clear(&self->repeat_symbols_with_rootless_patterns);
+  for (uint32_t i = 0; i < repeat_count; i++) {
+    array_push(&self->repeat_symbols_with_rootless_patterns, (TSSymbol)(repeats[2 * i] | repeats[2 * i + 1] << 8));
+  }
+  return true;
 }
 
 void ts_query_delete(TSQuery *self) {
@@ -3239,6 +3462,8 @@ TSQuery *ts_query_copy(const TSQuery *self) {
     .predicate_values = symbol_table_new(),
     .language = ts_language_copy(self->language),
     .wildcard_root_pattern_count = self->wildcard_root_pattern_count,
+    .source_hash = self->source_hash,
+    .analysis_imported = self->analysis_imported,
   };
 
   array_assign(&copy->steps, &self->steps);

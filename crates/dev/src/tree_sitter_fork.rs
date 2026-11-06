@@ -76,8 +76,9 @@ fn generate(crate_dir: &Path, upstream: &Upstream, out: &Path) -> Result<()> {
     for patch in &patches {
         apply_patch(out, &crate_dir.join("patches").join(&patch.file_name))?;
     }
+    let fingerprint = source_fingerprint(&out.join("src"))?;
     let symbols = exported_symbols(&out.join("src"))?;
-    prefix_c_symbols(&out.join("src"), &symbols)?;
+    prefix_c_symbols(&out.join("src"), &symbols, &fingerprint)?;
     prefix_rust_imports(&out.join("binding_rust"), &symbols)?;
     verify_prefixed(&out.join("src"))?;
     let version = committed_version(crate_dir)?;
@@ -424,9 +425,182 @@ fn declared_name(
     }
 }
 
+/// The fingerprint `crates/lumis-tree-sitter` stamps on query analysis
+/// snapshots, read from its generated header. A published snapshot is only
+/// accepted by a library with the same one.
+pub(crate) fn query_analysis_fingerprint() -> Result<String> {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../lumis-tree-sitter/src")
+        .join(PREFIX_HEADER);
+    let text =
+        fs::read_to_string(&path).with_context(|| format!("failed to read {}", path.display()))?;
+    let mut parser = tree_sitter::Parser::new();
+    parser.set_language(&tree_sitter_c::LANGUAGE.into())?;
+    let tree = parser
+        .parse(&text, None)
+        .with_context(|| format!("failed to parse {}", path.display()))?;
+    let field = |node: tree_sitter::Node<'_>, name: &str| {
+        node.child_by_field_name(name)
+            .and_then(|child| child.utf8_text(text.as_bytes()).ok())
+    };
+    let mut stack = vec![tree.root_node()];
+    while let Some(node) = stack.pop() {
+        if node.kind() == "preproc_def"
+            && field(node, "name") == Some("LUMIS_QUERY_ANALYSIS_FINGERPRINT")
+        {
+            let value = field(node, "value").context("the fingerprint has no value")?;
+            return Ok(value.trim().to_string());
+        }
+        let mut cursor = node.walk();
+        stack.extend(node.named_children(&mut cursor));
+    }
+    bail!(
+        "{} defines no LUMIS_QUERY_ANALYSIS_FINGERPRINT",
+        path.display()
+    )
+}
+
+/// The sources query analysis is computed from: `query.c` computes it,
+/// `language.c` answers its questions about the grammar, and `wasm_store.c`
+/// copies a Wasm parser's tables, which the snapshot header does not hash.
+const QUERY_ANALYSIS_ROOTS: &[&str] = &["query.c", "language.c", "wasm_store.c"];
+
+/// Sources under `src/` left out of the query analysis fingerprint: parsing,
+/// lexing, trees and allocation, and the libc a Wasm scanner links. None of
+/// them may be reachable from [`QUERY_ANALYSIS_ROOTS`], which is checked, and
+/// every other file is hashed, so a file upstream adds counts until it is
+/// listed here. A `/` suffix names a directory.
+const OUTSIDE_QUERY_ANALYSIS: &[&str] = &[
+    "alloc.c",
+    "get_changed_ranges.c",
+    "get_changed_ranges.h",
+    "lexer.c",
+    "node.c",
+    "parser.c",
+    "point.c",
+    "reduce_action.h",
+    "reusable_node.h",
+    "stack.c",
+    "stack.h",
+    "subtree.c",
+    "tree.c",
+    "tree.h",
+    "tree_cursor.c",
+    "wasm-stdlib/external_scanner_allocator.c",
+    "wasm-stdlib/libc.c",
+    "wasm-stdlib/libc/",
+    "wasm-stdlib/stdio.c",
+];
+
+/// A digest of every source query analysis can depend on, taken before
+/// prefixing. Query analysis snapshots carry it, so a library whose analysis
+/// code changed rejects snapshots another one wrote instead of trusting them,
+/// while a patch confined to [`OUTSIDE_QUERY_ANALYSIS`] leaves published
+/// snapshots, and therefore language packages, as they are.
+///
+/// Errs toward hashing too much: a missed dependency would load a stale
+/// snapshot and highlight wrongly without an error, while an extra one only
+/// costs a rebuild of the analysis.
+fn source_fingerprint(src: &Path) -> Result<String> {
+    let reachable = include_closure(src, QUERY_ANALYSIS_ROOTS)?;
+    let mut hashed = reachable.clone();
+    for relative in generated_files(src)? {
+        let name = relative.to_string_lossy().replace('\\', "/");
+        let outside = OUTSIDE_QUERY_ANALYSIS.iter().any(|entry| {
+            entry
+                .strip_suffix('/')
+                .map_or(name == *entry, |dir| name.starts_with(&format!("{dir}/")))
+        });
+        if !outside {
+            hashed.insert(src.join(&relative).canonicalize()?);
+        }
+    }
+    for entry in OUTSIDE_QUERY_ANALYSIS {
+        let path = src
+            .join(entry.trim_end_matches('/'))
+            .canonicalize()
+            .with_context(|| {
+                format!("OUTSIDE_QUERY_ANALYSIS names {entry}, which src/ no longer has")
+            })?;
+        if let Some(included) = reachable.iter().find(|file| file.starts_with(&path)) {
+            bail!(
+                "{} is reachable from the query analysis sources, so it cannot be in OUTSIDE_QUERY_ANALYSIS",
+                included.display()
+            );
+        }
+    }
+
+    let mut hasher = <sha2::Sha256 as sha2::Digest>::new();
+    let root = src.parent().unwrap_or(src).canonicalize()?;
+    for path in hashed {
+        let bytes = fs::read(&path)?;
+        let name = path
+            .strip_prefix(&root)?
+            .to_string_lossy()
+            .replace('\\', "/");
+        sha2::Digest::update(&mut hasher, name.as_bytes());
+        sha2::Digest::update(&mut hasher, [0]);
+        sha2::Digest::update(&mut hasher, (bytes.len() as u64).to_le_bytes());
+        sha2::Digest::update(&mut hasher, &bytes);
+    }
+    let digest = sha2::Digest::finalize(hasher);
+    Ok(digest[..8].iter().fold(String::new(), |mut hex, byte| {
+        let _ = write!(hex, "{byte:02x}");
+        hex
+    }))
+}
+
+/// `roots` and every local file they include, transitively, resolved the way
+/// `build.rs`'s `-I` directories resolve them, through every preprocessor
+/// branch. The C grammar does not see an `#include` inside an initializer, as
+/// in `STDLIB_SYMBOLS`, which is why [`source_fingerprint`] hashes everything
+/// it is not told to leave out rather than only what this finds.
+fn include_closure(src: &Path, roots: &[&str]) -> Result<BTreeSet<PathBuf>> {
+    let mut parser = tree_sitter::Parser::new();
+    parser.set_language(&tree_sitter_c::LANGUAGE.into())?;
+    let search = [src.to_path_buf(), src.with_file_name("include")];
+    let mut seen = BTreeSet::new();
+    let mut pending = roots
+        .iter()
+        .map(|root| src.join(root).canonicalize())
+        .collect::<std::io::Result<Vec<_>>>()?;
+    while let Some(path) = pending.pop() {
+        if !seen.insert(path.clone()) {
+            continue;
+        }
+        let text = fs::read_to_string(&path)?;
+        let tree = parser
+            .parse(&text, None)
+            .with_context(|| format!("failed to parse {}", path.display()))?;
+        let dir = path.parent().unwrap_or(src).to_path_buf();
+        let mut stack = vec![tree.root_node()];
+        while let Some(node) = stack.pop() {
+            let mut cursor = node.walk();
+            stack.extend(node.named_children(&mut cursor));
+            let Some(include) = (node.kind() == "preproc_include")
+                .then(|| node.child_by_field_name("path"))
+                .flatten()
+                .filter(|path| path.kind() == "string_literal")
+                .and_then(|path| path.utf8_text(text.as_bytes()).ok())
+                .map(|path| path.trim_matches('"'))
+            else {
+                continue;
+            };
+            let found = std::iter::once(&dir)
+                .chain(&search)
+                .map(|base| base.join(include))
+                .find(|candidate| candidate.is_file())
+                .with_context(|| format!("{} includes missing \"{include}\"", path.display()))?;
+            pending.push(found.canonicalize()?);
+        }
+    }
+    Ok(seen)
+}
+
 /// Rename every exported C symbol by including a generated header of
-/// `#define`s ahead of anything else in the amalgamated `lib.c`.
-fn prefix_c_symbols(src: &Path, symbols: &BTreeSet<String>) -> Result<()> {
+/// `#define`s ahead of anything else in the amalgamated `lib.c`, which also
+/// defines the source fingerprint the query analysis snapshots carry.
+fn prefix_c_symbols(src: &Path, symbols: &BTreeSet<String>, fingerprint: &str) -> Result<()> {
     let mut header = String::from(
         "// Generated by `mise run tree-sitter-sync`. Do not edit.\n\
          // Gives every symbol this library exports a `lumis_` prefix, so it can be\n\
@@ -434,6 +608,10 @@ fn prefix_c_symbols(src: &Path, symbols: &BTreeSet<String>) -> Result<()> {
          #ifndef LUMIS_TREE_SITTER_PREFIX_H_\n\
          #define LUMIS_TREE_SITTER_PREFIX_H_\n\n",
     );
+    writeln!(
+        header,
+        "#define LUMIS_QUERY_ANALYSIS_FINGERPRINT 0x{fingerprint}ull\n"
+    )?;
     for symbol in symbols {
         writeln!(header, "#define {symbol} {SYMBOL_PREFIX}{symbol}")?;
     }
@@ -796,4 +974,71 @@ fn remove_empty_dirs(dir: &Path) -> Result<()> {
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn copy_tree(from: &Path, to: &Path) {
+        for entry in fs::read_dir(from).unwrap() {
+            let entry = entry.unwrap();
+            let target = to.join(entry.file_name());
+            if entry.file_type().unwrap().is_dir() {
+                fs::create_dir_all(&target).unwrap();
+                copy_tree(&entry.path(), &target);
+            } else {
+                fs::copy(entry.path(), &target).unwrap();
+            }
+        }
+    }
+
+    fn fingerprint_after(edit: &str) -> String {
+        let dir = std::env::temp_dir().join(format!(
+            "lumis-fingerprint-{}-{}",
+            std::process::id(),
+            edit.replace('/', "-")
+        ));
+        let _ = fs::remove_dir_all(&dir);
+        let crate_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../lumis-tree-sitter");
+        for sub in ["src", "include"] {
+            fs::create_dir_all(dir.join(sub)).unwrap();
+            copy_tree(&crate_dir.join(sub), &dir.join(sub));
+        }
+        if !edit.is_empty() {
+            let path = dir.join("src").join(edit);
+            let mut text = fs::read_to_string(&path).unwrap();
+            text.push_str("\n// edited\n");
+            fs::write(&path, text).unwrap();
+        }
+        let fingerprint = source_fingerprint(&dir.join("src")).unwrap();
+        fs::remove_dir_all(&dir).unwrap();
+        fingerprint
+    }
+
+    #[test]
+    fn query_analysis_fingerprint_follows_only_what_analysis_reads() {
+        let base = fingerprint_after("");
+        for outside in [
+            "parser.c",
+            "lexer.c",
+            "stack.c",
+            "wasm-stdlib/libc/string/strlen.c",
+        ] {
+            assert_eq!(fingerprint_after(outside), base, "{outside} changed it");
+        }
+        for inside in [
+            "query.c",
+            "language.h",
+            "wasm_store.c",
+            "wasm-stdlib/imports.txt",
+            "../include/tree_sitter/api.h",
+        ] {
+            assert_ne!(
+                fingerprint_after(inside),
+                base,
+                "{inside} left it unchanged"
+            );
+        }
+    }
 }

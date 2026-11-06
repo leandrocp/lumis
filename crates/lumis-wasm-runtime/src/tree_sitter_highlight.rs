@@ -72,6 +72,10 @@
 //   the line. `emit_event` records which layer produced each start and end, by its tree's root
 //   node, and the adapter closes that layer's innermost span, reopening any span another layer
 //   opened inside it before the next text or start. Within one layer the order is upstream's.
+// - `HighlightConfiguration::new_with_analysis` and `query_analysis` pass a query analysis
+//   snapshot through to `lumis-tree-sitter`'s `Query::new_with_analysis`, which upstream does
+//   not have. The analysis is most of compiling a highlight query and is the same every time
+//   for the same queries and parser, so Lumis caches it rather than recomputing it per process.
 // - A module-level `allow` holds the workspace lint levels off this file. Upstream is not
 //   written to them, and restyling it to satisfy `clippy::pedantic` would grow the diff for
 //   nothing. Lumis code in here is still reviewed against those lints by hand.
@@ -1193,6 +1197,28 @@ impl HighlightConfiguration {
         injection_query: &str,
         locals_query: &str,
     ) -> Result<Self, QueryError> {
+        Self::new_with_analysis(
+            language,
+            name,
+            highlights_query,
+            injection_query,
+            locals_query,
+            &[],
+        )
+    }
+
+    /// [`HighlightConfiguration::new`], restoring the query's structural analysis from
+    /// `analysis`, a [`HighlightConfiguration::query_analysis`] snapshot taken from the same
+    /// queries and parser. A snapshot that does not match them is ignored and the analysis
+    /// is computed, which [`HighlightConfiguration::analysis_imported`] reports.
+    pub fn new_with_analysis(
+        language: Language,
+        name: impl Into<String>,
+        highlights_query: &str,
+        injection_query: &str,
+        locals_query: &str,
+        analysis: &[u8],
+    ) -> Result<Self, QueryError> {
         // These inherited patterns can remain open across an entire wrapper element.
         // Restrict match replay to that query family: completed matches do not contain
         // enough information to reproduce `next_capture` ordering for arbitrary queries.
@@ -1210,7 +1236,7 @@ impl HighlightConfiguration {
 
         // Construct a single query by concatenating the three query strings, but record the
         // range of pattern indices that belong to each individual string.
-        let mut query = Query::new(&language, &query_source)?;
+        let mut query = Query::new_with_analysis(&language, &query_source, analysis)?;
         let mut locals_pattern_index = 0;
         let mut highlights_pattern_index = 0;
         for i in 0..(query.pattern_count()) {
@@ -1325,6 +1351,20 @@ impl HighlightConfiguration {
             local_scope_capture_index,
             replay_captures_from_matches,
         })
+    }
+
+    /// A snapshot of the query's structural analysis, for
+    /// [`HighlightConfiguration::new_with_analysis`].
+    #[must_use]
+    pub fn query_analysis(&self) -> Vec<u8> {
+        self.query.analysis()
+    }
+
+    /// Whether the query's structural analysis was restored from a snapshot rather than
+    /// computed.
+    #[must_use]
+    pub fn analysis_imported(&self) -> bool {
+        self.query.analysis_imported()
     }
 
     /// Get a slice containing all of the highlight names used in the configuration.

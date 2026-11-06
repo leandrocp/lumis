@@ -936,6 +936,48 @@ TSQuery *ts_query_new(
 );
 
 /**
+ * Create a new query like `ts_query_new`, restoring its structural analysis
+ * from `analysis` instead of computing it.
+ *
+ * `analysis` must be a snapshot that `ts_query_analysis` took of a query
+ * compiled from the same source against the same parser by the same build of
+ * this library. A snapshot of another query or library build, of a language
+ * whose counts or symbol names differ, or one damaged on disk is ignored, as is
+ * `NULL`, and the analysis runs as it does in `ts_query_new`;
+ * `ts_query_analysis_imported` reports which happened. A snapshot of another
+ * build of the same grammar with the same symbols is not detected, so keep
+ * snapshots keyed by the exact parser they came from.
+ */
+TSQuery *ts_query_new_with_analysis(
+  const TSLanguage *language,
+  const char *source,
+  uint32_t source_len,
+  const uint8_t *analysis,
+  uint32_t analysis_len,
+  uint32_t *error_offset,
+  TSQueryError *error_type
+);
+
+/**
+ * Write a snapshot of the query's structural analysis to `buffer`, for
+ * `ts_query_new_with_analysis`, and return its length in bytes. Nothing is
+ * written when `buffer` is `NULL` or shorter than that.
+ */
+uint32_t ts_query_analysis(const TSQuery *self, uint8_t *buffer, uint32_t buffer_len);
+
+/**
+ * Whether the query was created from an analysis snapshot rather than by
+ * computing its analysis.
+ */
+bool ts_query_analysis_imported(const TSQuery *self);
+
+/**
+ * A fingerprint of this library's query analysis code, which every snapshot
+ * records. Two builds with the same fingerprint read each other's snapshots.
+ */
+uint64_t ts_query_analysis_fingerprint(void);
+
+/**
  * Delete a query, freeing all of the memory that it used.
  */
 void ts_query_delete(TSQuery *self);
