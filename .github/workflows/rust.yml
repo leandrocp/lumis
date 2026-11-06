@@ -317,11 +317,14 @@ jobs:
         with:
           toolchain: stable
 
-      # `crates/lumis-cli/build.rs` copies fixtures/formatter-options.json into
-      # the crate so it reaches crates.io. Building re-syncs it, so the copy is
-      # only ever stale in a commit.
+      # `crates/lumis-cli/build.rs` copies fixtures/formatter-options.json and
+      # themes/extract_theme.lua into the crate so they reach crates.io.
+      # Building re-syncs them, so a copy is only ever stale in a commit.
       - run: cargo build -p lumis-cli
-      - run: git diff --exit-code -- crates/lumis-cli/formatter-options.json
+      - run: >-
+          git diff --exit-code --
+          crates/lumis-cli/formatter-options.json
+          crates/lumis-cli/themes/extract_theme.lua
 
   # Deliberately not skipped on `chore(release):` commits, unlike the rest of
   # this file. A release commit is the one commit that writes new `version`
