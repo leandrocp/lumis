@@ -182,6 +182,9 @@ jobs:
       - run: >-
           cargo clippy --manifest-path crates/dev/Cargo.toml
           --all-targets --no-default-features -- -D warnings
+      # Not --locked: a release bumps the showreel's lumis requirement before
+      # that version is on crates.io, and only this run can resolve it after.
+      # Its lockfile still holds every other dependency where it was.
       - run: >-
           cargo clippy --manifest-path crates/lumis/examples/rune-showreel/Cargo.toml
-          --all-targets --locked -- -D warnings
+          --all-targets -- -D warnings
