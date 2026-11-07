@@ -26,3 +26,4 @@ minimumReleaseAgeExclude:
   - shiki@4.4.2
   - '@tanstack/highlight@1.0.0'
   - '@pierre/highlights@0.2.0'
+  - web-tree-sitter@0.27.2

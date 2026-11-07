@@ -1974,7 +1974,7 @@ checksum = "5d15f86d12da44cd8d4ec3c73984537eb7f4cadcb9776a575a0a8a05ca11005c"
 
 [[package]]
 name = "lumis-core"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "derive_builder",
  "glob",
@@ -2001,7 +2001,7 @@ dependencies = [
 
 [[package]]
 name = "lumis-wasm-runtime"
-version = "0.6.2"
+version = "0.6.3"
 dependencies = [
  "etcetera",
  "lumis-core",
@@ -4120,8 +4120,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter"
-version = "0.27.1"
-source = "git+https://github.com/tree-sitter/tree-sitter?rev=868eab666844fa42118af86e2893c104c50971cc#868eab666844fa42118af86e2893c104c50971cc"
+version = "0.27.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37b2bed8f39a73439f3b0b7ed8f452be5d2911b5e9da69d352ef113bb7448fb8"
 dependencies = [
  "cc",
  "regex",
@@ -4134,7 +4135,8 @@ dependencies = [
 [[package]]
 name = "tree-sitter-language"
 version = "0.1.9"
-source = "git+https://github.com/tree-sitter/tree-sitter?rev=868eab666844fa42118af86e2893c104c50971cc#868eab666844fa42118af86e2893c104c50971cc"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d0af592be68c579aa78a16846bd19422978c3c52e438523d45ff5d1bff1f9d4a"
 
 [[package]]
 name = "tree_magic_mini"
