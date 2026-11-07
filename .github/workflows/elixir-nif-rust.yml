@@ -10,7 +10,8 @@ on:
       - main
     paths:
       - "packages/elixir/lumis/native/**"
-      - "crates/**"
+      - "crates/lumis-core/**"
+      - "crates/lumis-wasm-runtime/**"
       - "Cargo.toml"
       - "Cargo.lock"
       - "mise.toml"
@@ -19,7 +20,8 @@ on:
   pull_request:
     paths:
       - "packages/elixir/lumis/native/**"
-      - "crates/**"
+      - "crates/lumis-core/**"
+      - "crates/lumis-wasm-runtime/**"
       - "Cargo.toml"
       - "Cargo.lock"
       - "mise.toml"
