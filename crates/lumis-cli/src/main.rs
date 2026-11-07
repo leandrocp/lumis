@@ -15,6 +15,7 @@ use lumis_core::formatter::BudgetExhausted;
 use lumis_core::formatter::Formatter as CoreFormatter;
 use lumis_core::formatter::TerminalBackground;
 use lumis_core::languages::Language;
+use lumis_wasm_runtime::inspect::Inspection;
 use lumis_wasm_runtime::tree_sitter_highlight::ParsedLayer;
 use lumis_wasm_runtime::{
     HighlightOptions, HighlightOutput, DEFAULT_MATCH_LIMIT, DEFAULT_TIME_LIMIT, MAX_MATCH_LIMIT,
@@ -27,7 +28,6 @@ use std::io::{IsTerminal, Read as _};
 use std::ops::RangeInclusive;
 use std::path::{Path, PathBuf};
 use terminal_size::{terminal_size, Width};
-use tree_sitter::Node;
 
 type HighlightEvent = CoreHighlightEvent<'static>;
 
@@ -1205,205 +1205,6 @@ fn dump_events(
     Ok(())
 }
 
-struct TreeNode<'tree> {
-    node: Node<'tree>,
-    depth: usize,
-    field: Option<&'tree str>,
-    language: &'tree str,
-}
-
-struct OpenHighlight {
-    scope_index: usize,
-    language: String,
-    start: Option<usize>,
-    end: usize,
-    order: usize,
-}
-
-struct TreeHighlight {
-    scope_index: usize,
-    language: String,
-    start: usize,
-    end: usize,
-    order: usize,
-}
-
-fn tree_injections(
-    layers: &[ParsedLayer],
-) -> std::collections::HashMap<(usize, usize), Vec<usize>> {
-    let mut injections = std::collections::HashMap::<(usize, usize), Vec<usize>>::new();
-
-    for (child_index, child) in layers
-        .iter()
-        .enumerate()
-        .filter(|(_, layer)| layer.depth > 0)
-    {
-        let child_root = child.tree.root_node();
-        let parent = layers
-            .iter()
-            .enumerate()
-            .filter(|(_, layer)| {
-                layer.depth + 1 == child.depth
-                    && layer.tree.root_node().start_byte() <= child_root.start_byte()
-                    && layer.tree.root_node().end_byte() >= child_root.end_byte()
-            })
-            .min_by_key(|(_, layer)| {
-                layer.tree.root_node().end_byte() - layer.tree.root_node().start_byte()
-            });
-
-        if let Some((parent_index, parent)) = parent {
-            let parent_root = parent.tree.root_node();
-            let owner = parent_root
-                .named_descendant_for_byte_range(child_root.start_byte(), child_root.end_byte())
-                .unwrap_or(parent_root);
-            injections
-                .entry((parent_index, owner.id()))
-                .or_default()
-                .push(child_index);
-        }
-    }
-
-    for child_layers in injections.values_mut() {
-        child_layers.sort_by_key(|index| {
-            let root = layers[*index].tree.root_node();
-            std::cmp::Reverse(root.end_byte() - root.start_byte())
-        });
-    }
-
-    injections
-}
-
-#[allow(clippy::too_many_arguments)]
-fn collect_tree_nodes<'tree>(
-    layer_index: usize,
-    node: Node<'tree>,
-    depth: usize,
-    field: Option<&'tree str>,
-    layers: &'tree [ParsedLayer],
-    injections: &std::collections::HashMap<(usize, usize), Vec<usize>>,
-    nodes: &mut Vec<TreeNode<'tree>>,
-) {
-    nodes.push(TreeNode {
-        node,
-        depth,
-        field,
-        language: &layers[layer_index].language,
-    });
-
-    if let Some(child_layers) = injections.get(&(layer_index, node.id())) {
-        for child_index in child_layers {
-            collect_tree_nodes(
-                *child_index,
-                layers[*child_index].tree.root_node(),
-                depth + 1,
-                None,
-                layers,
-                injections,
-                nodes,
-            );
-        }
-    }
-
-    let mut cursor = node.walk();
-    if !cursor.goto_first_child() {
-        return;
-    }
-
-    loop {
-        let child = cursor.node();
-        if child.is_named() {
-            collect_tree_nodes(
-                layer_index,
-                child,
-                depth + 1,
-                cursor.field_name(),
-                layers,
-                injections,
-                nodes,
-            );
-        }
-        if !cursor.goto_next_sibling() {
-            break;
-        }
-    }
-}
-
-fn tree_highlights(events: Vec<HighlightEvent>) -> Result<Vec<TreeHighlight>> {
-    let mut open = Vec::new();
-    let mut highlights = Vec::new();
-    let mut order = 0usize;
-
-    for event in events {
-        match event {
-            HighlightEvent::Start {
-                scope_index,
-                language,
-            } => {
-                open.push(OpenHighlight {
-                    scope_index,
-                    language,
-                    start: None,
-                    end: 0,
-                    order,
-                });
-                order += 1;
-            }
-            HighlightEvent::Source { start, end } => {
-                for highlight in &mut open {
-                    highlight.start.get_or_insert(start);
-                    highlight.end = end;
-                }
-            }
-            HighlightEvent::End => {
-                let highlight = open.pop().ok_or_else(|| {
-                    anyhow::anyhow!("highlight event stream contains an unmatched end event")
-                })?;
-                if let Some(start) = highlight.start {
-                    highlights.push(TreeHighlight {
-                        scope_index: highlight.scope_index,
-                        language: highlight.language,
-                        start,
-                        end: highlight.end,
-                        order: highlight.order,
-                    });
-                }
-            }
-            _ => unreachable!("syntax highlighting emits only scope and source events"),
-        }
-    }
-
-    if !open.is_empty() {
-        return Err(anyhow::anyhow!(
-            "highlight event stream contains unclosed start events"
-        ));
-    }
-
-    highlights.sort_by_key(|highlight| highlight.order);
-    highlights.dedup_by(|left, right| {
-        left.scope_index == right.scope_index
-            && left.language == right.language
-            && left.start == right.start
-            && left.end == right.end
-    });
-    Ok(highlights)
-}
-
-fn source_line_starts(source: &str) -> Vec<usize> {
-    let mut starts = vec![0];
-    starts.extend(
-        source
-            .bytes()
-            .enumerate()
-            .filter_map(|(index, byte)| (byte == b'\n').then_some(index + 1)),
-    );
-    starts
-}
-
-fn source_point(line_starts: &[usize], byte: usize) -> (usize, usize) {
-    let row = line_starts.partition_point(|start| *start <= byte) - 1;
-    (row, byte - line_starts[row])
-}
-
 enum TreeRenderEntry {
     Capture(usize),
     Child(usize),
@@ -1447,18 +1248,15 @@ fn tree_text_metadata(text: &str, mode: TreeText) -> Result<String> {
     Ok(format!(", text: {}", serde_json::to_string(&text)?))
 }
 
-#[allow(clippy::too_many_arguments)]
 fn render_tree_node(
     index: usize,
-    nodes: &[TreeNode<'_>],
-    highlights_by_node: &[Vec<&TreeHighlight>],
+    inspection: &Inspection,
     source: &str,
-    line_starts: &[usize],
     text_mode: Option<TreeText>,
     prefix: &str,
     is_last: Option<bool>,
 ) -> Result<usize> {
-    let item = &nodes[index];
+    let item = &inspection.nodes[index];
     let connector = match is_last {
         None => "",
         Some(true) => "└── ",
@@ -1466,17 +1264,12 @@ fn render_tree_node(
     };
     let field = item
         .field
+        .as_ref()
         .map_or_else(String::new, |field| format!("field: {field}, "));
-    let missing = if item.node.is_missing() {
-        "MISSING "
-    } else {
-        ""
-    };
-    let start = item.node.start_position();
-    let end = item.node.end_position();
+    let missing = if item.is_missing { "MISSING " } else { "" };
     let text = if let Some(mode) = text_mode {
         let text = source
-            .get(item.node.byte_range())
+            .get(item.byte_range.clone())
             .ok_or_else(|| anyhow::anyhow!("syntax node has an invalid byte range"))?;
         tree_text_metadata(text, mode)?
     } else {
@@ -1485,33 +1278,25 @@ fn render_tree_node(
 
     println!(
         "{prefix}{connector}[{missing}{}] {field}language: {}, range: {}:{}-{}:{}{text}",
-        item.node.kind(),
-        item.language,
-        start.row,
-        start.column,
-        end.row,
-        end.column,
+        item.kind, item.language, item.start.row, item.start.column, item.end.row, item.end.column,
     );
 
-    let subtree_end = nodes[index + 1..]
+    let subtree_end = inspection.subtree_end(index);
+    let mut entries = item
+        .captures
         .iter()
-        .position(|node| node.depth <= item.depth)
-        .map_or(nodes.len(), |offset| index + 1 + offset);
-    let mut entries = highlights_by_node[index]
-        .iter()
-        .enumerate()
-        .map(|(capture_index, _)| TreeRenderEntry::Capture(capture_index))
+        .map(|&capture| TreeRenderEntry::Capture(capture))
         .chain(
             (index + 1..subtree_end)
-                .filter(|child_index| nodes[*child_index].depth == item.depth + 1)
+                .filter(|child| inspection.nodes[*child].depth == item.depth + 1)
                 .map(TreeRenderEntry::Child),
         )
         .collect::<Vec<_>>();
     entries.sort_by_key(|entry| match entry {
-        TreeRenderEntry::Capture(capture_index) => {
-            (highlights_by_node[index][*capture_index].start, 0usize)
+        TreeRenderEntry::Capture(capture) => {
+            (inspection.captures[*capture].byte_range.start, 0usize)
         }
-        TreeRenderEntry::Child(child_index) => (nodes[*child_index].node.start_byte(), 1usize),
+        TreeRenderEntry::Child(child) => (inspection.nodes[*child].byte_range.start, 1usize),
     });
 
     let child_prefix = match is_last {
@@ -1528,40 +1313,35 @@ fn render_tree_node(
             "├── "
         };
         match entry {
-            TreeRenderEntry::Capture(capture_index) => {
-                let highlight = highlights_by_node[index][capture_index];
+            TreeRenderEntry::Capture(capture) => {
+                let capture = &inspection.captures[capture];
                 let text = if let Some(mode) = text_mode {
-                    let capture_text =
-                        source.get(highlight.start..highlight.end).ok_or_else(|| {
-                            anyhow::anyhow!(
-                                "highlight capture has an invalid byte range {}..{}",
-                                highlight.start,
-                                highlight.end
-                            )
-                        })?;
+                    let capture_text = source.get(capture.byte_range.clone()).ok_or_else(|| {
+                        anyhow::anyhow!(
+                            "highlight capture has an invalid byte range {}..{}",
+                            capture.byte_range.start,
+                            capture.byte_range.end
+                        )
+                    })?;
                     tree_text_metadata(capture_text, mode)?
                 } else {
                     String::new()
                 };
-                let capture_start = source_point(line_starts, highlight.start);
-                let capture_end = source_point(line_starts, highlight.end);
-                let scope = lumis_core::highlights::HIGHLIGHT_NAMES[highlight.scope_index];
                 println!(
-                    "{child_prefix}{entry_connector}@{scope} language: {}, range: {}:{}-{}:{}{text}",
-                    highlight.language,
-                    capture_start.0,
-                    capture_start.1,
-                    capture_end.0,
-                    capture_end.1,
+                    "{child_prefix}{entry_connector}@{} language: {}, range: {}:{}-{}:{}{text}",
+                    capture.scope,
+                    capture.language,
+                    capture.start.row,
+                    capture.start.column,
+                    capture.end.row,
+                    capture.end.column,
                 );
             }
-            TreeRenderEntry::Child(child_index) => {
+            TreeRenderEntry::Child(child) => {
                 render_tree_node(
-                    child_index,
-                    nodes,
-                    highlights_by_node,
+                    child,
+                    inspection,
                     source,
-                    line_starts,
                     text_mode,
                     &child_prefix,
                     Some(entry_is_last),
@@ -1598,72 +1378,16 @@ fn dump_tree_lines(
             budget: None,
         }
     };
-    let resolved_highlights = if highlights {
-        tree_highlights(output.events)?
+    let events = if highlights {
+        output.events.as_slice()
     } else {
-        Vec::new()
+        &[]
     };
-    let layers = output.layers;
-    let injection_map = tree_injections(&layers);
-    let mut nodes = Vec::new();
-    for (layer_index, layer) in layers
-        .iter()
-        .enumerate()
-        .filter(|(_, layer)| layer.depth == 0)
-    {
-        collect_tree_nodes(
-            layer_index,
-            layer.tree.root_node(),
-            0,
-            None,
-            &layers,
-            &injection_map,
-            &mut nodes,
-        );
-    }
-    let line_starts = source_line_starts(source);
-
-    let mut highlights_by_node = vec![Vec::new(); nodes.len()];
-    for highlight in &resolved_highlights {
-        let owner = nodes
-            .iter()
-            .enumerate()
-            .filter(|(_, item)| {
-                item.language == highlight.language
-                    && item.node.start_byte() <= highlight.start
-                    && item.node.end_byte() >= highlight.end
-            })
-            .min_by_key(|(_, item)| {
-                (
-                    item.node.end_byte() - item.node.start_byte(),
-                    std::cmp::Reverse(item.depth),
-                )
-            })
-            .map(|(index, _)| index)
-            .ok_or_else(|| {
-                anyhow::anyhow!(
-                    "no {} syntax node contains highlight capture {}..{}",
-                    highlight.language,
-                    highlight.start,
-                    highlight.end
-                )
-            })?;
-
-        highlights_by_node[owner].push(highlight);
-    }
+    let inspection = Inspection::new(source, &output.layers, events)?;
 
     let mut index = 0;
-    while index < nodes.len() {
-        index = render_tree_node(
-            index,
-            &nodes,
-            &highlights_by_node,
-            source,
-            &line_starts,
-            text,
-            "",
-            None,
-        )?;
+    while index < inspection.nodes.len() {
+        index = render_tree_node(index, &inspection, source, text, "", None)?;
     }
 
     Ok(())

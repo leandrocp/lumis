@@ -222,6 +222,7 @@ pub fn compile_concurrency() -> usize {
 pub mod brackets;
 pub mod catalog;
 pub mod diff_words;
+pub mod inspect;
 pub mod package;
 pub mod store;
 pub mod tree_sitter_highlight;

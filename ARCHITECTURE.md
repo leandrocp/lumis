@@ -444,6 +444,17 @@ manifest rather than recreating those package-manager responsibilities. Moving
 to a new Tree-sitter minor series changes the range and legitimately requires a
 runtime release. Publishing `@lumis-sh/wasm-rust@0.26.x` does not.
 
+### Inspecting a highlight
+
+`lumis_wasm_runtime::inspect::Inspection` turns a highlight's kept layers and
+events into one owned tree: every named node of every layer, injected layers
+nested under the node that owns them, and each capture attached to the smallest
+node of its language that contains it. `lumis dump tree` prints it and the
+inspector draws it, so the two cannot disagree about which node a capture
+belongs to. `Theme::resolve_style` reports which scope the theme's walk-up
+matched, and `themes::contrast_ratio` the WCAG contrast of two colours, for
+tools that explain where a colour came from.
+
 ### Preparing the persistent store
 
 One verb in every library runtime — **load**, which compiles a language, keeps
