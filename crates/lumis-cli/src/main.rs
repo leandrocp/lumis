@@ -1255,7 +1255,7 @@ fn render_tree_node(
     text_mode: Option<TreeText>,
     prefix: &str,
     is_last: Option<bool>,
-) -> Result<usize> {
+) -> Result<()> {
     let item = &inspection.nodes[index];
     let connector = match is_last {
         None => "",
@@ -1350,7 +1350,7 @@ fn render_tree_node(
         }
     }
 
-    Ok(subtree_end)
+    Ok(())
 }
 
 fn dump_tree_lines(
@@ -1385,9 +1385,13 @@ fn dump_tree_lines(
     };
     let inspection = Inspection::new(source, &output.layers, events)?;
 
-    let mut index = 0;
-    while index < inspection.nodes.len() {
-        index = render_tree_node(index, &inspection, source, text, "", None)?;
+    for (root, _) in inspection
+        .nodes
+        .iter()
+        .enumerate()
+        .filter(|(_, node)| node.parent.is_none())
+    {
+        render_tree_node(root, &inspection, source, text, "", None)?;
     }
 
     Ok(())
