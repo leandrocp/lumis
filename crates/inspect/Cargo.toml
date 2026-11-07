@@ -22,11 +22,6 @@ wgpu = { version = "30", default-features = false, features = ["std", "parking_l
 [target.'cfg(not(target_os = "macos"))'.dependencies]
 wgpu = { version = "30", default-features = false, features = ["vulkan", "dx12"] }
 
-# The root workspace's patch, so the inspector loads the same parsers the CLI does.
-[patch.crates-io]
-tree-sitter = { git = "https://github.com/tree-sitter/tree-sitter", rev = "868eab666844fa42118af86e2893c104c50971cc" }
-tree-sitter-language = { git = "https://github.com/tree-sitter/tree-sitter", rev = "868eab666844fa42118af86e2893c104c50971cc" }
-
 [lints.rust]
 rust_2018_idioms = { level = "warn", priority = -1 }
 unreachable_pub = "warn"

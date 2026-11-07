@@ -21,7 +21,7 @@ regex-syntax = "0.8.11"
 serde = { version = "1", optional = true }
 serde_json = { version = "1", features = ["raw_value"], optional = true }
 spdx = { version = "0.13.6", features = ["detection-inline-cache"], optional = true }
-tree-sitter = "^0.27.1"
+tree-sitter = "^0.27.2"
 tree-sitter-tsquery = "0.8.0"
 url = { version = "2", optional = true }
 
