@@ -508,6 +508,56 @@ mod tests {
     }
 
     #[test]
+    fn captures_keep_open_order_drop_repeats_and_report_rows_and_columns() {
+        let source = "[\n  1, 2,\n  \"a\"\n]";
+        let at = |text: &str| source.find(text).unwrap();
+        let source_event = |start: usize, len: usize| HighlightEvent::Source {
+            start,
+            end: start + len,
+        };
+        let start = |name: &str| HighlightEvent::Start {
+            scope_index: scope(name),
+            language: "json".into(),
+        };
+        let mut events = vec![
+            start("punctuation.bracket"),
+            source_event(0, 1),
+            start("number"),
+            source_event(at("1"), 1),
+            HighlightEvent::End,
+            start("number"),
+            source_event(at("2"), 1),
+            HighlightEvent::End,
+        ];
+        for name in ["string", "string", "constant"] {
+            events.extend([
+                start(name),
+                source_event(at("\"a\""), 3),
+                HighlightEvent::End,
+            ]);
+        }
+        events.extend([source_event(at("]"), 1), HighlightEvent::End]);
+
+        let inspection = Inspection::new(source, &[layer(source, None, 0)], &events).unwrap();
+
+        let captures: Vec<(&str, Point, Point)> = inspection
+            .captures
+            .iter()
+            .map(|c| (c.scope, c.start, c.end))
+            .collect();
+        assert_eq!(
+            captures,
+            [
+                ("punctuation.bracket", Point::new(0, 0), Point::new(3, 1)),
+                ("number", Point::new(1, 2), Point::new(1, 3)),
+                ("number", Point::new(1, 5), Point::new(1, 6)),
+                ("string", Point::new(2, 2), Point::new(2, 5)),
+                ("constant", Point::new(2, 2), Point::new(2, 5)),
+            ]
+        );
+    }
+
+    #[test]
     fn lookups_treat_ranges_as_half_open() {
         let source = "[1, [22], 3]";
         let two = source.find("22").unwrap();
