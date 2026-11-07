@@ -1,3 +1,9 @@
+## [1.2.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-build/v1.2.0...cargo-lumis-build/v1.2.1) (2026-11-07)
+
+### Performance
+
+- **build:** Skip comment injections with nothing to color in [\#2013](https://github.com/leandrocp/lumis/pull/2013)
+
 ## [1.2.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-build/v1.1.0...cargo-lumis-build/v1.2.0) (2026-10-28)
 
 ### Features
