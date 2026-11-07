@@ -1,3 +1,9 @@
+## [0.8.8](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.7...cargo-lumis-cli/v0.8.8) (2026-11-07)
+
+### Dependencies
+
+- Upgrade Tree-sitter runtimes to 0.27.2 in [\#2022](https://github.com/leandrocp/lumis/pull/2022)
+
 ## [0.8.7](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.6...cargo-lumis-cli/v0.8.7) (2026-11-07)
 
 ### Bug Fixes
