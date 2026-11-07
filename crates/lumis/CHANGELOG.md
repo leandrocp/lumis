@@ -1,3 +1,9 @@
+## [0.19.2](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.19.1...cargo-lumis/v0.19.2) (2026-11-07)
+
+### Bug Fixes
+
+- **rust:** Support Jinja 0.13.1 grammar in [\#2010](https://github.com/leandrocp/lumis/pull/2010)
+
 ## [0.19.1](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.19.0...cargo-lumis/v0.19.1) (2026-11-05)
 
 ### Features
