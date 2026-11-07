@@ -2632,7 +2632,7 @@ fn fetch_queries(name: &str) -> Result<()> {
     Ok(())
 }
 
-fn apply_text_replacements(content: &str, lang: &str) -> String {
+fn apply_text_replacements(content: &str) -> String {
     let replacements = [
         ("@nospell", ""),
         ("@spell", ""),
@@ -2678,12 +2678,6 @@ fn apply_text_replacements(content: &str, lang: &str) -> String {
     let mut s = content.to_string();
     for (old, new) in &replacements {
         s = s.replace(old, new);
-    }
-    if lang == "swift" {
-        s = s.replace(
-            "(nil_literal) @constant.builtin",
-            "\"nil\" @constant.builtin",
-        );
     }
     s
 }
@@ -2783,7 +2777,7 @@ fn resolve_and_preprocess(
 
     let mut parts = Vec::new();
     if !raw.is_empty() {
-        let content = apply_text_replacements(&raw, lang);
+        let content = apply_text_replacements(&raw);
         let content = strip_set_capture_patterns(&content);
 
         let mut stripped_lines = Vec::new();
@@ -8799,17 +8793,6 @@ mod tests {
         assert!(stripped.contains("hard_line_break"));
         assert!(!stripped.contains("inline_link"));
         assert!(stripped.contains("(comment) @comment"));
-    }
-
-    #[test]
-    fn apply_text_replacements_uses_published_swift_nil_node() {
-        let query = "(nil_literal) @constant.builtin";
-
-        assert_eq!(
-            apply_text_replacements(query, "swift"),
-            "\"nil\" @constant.builtin"
-        );
-        assert_eq!(apply_text_replacements(query, "nim"), query);
     }
 
     #[test]
