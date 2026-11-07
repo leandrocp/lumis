@@ -1,3 +1,9 @@
+## [0.6.3](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.6.2...cargo-lumis-wasm-runtime/v0.6.3) (2026-11-07)
+
+### Code Refactoring
+
+- **rust:** Share the highlight inspection between dump and tools in [\#2014](https://github.com/leandrocp/lumis/pull/2014)
+
 ## [0.6.2](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.6.1...cargo-lumis-wasm-runtime/v0.6.2) (2026-11-05)
 
 ### Features
