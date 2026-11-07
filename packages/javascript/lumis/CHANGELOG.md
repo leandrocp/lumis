@@ -1,3 +1,13 @@
+## [0.10.5](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.4...npm-lumis/v0.10.5) (2026-11-07)
+
+### Bug Fixes
+
+- **rust:** Support Jinja 0.13.1 grammar in [\#2010](https://github.com/leandrocp/lumis/pull/2010)
+
+### Code Refactoring
+
+- **rust:** Share the highlight inspection between dump and tools in [\#2014](https://github.com/leandrocp/lumis/pull/2014)
+
 ## [0.10.4](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.3...npm-lumis/v0.10.4) (2026-11-05)
 
 ### Documentation
