@@ -170,7 +170,7 @@ impl Inspection {
 /// For each node that has injected layers, those layers, largest first.
 fn injections(layers: &[ParsedLayer]) -> HashMap<(usize, usize), Vec<usize>> {
     let mut out = HashMap::<(usize, usize), Vec<usize>>::new();
-    for (child_index, child) in layers.iter().enumerate().filter(|(_, l)| l.depth > 0) {
+    for (child_index, child) in layers.iter().enumerate() {
         let child_root = child.tree.root_node();
         let parent = layers
             .iter()
@@ -180,9 +180,7 @@ fn injections(layers: &[ParsedLayer]) -> HashMap<(usize, usize), Vec<usize>> {
                     && layer.tree.root_node().start_byte() <= child_root.start_byte()
                     && layer.tree.root_node().end_byte() >= child_root.end_byte()
             })
-            .min_by_key(|(_, layer)| {
-                layer.tree.root_node().end_byte() - layer.tree.root_node().start_byte()
-            });
+            .min_by_key(|(_, layer)| layer.tree.root_node().byte_range().len());
         if let Some((parent_index, parent)) = parent {
             let parent_root = parent.tree.root_node();
             let owner = parent_root
@@ -195,8 +193,7 @@ fn injections(layers: &[ParsedLayer]) -> HashMap<(usize, usize), Vec<usize>> {
     }
     for children in out.values_mut() {
         children.sort_by_key(|&index| {
-            let root = layers[index].tree.root_node();
-            std::cmp::Reverse(root.end_byte() - root.start_byte())
+            std::cmp::Reverse(layers[index].tree.root_node().byte_range().len())
         });
     }
     out
@@ -451,6 +448,59 @@ mod tests {
                 "number"
             ]
         );
+    }
+
+    #[test]
+    fn lookups_treat_ranges_as_half_open() {
+        let source = "[1, [22], 3]";
+        let two = source.find("22").unwrap();
+        let events = [
+            HighlightEvent::Start {
+                scope_index: scope("number"),
+                language: "json".into(),
+            },
+            HighlightEvent::Source {
+                start: two,
+                end: two + 2,
+            },
+            HighlightEvent::End,
+        ];
+        let inspection = Inspection::new(source, &[layer(source, None, 0)], &events).unwrap();
+        let around = [two - 1, two, two + 1, two + 2, source.len()];
+        let nodes: Vec<Option<&str>> = around
+            .iter()
+            .map(|&byte| {
+                inspection
+                    .node_at(byte)
+                    .map(|n| inspection.nodes[n].kind.as_str())
+            })
+            .collect();
+        let captures: Vec<usize> = around
+            .iter()
+            .map(|&byte| inspection.captures_at(byte).len())
+            .collect();
+        assert_eq!(
+            nodes,
+            [
+                Some("array"),
+                Some("number"),
+                Some("number"),
+                Some("array"),
+                None
+            ],
+            "a range holds its start byte and not its end byte"
+        );
+        assert_eq!(captures, [0, 1, 1, 0, 0]);
+
+        let kinds: Vec<&str> = inspection.nodes.iter().map(|n| n.kind.as_str()).collect();
+        assert_eq!(
+            kinds,
+            ["document", "array", "number", "array", "number", "number"]
+        );
+        let ends: Vec<usize> = (0..kinds.len())
+            .map(|n| inspection.subtree_end(n))
+            .collect();
+        assert_eq!(ends, [6, 6, 3, 5, 5, 6]);
     }
 
     #[test]

@@ -1287,7 +1287,7 @@ fn render_tree_node(
         .iter()
         .map(|&capture| TreeRenderEntry::Capture(capture))
         .chain(
-            (index + 1..subtree_end)
+            (index..subtree_end)
                 .filter(|child| inspection.nodes[*child].depth == item.depth + 1)
                 .map(TreeRenderEntry::Child),
         )
