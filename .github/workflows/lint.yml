@@ -168,10 +168,13 @@ jobs:
           workspaces: |
             benchmarks/rust -> target
             crates/dev -> target
+            crates/inspect -> target
           shared-key: outside-workspace
       - run: cargo fmt --manifest-path benchmarks/rust/Cargo.toml --check
       - run: cargo fmt --manifest-path crates/dev/Cargo.toml --check
+      - run: cargo fmt --manifest-path crates/inspect/Cargo.toml --check
       - run: cargo test --manifest-path crates/dev/Cargo.toml --no-default-features
+      - run: cargo test --manifest-path crates/inspect/Cargo.toml
       - run: cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- gen-themes-md --check
       # Each of these is its own workspace, so it carries its own `[lints]`
       # table; Cargo cannot inherit one across workspaces. Nothing else compiles
@@ -180,3 +183,6 @@ jobs:
       - run: >-
           cargo clippy --manifest-path crates/dev/Cargo.toml
           --all-targets --no-default-features -- -D warnings
+      - run: >-
+          cargo clippy --manifest-path crates/inspect/Cargo.toml
+          --all-targets -- -D warnings
