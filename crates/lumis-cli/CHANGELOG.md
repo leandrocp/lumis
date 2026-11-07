@@ -1,3 +1,29 @@
+## [0.8.8](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.7...cargo-lumis-cli/v0.8.8) (2026-11-07)
+
+### Dependencies
+
+- Upgrade Tree-sitter runtimes to 0.27.2 in [\#2022](https://github.com/leandrocp/lumis/pull/2022)
+
+## [0.8.7](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.6...cargo-lumis-cli/v0.8.7) (2026-11-07)
+
+### Bug Fixes
+
+- **cli:** Sync crate copy of extract_theme.lua in [\#2002](https://github.com/leandrocp/lumis/pull/2002)
+
+### Code Refactoring
+
+- **rust:** Share the highlight inspection between dump and tools in [\#2014](https://github.com/leandrocp/lumis/pull/2014)
+
+## [0.8.6](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.5...cargo-lumis-cli/v0.8.6) (2026-11-05)
+
+### Features
+
+- **themes:** Add a JSON Schema for theme files
+- **bundles:** Cap wasm-bundle-full at 64 MB of Wasm store memory in [\#1968](https://github.com/leandrocp/lumis/pull/1968)
+- **languages:** Add Bend support in [\#1965](https://github.com/leandrocp/lumis/pull/1965)
+- **themes:** Version the theme schema and document theme files
+- **languages:** Add Lean support in [\#1978](https://github.com/leandrocp/lumis/pull/1978)
+
 ## [0.8.5](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.4...cargo-lumis-cli/v0.8.5) (2026-10-31)
 
 ### Bug Fixes

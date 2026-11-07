@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "rosebones_light",
   "appearance": "light",
   "revision": "8304d8df9b823ff11e103afa62f38c39f534abe6",

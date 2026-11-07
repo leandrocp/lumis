@@ -191,7 +191,24 @@ caller. The API does not convert colors or turn a dark palette into a light one.
 ## Load a custom theme from JSON
 
 Generate the file with the [Neovim colorscheme recipe](/recipes/generate-theme-from-neovim-colorscheme),
-then load it in your runtime:
+or write it by hand. Point `$schema` at the theme schema to get completion and
+validation in editors that support JSON Schema. [Theme files](/themes/theme-files)
+describes every field:
+
+```json
+{
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
+  "name": "my_theme",
+  "appearance": "dark",
+  "revision": "v1",
+  "highlights": {
+    "keyword": { "fg": "#ff79c6", "bold": true },
+    "comment": { "fg": "#6272a4", "italic": true }
+  }
+}
+```
+
+Then load it in your runtime:
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
   <Tab value="JavaScript / TypeScript">

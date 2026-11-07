@@ -216,7 +216,7 @@ export const nodeRuntime: RuntimeEnvironment = {
 
   async parserInitOptions() {
     return {
-      wasmBinary: treeSitterWasmBinary,
+      wasmBinary: treeSitterWasmBinary(),
     };
   },
 

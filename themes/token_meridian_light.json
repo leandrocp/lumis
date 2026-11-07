@@ -1,7 +1,8 @@
 {
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "token_meridian_light",
   "appearance": "light",
-  "revision": "19acc041465c89739778a6054da8039b68798251",
+  "revision": "4f28e3c711cf14b3c57c27f1ded3fb3c9e078c7e",
   "license": "BSD-3-Clause",
   "highlights": {
     "attribute": {
@@ -28,7 +29,7 @@
       "italic": true
     },
     "comment.error": {
-      "fg": "#286fc0",
+      "fg": "#ae5158",
       "italic": true
     },
     "comment.hint": {
@@ -40,11 +41,11 @@
       "italic": true
     },
     "comment.todo": {
-      "fg": "#2f75c6",
+      "fg": "#926e25",
       "italic": true
     },
     "comment.warning": {
-      "fg": "#2f75c6",
+      "fg": "#926e25",
       "italic": true
     },
     "constant": {
@@ -76,7 +77,7 @@
       "bg": "#abdba2"
     },
     "error": {
-      "fg": "#286fc0"
+      "fg": "#ae5158"
     },
     "function": {
       "fg": "#7a1f7a"
@@ -206,11 +207,11 @@
       "bold": true
     },
     "markup.heading.5": {
-      "fg": "#286fc0",
+      "fg": "#0048b3",
       "bold": true
     },
     "markup.heading.6": {
-      "fg": "#2f75c6",
+      "fg": "#4b1fa3",
       "bold": true
     },
     "markup.italic": {

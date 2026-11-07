@@ -6,7 +6,10 @@
 //! Query preprocessing in `crates/dev` rewrites
 //! Neovim's `#lua-match?` predicates into Tree-sitter's built-in `#match?`
 //! predicates so that Rust, the CLI, Elixir, JavaScript, and the browser all read
-//! byte-identical `.scm` files.
+//! byte-identical `.scm` files. It also filters every `comment` injection with
+//! [`filter_comment_injections`], a predicate Neovim's queries do not have:
+//! [`comment_injection_filter`] derives it from the comment highlights query so
+//! that a comment with nothing to color never becomes an injection layer.
 //!
 //! # Reference semantics
 //!
@@ -36,8 +39,11 @@
 
 use std::fmt;
 
+mod comment;
 #[cfg(feature = "license")]
 pub mod license;
+
+pub use comment::{comment_injection_filter, filter_comment_injections, CommentFilterError};
 
 /// A Lua pattern construct that has no portable regular-expression translation.
 ///

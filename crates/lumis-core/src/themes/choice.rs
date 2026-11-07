@@ -160,6 +160,12 @@ fn luminance(color: Rgb) -> f64 {
     0.2126 * linear(color.0) + 0.7152 * linear(color.1) + 0.0722 * linear(color.2)
 }
 
+/// The WCAG contrast ratio of two `#rrggbb` colours, from 1 to 21.
+#[doc(hidden)]
+pub fn contrast_ratio(foreground: &str, background: &str) -> Option<f64> {
+    Some(contrast(hex_to_rgb(foreground)?, hex_to_rgb(background)?))
+}
+
 fn contrast(left: Rgb, right: Rgb) -> f64 {
     let left = luminance(left);
     let right = luminance(right);
@@ -193,6 +199,15 @@ mod tests {
 
     fn color(hex: Option<&str>) -> Option<Rgb> {
         hex.map(|hex| hex_to_rgb(hex).expect("valid fixture RGB"))
+    }
+
+    #[test]
+    fn contrast_ratio_matches_wcag() {
+        let ratio = |fg, bg| (contrast_ratio(fg, bg).unwrap() * 100.0).round() / 100.0;
+        assert!((ratio("#000000", "#ffffff") - 21.0).abs() < f64::EPSILON);
+        assert!((ratio("#777777", "#ffffff") - 4.48).abs() < f64::EPSILON);
+        assert!((ratio("#ffffff", "#777777") - 4.48).abs() < f64::EPSILON);
+        assert_eq!(contrast_ratio("#fff", "#000000"), None);
     }
 
     #[test]

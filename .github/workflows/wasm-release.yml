@@ -95,7 +95,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@v1
@@ -103,7 +103,7 @@ jobs:
           toolchain: stable
 
       - name: Cache Rust build artifacts
-        uses: Swatinem/rust-cache@v2.9.2
+        uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: "crates/dev -> target"
           shared-key: wasm-release-plan
@@ -150,7 +150,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@v1
@@ -158,7 +158,7 @@ jobs:
           toolchain: stable
 
       - name: Cache Rust build artifacts
-        uses: Swatinem/rust-cache@v2.9.2
+        uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: "crates/dev -> target"
           shared-key: wasm-release-plan
@@ -219,7 +219,7 @@ jobs:
           toolchain: stable
 
       - name: Cache Rust build artifacts
-        uses: Swatinem/rust-cache@v2.9.2
+        uses: Swatinem/rust-cache@v2.9.3
         with:
           shared-key: wasm-release-query-check
 
@@ -260,7 +260,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@v1
@@ -268,7 +268,7 @@ jobs:
           toolchain: stable
 
       - name: Cache Rust build artifacts
-        uses: Swatinem/rust-cache@v2.9.2
+        uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: "crates/dev -> target"
           shared-key: wasm-release-plan
@@ -349,7 +349,7 @@ jobs:
           toolchain: stable
 
       - name: Cache Rust build artifacts
-        uses: Swatinem/rust-cache@v2.9.2
+        uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: "crates/dev -> target"
           shared-key: wasm-release-plan
@@ -382,7 +382,7 @@ jobs:
           toolchain: stable
 
       - name: Cache Rust build artifacts
-        uses: Swatinem/rust-cache@v2.9.2
+        uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: "crates/dev -> target"
           shared-key: wasm-release-plan
@@ -419,7 +419,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@v1
@@ -456,7 +456,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
         with:
           install: false
 

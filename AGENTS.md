@@ -205,6 +205,7 @@ Lumis queries are fetched from <https://github.com/nvim-treesitter/nvim-treesitt
 - Any translated pattern must be valid **and equivalent** in both the `regex` crate and JavaScript `RegExp` with no flags. The two disagree on nested character classes, `\d`/`\w`/`\s` width, and inline `(?i)` groups. `crates/lumis-build/tests/processed_queries.rs` and `packages/javascript/lumis/test/query-patterns.test.ts` enforce this over the whole corpus and must not be allowed to skip languages.
 - Settle a question about pattern semantics by running it, not by reasoning about it: `nvim --headless -c 'lua print(string.find(subject, pattern))' -c q`.
 - The converter stays faithful to Neovim even when upstream is wrong. Fix an authoring mistake in `queries/override/` or `queries/append/` instead, where it is visible in review, and say in a comment what upstream does and why it is wrong.
+- One deliberate deviation adds a predicate rather than translating one. Every `comment` injection gets a `#match?` that `crates/lumis-build` derives from the comment language's highlights query, so a comment holding nothing that query colors never becomes a layer. Neovim parses every comment; Lumis cannot afford to, since three.js's `three.core.js` spent about 200 ms on 4,516 comment layers for 134 captures. The filter must stay a superset of what the query colors, and `processed_queries.rs` checks that against the comment grammar. A comment query pattern the derivation cannot bound fails preprocessing rather than being guessed at.
 
 ### A test that cannot fail is worse than no test
 
@@ -462,6 +463,16 @@ Common entry points:
 - `mise run docs`
 
 For language, theme, query, docs-generation, or bundle changes, run the relevant regeneration commands described in `CONTRIBUTING.md` and commit the resulting tracked files.
+
+Run targeted mutation testing when the changes warrant checking whether tests
+catch incorrect Rust behavior: changes to branching, boundary conditions,
+fallbacks, or error handling, especially when fixing a bug existing tests missed.
+Use `mise run test-mutants --file <changed-rust-file>` and broaden to
+`--package <crate>` only when the affected behavior spans the crate. Inspect
+missed mutants and strengthen tests for meaningful uncovered behavior. Do not
+run a full sweep for every change or require mutation testing for docs-only,
+CI-only, or formatting-only edits. Keep local runs out of `--in-place` mode;
+see `CONTRIBUTING.md` for exclusions and downstream-test selection.
 
 ## Release discipline
 

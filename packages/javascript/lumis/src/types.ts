@@ -111,6 +111,8 @@ export interface ThemeInfo {
  * ```
  */
 export interface Theme {
+  /** URL of the JSON Schema the theme file follows. */
+  $schema?: string;
   name: string;
   appearance: "light" | "dark";
   revision?: string;
@@ -144,7 +146,13 @@ export interface WasmRef {
   sha256: string;
 }
 
-export type RuntimeWasmInput = Uint8Array | ArrayBuffer | string | URL | Response;
+export type RuntimeWasmInput =
+  | Uint8Array
+  | ArrayBuffer
+  | WebAssembly.Module
+  | string
+  | URL
+  | Response;
 
 export type RuntimeWasmBundle = Partial<Record<string, RuntimeWasmInput>>;
 
@@ -190,6 +198,8 @@ export interface Language extends LanguageDefinition {
    * WASM parser source:
    * - `WasmRef` resolved from the installed package, or a configured resolver
    * - `Uint8Array` or `ArrayBuffer` passed directly (useful with browser bundlers)
+   * - `WebAssembly.Module` compiled ahead of time, as a `.wasm` import is on
+   *   Cloudflare Workers
    * - `URL` fetched directly (`file://` works in Node.js)
    * - `string` treated as file path (Node.js) or URL (browser)
    */

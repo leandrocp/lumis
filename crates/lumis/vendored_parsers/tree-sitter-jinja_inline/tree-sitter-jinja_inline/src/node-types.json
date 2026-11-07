@@ -563,15 +563,15 @@
       "required": true,
       "types": [
         {
-          "type": "arg",
-          "named": true
-        },
-        {
           "type": "binary_expression",
           "named": true
         },
         {
           "type": "expression",
+          "named": true
+        },
+        {
+          "type": "ternary_expression",
           "named": true
         }
       ]
@@ -582,19 +582,11 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
         {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "string_literal",
-          "named": true
-        },
-        {
-          "type": "ternary_expression",
+          "type": "expression",
           "named": true
         }
       ]
@@ -1354,9 +1346,17 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "arg",
+          "named": true
+        },
+        {
+          "type": "dec_literal",
+          "named": true
+        },
         {
           "type": "expression",
           "named": true
@@ -1375,6 +1375,10 @@
         },
         {
           "type": "literal",
+          "named": true
+        },
+        {
+          "type": "primary_expression",
           "named": true
         }
       ]
@@ -1500,10 +1504,6 @@
         },
         {
           "type": "expression",
-          "named": true
-        },
-        {
-          "type": "ternary_expression",
           "named": true
         }
       ]

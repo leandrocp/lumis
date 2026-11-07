@@ -1,0 +1,50 @@
+name: Mutation testing
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Crate to test every mutant of
+        required: true
+        default: lumis-core
+
+permissions:
+  contents: read
+
+jobs:
+  mutants:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: jdx/mise-action@v5.2.4
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v2.9.3
+        with:
+          shared-key: mutants
+      - name: Every mutant in one crate
+        env:
+          PACKAGE: ${{ inputs.package }}
+        run: |
+          status=0
+          sudo -E systemd-run --scope --quiet \
+            -p MemoryMax=12G -p MemorySwapMax=0 -p OOMPolicy=continue \
+            --uid="$(id -u)" --gid="$(id -g)" \
+            -- env "PATH=$PATH" "HOME=$HOME" \
+            mise run test-mutants --package "$PACKAGE" --in-place -vV || status=$?
+          if [ "$status" -eq 3 ] && [ ! -s mutants.out/missed.txt ]; then
+            status=0
+          fi
+          exit "$status"
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: mutants.out
+          path: mutants.out
+          if-no-files-found: ignore

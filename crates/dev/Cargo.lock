@@ -795,7 +795,7 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
 name = "lumis"
-version = "0.19.0"
+version = "0.19.3"
 dependencies = [
  "cc",
  "codebook-tree-sitter-typst",
@@ -881,17 +881,20 @@ dependencies = [
 
 [[package]]
 name = "lumis-build"
-version = "1.2.0"
+version = "1.2.2"
 dependencies = [
+ "regex-syntax",
  "serde",
  "serde_json",
  "spdx",
+ "tree-sitter",
+ "tree-sitter-tsquery",
  "url",
 ]
 
 [[package]]
 name = "lumis-core"
-version = "6.0.0"
+version = "6.1.1"
 dependencies = [
  "derive_builder",
  "glob",
@@ -906,7 +909,7 @@ dependencies = [
 
 [[package]]
 name = "lumis-wasm-runtime"
-version = "0.6.1"
+version = "0.6.4"
 dependencies = [
  "etcetera",
  "lumis-core",
@@ -1097,9 +1100,9 @@ dependencies = [
 
 [[package]]
 name = "rustix"
-version = "1.1.5"
+version = "1.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "891efababe418670775f199f0d233d84843c227a0949a883ce15b37c78d6629d"
+checksum = "e5e76742e5294153d4dde1207dbec5bdd81eef6fabdc0d2118babadabfd858aa"
 dependencies = [
  "bitflags",
  "errno",
@@ -1228,9 +1231,9 @@ checksum = "703d5c7ef118737c72f1af64ad2f6f8c5e1921f818cdcb97b8fe6fc69bf66214"
 
 [[package]]
 name = "similar"
-version = "3.2.0"
+version = "3.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f66ca1f7aca2474dc10c942eb22feffc897735f54cd1db90138c2fddb490987"
+checksum = "d2f8bec09ae8fae0f4f265a4559a9334be3929d8504e9b536df0a41302bd1733"
 
 [[package]]
 name = "smallvec"
@@ -1442,9 +1445,9 @@ checksum = "06bdbd8cfc056b8d2e2e85f29b56a3bdbecb527cef81eb39e3e7b98af4652770"
 
 [[package]]
 name = "tree-sitter"
-version = "0.27.1"
+version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a5129de2ccc97808c4583d48f1fb44576d015cf241e432800572bda11ef30c3b"
+checksum = "37b2bed8f39a73439f3b0b7ed8f452be5d2911b5e9da69d352ef113bb7448fb8"
 dependencies = [
  "cc",
  "regex",
@@ -1515,9 +1518,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-clojure-orchard"
-version = "0.2.8"
+version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67b854ba5935d62a713280b867c09cae08c6ad2286895734b5550ed02122d8fd"
+checksum = "61a0e0695faad3475bcddbf300c9d11a301a2df96b0873eee46ab7e64f7f65d8"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -1525,9 +1528,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-cmake"
-version = "0.7.5"
+version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d22893fac54133fdb93497efc45713d53a96d93b035288c7a8ab0c2af77c0ddd"
+checksum = "4af210143be775f7ceede9e5ff6340d348945b42a2bace67a93cb7808c0083f8"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -1745,9 +1748,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-jinja"
-version = "0.13.0"
+version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "815dd76677ef2727aa06e6b37f49d34cae25875c694eca020613dfa169fd9b16"
+checksum = "2d637bbb494dab59f7fd02678a87efe2d8fba685eebe4d3ea537f089410d7c0d"
 dependencies = [
  "cc",
  "tree-sitter",
@@ -1891,9 +1894,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-powershell"
-version = "0.26.4"
+version = "0.26.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3faf304d44b9ddd4a7d97804bb8de7daf564336dd5a526dc6de5b39238243022"
+checksum = "fa49d15e5b291030a548447445e0547992eff1438e7cd9133bfec99a9ba962a9"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -1971,9 +1974,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-scala"
-version = "0.26.3"
+version = "0.26.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c554730d29306d9c7cdd26912638d2401378c26961e12d161a071df43f49b81b"
+checksum = "47d1822e9eb3fef8d3ba868d2886138596330315bb467f7ffb1084491027313b"
 dependencies = [
  "cc",
  "tree-sitter-language",

@@ -1,15 +1,12 @@
-const { commaSep, commaSep1, anySep1 } = require('./common.js');
+const { commaSep1, anySep1 } = require('./common.js');
 
 exports.rules = {
   expression: $ =>
     prec.left(
-      choice(
-        $.binary_expression,
-        seq($.expression, '.', $.expression),
-        seq($.expression, '[', $.expression, ']'),
-        seq($.expression, '(', commaSep($.arg), ')'),
-      ),
+      choice($.binary_expression, seq($.expression, $.ternary_expression)),
     ),
+  ternary_expression: $ =>
+    prec.right(seq('if', $.expression, optional(seq('else', $.expression)))),
   binary_expression: $ =>
     choice(
       $.unary_expression,
@@ -102,9 +99,18 @@ exports.rules = {
       $.inline_trans,
       $.identifier,
       seq('(', $.expression, ')'),
+      seq(
+        $.primary_expression,
+        '.',
+        choice($.identifier, $.function_call, $.dec_literal),
+      ),
+      seq($.primary_expression, '[', $.expression, ']'),
+      seq($.primary_expression, $._arguments),
     ),
 
-  function_call: $ => prec(1, seq($.identifier, '(', commaSep($.arg), ')')),
+  function_call: $ => prec(1, seq($.identifier, $._arguments)),
+  _arguments: $ =>
+    seq('(', optional(seq(commaSep1($.arg), optional(','))), ')'),
   arg: $ =>
     seq(
       optional(seq($.identifier, alias('=', $.binary_operator))),

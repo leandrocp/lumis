@@ -357,6 +357,7 @@ run = '''
 set -euo pipefail
 pnpm --filter @lumis-sh/lumis run build:native
 pnpm --filter @lumis-sh/lumis run build
+pnpm --filter @lumis-sh/rehype-lumis run build
 
 # Each process gets its own copy of the staged store, so a suite that writes
 # into it cannot disturb the shared tree or another suite. The resolver
@@ -428,6 +429,11 @@ run = "node packages/javascript/scripts/test-examples.mjs"
 description = "Regenerate JavaScript example HTML and verify standalone builds"
 depends = ["build-examples-deps"]
 run = "node packages/javascript/scripts/test-examples.mjs --update"
+
+[tasks.'test-mutants']
+description = "Mutation-test Rust crates with cargo-mutants; arguments pass through"
+tools = { "cargo:cargo-mutants" = "27.1.0" }
+run = "cargo mutants"
 
 [tasks.'test-queries']
 description = "Compile every processed query against a parser built from languages.toml"
@@ -633,6 +639,7 @@ echo ""
 echo "Running Rust fmt check..."
 cargo fmt --all -- --check
 cargo fmt --manifest-path crates/dev/Cargo.toml --check
+cargo fmt --manifest-path crates/inspect/Cargo.toml --check
 echo ""
 echo "Running Elixir checks..."
 mise run lint-elixir
@@ -708,6 +715,7 @@ set -euo pipefail
 echo "Formatting Rust..."
 cargo fmt --all
 cargo fmt --manifest-path crates/dev/Cargo.toml
+cargo fmt --manifest-path crates/inspect/Cargo.toml
 echo ""
 echo "Formatting Elixir..."
 (cd packages/elixir/lumis && mix format)
@@ -803,6 +811,10 @@ set -euo pipefail
 cargo run --manifest-path crates/dev/Cargo.toml --release -- gen-css
 cargo run --manifest-path crates/dev/Cargo.toml --release -- sync-css
 '''
+
+[tasks.'inspect']
+description = "Open the inspector: the syntax tree, captures and theme styles behind each byte of a sample"
+run = "cargo run --release --manifest-path crates/inspect/Cargo.toml"
 
 [tasks.'conformance-dump-events']
 description = "Dump canonical Rust highlight events as JSON"

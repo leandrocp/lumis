@@ -139,9 +139,51 @@ so the published set can exhaust it, and the languages that fail are whichever
 were asked for last.
 
 Preload what you serve. Installing a parser is cheap; loading one is what
-spends the budget. `bundle-full` also leaves out `systemverilog`, whose 22 MB
-of parse tables take a sixth of it alone. Install
-`@lumis-sh/wasm-systemverilog` and name it directly if you need it.
+spends the budget.
+
+`bundle-full` leaves out big parsers so it fits under 64 MB: `arduino`, `d`,
+`fortran`, `fsharp`, `haskell`, `julia`, `latex`, `lean`, `nim`, `nushell`, `objc`,
+`ocaml`, `ocaml_interface`, `perl`, `qmljs`, `systemverilog`, `tlaplus`, and
+`vhdl`.
+
+### Add languages a bundle leaves out
+
+A bundle is a starting set, not a limit. Install the parser package for each
+language you need and pass it next to the bundle:
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
+
+```bash
+npm install @lumis-sh/wasm-bundle-full @lumis-sh/wasm-haskell
+```
+
+```ts
+import { createHighlighter } from "@lumis-sh/lumis";
+import full from "@lumis-sh/wasm-bundle-full";
+import haskell from "@lumis-sh/wasm-haskell";
+
+const highlighter = await createHighlighter({ languages: [full, haskell] });
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+# mix.exs
+{:lumis_wasm_bundle_full, "~> 0.2"},
+{:lumis_wasm_haskell, "~> 0.26.0"}
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+lumis languages download bundle-full haskell
+```
+
+  </Tab>
+</Tabs>
 
 [Language catalog](/reference/languages) has every name, the package each one
 resolves to, and what each one costs: **Size** on disk and **Memory** against

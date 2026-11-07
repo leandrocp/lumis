@@ -1,0 +1,1262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TanStack Highlight · Catppuccin Frappé · Lumis visual comparison</title>
+  <meta name="color-scheme" content="dark">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in long blocks of it, and every output here
+       is one. */
+    html { background: #303446; color: #c6d0f5; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; overflow: hidden; }
+    /* The output is the whole panel and scrolls itself, so its scrollbar sits on
+       the colour the library painted rather than on the page's, which is not the
+       same colour for every port. It scrolls one way only: long lines wrap
+       rather than sit behind a second scrollbar. */
+    pre { height: 100vh; margin: 0 !important; padding: 20px !important; overflow: hidden auto !important; scrollbar-width: thin; scrollbar-color: #51576d transparent; white-space: pre-wrap !important; overflow-wrap: anywhere !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. Wrapping is the same: one element that stopped it would make
+       that output taller or shorter than the rest. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; white-space: inherit !important; overflow-wrap: inherit !important; }
+    @media (max-width: 640px) {
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>:root {
+  --th-background: #303446;
+  --th-token: #c6d0f5;
+  --th-attr: #8caaee;
+  --th-code-inline: #a6d189;
+  --th-command: #e78284;
+  --th-comment: #949cbb;
+  --th-deleted: #e78284;
+  --th-function: #8caaee;
+  --th-heading: #8caaee;
+  --th-inserted: #a6d189;
+  --th-keyword: #ca9ee6;
+  --th-link: #85c1dc;
+  --th-literal: #ef9f76;
+  --th-meta: #ef9f76;
+  --th-number: #ef9f76;
+  --th-operator: #99d1db;
+  --th-property: #81c8be;
+  --th-selector: #81c8be;
+  --th-string: #a6d189;
+  --th-tag: #ca9ee6;
+  --th-type: #e5c890;
+  --th-variable: #ca9ee6;
+}
+
+pre.th-code {
+  overflow-x: auto;
+  padding: 1rem;
+  background: var(--th-background);
+  color: var(--th-token);
+}
+
+.th-token { color: var(--th-token); }
+.th-attr { color: var(--th-attr); }
+.th-code-inline { color: var(--th-code-inline); }
+.th-command { color: var(--th-command); }
+.th-comment { color: var(--th-comment); }
+.th-deleted { color: var(--th-deleted); }
+.th-function { color: var(--th-function); }
+.th-heading { color: var(--th-heading); }
+.th-inserted { color: var(--th-inserted); }
+.th-keyword { color: var(--th-keyword); }
+.th-link { color: var(--th-link); }
+.th-literal { color: var(--th-literal); }
+.th-meta { color: var(--th-meta); }
+.th-number { color: var(--th-number); }
+.th-operator { color: var(--th-operator); }
+.th-property { color: var(--th-property); }
+.th-selector { color: var(--th-selector); }
+.th-string { color: var(--th-string); }
+.th-tag { color: var(--th-tag); }
+.th-type { color: var(--th-type); }
+.th-variable { color: var(--th-variable); }
+.th-line { display: inline-block; min-width: 100%; width: max-content; }
+.th-code--line-numbers code { counter-reset: th-line; }
+.th-code--line-numbers .th-line::before {
+  display: inline-block;
+  width: 2.5em;
+  padding-right: 1em;
+  color: var(--th-comment);
+  content: attr(data-line);
+  text-align: right;
+  user-select: none;
+}</style><pre class="th-code th-code--elixir" data-language="elixir"><code><span class="th-token th-keyword">defmodule</span> LivebookWeb.CoreComponents <span class="th-token th-keyword">do</span>
+  <span class="th-token th-keyword">use</span> Phoenix.Component
+
+  <span class="th-token th-keyword">alias</span> Phoenix.LiveView.JS
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders [Remix](https://remixicon.com) icon.
+
+  ## Examples
+
+      &lt;.remix_icon icon=&quot;cpu-line&quot; /&gt;
+
+      &lt;.remix_icon icon=&quot;cpu-line&quot; class=&quot;align-middle mr-1&quot; /&gt;
+
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:icon</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:class</span>, <span class="th-token th-literal">:any</span>, default: <span class="th-token th-literal">nil</span>
+  attr <span class="th-token th-literal">:rest</span>, <span class="th-token th-literal">:global</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">remix_icon</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;i class={[&quot;ri-#{@icon}&quot;, @class]} aria-hidden=&quot;true&quot; {@rest}&gt;&lt;/i&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders flash notices.
+
+  ## Examples
+
+      &lt;.flash kind=&quot;info&quot; flash={@flash} /&gt;
+
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:flash</span>, <span class="th-token th-literal">:map</span>, default: %{}, doc: <span class="th-token th-string">&quot;the map of flash messages to display&quot;</span>
+
+  attr <span class="th-token th-literal">:kind</span>, <span class="th-token th-literal">:string</span>,
+    values: ~<span class="th-token th-function">w</span>(info success warning error),
+    doc: <span class="th-token th-string">&quot;used for styling and flash lookup&quot;</span>
+
+  attr <span class="th-token th-literal">:rest</span>, <span class="th-token th-literal">:global</span>, doc: <span class="th-token th-string">&quot;the arbitrary HTML attributes to add to the flash container&quot;</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">flash</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;div
+      :if={message = Phoenix.Flash.get(@flash, @kind)}
+      class=&quot;relative group shadow-lg max-w-xl px-3 py-2 flex items-center gap-2 rounded-lg bg-gray-900 text-gray-200 text-sm&quot;
+      role=&quot;alert&quot;
+      {@rest}
+    &gt;
+      &lt;div
+        class=&quot;opacity-0 group-hover:opacity-100 absolute -left-2 -top-2 bg-gray-900 border border-gray-600 rounded-full p-0.5 flex leading-none text-gray-200 hover:text-gray-100 hover:bg-gray-700 text-sm cursor-pointer&quot;
+        phx-click=&quot;lv:clear-flash&quot;
+        phx-value-key={@kind}
+      &gt;
+        &lt;.remix_icon icon=&quot;close-line&quot; /&gt;
+      &lt;/div&gt;
+      &lt;.remix_icon :if={@kind == &quot;info&quot;} icon=&quot;information-fill&quot; class=&quot;text-xl text-blue-500&quot; /&gt;
+      &lt;.remix_icon
+        :if={@kind == &quot;success&quot;}
+        icon=&quot;checkbox-circle-fill&quot;
+        class=&quot;text-xl text-green-bright-400&quot;
+      /&gt;
+      &lt;.remix_icon :if={@kind == &quot;warning&quot;} icon=&quot;alert-fill&quot; class=&quot;text-xl text-yellow-500&quot; /&gt;
+      &lt;.remix_icon :if={@kind == &quot;error&quot;} icon=&quot;error-warning-fill&quot; class=&quot;text-xl text-red-500&quot; /&gt;
+      &lt;span class=&quot;whitespace-pre-wrap pr-2 max-h-52 overflow-y-auto tiny-scrollbar&quot; phx-no-format&gt;{message}&lt;/span&gt;
+    &lt;/div&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Shows the flash group with standard titles and content.
+
+  ## Examples
+
+      &lt;.flash_group flash={@flash} /&gt;
+
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:flash</span>, <span class="th-token th-literal">:map</span>, required: <span class="th-token th-literal">true</span>, doc: <span class="th-token th-string">&quot;the map of flash messages&quot;</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">flash_group</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;div class=&quot;fixed right-8 top-5 z-1000 flex flex-col space-y-3&quot;&gt;
+      &lt;.flash kind=&quot;info&quot; flash={@flash} /&gt;
+      &lt;.flash kind=&quot;success&quot; flash={@flash} /&gt;
+      &lt;.flash kind=&quot;warning&quot; flash={@flash} /&gt;
+      &lt;.flash kind=&quot;error&quot; flash={@flash} /&gt;
+    &lt;/div&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders page title.
+
+  ## Examples
+
+      &lt;.title text=&quot;Learn&quot; /&gt;
+
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:text</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-literal">nil</span>
+  attr <span class="th-token th-literal">:back_navigate</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-literal">nil</span>
+
+  slot <span class="th-token th-literal">:inner_block</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">title</span>(assigns) <span class="th-token th-keyword">do</span>
+    <span class="th-token th-keyword">if</span> assigns.text == <span class="th-token th-literal">nil</span> <span class="th-token th-keyword">and</span> assigns.inner_block == [] <span class="th-token th-keyword">do</span>
+      <span class="th-token th-keyword">raise</span> ArgumentError, <span class="th-token th-string">&quot;should pass at least text attribute or an inner block&quot;</span>
+    <span class="th-token th-keyword">end</span>
+
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;div class=&quot;relative&quot;&gt;
+      &lt;div
+        :if={@back_navigate}
+        class=&quot;hidden md:flex absolute top-0 bottom-0 left-0 transform -translate-x-full&quot;
+      &gt;
+        &lt;.link navigate={@back_navigate}&gt;
+          &lt;.remix_icon icon=&quot;arrow-left-line&quot; class=&quot;align-middle mr-2 text-2xl text-gray-800&quot; /&gt;
+        &lt;/.link&gt;
+      &lt;/div&gt;
+      &lt;h1 class=&quot;text-2xl text-gray-800 font-medium&quot;&gt;
+        &lt;%= if @inner_block != [] do %&gt;
+          {render_slot(@inner_block)}
+        &lt;% else %&gt;
+          {@text}
+        &lt;% end %&gt;
+      &lt;/h1&gt;
+    &lt;/div&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders a message notice.
+
+  Similar to `flash/1`, but for permanent messages on the page.
+
+  ## Examples
+
+      &lt;.message_box kind=&quot;info&quot; message=&quot;🦊 in a 📦&quot; /&gt;
+
+      &lt;.message_box kind=&quot;info&quot;&gt;
+        &lt;span&gt;🦊&lt;/span&gt; in a &lt;span&gt;📦&lt;/span&gt;
+      &lt;/.message_box&gt;
+
+  &quot;&quot;&quot;</span>
+
+  attr <span class="th-token th-literal">:message</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-literal">nil</span>
+  attr <span class="th-token th-literal">:kind</span>, <span class="th-token th-literal">:string</span>, values: ~<span class="th-token th-function">w</span>(info success warning error)
+
+  slot <span class="th-token th-literal">:inner_block</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">message_box</span>(assigns) <span class="th-token th-keyword">do</span>
+    <span class="th-token th-keyword">if</span> assigns.message &amp;&amp; assigns.inner_block != [] <span class="th-token th-keyword">do</span>
+      <span class="th-token th-keyword">raise</span> ArgumentError, <span class="th-token th-string">&quot;expected either message or inner_block, got both.&quot;</span>
+    <span class="th-token th-keyword">end</span>
+
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;div class={[
+      &quot;shadow text-sm rounded-lg px-4 py-2 border-l-4 rounded-l-none bg-white text-gray-700&quot;,
+      @kind == &quot;info&quot; &amp;&amp; &quot;border-blue-500&quot;,
+      @kind == &quot;success&quot; &amp;&amp; &quot;border-green-bright-400&quot;,
+      @kind == &quot;warning&quot; &amp;&amp; &quot;border-yellow-300&quot;,
+      @kind == &quot;error&quot; &amp;&amp; &quot;border-red-500&quot;
+    ]}&gt;
+      &lt;div
+        :if={@message}
+        class=&quot;whitespace-pre-wrap pr-2 max-h-52 overflow-y-auto tiny-scrollbar&quot;
+        phx-no-format
+      &gt;{@message}&lt;/div&gt;
+      &lt;%= if @inner_block != [] do %&gt;
+        {render_slot(@inner_block)}
+      &lt;% end %&gt;
+    &lt;/div&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Creates a live region with the given role.
+
+  ## Examples
+
+      &lt;.live_region role=&quot;alert&quot; /&gt;
+      &lt;.live_region role=&quot;status&quot; /&gt;
+
+  &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">live_region</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;div class=&quot;sr-only&quot; role={@role} id=&quot;live-region&quot;&gt;&lt;/div&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Sends a message to be read by the screen reader by changing the text content of the live region
+  &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">sr_message</span>(js \\ %JS{}, message) <span class="th-token th-keyword">do</span>
+    JS.<span class="th-token th-function">dispatch</span>(js, <span class="th-token th-string">&quot;lb:set_text&quot;</span>, to: <span class="th-token th-string">&quot;#live-region&quot;</span>, detail: %{value: message})
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Wraps the given content in a modal dialog.
+
+  ## Example
+
+      &lt;.modal id=&quot;edit-modal&quot; patch={...}&gt;
+        &lt;.live_component module={MyComponent}  /&gt;
+      &lt;/.modal&gt;
+
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:id</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:show</span>, <span class="th-token th-literal">:boolean</span>, default: <span class="th-token th-literal">false</span>
+  attr <span class="th-token th-literal">:patch</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-literal">nil</span>
+  attr <span class="th-token th-literal">:navigate</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-literal">nil</span>
+  attr <span class="th-token th-literal">:class</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-literal">nil</span>
+  attr <span class="th-token th-literal">:width</span>, <span class="th-token th-literal">:string</span>, values: ~<span class="th-token th-function">w</span>(small medium big large), required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:rest</span>, <span class="th-token th-literal">:global</span>
+
+  slot <span class="th-token th-literal">:inner_block</span>, required: <span class="th-token th-literal">true</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">modal</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;div
+      id={@id}
+      class=&quot;fixed z-10000 inset-0 hidden&quot;
+      phx-mounted={@show &amp;&amp; show_modal(@id)}
+      phx-remove={hide_modal(@id)}
+      data-cancel={modal_on_cancel(@patch, @navigate)}
+      {@rest}
+    &gt;
+      &lt;!-- Modal container --&gt;
+      &lt;div id={&quot;#{@id}-container&quot;} class=&quot;h-screen flex items-center justify-center p-4&quot;&gt;
+        &lt;!-- Overlay --&gt;
+        &lt;div class=&quot;absolute z-0 inset-0 bg-gray-500 opacity-75&quot; aria-hidden=&quot;true&quot;&gt;&lt;/div&gt;
+        &lt;!-- Modal box --&gt;
+        &lt;.focus_wrap
+          id={&quot;#{@id}-content&quot;}
+          class={[
+            &quot;relative max-h-full overflow-y-auto bg-white rounded-lg shadow-xl focus-visible:outline-none&quot;,
+            &quot;w-full p-6&quot;,
+            modal_width_class(@width)
+          ]}
+          role=&quot;dialog&quot;
+          aria-modal=&quot;true&quot;
+          tabindex=&quot;0&quot;
+          phx-window-keydown={JS.exec(&quot;data-cancel&quot;, to: &quot;##{@id}&quot;)}
+          phx-click-away={JS.exec(&quot;data-cancel&quot;, to: &quot;##{@id}&quot;)}
+          phx-key=&quot;escape&quot;
+        &gt;
+          &lt;button
+            type=&quot;button&quot;
+            class=&quot;absolute top-6 right-6 text-gray-400 flex space-x-1 items-center&quot;
+            aria_label=&quot;close modal&quot;
+            phx-click={JS.exec(&quot;data-cancel&quot;, to: &quot;##{@id}&quot;)}
+          &gt;
+            &lt;span class=&quot;text-sm&quot;&gt;(esc)&lt;/span&gt;
+            &lt;.remix_icon icon=&quot;close-line&quot; class=&quot;text-2xl&quot; /&gt;
+          &lt;/button&gt;
+          {render_slot(@inner_block)}
+        &lt;/.focus_wrap&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">modal_width_class</span>(<span class="th-token th-string">&quot;small&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;max-w-sm&quot;</span>
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">modal_width_class</span>(<span class="th-token th-string">&quot;medium&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;max-w-xl&quot;</span>
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">modal_width_class</span>(<span class="th-token th-string">&quot;big&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;max-w-4xl&quot;</span>
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">modal_width_class</span>(<span class="th-token th-string">&quot;large&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;max-w-6xl&quot;</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">modal_on_cancel</span>(<span class="th-token th-literal">nil</span>, <span class="th-token th-literal">nil</span>), <span class="th-token th-keyword">do</span>: JS.<span class="th-token th-function">exec</span>(<span class="th-token th-string">&quot;phx-remove&quot;</span>)
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">modal_on_cancel</span>(<span class="th-token th-literal">nil</span>, navigate), <span class="th-token th-keyword">do</span>: JS.<span class="th-token th-function">patch</span>(navigate)
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">modal_on_cancel</span>(patch, <span class="th-token th-literal">nil</span>), <span class="th-token th-keyword">do</span>: JS.<span class="th-token th-function">patch</span>(patch)
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Shows a modal rendered with `modal/1`.
+  &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">show_modal</span>(js \\ %JS{}, id) <span class="th-token th-keyword">do</span>
+    js
+    |&gt; JS.<span class="th-token th-function">show</span>(to: <span class="th-token th-string">&quot;##{id}&quot;</span>)
+    |&gt; JS.<span class="th-token th-function">dispatch</span>(<span class="th-token th-string">&quot;lb:focus&quot;</span>, to: <span class="th-token th-string">&quot;##{id}-content&quot;</span>)
+    |&gt; JS.<span class="th-token th-function">transition</span>(
+      {<span class="th-token th-string">&quot;ease-out duration-200&quot;</span>, <span class="th-token th-string">&quot;opacity-0&quot;</span>, <span class="th-token th-string">&quot;opacity-100&quot;</span>},
+      to: <span class="th-token th-string">&quot;##{id}-container&quot;</span>
+    )
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Hides a modal rendered with `modal/1`.
+  &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">hide_modal</span>(js \\ %JS{}, id) <span class="th-token th-keyword">do</span>
+    js
+    |&gt; JS.<span class="th-token th-function">transition</span>(
+      {<span class="th-token th-string">&quot;ease-in duration-200&quot;</span>, <span class="th-token th-string">&quot;opacity-100&quot;</span>, <span class="th-token th-string">&quot;opacity-0&quot;</span>},
+      to: <span class="th-token th-string">&quot;##{id}-container&quot;</span>
+    )
+    |&gt; JS.<span class="th-token th-function">hide</span>(to: <span class="th-token th-string">&quot;##{id}&quot;</span>, transition: {<span class="th-token th-string">&quot;block&quot;</span>, <span class="th-token th-string">&quot;block&quot;</span>, <span class="th-token th-string">&quot;hidden&quot;</span>})
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders a popup menu that shows up on toggle click.
+
+  ## Examples
+
+      &lt;.menu id=&quot;my-menu&quot;&gt;
+        &lt;:toggle&gt;
+          &lt;button&gt;Open&lt;/button&gt;
+        &lt;/:toggle&gt;
+        &lt;.menu_item&gt;
+          &lt;button role=&quot;menuitem&quot;&gt;Option 1&lt;/button&gt;
+        &lt;/.menu_item&gt;
+        &lt;.menu_item&gt;
+          &lt;button role=&quot;menuitem&quot;&gt;Option 2&lt;/button&gt;
+        &lt;/.menu_item&gt;
+      &lt;/.menu&gt;
+
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:id</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:disabled</span>, <span class="th-token th-literal">:boolean</span>, default: <span class="th-token th-literal">false</span>, doc: <span class="th-token th-string">&quot;whether the menu is active&quot;</span>
+
+  attr <span class="th-token th-literal">:position</span>, <span class="th-token th-literal">:string</span>,
+    default: <span class="th-token th-string">&quot;bottom-right&quot;</span>,
+    values: ~<span class="th-token th-function">w</span>(top-left top-right bottom-left bottom-right)
+
+  attr <span class="th-token th-literal">:sm_position</span>, <span class="th-token th-literal">:string</span>,
+    default: <span class="th-token th-literal">nil</span>,
+    values: [<span class="th-token th-literal">nil</span>, <span class="th-token th-string">&quot;top-left&quot;</span>, <span class="th-token th-string">&quot;top-right&quot;</span>, <span class="th-token th-string">&quot;bottom-left&quot;</span>, <span class="th-token th-string">&quot;bottom-right&quot;</span>]
+
+  attr <span class="th-token th-literal">:md_position</span>, <span class="th-token th-literal">:string</span>,
+    default: <span class="th-token th-literal">nil</span>,
+    values: [<span class="th-token th-literal">nil</span>, <span class="th-token th-string">&quot;top-left&quot;</span>, <span class="th-token th-string">&quot;top-right&quot;</span>, <span class="th-token th-string">&quot;bottom-left&quot;</span>, <span class="th-token th-string">&quot;bottom-right&quot;</span>]
+
+  attr <span class="th-token th-literal">:distant</span>, <span class="th-token th-literal">:boolean</span>,
+    default: <span class="th-token th-literal">false</span>,
+    doc: <span class="th-token th-string">&quot;whether the menu should be further from the anchor element&quot;</span>
+
+  attr <span class="th-token th-literal">:secondary_click</span>, <span class="th-token th-literal">:boolean</span>,
+    default: <span class="th-token th-literal">false</span>,
+    doc: <span class="th-token th-string">&quot;whether secondary click (usually right mouse click) should open the menu&quot;</span>
+
+  slot <span class="th-token th-literal">:toggle</span>, required: <span class="th-token th-literal">true</span>
+
+  slot <span class="th-token th-literal">:inner_block</span>, required: <span class="th-token th-literal">true</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">menu</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;div class=&quot;relative&quot; id={@id}&gt;
+      &lt;div
+        phx-click={not @disabled &amp;&amp; show_menu(@id)}
+        data-contextmenu-trigger-click={@secondary_click}
+        phx-window-keydown={hide_menu(@id)}
+        phx-key=&quot;escape&quot;
+      &gt;
+        {render_slot(@toggle)}
+      &lt;/div&gt;
+      &lt;div id={&quot;#{@id}-overlay&quot;} class=&quot;fixed z-90 inset-0 hidden&quot; phx-click-away={hide_menu(@id)}&gt;
+      &lt;/div&gt;
+      &lt;menu
+        id={&quot;#{@id}-content&quot;}
+        class={[
+          &quot;absolute z-100 hidden&quot;,
+          menu_position_class(@position),
+          @md_position &amp;&amp; menu_md_position_class(@md_position),
+          @sm_position &amp;&amp; menu_sm_position_class(@sm_position),
+          @distant &amp;&amp; menu_distant_class(@position)
+        ]}
+        role=&quot;menu&quot;
+        phx-click-away={hide_menu(@id)}
+      &gt;
+        &lt;div
+          id={&quot;#{@id}-content-inner&quot;}
+          class=&quot;rounded-lg bg-white flex flex-col py-2 shadow-[0_15px_99px_-0px_rgba(12,24,41,0.15)]&quot;
+        &gt;
+          {render_slot(@inner_block)}
+        &lt;/div&gt;
+      &lt;/menu&gt;
+    &lt;/div&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Shows a menu rendered with `menu/1`.
+
+  ## Options
+
+    * `:animate` - whether to play an animation when the menu is opened.
+      Defaults to `false`
+
+  &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">show_menu</span>(js \\ %JS{}, id, opts \\ []) <span class="th-token th-keyword">do</span>
+    opts = Keyword.validate!(opts, animate: <span class="th-token th-literal">false</span>)
+
+    js =
+      js
+      |&gt; JS.<span class="th-token th-function">show</span>(to: <span class="th-token th-string">&quot;##{id}-overlay&quot;</span>)
+      |&gt; JS.<span class="th-token th-function">show</span>(to: <span class="th-token th-string">&quot;##{id}-content&quot;</span>, display: <span class="th-token th-string">&quot;flex&quot;</span>)
+      |&gt; JS.<span class="th-token th-function">dispatch</span>(<span class="th-token th-string">&quot;lb:scroll_into_view&quot;</span>, to: <span class="th-token th-string">&quot;##{id}-content&quot;</span>)
+
+    <span class="th-token th-keyword">if</span> opts[<span class="th-token th-literal">:animate</span>] <span class="th-token th-keyword">do</span>
+      JS.<span class="th-token th-function">add_class</span>(js, <span class="th-token th-string">&quot;animate-shake&quot;</span>, to: <span class="th-token th-string">&quot;##{id}-content-inner&quot;</span>)
+    <span class="th-token th-keyword">else</span>
+      js
+    <span class="th-token th-keyword">end</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Hides a menu rendered with `menu/1`.
+  &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">hide_menu</span>(js \\ %JS{}, id) <span class="th-token th-keyword">do</span>
+    js
+    |&gt; JS.<span class="th-token th-function">hide</span>(to: <span class="th-token th-string">&quot;##{id}-overlay&quot;</span>)
+    |&gt; JS.<span class="th-token th-function">hide</span>(to: <span class="th-token th-string">&quot;##{id}-content&quot;</span>)
+    |&gt; JS.<span class="th-token th-function">remove_class</span>(<span class="th-token th-string">&quot;animate-shake&quot;</span>, to: <span class="th-token th-string">&quot;##{id}-content-inner&quot;</span>)
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_position_class</span>(<span class="th-token th-string">&quot;top-left&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;top-0 left-0 transform -translate-y-full -mt-1&quot;</span>
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_position_class</span>(<span class="th-token th-string">&quot;top-right&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;top-0 right-0 transform -translate-y-full -mt-1&quot;</span>
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_position_class</span>(<span class="th-token th-string">&quot;bottom-left&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;bottom-0 left-0 transform translate-y-full -mb-1&quot;</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_position_class</span>(<span class="th-token th-string">&quot;bottom-right&quot;</span>),
+    <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;bottom-0 right-0 transform translate-y-full -mb-1&quot;</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_md_position_class</span>(<span class="th-token th-string">&quot;top-left&quot;</span>) <span class="th-token th-keyword">do</span>
+    <span class="th-token th-string">&quot;md:top-0 md:left-0 md:bottom-auto md:right-auto md:transform md:-translate-y-full md:-mt-1 md:mb-0&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_md_position_class</span>(<span class="th-token th-string">&quot;top-right&quot;</span>) <span class="th-token th-keyword">do</span>
+    <span class="th-token th-string">&quot;md:top-0 md:right-0 md:bottom-auto md:left-auto md:transform md:-translate-y-full md:-mt-1 md:mb-0&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_md_position_class</span>(<span class="th-token th-string">&quot;bottom-left&quot;</span>) <span class="th-token th-keyword">do</span>
+    <span class="th-token th-string">&quot;md:bottom-0 md:left-0 md:top-auto md:right-auto md:transform md:translate-y-full md:-mb-1 md:mt-0&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_md_position_class</span>(<span class="th-token th-string">&quot;bottom-right&quot;</span>) <span class="th-token th-keyword">do</span>
+    <span class="th-token th-string">&quot;md:bottom-0 md:right-0 md:top-auto md:left-auto md:transform md:translate-y-full md:-mb-1 md:mt-0&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_sm_position_class</span>(<span class="th-token th-string">&quot;top-left&quot;</span>) <span class="th-token th-keyword">do</span>
+    <span class="th-token th-string">&quot;sm:top-0 sm:left-0 sm:bottom-auto sm:right-auto sm:transform sm:-translate-y-full sm:-mt-1 sm:mb-0&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_sm_position_class</span>(<span class="th-token th-string">&quot;top-right&quot;</span>) <span class="th-token th-keyword">do</span>
+    <span class="th-token th-string">&quot;sm:top-0 sm:right-0 sm:bottom-auto sm:left-auto sm:transform sm:-translate-y-full sm:-mt-1 sm:mb-0&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_sm_position_class</span>(<span class="th-token th-string">&quot;bottom-left&quot;</span>) <span class="th-token th-keyword">do</span>
+    <span class="th-token th-string">&quot;sm:bottom-0 sm:left-0 sm:top-auto sm:right-auto sm:transform sm:translate-y-full sm:-mb-1 sm:mt-0&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_sm_position_class</span>(<span class="th-token th-string">&quot;bottom-right&quot;</span>) <span class="th-token th-keyword">do</span>
+    <span class="th-token th-string">&quot;sm:bottom-0 sm:right-0 sm:top-auto sm:left-auto sm:transform sm:translate-y-full sm:-mb-1 sm:mt-0&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_distant_class</span>(position) <span class="th-token th-keyword">when</span> position <span class="th-token th-keyword">in</span> [<span class="th-token th-string">&quot;top-left&quot;</span>, <span class="th-token th-string">&quot;top-right&quot;</span>], <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;-mt-2&quot;</span>
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_distant_class</span>(position) <span class="th-token th-keyword">when</span> position <span class="th-token th-keyword">in</span> [<span class="th-token th-string">&quot;bottom-left&quot;</span>, <span class="th-token th-string">&quot;bottom-right&quot;</span>], <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;-mb-2&quot;</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Wraps a menu item that shows a submenu on hover.
+
+  This component should be used within `menu/1` content.
+
+  ## Example
+
+      &lt;.submenu&gt;
+        &lt;:primary&gt;
+          &lt;button class&quot;menu-item&quot; role=&quot;menuitem&quot;&gt;Submenu&lt;/button&gt;
+        &lt;/:primary&gt;
+        &lt;.menu_item&gt;
+          &lt;button class&quot;menu-item&quot; role=&quot;menuitem&quot;&gt;Option 1&lt;/button&gt;
+        &lt;/.menu_item&gt;
+      &lt;/.submenu&gt;
+
+  &quot;&quot;&quot;</span>
+  slot <span class="th-token th-literal">:primary</span>, required: <span class="th-token th-literal">true</span>
+  slot <span class="th-token th-literal">:inner_block</span>, required: <span class="th-token th-literal">true</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">submenu</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;div class=&quot;group relative&quot;&gt;
+      {render_slot(@primary)}
+      &lt;div class=&quot;absolute -top-2 right-0 translate-x-full pl-2 hidden group-hover:flex group-focus-within:flex&quot;&gt;
+        &lt;menu class=&quot;relative mt-0 z-100 rounded-lg bg-white flex flex-col py-2 shadow-[0_15px_99px_-0px_rgba(12,24,41,0.15)]&quot;&gt;
+          {render_slot(@inner_block)}
+        &lt;/menu&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders a menu item used in `menu/1` and `submenu/1`.
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:disabled</span>, <span class="th-token th-literal">:boolean</span>, default: <span class="th-token th-literal">false</span>
+  attr <span class="th-token th-literal">:variant</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-string">&quot;default&quot;</span>, values: ~<span class="th-token th-function">w</span>(default selected danger)
+
+  slot <span class="th-token th-literal">:inner_block</span>, required: <span class="th-token th-literal">true</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">menu_item</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;li class={[
+      &quot;w-full&quot;,
+      &quot;*:first:w-full *:first:flex *:first:space-x-3 *:first:px-5 *:first:py-2 *:first:items-center [&amp;&gt;:first-child:hover]:bg-gray-100 [&amp;&gt;:first-child:focus-visible]:bg-gray-100 [&amp;&gt;:first-child:focus-visible]:outline-none *:first:whitespace-nowrap font-medium&quot;,
+      menu_item_class(@variant),
+      @disabled &amp;&amp; &quot;pointer-events-none opacity-50&quot;
+    ]}&gt;
+      {render_slot(@inner_block)}
+    &lt;/li&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_item_class</span>(<span class="th-token th-string">&quot;default&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;text-gray-500&quot;</span>
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_item_class</span>(<span class="th-token th-string">&quot;selected&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;text-gray-900&quot;</span>
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">menu_item_class</span>(<span class="th-token th-string">&quot;danger&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;text-red-600&quot;</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders a text content skeleton.
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:empty</span>, <span class="th-token th-literal">:boolean</span>, default: <span class="th-token th-literal">false</span>, doc: <span class="th-token th-string">&quot;if the source is empty&quot;</span>
+  attr <span class="th-token th-literal">:bg_class</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-string">&quot;bg-gray-200&quot;</span>, doc: <span class="th-token th-string">&quot;the skeleton background color&quot;</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">content_skeleton</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;%= if @empty do %&gt;
+      &lt;div class=&quot;h-4&quot;&gt;&lt;/div&gt;
+    &lt;% else %&gt;
+      &lt;div class=&quot;max-w-2xl w-full animate-pulse&quot;&gt;
+        &lt;div class=&quot;flex-1 space-y-4&quot;&gt;
+          &lt;div class={[@bg_class, &quot;h-4 rounded-lg w-3/4&quot;]}&gt;&lt;/div&gt;
+          &lt;div class={[@bg_class, &quot;h-4 rounded-lg&quot;]}&gt;&lt;/div&gt;
+          &lt;div class={[@bg_class, &quot;h-4 rounded-lg w-5/6&quot;]}&gt;&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;% end %&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders a file content skeleton.
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:empty</span>, <span class="th-token th-literal">:boolean</span>, default: <span class="th-token th-literal">false</span>, doc: <span class="th-token th-string">&quot;if the source is empty&quot;</span>
+  attr <span class="th-token th-literal">:bg_class</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-string">&quot;bg-gray-200&quot;</span>, doc: <span class="th-token th-string">&quot;the skeleton background color&quot;</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">file_skeleton</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;%= if @empty do %&gt;
+      &lt;div class=&quot;h-4&quot;&gt;&lt;/div&gt;
+    &lt;% else %&gt;
+      &lt;div class=&quot;max-w-2xl w-full animate-pulse&quot;&gt;
+        &lt;div class=&quot;flex-1 space-y-4&quot;&gt;
+          &lt;div class=&quot;w-full flex space-x-2 items-center p-2&quot;&gt;
+            &lt;div class={[@bg_class, &quot;h-6 rounded-md w-5&quot;]} /&gt;
+            &lt;div class={[
+              @bg_class,
+              &quot;h-4 rounded-lg&quot;,
+              Enum.random([&quot;w-1/2&quot;, &quot;w-2/3&quot;, &quot;w-3/4&quot;, &quot;w-4/5&quot;, &quot;w-full&quot;])
+            ]} /&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;% end %&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders a highlighted code snippet.
+
+  ## Examples
+
+      &lt;.code_preview
+        source_id=&quot;my-snippet&quot;
+        language=&quot;elixir&quot;
+        source=&quot;System.version()&quot; /&gt;
+
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:source_id</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:language</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:source</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:wrap</span>, <span class="th-token th-literal">:boolean</span>, default: <span class="th-token th-literal">false</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">code_preview</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;div class=&quot;markdown&quot;&gt;
+      &lt;pre&gt;&lt;code
+      class={if(@wrap, do: &quot;break-all whitespace-pre-wrap&quot;, else: &quot;tiny-scrollbar&quot;)}
+      id={&quot;#{@source_id}-highlight&quot;}
+      phx-hook=&quot;Highlight&quot;
+      data-p-language={hook_prop(@language)}
+    &gt;&lt;div id={@source_id} data-source&gt;{@source}&lt;/div&gt;&lt;div data-target&gt;&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders a highlighted code snippet with a title and a copy button.
+
+  ## Examples
+
+      &lt;.code_preview_with_title_and_copy
+        title=&quot;
+        source_id=&quot;my-snippet&quot;
+        language=&quot;elixir&quot;
+        source=&quot;System.version()&quot; /&gt;
+
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:title</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:source_id</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:language</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:source</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">code_preview_with_title_and_copy</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;div&gt;
+      &lt;div class=&quot;flex justify-between items-center&quot;&gt;
+        &lt;span class=&quot;text-sm text-gray-700 font-semibold&quot;&gt;{@title}&lt;/span&gt;
+        &lt;div class=&quot;flex justify-end space-x-2&quot;&gt;
+          &lt;span class=&quot;tooltip left&quot; data-tooltip=&quot;Copy source&quot;&gt;
+            &lt;.icon_button
+              aria-label=&quot;copy source&quot;
+              phx-click={JS.dispatch(&quot;lb:clipcopy&quot;, to: &quot;##{@source_id}&quot;)}
+            &gt;
+              &lt;.remix_icon icon=&quot;clipboard-line&quot; /&gt;
+            &lt;/.icon_button&gt;
+          &lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;markdown&quot;&gt;
+        &lt;.code_preview source_id={@source_id} language={@language} source={@source} /&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders text with a tiny label.
+
+  ## Examples
+
+      &lt;.labeled_text label=&quot;Name&quot;&gt;Sherlock Holmes&lt;/.labeled_text&gt;
+
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:label</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+
+  attr <span class="th-token th-literal">:one_line</span>, <span class="th-token th-literal">:boolean</span>,
+    default: <span class="th-token th-literal">false</span>,
+    doc: <span class="th-token th-string">&quot;whether to force the text into a single scrollable line&quot;</span>
+
+  attr <span class="th-token th-literal">:class</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-literal">nil</span>
+
+  slot <span class="th-token th-literal">:inner_block</span>, required: <span class="th-token th-literal">true</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">labeled_text</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;div class={[&quot;flex flex-col space-y-1&quot;, @class]}&gt;
+      &lt;span class=&quot;text-sm text-gray-500&quot;&gt;
+        {@label}
+      &lt;/span&gt;
+      &lt;span class={[
+        &quot;text-gray-800 text-sm font-semibold&quot;,
+        @one_line &amp;&amp;
+          &quot;whitespace-nowrap overflow-hidden text-ellipsis hover:text-clip hover:overflow-auto hover:tiny-scrollbar&quot;
+      ]}&gt;
+        {render_slot(@inner_block)}
+      &lt;/span&gt;
+    &lt;/div&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders a choice button that is either active or not.
+
+  ## Examples
+
+      &lt;.choice_button active={@tab == &quot;my_tab&quot;} phx-click=&quot;set_my_tab&quot;&gt;
+        My tab
+      &lt;/.choice_button&gt;
+
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:active</span>, <span class="th-token th-literal">:boolean</span>, required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:disabled</span>, <span class="th-token th-literal">:boolean</span>
+  attr <span class="th-token th-literal">:class</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-literal">nil</span>
+  attr <span class="th-token th-literal">:rest</span>, <span class="th-token th-literal">:global</span>
+
+  slot <span class="th-token th-literal">:inner_block</span>, required: <span class="th-token th-literal">true</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">choice_button</span>(assigns) <span class="th-token th-keyword">do</span>
+    assigns =
+      assigns
+      |&gt; <span class="th-token th-function">assign_new</span>(<span class="th-token th-literal">:disabled</span>, <span class="th-token th-keyword">fn</span> -&gt; assigns.active <span class="th-token th-keyword">end</span>)
+
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;button
+      class={[
+        &quot;px-5 py-2 rounded-lg text-gray-700 border&quot;,
+        if(@active, do: &quot;bg-blue-100 border-blue-600&quot;, else: &quot;bg-white border-gray-200&quot;),
+        @class
+      ]}
+      disabled={@disabled}
+      {@rest}
+    &gt;
+      {render_slot(@inner_block)}
+    &lt;/button&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders an status indicator circle.
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:variant</span>, <span class="th-token th-literal">:string</span>,
+    required: <span class="th-token th-literal">true</span>,
+    values: ~<span class="th-token th-function">w</span>(success warning error inactive waiting progressing)
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">status_indicator</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;span class=&quot;relative flex h-2.5 w-2.5&quot;&gt;
+      &lt;span
+        :if={animated_status_circle_class(@variant)}
+        class={[
+          animated_status_circle_class(@variant),
+          &quot;animate-ping absolute inline-flex h-full w-full rounded-full opacity-75&quot;
+        ]}
+      &gt;
+      &lt;/span&gt;
+      &lt;span class={[status_circle_class(@variant), &quot;relative inline-flex rounded-full h-2.5 w-2.5&quot;]}&gt;
+      &lt;/span&gt;
+    &lt;/span&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Returns background class based on the given variant.
+
+  See `status_indicator/1` for available variants.
+  &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">status_circle_class</span>(variant)
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">status_circle_class</span>(<span class="th-token th-string">&quot;success&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;bg-green-bright-400&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">status_circle_class</span>(<span class="th-token th-string">&quot;warning&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;bg-yellow-bright-200&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">status_circle_class</span>(<span class="th-token th-string">&quot;error&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;bg-red-400&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">status_circle_class</span>(<span class="th-token th-string">&quot;inactive&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;bg-gray-500&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">status_circle_class</span>(<span class="th-token th-string">&quot;waiting&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;bg-gray-400&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">status_circle_class</span>(<span class="th-token th-string">&quot;progressing&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;bg-blue-500&quot;</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">animated_status_circle_class</span>(<span class="th-token th-string">&quot;waiting&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;bg-gray-300&quot;</span>
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">animated_status_circle_class</span>(<span class="th-token th-string">&quot;progressing&quot;</span>), <span class="th-token th-keyword">do</span>: <span class="th-token th-string">&quot;bg-blue-400&quot;</span>
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">animated_status_circle_class</span>(_other), <span class="th-token th-keyword">do</span>: <span class="th-token th-literal">nil</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders an informative box as a placeholder for a list.
+  &quot;&quot;&quot;</span>
+
+  slot <span class="th-token th-literal">:inner_block</span>, required: <span class="th-token th-literal">true</span>
+  slot <span class="th-token th-literal">:actions</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">no_entries</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;div class=&quot;p-5 flex space-x-4 items-center border border-gray-200 rounded-lg&quot;&gt;
+      &lt;div&gt;
+        &lt;.remix_icon icon=&quot;windy-line&quot; class=&quot;text-gray-400 text-xl&quot; /&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;grow flex items-center justify-between&quot;&gt;
+        &lt;div class=&quot;text-gray-600&quot;&gt;
+          {render_slot(@inner_block)}
+        &lt;/div&gt;
+        {render_slot(@actions)}
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders a circular spinner.
+  &quot;&quot;&quot;</span>
+
+  attr <span class="th-token th-literal">:class</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-literal">nil</span>
+  attr <span class="th-token th-literal">:rest</span>, <span class="th-token th-literal">:global</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">spinner</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;svg
+      aria-hidden=&quot;true&quot;
+      class={[&quot;inline w-4 h-4 text-gray-200 animate-spin fill-blue-600&quot;, @class]}
+      viewBox=&quot;0 0 100 101&quot;
+      fill=&quot;none&quot;
+      xmlns=&quot;http://www.w3.org/2000/svg&quot;
+      {@rest}
+    &gt;
+      &lt;path
+        d=&quot;M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z&quot;
+        fill=&quot;currentColor&quot;
+      /&gt;
+      &lt;path
+        d=&quot;M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z&quot;
+        fill=&quot;currentFill&quot;
+      /&gt;
+    &lt;/svg&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Returns the text in singular or plural depending on the quantity.
+
+  ## Examples
+
+    &lt;.listing items={@packages}&gt;
+      &lt;:item :let={package}&gt;&lt;code&gt;{package.name}&lt;/code&gt;&lt;/:item&gt;
+      &lt;:singular_suffix&gt;package&lt;/:singular_suffix&gt;
+      &lt;:plural_suffix&gt;packages&lt;/:plural_suffix&gt;
+    &lt;/.listing&gt;
+
+  &quot;&quot;&quot;</span>
+
+  attr <span class="th-token th-literal">:items</span>, <span class="th-token th-literal">:list</span>, required: <span class="th-token th-literal">true</span>
+
+  slot <span class="th-token th-literal">:item</span>, required: <span class="th-token th-literal">true</span>
+  slot <span class="th-token th-literal">:plural_suffix</span>
+  slot <span class="th-token th-literal">:singular_suffix</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">listing</span>(%{items: [_]} = assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    {render_slot(@item, hd(@items))}
+    {render_slot(@singular_suffix)}
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">listing</span>(%{items: [_, _ | _]} = assigns) <span class="th-token th-keyword">do</span>
+    {items, assigns} = Map.pop!(assigns, <span class="th-token th-literal">:items</span>)
+    {leading, [second_to_last, last]} = Enum.<span class="th-token th-function">split</span>(items, -<span class="th-token th-number">2</span>)
+    assigns = <span class="th-token th-function">assign</span>(assigns, leading: leading, second_to_last: second_to_last, last: last)
+
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;%= for item &lt;- @leading do %&gt;
+      {render_slot(@item, item)},
+    &lt;% end %&gt;
+    {render_slot(@item, @second_to_last)} and {render_slot(@item, @last)}
+    {render_slot(@plural_suffix)}
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders a table with generic styling.
+
+  ## Examples
+
+      &lt;.table id=&quot;users&quot; rows={@users}&gt;
+        &lt;:col :let={user} label=&quot;id&quot;&gt;{user.id}&lt;/:col&gt;
+        &lt;:col :let={user} label=&quot;username&quot;&gt;{user.username}&lt;/:col&gt;
+      &lt;/.table&gt;
+
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:id</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:rows</span>, <span class="th-token th-literal">:list</span>, required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:row_id</span>, <span class="th-token th-literal">:any</span>, default: <span class="th-token th-literal">nil</span>, doc: <span class="th-token th-string">&quot;the function for generating the row id&quot;</span>
+  attr <span class="th-token th-literal">:row_click</span>, <span class="th-token th-literal">:any</span>, default: <span class="th-token th-literal">nil</span>, doc: <span class="th-token th-string">&quot;the function for handling phx-click on each row&quot;</span>
+
+  attr <span class="th-token th-literal">:row_item</span>, <span class="th-token th-literal">:any</span>,
+    default: &amp;Function.identity/<span class="th-token th-number">1</span>,
+    doc: <span class="th-token th-string">&quot;the function for mapping each row before calling the :col and :action slots&quot;</span>
+
+  slot <span class="th-token th-literal">:col</span>, required: <span class="th-token th-literal">true</span> <span class="th-token th-keyword">do</span>
+    attr <span class="th-token th-literal">:label</span>, <span class="th-token th-literal">:string</span>
+  <span class="th-token th-keyword">end</span>
+
+  slot <span class="th-token th-literal">:action</span>, doc: <span class="th-token th-string">&quot;the slot for showing user actions in the last table column&quot;</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">table</span>(assigns) <span class="th-token th-keyword">do</span>
+    assigns =
+      <span class="th-token th-keyword">with</span> %{rows: %Phoenix.LiveView.LiveStream{}} &lt;- assigns <span class="th-token th-keyword">do</span>
+        <span class="th-token th-function">assign</span>(assigns, row_id: assigns.row_id || <span class="th-token th-keyword">fn</span> {id, _item} -&gt; id <span class="th-token th-keyword">end</span>)
+      <span class="th-token th-keyword">end</span>
+
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;table class=&quot;overflow-y-auto px-4 sm:overflow-visible sm:px-0 min-w-full divide-y divide-gray-300&quot;&gt;
+      &lt;thead class=&quot;text-sm text-left font-semibold leading-6 text-gray-900&quot;&gt;
+        &lt;tr&gt;
+          &lt;th :for={col &lt;- @col} class=&quot;py-3.5 pl-4 pr-3 sm:pl-6&quot;&gt;
+            {col[:label]}
+          &lt;/th&gt;
+          &lt;th :if={@action != []} class=&quot;py-3.5 pl-3 pr-5 text-right sm:pr-7&quot;&gt;
+            &lt;span&gt;Actions&lt;/span&gt;
+          &lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody
+        id={@id}
+        phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) &amp;&amp; &quot;stream&quot;}
+        class=&quot;relative divide-y divide-gray-200 bg-white text-sm font-medium leading-6 text-gray-900&quot;
+      &gt;
+        &lt;tr :for={row &lt;- @rows} id={@row_id &amp;&amp; @row_id.(row)} class=&quot;hover:bg-gray-50&quot;&gt;
+          &lt;td
+            :for={col &lt;- @col}
+            phx-click={@row_click &amp;&amp; @row_click.(row)}
+            class={[&quot;relative p-0&quot;, @row_click &amp;&amp; &quot;hover:cursor-pointer&quot;]}
+          &gt;
+            &lt;div class=&quot;relative block p-4 sm:px-6&quot;&gt;
+              {render_slot(col, @row_item.(row))}
+            &lt;/div&gt;
+          &lt;/td&gt;
+          &lt;td :if={@action != []} class=&quot;relative p-0&quot;&gt;
+            &lt;div class=&quot;relative whitespace-nowrap py-4 pl-3 pr-4 sm:pr-6 flex justify-end items-center&quot;&gt;
+              &lt;span :for={action &lt;- @action} class=&quot;ml-4&quot;&gt;
+                {render_slot(action, @row_item.(row))}
+              &lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders a button.
+
+  ## Examples
+
+      &lt;.button&gt;Click&lt;/.button&gt;
+
+      &lt;.button color=&quot;gray&quot; outlined&gt;Click&lt;/.button&gt;
+
+      &lt;.button color=&quot;gray&quot; small&gt;Click&lt;/.button&gt;
+
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:disabled</span>, <span class="th-token th-literal">:boolean</span>, default: <span class="th-token th-literal">false</span>
+  attr <span class="th-token th-literal">:color</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-string">&quot;blue&quot;</span>, values: ~<span class="th-token th-function">w</span>(blue gray red)
+  attr <span class="th-token th-literal">:outlined</span>, <span class="th-token th-literal">:boolean</span>, default: <span class="th-token th-literal">false</span>
+  attr <span class="th-token th-literal">:small</span>, <span class="th-token th-literal">:boolean</span>, default: <span class="th-token th-literal">false</span>
+  attr <span class="th-token th-literal">:class</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-literal">nil</span>
+
+  attr <span class="th-token th-literal">:rest</span>, <span class="th-token th-literal">:global</span>, include: ~<span class="th-token th-function">w</span>(href patch navigate download name)
+
+  slot <span class="th-token th-literal">:inner_block</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">button</span>(assigns)
+      <span class="th-token th-keyword">when</span> <span class="th-token th-function">is_map_key</span>(assigns.rest, <span class="th-token th-literal">:href</span>) <span class="th-token th-keyword">or</span> <span class="th-token th-function">is_map_key</span>(assigns.rest, <span class="th-token th-literal">:patch</span>) <span class="th-token th-keyword">or</span>
+             <span class="th-token th-function">is_map_key</span>(assigns.rest, <span class="th-token th-literal">:navigate</span>) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;.link class={[button_classes(@small, @disabled, @color, @outlined), @class]} {@rest}&gt;
+      {render_slot(@inner_block)}
+    &lt;/.link&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">button</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;button
+      class={[button_classes(@small, @disabled, @color, @outlined), @class]}
+      disabled={@disabled}
+      {@rest}
+    &gt;
+      {render_slot(@inner_block)}
+    &lt;/button&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">button_classes</span>(small, disabled, color, outlined) <span class="th-token th-keyword">do</span>
+    [
+      <span class="th-token th-keyword">if</span> small <span class="th-token th-keyword">do</span>
+        <span class="th-token th-string">&quot;px-2 py-1 font-normal text-xs gap-1&quot;</span>
+      <span class="th-token th-keyword">else</span>
+        <span class="th-token th-string">&quot;px-5 py-2 font-medium text-sm gap-1.5&quot;</span>
+      <span class="th-token th-keyword">end</span>,
+      <span class="th-token th-string">&quot;not-[.hidden]:inline-flex rounded-lg border whitespace-nowrap items-center justify-center focus-visible:outline-none&quot;</span>,
+      <span class="th-token th-keyword">if</span> disabled <span class="th-token th-keyword">do</span>
+        <span class="th-token th-string">&quot;cursor-default pointer-events-none border-transparent bg-gray-100 text-gray-400&quot;</span>
+      <span class="th-token th-keyword">else</span>
+        <span class="th-token th-keyword">case</span> {color, outlined} <span class="th-token th-keyword">do</span>
+          {<span class="th-token th-string">&quot;blue&quot;</span>, <span class="th-token th-literal">false</span>} -&gt;
+            <span class="th-token th-string">&quot;border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700&quot;</span>
+
+          {<span class="th-token th-string">&quot;red&quot;</span>, <span class="th-token th-literal">false</span>} -&gt;
+            <span class="th-token th-string">&quot;border-transparent bg-red-600 text-white hover:bg-red-700 focus:bg-red-700&quot;</span>
+
+          {<span class="th-token th-string">&quot;gray&quot;</span>, <span class="th-token th-literal">false</span>} -&gt;
+            <span class="th-token th-string">&quot;border-gray-200 bg-gray-100 text-gray-600 hover:bg-gray-200 focus:bg-gray-200&quot;</span>
+
+          {<span class="th-token th-string">&quot;blue&quot;</span>, <span class="th-token th-literal">true</span>} -&gt;
+            <span class="th-token th-string">&quot;bg-blue-50 border-blue-600 text-blue-600 hover:bg-blue-100 focus:bg-blue-100&quot;</span>
+
+          {<span class="th-token th-string">&quot;red&quot;</span>, <span class="th-token th-literal">true</span>} -&gt;
+            <span class="th-token th-string">&quot;bg-red-50 border-red-600 text-red-600 hover:bg-red-100 focus:bg-red-100&quot;</span>
+
+          {<span class="th-token th-string">&quot;gray&quot;</span>, <span class="th-token th-literal">true</span>} -&gt;
+            <span class="th-token th-string">&quot;bg-transparent border-gray-300 text-gray-600 hover:bg-gray-100 focus:bg-gray-100&quot;</span>
+        <span class="th-token th-keyword">end</span>
+      <span class="th-token th-keyword">end</span>
+    ]
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders an icon button.
+
+  ## Examples
+
+      &lt;.icon_button&gt;
+        &lt;.remix_icon icon=&quot;refresh-line&quot; /&gt;
+      &lt;/.icon_button&gt;
+
+  &quot;&quot;&quot;</span>
+  attr <span class="th-token th-literal">:disabled</span>, <span class="th-token th-literal">:boolean</span>, default: <span class="th-token th-literal">false</span>
+  attr <span class="th-token th-literal">:small</span>, <span class="th-token th-literal">:boolean</span>, default: <span class="th-token th-literal">false</span>
+  attr <span class="th-token th-literal">:class</span>, <span class="th-token th-literal">:string</span>, default: <span class="th-token th-literal">nil</span>
+
+  attr <span class="th-token th-literal">:rest</span>, <span class="th-token th-literal">:global</span>, include: ~<span class="th-token th-function">w</span>(href patch navigate download name)
+
+  slot <span class="th-token th-literal">:inner_block</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">icon_button</span>(assigns)
+      <span class="th-token th-keyword">when</span> <span class="th-token th-function">is_map_key</span>(assigns.rest, <span class="th-token th-literal">:href</span>) <span class="th-token th-keyword">or</span> <span class="th-token th-function">is_map_key</span>(assigns.rest, <span class="th-token th-literal">:patch</span>) <span class="th-token th-keyword">or</span>
+             <span class="th-token th-function">is_map_key</span>(assigns.rest, <span class="th-token th-literal">:navigate</span>) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;.link class={[icon_button_classes(@small, @disabled), @class]} {@rest}&gt;
+      {render_slot(@inner_block)}
+    &lt;/.link&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">icon_button</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;button class={[icon_button_classes(@small, @disabled), @class]} disabled={@disabled} {@rest}&gt;
+      {render_slot(@inner_block)}
+    &lt;/button&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">defp</span> <span class="th-token th-function">icon_button_classes</span>(small, disabled) <span class="th-token th-keyword">do</span>
+    [
+      <span class="th-token th-keyword">unless</span> small <span class="th-token th-keyword">do</span>
+        <span class="th-token th-string">&quot;text-xl&quot;</span>
+      <span class="th-token th-keyword">end</span>,
+      <span class="th-token th-string">&quot;p-1 flex items-center justify-center rounded-full leading-none&quot;</span>,
+      <span class="th-token th-keyword">if</span> disabled <span class="th-token th-keyword">do</span>
+        <span class="th-token th-string">&quot;cursor-default text-gray-300&quot;</span>
+      <span class="th-token th-keyword">else</span>
+        <span class="th-token th-string">&quot;text-gray-500 hover:text-gray-900 hover:bg-gray-50 focus-visible:bg-gray-100 focus-visible:outline-none&quot;</span>
+      <span class="th-token th-keyword">end</span>
+    ]
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Renders stateful tabs with content.
+
+  ## Examples
+
+      &lt;.tabs id=&quot;animals&quot; default=&quot;cat&quot;&gt;
+        &lt;:tab id=&quot;cat&quot; label=&quot;Cat&quot;&gt;
+          This is a cat.
+        &lt;/:tab&gt;
+        &lt;:tab id=&quot;dog&quot; label=&quot;Dog&quot;&gt;
+          This is a dog.
+        &lt;/:tab&gt;
+      &lt;/.tabs&gt;
+
+  &quot;&quot;&quot;</span>
+
+  attr <span class="th-token th-literal">:id</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+  attr <span class="th-token th-literal">:default</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+
+  slot <span class="th-token th-literal">:tab</span> <span class="th-token th-keyword">do</span>
+    attr <span class="th-token th-literal">:id</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+    attr <span class="th-token th-literal">:label</span>, <span class="th-token th-literal">:string</span>, required: <span class="th-token th-literal">true</span>
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">tabs</span>(assigns) <span class="th-token th-keyword">do</span>
+    ~H<span class="th-token th-string">&quot;&quot;&quot;
+    &lt;div id={@id} class=&quot;flex flex-col gap-4&quot;&gt;
+      &lt;div class=&quot;tabs&quot;&gt;
+        &lt;button
+          :for={tab &lt;- @tab}
+          class={[&quot;tab&quot;, @default == tab.id &amp;&amp; &quot;active&quot;]}
+          phx-click={
+            JS.remove_class(&quot;active&quot;, to: &quot;##{@id} .tab.active&quot;)
+            |&gt; JS.add_class(&quot;active&quot;)
+            |&gt; JS.add_class(&quot;hidden&quot;, to: &quot;##{@id} [data-tab]&quot;)
+            |&gt; JS.remove_class(&quot;hidden&quot;, to: &quot;##{@id} [data-tab=&#39;#{tab.id}&#39;]&quot;)
+          }
+        &gt;
+          &lt;span class=&quot;font-medium&quot;&gt;
+            {tab.label}
+          &lt;/span&gt;
+        &lt;/button&gt;
+      &lt;/div&gt;
+
+      &lt;div :for={tab &lt;- @tab} data-tab={tab.id} class={@default == tab.id || &quot;hidden&quot;}&gt;
+        {render_slot(tab)}
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Updates keys in a map assign.
+  &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">assign_nested</span>(socket, key, keyword) <span class="th-token th-keyword">do</span>
+    <span class="th-token th-function">update</span>(socket, key, <span class="th-token th-keyword">fn</span> map -&gt;
+      Enum.<span class="th-token th-function">reduce</span>(keyword, map, <span class="th-token th-keyword">fn</span> {key, value}, map -&gt; Map.replace!(map, key, value) <span class="th-token th-keyword">end</span>)
+    <span class="th-token th-keyword">end</span>)
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Sends an event to the given target.
+
+  Given:
+
+    * a LV pid, sends the event as a regular message to the process
+
+    * a component `{module, id}` tuple, the event is sent as an update
+      with `:event` assign
+
+  &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">send_event</span>(target, event) <span class="th-token th-keyword">when</span> <span class="th-token th-function">is_pid</span>(target) <span class="th-token th-keyword">do</span>
+    <span class="th-token th-function">send</span>(target, event)
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">send_event</span>({module, id}, event) <span class="th-token th-keyword">when</span> <span class="th-token th-function">is_atom</span>(module) <span class="th-token th-keyword">and</span> <span class="th-token th-function">is_binary</span>(id) <span class="th-token th-keyword">do</span>
+    Phoenix.LiveView.<span class="th-token th-function">send_update</span>(module, id: id, event: event)
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-comment"># JS commands</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Pushes and executes the given `%Phoenix.LiveView.JS{}` on the client.
+
+  ## Options
+
+    * `:to` - selector for elements to execute against. Defaults to
+      document body
+
+  &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">exec_js</span>(socket, js, opts \\ []) <span class="th-token th-keyword">do</span>
+    opts = Keyword.validate!(opts, [<span class="th-token th-literal">:to</span>])
+
+    Phoenix.LiveView.<span class="th-token th-function">push_event</span>(socket, <span class="th-token th-string">&quot;lb:exec_js&quot;</span>, %{js: JSON.encode!(js.ops), to: opts[<span class="th-token th-literal">:to</span>]})
+  <span class="th-token th-keyword">end</span>
+
+  @doc <span class="th-token th-string">&quot;&quot;&quot;
+  Encodes value for hook prop attribute.
+
+  ## Examples
+
+      &lt;div id=&quot;hook&quot; phx-hook={MyHook} data-p-value={hook_prop(@value)}&gt;
+      &lt;/div&gt;
+
+  &quot;&quot;&quot;</span>
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">hook_prop</span>(value)
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">hook_prop</span>(%Phoenix.LiveComponent.CID{} = value) <span class="th-token th-keyword">do</span>
+    <span class="th-token th-function">hook_prop</span>(<span class="th-token th-function">to_string</span>(value))
+  <span class="th-token th-keyword">end</span>
+
+  <span class="th-token th-keyword">def</span> <span class="th-token th-function">hook_prop</span>(value) <span class="th-token th-keyword">do</span>
+    JSON.encode!(value)
+  <span class="th-token th-keyword">end</span>
+<span class="th-token th-keyword">end</span>
+</code></pre></main>
+  <script>
+    (function () {
+      var panel = document.querySelector("pre");
+      var at = location.hash.match(/^#at=(\d+)$/);
+      if (at) panel.scrollTop = Number(at[1]);
+      panel.addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: panel.scrollTop }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

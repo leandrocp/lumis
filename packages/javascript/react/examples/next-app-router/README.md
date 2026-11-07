@@ -10,5 +10,5 @@ Open the local Next.js URL.
 
 This example shows both:
 
-- server rendering with `@lumis-sh/react/server`
-- client rendering with `CodeBlock`
+- server rendering with `@lumis-sh/react/server`, for a block and for inline code
+- client rendering with `CodeBlock` and `InlineCode`

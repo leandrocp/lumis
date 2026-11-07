@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "mellifluous_light",
   "appearance": "light",
   "revision": "ec0575bdb63594c5e7fba6eb9607b009aa1fb74e",

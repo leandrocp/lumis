@@ -93,8 +93,9 @@ defmodule Lumis.Languages do
 
   A `:bundle_*` atom names the same set of languages as the `lumis_wasm_bundle_*`
   package of that name, so every runtime means the same thing by it. `:bundle_full`
-  is every language in the catalog, which is rarely what a deployment wants; prefer
-  a narrower bundle, or name the languages a document can contain.
+  is the catalog minus the largest less common parsers, such as `"haskell"`. It is
+  rarely what a deployment wants; prefer a narrower bundle, or name the languages a
+  document can contain.
 
   Loading only ever reaches parsers this project depends on, because a parser is
   an ordinary dependency:

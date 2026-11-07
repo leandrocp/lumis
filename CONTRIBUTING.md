@@ -5,6 +5,7 @@ See `ARCHITECTURE.md` for how the crates, packages, website, and build pipeline 
 ## Table of contents
 
 - [Getting started](#getting-started)
+- [Agent skills](#agent-skills)
 - [Testing](#testing)
 - [Linting](#linting)
 - [Releases](#releases)
@@ -17,6 +18,7 @@ See `ARCHITECTURE.md` for how the crates, packages, website, and build pipeline 
   - [Adding a new language](#adding-a-new-language)
   - [Updating parsers](#updating-parsers)
   - [Updating queries](#updating-queries)
+  - [Inspecting a highlight](#inspecting-a-highlight)
   - [Building WASMs](#building-wasms)
   - [Running a runtime locally](#running-a-runtime-locally)
   - [Parsers in CI](#parsers-in-ci)
@@ -39,6 +41,28 @@ its integrations; pnpm builds Vite after rehype. The theme, Lumis and integratio
 builds declare their inputs, so a rerun skips any whose inputs have not changed
 since its last build. `mise run --force setup-js-integrations` rebuilds Lumis and
 its integrations regardless.
+
+## Agent skills
+
+`skills/` publishes [agent skills](https://skills.sh/) for this repository, one directory per skill:
+
+| Skill | Use |
+| --- | --- |
+| `lumis` | Add Lumis to a project. The website serves it at `https://lumis.sh/.well-known/agent-skills/lumis/SKILL.md`. |
+| `lumis-add-theme` | Add a built-in theme from a permissively licensed Neovim colorscheme. |
+| `lumis-add-language` | Add a Tree-sitter grammar, its queries and a sample. |
+
+Install one into a project, or run it once without installing:
+
+```sh
+npx skills add leandrocp/lumis --skill lumis-add-theme
+npx skills add leandrocp/lumis --skill lumis-add-language
+npx skills use leandrocp/lumis@lumis-add-theme --agent claude-code
+```
+
+Without `--agent`, `skills use` prints the skill as a prompt to pipe into an agent, as in `npx skills use leandrocp/lumis@lumis-add-theme | claude`.
+
+`npx skills add leandrocp/lumis --list` lists them. A skill is named `lumis-<verb>`, except the usage skill, which is `lumis`. `skills/lumis/SKILL.md` is the only copy of the usage skill: the website build emits it at its `.well-known` path, and `pnpm run check:discovery` in `website/` fails when `public/.well-known/agent-skills/index.json` carries a stale digest or description for it. Keep the contributor skills in step with the sections below when a workflow changes.
 
 ## Testing
 
@@ -124,6 +148,37 @@ honouring the limit still fails.
 The optional `skip` field maps a runtime that cannot run the fixture yet to the
 reason. Only `web-tree-sitter`, which covers the JavaScript Wasm and browser
 suites, reads it. `conformance-regen` preserves all three fields.
+
+### Mutation testing
+
+[cargo-mutants](https://mutants.rs/) changes one operator or return value at a
+time and reports each change the Rust tests still pass with. A missed mutant is
+behavior nothing pins: a fixture that passes either way, or a branch no case
+reaches.
+
+```sh
+mise run test-mutants --package lumis-core
+mise run test-mutants --file crates/lumis-core/src/diff_words.rs
+```
+
+Arguments pass through to `cargo mutants`. Only the mutated crate's tests run,
+so a mutant caught by a downstream crate shows up as missed; add
+`--cargo-arg=--package=<crate>` to run that crate's tests too. Results land in
+`mutants.out/`. `.cargo/mutants.toml` leaves out the NIF and the Node addon,
+whose tests are Elixir and JavaScript, and the vendored Tree-sitter highlighter.
+
+Do not pass `--in-place` locally: an interrupted run leaves the mutation in
+your working tree.
+
+Mutation testing is opt-in, not a pull request gate. The `Mutation testing`
+workflow runs only from the Actions tab's **Run workflow** button and tests
+every mutant in the selected crate. Use the local command above for a focused
+file check without waiting for a full crate run.
+
+The test timeout is twice the unmutated baseline, with cargo-mutants' 20 second
+floor. In CI the run sits in a cgroup capped at 12 GiB, so a mutant that loops
+while allocating is OOM-killed and reported caught instead of taking the runner
+down. Timeouts alone do not fail the workflow; a missed mutant does.
 
 ### Generated HTML and CSS
 
@@ -299,6 +354,12 @@ performance and maintainability; rule counts are not a quality target.
 | Elixir | credo | `mix credo --strict`; cyclomatic complexity at most 9 | `packages/elixir/lumis/.credo.exs` |
 | Lua | selene | every lint selene ships, warnings included | `selene.toml`, `neovim.yml` |
 | GitHub Actions | actionlint | its default, which is already strict | `.github/actionlint.yaml` |
+
+Crates that are their own workspace (`crates/dev`, `crates/inspect` and
+`benchmarks/rust`) cannot inherit the root lint table, so each copies it, and
+the lint workflow's "Rust crates outside the workspace" job runs rustfmt and
+clippy on them. `mise run lint` checks the inspector's formatting but leaves its
+clippy run to CI, because that compiles Rune and its GPU stack.
 
 Every runtime implemented in this repository enforces a complexity ceiling with
 its language-specific analyzer, at the number the other projects in this family
@@ -486,6 +547,7 @@ Bundle definitions also live here under `[bundles.*]`.
 For Rust crates, bundle support is implemented as Cargo features such as `lang-bundle-web` and `lang-bundle-system`, which enable the related `lang-*` features transitively. The `lang-bundle-*` feature lists in `crates/lumis/Cargo.toml` and `crates/lumis-core/Cargo.toml` are generated from `languages.toml` by `mise run cargo-update-features`.
 
 - Keep one parser ID per line in bundle arrays for cleaner diffs.
+- `max_memory_mb` caps the Wasm store memory a bundle's members reserve together, measured from `parser-sizes.json`. `full` is capped at 64, so a new language that would push it over goes in its `exclude`. `mise run langs-check-catalog` enforces the cap over every measured member and names the ones not measured yet; `mise run wasm-sizes` measures them once they are published. `lang-bundle-full` in Rust ignores `exclude`, since compiled-in parsers have no store.
 - After changing parser or bundle entries, sync the generated Rust and JavaScript outputs:
 
 ```sh
@@ -718,6 +780,49 @@ When a fetched upstream query needs to change, use one of these directories:
 
 - `queries/override/{name}/{query}.scm`: replace the upstream query entirely when it's incompatible with the pinned parser
 - `queries/append/{name}/{query}.scm`: add local patterns after the upstream query, or after the replacement query when both exist
+
+#### The comment injection filter
+
+Preprocessing adds one predicate Neovim's queries do not have. Every pattern that injects `comment` gets `(#match? @injection.content "...")`, so a comment is parsed as its own layer only if its text holds something `queries/processed/comment/highlights.scm` can color: one of its `#any-of?` tags, an issue number, or a URI. On three.js's 1.4 MiB `three.core.js`, JavaScript injected `comment` into 4,516 comments for 134 colored captures. Filtering them removed about a third of setup plus the first highlight, and the output is byte for byte the same.
+
+`lumis_build::comment_injection_filter` derives the regex from the comment query, parsed with `tree-sitter-tsquery`, so editing that query through `queries/override/comment/` or `queries/append/comment/` updates every host language's filter on the next `mise run langs-preprocess-queries`. Preprocessing fails if a pattern colors something no literal, regex or `uri` token bounds, and if a `comment` injection is combined or quantified. Either one would make the filter drop captures. `crates/lumis-build/tests/processed_queries.rs` runs the query over generated comments with the comment grammar and fails if the filter rejects one that the query colors.
+
+The filter is baked into each host language's injections when that language is generated. A comment query loaded at run time in place of the published one, through `lumis_wasm_runtime::Runtime::load_language` or a self-served package, is still filtered by the published query's regex.
+
+### Inspecting a highlight
+
+On Debian and Ubuntu, the window needs `libxkbcommon-dev` to link:
+
+```sh
+sudo apt-get install -y libxkbcommon-dev
+```
+
+```sh
+mise run inspect
+```
+
+opens a window for working out why a token has the colour it has. The header
+picks a file from `samples/` and a theme. The source is editable, so a case can
+be reduced in place, and it re-highlights as you type.
+
+Put the caret on a byte, by clicking or with the arrow keys, and the right side
+shows:
+
+- the captures over it, innermost first, each with the theme key it resolved to
+  and the `scope.language` key it looked up;
+- the painted style, which capture each property came from, and its contrast
+  against the background;
+- the syntax node and its ancestors, through injected languages;
+- the whole tree, with injected layers nested under the node that holds them
+  and `ERROR` and `MISSING` nodes in red. Hover a row to outline its range in
+  the source; click it to move the caret there.
+
+The inspector reads parsers from the CLI's data directory and downloads one the
+first time a sample needs it. This prints the same tree as text:
+
+```sh
+lumis dump tree --highlights --injections samples/markdown.md
+```
 
 ### Building WASMs
 
@@ -1094,6 +1199,29 @@ mise run css-gen
 
 Theme generation keeps the previous revision when an upstream commit produces
 identical theme data, so revision-only changes do not create update PRs.
+
+### Theme schema
+
+`website/public/schemas/themes/v<version>.json` holds every published version of
+the JSON Schema for theme files, served at
+`https://lumis.sh/schemas/themes/v<version>.json` and described in
+`docs/content/themes/theme-files.mdx`. Every theme JSON names the current version
+in `$schema`, which `themes/extract_theme.lua` writes and Lumis ignores when
+loading.
+
+A published version never changes. To change the theme format, add a new
+version file, add its row to `PUBLISHED` in
+`crates/lumis-core/tests/theme_schema.rs`, point `extract_theme.lua` and every
+theme JSON at it, and add it to the version table in the docs page. That test
+fails when a published file changes, when a file and a `PUBLISHED` row do not
+match, when a bundled theme does not validate against the current version or
+names another one, and when what the current version accepts disagrees with
+`themes::from_json`.
+
+The JavaScript packages publish `$schema` too:
+`packages/javascript/lumis/test/theme-css.test.ts` fails when
+`@lumis-sh/themes` or `@lumis-sh/lumis/themes` ships a theme whose top-level
+fields differ from its source JSON.
 
 ### Theme licenses
 

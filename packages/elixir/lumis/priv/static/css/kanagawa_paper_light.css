@@ -1,5 +1,5 @@
 /* kanagawa_paper_light
- * revision: d6ba194faba511c9b112a13c79b5e123dcb5dd41
+ * revision: ff898a8f70f5ada31db7987970a4f28b926ae685
  * license: MIT
  */
 .lumis {
@@ -8,13 +8,17 @@
 }
 .l-attribute {
   color: #91825e;
+  font-style: italic;
 }
 .l-attribute-builtin {
   color: #6a7893;
 }
+.l-attribute-builtin-python {
+  color: #6a7893;
+  font-style: italic;
+}
 .l-boolean {
   color: #a1805e;
-  font-weight: bold;
 }
 .l-character {
   color: #6a7d66;
@@ -24,6 +28,7 @@
 }
 .l-comment {
   color: #92928b;
+  font-style: italic;
 }
 .l-comment-documentation {
   color: #828e77;
@@ -32,25 +37,22 @@
 .l-comment-error {
   color: #e1e1de;
   background-color: #a36360;
-  font-weight: bold;
 }
 .l-comment-hint {
   color: #92928b;
+  font-style: italic;
 }
 .l-comment-note {
   color: #e1e1de;
   background-color: #5c8388;
-  font-weight: bold;
 }
 .l-comment-todo {
   color: #e1e1de;
   background-color: #6c828c;
-  font-weight: bold;
 }
 .l-comment-warning {
   color: #e1e1de;
   background-color: #a1805e;
-  font-weight: bold;
 }
 .l-constant {
   color: #a1805e;
@@ -63,6 +65,7 @@
 }
 .l-constructor {
   color: #5c8388;
+  font-weight: bold;
 }
 .l-diff-delta {
   color: #91825e;
@@ -81,21 +84,27 @@
 }
 .l-function {
   color: #5c8388;
+  font-weight: bold;
 }
 .l-function-builtin {
   color: #6a7893;
+  font-weight: bold;
 }
 .l-function-call {
   color: #5c8388;
+  font-weight: bold;
 }
 .l-function-macro {
   color: #5c8388;
+  font-weight: bold;
 }
 .l-function-method {
   color: #5c8388;
+  font-weight: bold;
 }
 .l-function-method-call {
   color: #5c8388;
+  font-weight: bold;
 }
 .l-highlighted {
   background-color: #d8d8d2;
@@ -104,10 +113,12 @@
   color: #947992;
 }
 .l-keyword-conditional {
-  color: #947992;
+  color: #656c8b;
+  font-weight: bold;
 }
 .l-keyword-conditional-ternary {
-  color: #947992;
+  color: #656c8b;
+  font-weight: bold;
 }
 .l-keyword-coroutine {
   color: #947992;
@@ -123,6 +134,7 @@
 }
 .l-keyword-exception {
   color: #947992;
+  font-weight: bold;
 }
 .l-keyword-export {
   color: #947992;
@@ -138,25 +150,27 @@
 }
 .l-keyword-operator {
   color: #a36360;
-  font-weight: bold;
 }
 .l-keyword-repeat {
-  color: #947992;
+  color: #656c8b;
+  font-weight: bold;
 }
 .l-keyword-return {
   color: #947992;
+  font-weight: bold;
 }
 .l-keyword-type {
   color: #947992;
 }
 .l-label {
   color: #656c8b;
+  font-weight: bold;
 }
 .l-line-number:not(.l-line-number-highlighted) {
   color: #92928b;
 }
 .l-line-number-highlighted {
-  color: #a1805e;
+  color: #6c828c;
   font-weight: bold;
 }
 .l-markup {
@@ -170,38 +184,43 @@
 }
 .l-markup-heading {
   color: #a36360;
+  font-weight: bold;
 }
 .l-markup-heading-1 {
   color: #a36360;
+  font-weight: bold;
 }
 .l-markup-heading-2 {
   color: #947992;
+  font-weight: bold;
 }
 .l-markup-heading-3 {
   color: #6c828c;
+  font-weight: bold;
 }
 .l-markup-heading-4 {
   color: #8d6d59;
+  font-weight: bold;
 }
 .l-markup-heading-5 {
   color: #6a7d66;
+  font-weight: bold;
 }
 .l-markup-heading-6 {
   color: #536053;
+  font-weight: bold;
 }
 .l-markup-italic {
   font-style: italic;
 }
 .l-markup-link {
   color: #656c8b;
-  text-decoration: underline;
 }
 .l-markup-link-label {
   color: #656c8b;
 }
 .l-markup-link-url {
   color: #656c8b;
-  text-decoration: underline;
 }
 .l-markup-list {
   color: #6a7893;
@@ -217,6 +236,7 @@
 }
 .l-markup-quote {
   color: #77746c;
+  font-style: italic;
 }
 .l-markup-raw {
   color: #6a7d66;
@@ -224,14 +244,8 @@
 .l-markup-raw-block {
   color: #6a7d66;
 }
-.l-markup-strikethrough {
-  text-decoration: line-through;
-}
 .l-markup-strong {
   font-weight: bold;
-}
-.l-markup-underline {
-  text-decoration: underline;
 }
 .l-module {
   color: #5c8388;
@@ -283,10 +297,10 @@
 }
 .l-string-documentation {
   color: #6a7d66;
+  font-style: italic;
 }
 .l-string-escape {
   color: #a36360;
-  font-weight: bold;
 }
 .l-string-regexp {
   color: #a36360;
@@ -302,7 +316,6 @@
 }
 .l-string-special-url {
   color: #656c8b;
-  text-decoration: underline;
 }
 .l-tag {
   color: #6a7893;
@@ -318,16 +331,36 @@
 }
 .l-type {
   color: #5c8388;
+  font-style: italic;
 }
 .l-type-builtin {
+  color: #6a7893;
+  font-style: italic;
+}
+.l-type-builtin-python {
+  color: #6a7893;
+}
+.l-type-builtin-tsx {
+  color: #6a7893;
+}
+.l-type-builtin-typescript {
   color: #6a7893;
 }
 .l-type-definition {
   color: #5c8388;
+  font-weight: bold;
+}
+.l-type-python {
+  color: #5c8388;
+}
+.l-type-tsx {
+  color: #5c8388;
+}
+.l-type-typescript {
+  color: #5c8388;
 }
 .l-variable-builtin {
   color: #a1805e;
-  font-style: italic;
 }
 .l-variable-member {
   color: #a36360;

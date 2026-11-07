@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "moonfly",
   "appearance": "dark",
   "revision": "2c883835f5b7b380a0a9e80695c420f7efebdfe4",

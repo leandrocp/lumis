@@ -1,6 +1,6 @@
 [package]
 name = "lumis-build"
-version = "1.2.0"
+version = "1.2.2"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -17,13 +17,17 @@ include = ["/src/", "/CHANGELOG.md", "/README.md", "/LICENSE"]
 license = ["dep:spdx", "dep:serde", "dep:serde_json", "dep:url"]
 
 [dependencies]
+regex-syntax = "0.8.11"
 serde = { version = "1", optional = true }
 serde_json = { version = "1", features = ["raw_value"], optional = true }
 spdx = { version = "0.13.6", features = ["detection-inline-cache"], optional = true }
+tree-sitter = "^0.27.2"
+tree-sitter-tsquery = "0.8.0"
 url = { version = "2", optional = true }
 
 [dev-dependencies]
 regex = "1"
+tree-sitter-comment = "0.3.0"
 spdx = { version = "0.13.6", features = ["text"] }
 
 [lints]

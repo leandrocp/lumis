@@ -73,7 +73,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
         with:
           install_args: tree-sitter
 

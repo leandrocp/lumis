@@ -4,7 +4,7 @@
   "installCommand": "npx --yes pnpm@11.15.1 install --frozen-lockfile",
   "buildCommand": "npx --yes pnpm@11.15.1 build",
   "outputDirectory": "dist",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- .",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ../skills/lumis",
   "headers": [
     {
       "source": "/",
@@ -72,6 +72,14 @@
       "source": "/openapi/versioned-installer.json",
       "headers": [
         { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    },
+    {
+      "source": "/schemas/(.*)",
+      "headers": [
+        { "key": "Content-Type", "value": "application/schema+json; charset=utf-8" },
         { "key": "Access-Control-Allow-Origin", "value": "*" },
         { "key": "Cache-Control", "value": "public, max-age=3600" }
       ]
@@ -169,7 +177,7 @@
         "Content-Type": "text/markdown; charset=utf-8",
         "Link": "<https://docs.lumis.sh/llms.txt>; rel=\"describedby\"; type=\"text/plain\", </.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\"",
         "Vary": "Accept",
-        "x-markdown-tokens": "1575"
+        "x-markdown-tokens": "1608"
       },
       "dest": "/index.md"
     },
@@ -185,7 +193,7 @@
       "headers": {
         "Content-Type": "text/markdown; charset=utf-8",
         "Vary": "Accept",
-        "x-markdown-tokens": "523"
+        "x-markdown-tokens": "518"
       },
       "dest": "/comparison/index.md"
     },
@@ -207,6 +215,11 @@
     }
   ],
   "redirects": [
+    {
+      "source": "/schemas/theme.json",
+      "destination": "/schemas/themes/v1.0.0.json",
+      "statusCode": 301
+    },
     {
       "source": "/docs",
       "destination": "https://docs.lumis.sh/",

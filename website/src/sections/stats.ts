@@ -4,8 +4,8 @@ export function renderStats() {
       <div class="mx-auto max-w-6xl px-6">
         <div class="grid gap-x-10 sm:grid-cols-2 lg:grid-cols-4">
           <div class="py-10">
-            <p class="font-mono text-2xl font-bold tabular-nums text-fg">7 <span class="text-accent">Runtimes</span></p>
-            <p class="mt-1 font-mono text-xs text-muted">CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN. Java and Python maintained by the community.</p>
+            <p class="font-mono text-2xl font-bold tabular-nums text-fg">8 <span class="text-accent">Runtimes</span></p>
+            <p class="mt-1 font-mono text-xs text-muted">CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, Edge / Workers. Java and Python maintained by the community.</p>
           </div>
           <div class="py-10">
             <p class="font-mono text-2xl font-bold tabular-nums text-fg">110+ <span class="text-accent">Languages</span></p>

@@ -1,3 +1,32 @@
+## [0.19.3](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.19.2...cargo-lumis/v0.19.3) (2026-11-07)
+
+### Dependencies
+
+- Upgrade Tree-sitter runtimes to 0.27.2 in [\#2022](https://github.com/leandrocp/lumis/pull/2022)
+
+## [0.19.2](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.19.1...cargo-lumis/v0.19.2) (2026-11-07)
+
+### Bug Fixes
+
+- **rust:** Support Jinja 0.13.1 grammar in [\#2010](https://github.com/leandrocp/lumis/pull/2010)
+
+## [0.19.1](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.19.0...cargo-lumis/v0.19.1) (2026-11-05)
+
+### Features
+
+- Update lang clojure in [\#1957](https://github.com/leandrocp/lumis/pull/1957)
+- Update lang cmake in [\#1958](https://github.com/leandrocp/lumis/pull/1958)
+- Update lang powershell in [\#1959](https://github.com/leandrocp/lumis/pull/1959)
+- Update lang perl in [\#1960](https://github.com/leandrocp/lumis/pull/1960)
+- Update lang scala in [\#1961](https://github.com/leandrocp/lumis/pull/1961)
+- **languages:** Add Bend support in [\#1965](https://github.com/leandrocp/lumis/pull/1965)
+- **languages:** Add Lean support in [\#1978](https://github.com/leandrocp/lumis/pull/1978)
+- **themes:** Update themes in [\#1984](https://github.com/leandrocp/lumis/pull/1984)
+
+### Bug Fixes
+
+- **rust:** Compile vendored parsers as UTF-8 on MSVC in [\#1975](https://github.com/leandrocp/lumis/pull/1975)
+
 ## [0.19.0](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.18.0...cargo-lumis/v0.19.0) (2026-10-28)
 
 ### Features

@@ -381,6 +381,23 @@ Node-compatible process polyfill. The Node bundle keeps those branches for its
 Wasm fallback. Both builds finish before the bundle patch and declaration check
 run.
 
+Cloudflare Workers and Vercel's Edge runtime refuse to compile WebAssembly at
+run time; only a `.wasm` import, which their build step compiles at deploy time,
+yields a module. So the browser build has two more entries, selected by export
+condition: `index.workerd` for `workerd`, which imports `web-tree-sitter.wasm`,
+and `index.edge` for `edge-light`, which imports it as `web-tree-sitter.wasm?module`,
+Next.js's spelling. The file is copied into `dist/`, and both boot Tree-sitter
+through Emscripten's `instantiateWasm` hook instead of from the embedded bytes.
+Each `@lumis-sh/wasm-*` package has matching `index.workerd.js` and
+`index.edge.js` entries that import its parser the same way, and a
+`WebAssembly.Module` handed over as a parser is loaded with `Language.loadSync`
+as it is. Such a module has no bytes to hash, so it is keyed by identity and
+never shared as its package's published parser. `next start` compiles those
+imports in another realm, so the bundle patch replaces web-tree-sitter's
+`instanceof WebAssembly.Module` checks with a tag check, as Lumis does. Deno,
+and so Supabase Edge Functions, compiles bytes like Node and needs none of
+this.
+
 The resolver itself follows the same ownership boundary. The CLI and Elixir call
 `lumis-wasm-runtime::LanguageStore`, so compatible version checks, exact
 manifest caching, integrity verification, and refresh semantics are one Rust
@@ -426,6 +443,27 @@ and package publication; Lumis supplies the range and validates the returned
 manifest rather than recreating those package-manager responsibilities. Moving
 to a new Tree-sitter minor series changes the range and legitimately requires a
 runtime release. Publishing `@lumis-sh/wasm-rust@0.26.x` does not.
+
+### Inspecting a highlight
+
+`lumis_wasm_runtime::inspect::Inspection` turns a highlight's kept layers and
+events into one owned tree: every named node of every layer, injected layers
+nested under the node that owns them, and each capture attached to the smallest
+node of its language that contains it. `lumis dump tree` prints it and the
+inspector draws it, so the two cannot disagree about which node a capture
+belongs to. `Theme::resolve_style` reports which scope the theme's walk-up
+matched, and `themes::contrast_ratio` the WCAG contrast of two colours, for
+tools that explain where a colour came from.
+
+`crates/inspect` is the window built on it: a [Rune](https://github.com/anomalyco/rune)
+app, its own workspace like `crates/dev`, that highlights an editable sample
+with layers kept and shows the `Inspection` beside it. Highlighting runs on a
+worker thread with its own `Runtime`, because a parser seen for the first time
+downloads and compiles for seconds. The editor paints each run of source the way
+the terminal formatter does, the innermost capture's `scope.language` style with
+`Style::inherit` filling what it leaves unset, and the pane names which capture
+each property came from. The pane follows the caret rather than the pointer:
+Rune maps a pointer to an element, not to a byte of text.
 
 ### Preparing the persistent store
 

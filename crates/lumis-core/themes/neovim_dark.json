@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "neovim_dark",
   "appearance": "dark",
   "revision": "306a05526ada86a7b30af95c5cc81ffba93fef97",

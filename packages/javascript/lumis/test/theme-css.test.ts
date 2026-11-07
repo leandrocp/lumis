@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { sep } from "node:path";
 import { buildCss, type ThemeData } from "@lumis-sh/themes";
@@ -6,7 +6,7 @@ import githubLight from "@lumis-sh/themes/github_light";
 import { describe, expect, it } from "vitest";
 import { scopeToClass } from "../src/formatter/html.js";
 import { HIGHLIGHT_NAMES } from "../src/highlights.js";
-import { mapStyles, type Theme } from "../src/themes/index.js";
+import { get, mapStyles, type Theme } from "../src/themes/index.js";
 
 const require = createRequire(import.meta.url);
 
@@ -245,5 +245,45 @@ describe("bundled asset specifiers", () => {
 
     expect(resolved.endsWith(`/${target}`)).toBe(true);
     expect(readFileSync(resolved, "utf-8").length).toBeGreaterThan(0);
+  });
+});
+
+const withoutHighlights = ({ highlights: _highlights, ...fields }: Readonly<Theme>) => fields;
+
+// Normalizing styles is the only change a build may make to a theme. Every
+// other field, `$schema` included, reaches users exactly as the source has it.
+describe("published themes", () => {
+  const themesDir = new URL("../../../../themes/", import.meta.url);
+  const sources: Theme[] = readdirSync(themesDir)
+    .filter((file) => file.endsWith(".json"))
+    .map((file) => JSON.parse(readFileSync(new URL(file, themesDir), "utf8")));
+
+  it("finds the whole catalog", () => {
+    expect(sources.length).toBeGreaterThan(200);
+  });
+
+  it.each([
+    [
+      "@lumis-sh/themes/json",
+      (name: string): Theme =>
+        JSON.parse(readFileSync(require.resolve(`@lumis-sh/themes/json/${name}.json`), "utf8")),
+    ],
+    ["@lumis-sh/themes/<name>", (name: string): Theme => require(`@lumis-sh/themes/${name}`)],
+    [
+      "@lumis-sh/lumis/themes get()",
+      (name: string): Theme => {
+        const theme = get(name);
+        if (!theme) throw new Error(`get() has no ${name}`);
+        return theme;
+      },
+    ],
+  ])("%s keeps every field of the source theme", (_surface, load) => {
+    for (const source of sources) {
+      const published = load(source.name);
+      expect(withoutHighlights(published), source.name).toEqual(withoutHighlights(source));
+      expect(Object.keys(published.highlights), source.name).toEqual(
+        Object.keys(source.highlights),
+      );
+    }
   });
 });

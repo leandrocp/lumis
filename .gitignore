@@ -1,5 +1,7 @@
 /target
+/mutants.out*/
 /crates/dev/target
+/crates/inspect/target
 /tmp
 /lumis
 /nvim/

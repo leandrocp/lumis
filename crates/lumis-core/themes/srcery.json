@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "srcery",
   "appearance": "dark",
   "revision": "d4889a85c26702217838da941f921042c17b6397",

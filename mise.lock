@@ -75,6 +75,10 @@ checksum = "sha256:c5d5d087daa8e38bd71680b2202a407e5d4bc00fd584a648dec17ef9b29a2
 url = "https://github.com/Kampfkarren/selene/releases/download/0.31.0/selene-0.31.0-windows.zip"
 url_api = "https://api.github.com/repos/Kampfkarren/selene/releases/assets/425780002"
 
+[[tools."cargo:cargo-mutants"]]
+version = "27.1.0"
+backend = "cargo:cargo-mutants"
+
 [[tools.git-cliff]]
 version = "2.14.2"
 backend = "aqua:orhun/git-cliff"

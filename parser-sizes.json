@@ -19,692 +19,722 @@
   "series": "0.26",
   "parsers": {
     "tree-sitter-angular": {
-      "version": "0.26.3",
-      "download": 34977,
-      "wasm": 141650,
+      "version": "0.26.6",
+      "download": 36100,
+      "wasm": 141569,
       "memory": 81320
     },
     "tree-sitter-arduino": {
-      "version": "0.26.2",
-      "download": 296869,
-      "wasm": 3541800,
+      "version": "0.26.4",
+      "download": 298563,
+      "wasm": 3541520,
       "memory": 3371708
     },
     "tree-sitter-asm": {
-      "version": "0.26.3",
-      "download": 10649,
-      "wasm": 27668,
+      "version": "0.26.5",
+      "download": 11716,
+      "wasm": 27819,
       "memory": 12220
     },
     "tree-sitter-astro": {
-      "version": "0.26.2",
-      "download": 13077,
-      "wasm": 28321,
+      "version": "0.26.4",
+      "download": 14195,
+      "wasm": 28358,
       "memory": 15688
     },
     "tree-sitter-bash": {
-      "version": "0.26.4",
-      "download": 192519,
-      "wasm": 1414349,
+      "version": "0.26.7",
+      "download": 193709,
+      "wasm": 1414078,
       "memory": 1177744
     },
+    "tree-sitter-bend": {
+      "version": "0.26.0",
+      "download": 39709,
+      "wasm": 204245,
+      "memory": 185532
+    },
     "tree-sitter-bicep": {
-      "version": "0.26.1",
-      "download": 28882,
-      "wasm": 149428,
+      "version": "0.26.3",
+      "download": 29960,
+      "wasm": 149533,
       "memory": 126888
     },
     "tree-sitter-c": {
-      "version": "0.26.2",
-      "download": 81076,
-      "wasm": 646444,
+      "version": "0.26.4",
+      "download": 82281,
+      "wasm": 646241,
       "memory": 552400
     },
     "tree-sitter-caddy": {
-      "version": "0.26.3",
-      "download": 16604,
-      "wasm": 49766,
+      "version": "0.26.5",
+      "download": 17634,
+      "wasm": 49971,
       "memory": 34124
     },
     "tree-sitter-clojure": {
-      "version": "0.26.2",
-      "download": 26968,
-      "wasm": 92374,
+      "version": "0.26.4",
+      "download": 27938,
+      "wasm": 92541,
       "memory": 70128
     },
     "tree-sitter-cmake": {
-      "version": "0.26.4",
-      "download": 21596,
-      "wasm": 79607,
+      "version": "0.26.7",
+      "download": 22761,
+      "wasm": 79690,
       "memory": 63792
     },
     "tree-sitter-comment": {
-      "version": "0.26.2",
-      "download": 5199,
-      "wasm": 7370,
+      "version": "0.26.4",
+      "download": 6219,
+      "wasm": 7407,
       "memory": 2604
     },
     "tree-sitter-commonlisp": {
-      "version": "0.26.2",
-      "download": 107755,
-      "wasm": 802606,
+      "version": "0.26.5",
+      "download": 109406,
+      "wasm": 802301,
       "memory": 715076
     },
     "tree-sitter-cpp": {
-      "version": "0.26.1",
-      "download": 291443,
-      "wasm": 3490763,
+      "version": "0.26.3",
+      "download": 292422,
+      "wasm": 3490486,
       "memory": 3323500
     },
     "tree-sitter-csharp": {
-      "version": "0.26.2",
-      "download": 325322,
-      "wasm": 5355587,
+      "version": "0.26.4",
+      "download": 326189,
+      "wasm": 5355402,
       "memory": 5242060
     },
     "tree-sitter-css": {
-      "version": "0.26.3",
-      "download": 25334,
-      "wasm": 150358,
+      "version": "0.26.5",
+      "download": 26341,
+      "wasm": 150260,
       "memory": 50428
     },
     "tree-sitter-csv": {
-      "version": "0.26.2",
-      "download": 4858,
-      "wasm": 7410,
+      "version": "0.26.4",
+      "download": 5832,
+      "wasm": 7393,
       "memory": 3580
     },
     "tree-sitter-d": {
-      "version": "0.26.2",
-      "download": 264130,
-      "wasm": 3850455,
+      "version": "0.26.4",
+      "download": 265013,
+      "wasm": 3850204,
       "memory": 3610648
     },
     "tree-sitter-dart": {
-      "version": "0.26.3",
-      "download": 120140,
-      "wasm": 1159597,
-      "memory": 1121868
+      "version": "0.26.7",
+      "download": 127766,
+      "wasm": 1203430,
+      "memory": 1165312
     },
     "tree-sitter-diff": {
-      "version": "0.26.4",
-      "download": 13618,
-      "wasm": 61504,
+      "version": "0.26.6",
+      "download": 14653,
+      "wasm": 61464,
       "memory": 11668
     },
     "tree-sitter-dockerfile": {
-      "version": "0.26.2",
-      "download": 21898,
-      "wasm": 55320,
+      "version": "0.26.4",
+      "download": 22774,
+      "wasm": 55129,
       "memory": 28328
     },
     "tree-sitter-dot": {
-      "version": "0.26.1",
-      "download": 13065,
-      "wasm": 27724,
+      "version": "0.26.3",
+      "download": 14188,
+      "wasm": 27903,
       "memory": 20596
     },
     "tree-sitter-editorconfig": {
-      "version": "0.26.2",
-      "download": 6616,
-      "wasm": 11129,
+      "version": "0.26.4",
+      "download": 7611,
+      "wasm": 11196,
       "memory": 5540
     },
     "tree-sitter-eex": {
-      "version": "0.26.1",
-      "download": 5211,
-      "wasm": 7482,
+      "version": "0.26.4",
+      "download": 6234,
+      "wasm": 7620,
       "memory": 2860
     },
     "tree-sitter-elixir": {
-      "version": "0.26.4",
-      "download": 163581,
-      "wasm": 1645111,
+      "version": "0.26.9",
+      "download": 165001,
+      "wasm": 1644961,
       "memory": 1337768
     },
     "tree-sitter-elm": {
-      "version": "0.26.2",
-      "download": 44219,
-      "wasm": 185595,
+      "version": "0.26.4",
+      "download": 45256,
+      "wasm": 185687,
       "memory": 160736
     },
     "tree-sitter-embedded-template": {
-      "version": "0.26.3",
-      "download": 4768,
+      "version": "0.26.5",
+      "download": 5789,
       "wasm": 6408,
       "memory": 3436
     },
     "tree-sitter-erlang": {
-      "version": "0.26.3",
-      "download": 54192,
-      "wasm": 452330,
-      "memory": 360296
+      "version": "0.26.7",
+      "download": 55386,
+      "wasm": 452355,
+      "memory": 360456
     },
     "tree-sitter-fish": {
-      "version": "0.26.1",
-      "download": 21297,
-      "wasm": 78904,
+      "version": "0.26.3",
+      "download": 22185,
+      "wasm": 79370,
       "memory": 52552
     },
     "tree-sitter-fortran": {
-      "version": "0.26.2",
-      "download": 367346,
-      "wasm": 6713558,
+      "version": "0.26.4",
+      "download": 368501,
+      "wasm": 6713074,
       "memory": 6116268
     },
     "tree-sitter-fsharp": {
-      "version": "0.26.7",
-      "download": 901994,
-      "wasm": 11475053,
+      "version": "0.26.9",
+      "download": 903170,
+      "wasm": 11474634,
       "memory": 11264160
     },
     "tree-sitter-gitattributes": {
-      "version": "0.26.2",
-      "download": 10503,
-      "wasm": 21962,
+      "version": "0.26.4",
+      "download": 11556,
+      "wasm": 21999,
       "memory": 12080
     },
     "tree-sitter-gitignore": {
-      "version": "0.26.1",
-      "download": 6926,
-      "wasm": 12194,
+      "version": "0.26.3",
+      "download": 7914,
+      "wasm": 12211,
       "memory": 7472
     },
     "tree-sitter-gleam": {
-      "version": "0.26.4",
-      "download": 64483,
-      "wasm": 427983,
-      "memory": 339556
+      "version": "0.26.7",
+      "download": 66955,
+      "wasm": 439907,
+      "memory": 352180
     },
     "tree-sitter-glimmer": {
-      "version": "0.26.2",
-      "download": 12502,
-      "wasm": 30954,
+      "version": "0.26.4",
+      "download": 13557,
+      "wasm": 30952,
       "memory": 18972
     },
     "tree-sitter-glsl": {
-      "version": "0.26.2",
-      "download": 97658,
-      "wasm": 892828,
+      "version": "0.26.4",
+      "download": 98917,
+      "wasm": 892585,
       "memory": 778872
     },
     "tree-sitter-go": {
-      "version": "0.26.2",
-      "download": 45035,
-      "wasm": 219399,
+      "version": "0.26.5",
+      "download": 46115,
+      "wasm": 219602,
       "memory": 201648
     },
     "tree-sitter-graphql": {
-      "version": "0.26.1",
-      "download": 17604,
-      "wasm": 64462,
+      "version": "0.26.4",
+      "download": 18695,
+      "wasm": 64407,
       "memory": 33960
     },
     "tree-sitter-groovy": {
-      "version": "0.26.1",
-      "download": 244587,
-      "wasm": 874913,
-      "memory": 786176
+      "version": "0.26.6",
+      "download": 100970,
+      "wasm": 878509,
+      "memory": 786192
     },
     "tree-sitter-haskell": {
-      "version": "0.26.1",
-      "download": 308975,
-      "wasm": 3846714,
+      "version": "0.26.4",
+      "download": 310172,
+      "wasm": 3846936,
       "memory": 3799692
     },
     "tree-sitter-hcl": {
-      "version": "0.26.3",
-      "download": 25160,
-      "wasm": 96443,
+      "version": "0.26.5",
+      "download": 26131,
+      "wasm": 96492,
       "memory": 82144
     },
     "tree-sitter-heex": {
-      "version": "0.26.2",
-      "download": 10654,
-      "wasm": 24831,
+      "version": "0.26.4",
+      "download": 11661,
+      "wasm": 24945,
       "memory": 11712
     },
     "tree-sitter-html": {
-      "version": "0.26.3",
-      "download": 11166,
-      "wasm": 21399,
+      "version": "0.26.5",
+      "download": 12247,
+      "wasm": 21433,
       "memory": 9732
     },
-    "tree-sitter-http": {
+    "tree-sitter-htmldjango": {
       "version": "0.26.1",
-      "download": 35170,
-      "wasm": 161008,
+      "download": 17556,
+      "wasm": 57597,
+      "memory": 42336
+    },
+    "tree-sitter-http": {
+      "version": "0.26.3",
+      "download": 36184,
+      "wasm": 160895,
       "memory": 39724
     },
     "tree-sitter-hurl": {
-      "version": "0.26.0",
-      "download": 87046,
-      "wasm": 219316,
-      "memory": 68908
+      "version": "0.26.7",
+      "download": 57042,
+      "wasm": 295748,
+      "memory": 112796
     },
     "tree-sitter-iex": {
-      "version": "0.26.1",
-      "download": 4988,
-      "wasm": 7609,
+      "version": "0.26.3",
+      "download": 6005,
+      "wasm": 7859,
       "memory": 2044
     },
     "tree-sitter-ini": {
-      "version": "0.26.2",
-      "download": 4601,
-      "wasm": 5914,
+      "version": "0.26.4",
+      "download": 5632,
+      "wasm": 5969,
       "memory": 2660
     },
     "tree-sitter-java": {
-      "version": "0.26.2",
-      "download": 58502,
-      "wasm": 421778,
+      "version": "0.26.4",
+      "download": 59768,
+      "wasm": 422006,
       "memory": 395300
     },
     "tree-sitter-javadoc": {
-      "version": "0.26.2",
-      "download": 30018,
-      "wasm": 161980,
+      "version": "0.26.4",
+      "download": 31136,
+      "wasm": 161958,
       "memory": 37988
     },
     "tree-sitter-javascript": {
-      "version": "0.26.3",
-      "download": 58619,
-      "wasm": 418049,
+      "version": "0.26.5",
+      "download": 59728,
+      "wasm": 418217,
       "memory": 381796
     },
     "tree-sitter-jinja": {
-      "version": "0.26.5",
-      "download": 29189,
-      "wasm": 153552,
+      "version": "0.26.7",
+      "download": 30268,
+      "wasm": 153471,
       "memory": 74396
     },
     "tree-sitter-jinja_inline": {
-      "version": "0.26.4",
-      "download": 32674,
-      "wasm": 207435,
+      "version": "0.26.6",
+      "download": 33757,
+      "wasm": 207331,
       "memory": 90740
     },
     "tree-sitter-jq": {
-      "version": "0.26.1",
-      "download": 21607,
-      "wasm": 100759,
+      "version": "0.26.3",
+      "download": 22751,
+      "wasm": 100899,
       "memory": 83708
     },
     "tree-sitter-json": {
-      "version": "0.26.3",
-      "download": 5110,
-      "wasm": 6825,
+      "version": "0.26.6",
+      "download": 6124,
+      "wasm": 6880,
       "memory": 3136
     },
     "tree-sitter-json5": {
-      "version": "0.26.2",
-      "download": 9405,
-      "wasm": 22551,
+      "version": "0.26.4",
+      "download": 10463,
+      "wasm": 22507,
       "memory": 13536
     },
     "tree-sitter-julia": {
-      "version": "0.26.2",
-      "download": 594035,
-      "wasm": 6370367,
+      "version": "0.26.4",
+      "download": 595195,
+      "wasm": 6370200,
       "memory": 5922332
     },
     "tree-sitter-just": {
-      "version": "0.26.2",
-      "download": 17948,
-      "wasm": 47754,
+      "version": "0.26.4",
+      "download": 19075,
+      "wasm": 47841,
       "memory": 33428
     },
     "tree-sitter-kdl": {
-      "version": "0.26.3",
-      "download": 19885,
-      "wasm": 74076,
+      "version": "0.26.5",
+      "download": 21020,
+      "wasm": 74222,
       "memory": 58932
     },
     "tree-sitter-kotlin": {
-      "version": "0.26.4",
-      "download": 334254,
-      "wasm": 4130096,
+      "version": "0.26.6",
+      "download": 335276,
+      "wasm": 4129886,
       "memory": 3933988
     },
     "tree-sitter-latex": {
-      "version": "0.26.1",
-      "download": 246890,
-      "wasm": 3720646,
+      "version": "0.26.3",
+      "download": 247685,
+      "wasm": 3720446,
       "memory": 3288940
     },
+    "tree-sitter-lean": {
+      "version": "0.26.0",
+      "download": 500740,
+      "wasm": 8237562,
+      "memory": 8120416
+    },
     "tree-sitter-liquid": {
-      "version": "0.26.2",
-      "download": 33440,
-      "wasm": 139314,
+      "version": "0.26.4",
+      "download": 34512,
+      "wasm": 139384,
       "memory": 118948
     },
     "tree-sitter-llvm": {
-      "version": "0.26.2",
-      "download": 135103,
-      "wasm": 1538100,
+      "version": "0.26.5",
+      "download": 139924,
+      "wasm": 1721344,
       "memory": 863832
     },
     "tree-sitter-lua": {
-      "version": "0.26.2",
-      "download": 18527,
-      "wasm": 55130,
+      "version": "0.26.4",
+      "download": 19771,
+      "wasm": 55183,
       "memory": 42880
     },
     "tree-sitter-luadoc": {
-      "version": "0.26.2",
-      "download": 30076,
-      "wasm": 171084,
+      "version": "0.26.4",
+      "download": 31061,
+      "wasm": 171004,
       "memory": 66264
     },
     "tree-sitter-make": {
-      "version": "0.26.2",
-      "download": 40073,
-      "wasm": 154814,
+      "version": "0.26.4",
+      "download": 41012,
+      "wasm": 154221,
       "memory": 116228
     },
     "tree-sitter-markdown": {
-      "version": "0.26.2",
-      "download": 66324,
-      "wasm": 421891,
-      "memory": 228136
+      "version": "0.26.5",
+      "download": 68729,
+      "wasm": 429955,
+      "memory": 235912
     },
     "tree-sitter-markdown_inline": {
-      "version": "0.26.2",
-      "download": 68165,
-      "wasm": 426794,
+      "version": "0.26.5",
+      "download": 69186,
+      "wasm": 426811,
       "memory": 210628
     },
     "tree-sitter-matlab": {
-      "version": "0.26.3",
-      "download": 66993,
-      "wasm": 426535,
+      "version": "0.26.5",
+      "download": 67995,
+      "wasm": 426476,
       "memory": 401088
     },
     "tree-sitter-mermaid": {
-      "version": "0.26.1",
-      "download": 43807,
-      "wasm": 249676,
+      "version": "0.26.3",
+      "download": 44877,
+      "wasm": 249391,
       "memory": 89280
     },
     "tree-sitter-nginx": {
-      "version": "0.26.1",
-      "download": 21836,
-      "wasm": 119234,
+      "version": "0.26.3",
+      "download": 22859,
+      "wasm": 119193,
       "memory": 44228
     },
     "tree-sitter-nim": {
-      "version": "0.26.2",
-      "download": 694728,
-      "wasm": 9224877,
+      "version": "0.26.4",
+      "download": 700765,
+      "wasm": 9224689,
       "memory": 9104340
     },
     "tree-sitter-nix": {
-      "version": "0.26.2",
-      "download": 21700,
-      "wasm": 83618,
+      "version": "0.26.4",
+      "download": 22490,
+      "wasm": 83513,
       "memory": 66044
     },
     "tree-sitter-nushell": {
-      "version": "0.26.6",
-      "download": 215323,
-      "wasm": 2221458,
+      "version": "0.26.9",
+      "download": 216138,
+      "wasm": 2220895,
       "memory": 1771896
     },
     "tree-sitter-objc": {
-      "version": "0.26.1",
-      "download": 295108,
-      "wasm": 5378812,
+      "version": "0.26.3",
+      "download": 296198,
+      "wasm": 5378463,
       "memory": 5168724
     },
     "tree-sitter-ocaml": {
-      "version": "0.26.3",
-      "download": 409533,
-      "wasm": 4833970,
+      "version": "0.26.5",
+      "download": 410798,
+      "wasm": 4833724,
       "memory": 4713084
     },
     "tree-sitter-ocaml_interface": {
-      "version": "0.26.3",
-      "download": 356335,
-      "wasm": 4092439,
+      "version": "0.26.5",
+      "download": 356846,
+      "wasm": 4092193,
       "memory": 3974236
     },
     "tree-sitter-pascal": {
-      "version": "0.26.1",
-      "download": 90862,
-      "wasm": 722996,
+      "version": "0.26.3",
+      "download": 92091,
+      "wasm": 723055,
       "memory": 692364
     },
     "tree-sitter-perl": {
-      "version": "0.26.4",
-      "download": 297923,
-      "wasm": 4773350,
-      "memory": 4601584
+      "version": "0.26.7",
+      "download": 301393,
+      "wasm": 4756361,
+      "memory": 4583136
     },
     "tree-sitter-php": {
-      "version": "0.26.3",
-      "download": 114118,
-      "wasm": 1067704,
-      "memory": 1012352
+      "version": "0.26.8",
+      "download": 116728,
+      "wasm": 1088168,
+      "memory": 1032864
     },
     "tree-sitter-powershell": {
-      "version": "0.26.2",
-      "download": 103326,
-      "wasm": 1060186,
-      "memory": 620284
+      "version": "0.26.6",
+      "download": 107169,
+      "wasm": 1082555,
+      "memory": 634684
     },
     "tree-sitter-prisma": {
-      "version": "0.26.2",
-      "download": 8070,
-      "wasm": 16112,
+      "version": "0.26.4",
+      "download": 9085,
+      "wasm": 16121,
       "memory": 10236
     },
     "tree-sitter-protobuf": {
-      "version": "0.26.4",
-      "download": 19890,
-      "wasm": 98342,
+      "version": "0.26.6",
+      "download": 20590,
+      "wasm": 98276,
       "memory": 31464
     },
     "tree-sitter-puppet": {
-      "version": "0.26.1",
-      "download": 24554,
-      "wasm": 135834,
+      "version": "0.26.3",
+      "download": 25588,
+      "wasm": 135782,
       "memory": 76432
     },
     "tree-sitter-python": {
-      "version": "0.26.3",
-      "download": 74367,
-      "wasm": 461287,
+      "version": "0.26.6",
+      "download": 74940,
+      "wasm": 459851,
       "memory": 435476
     },
     "tree-sitter-qmljs": {
-      "version": "0.26.2",
-      "download": 162601,
-      "wasm": 1657987,
+      "version": "0.26.4",
+      "download": 163774,
+      "wasm": 1658257,
       "memory": 1618308
     },
     "tree-sitter-r": {
-      "version": "0.26.2",
-      "download": 55650,
-      "wasm": 492033,
+      "version": "0.26.4",
+      "download": 56717,
+      "wasm": 492070,
       "memory": 475780
     },
     "tree-sitter-racket": {
-      "version": "0.26.3",
-      "download": 35486,
-      "wasm": 126125,
+      "version": "0.26.5",
+      "download": 49651,
+      "wasm": 126054,
       "memory": 30460
     },
     "tree-sitter-regex": {
-      "version": "0.26.2",
-      "download": 8872,
-      "wasm": 22285,
+      "version": "0.26.4",
+      "download": 9851,
+      "wasm": 22165,
       "memory": 15448
     },
     "tree-sitter-rst": {
-      "version": "0.26.2",
-      "download": 20843,
-      "wasm": 62669,
+      "version": "0.26.4",
+      "download": 21986,
+      "wasm": 62698,
       "memory": 38168
     },
     "tree-sitter-ruby": {
-      "version": "0.26.3",
-      "download": 172291,
-      "wasm": 2141611,
+      "version": "0.26.5",
+      "download": 173493,
+      "wasm": 2141373,
       "memory": 2043588
     },
     "tree-sitter-rust": {
-      "version": "0.26.4",
-      "download": 124827,
-      "wasm": 1118713,
+      "version": "0.26.6",
+      "download": 126158,
+      "wasm": 1119132,
       "memory": 1086656
     },
     "tree-sitter-scala": {
-      "version": "0.26.3",
-      "download": 456988,
-      "wasm": 3973559,
-      "memory": 3750276
+      "version": "0.26.7",
+      "download": 462613,
+      "wasm": 4102373,
+      "memory": 3870948
     },
     "tree-sitter-scheme": {
-      "version": "0.26.2",
-      "download": 22728,
-      "wasm": 124616,
-      "memory": 19952
+      "version": "0.26.6",
+      "download": 27383,
+      "wasm": 113664,
+      "memory": 37252
     },
     "tree-sitter-scss": {
-      "version": "0.26.1",
-      "download": 25855,
-      "wasm": 149410,
+      "version": "0.26.3",
+      "download": 26969,
+      "wasm": 149319,
       "memory": 56700
     },
+    "tree-sitter-slim": {
+      "version": "0.26.1",
+      "download": 36576,
+      "wasm": 196428,
+      "memory": 65664
+    },
     "tree-sitter-solidity": {
-      "version": "0.26.2",
-      "download": 52400,
-      "wasm": 513975,
+      "version": "0.26.4",
+      "download": 53508,
+      "wasm": 514235,
       "memory": 469728
     },
     "tree-sitter-sql": {
-      "version": "0.26.2",
-      "download": 334021,
-      "wasm": 2475489,
+      "version": "0.26.6",
+      "download": 335019,
+      "wasm": 2475516,
       "memory": 2407352
     },
     "tree-sitter-surface": {
-      "version": "0.26.2",
-      "download": 11830,
-      "wasm": 28022,
+      "version": "0.26.4",
+      "download": 12843,
+      "wasm": 28144,
       "memory": 12588
     },
     "tree-sitter-svelte": {
-      "version": "0.26.2",
-      "download": 18436,
-      "wasm": 49633,
+      "version": "0.26.4",
+      "download": 19572,
+      "wasm": 49667,
       "memory": 32356
     },
     "tree-sitter-swift": {
-      "version": "0.26.2",
-      "download": 341377,
-      "wasm": 3826974,
+      "version": "0.26.4",
+      "download": 342674,
+      "wasm": 3826605,
       "memory": 3366528
     },
     "tree-sitter-systemverilog": {
-      "version": "0.26.4",
-      "download": 862841,
-      "wasm": 23532777,
+      "version": "0.26.7",
+      "download": 863363,
+      "wasm": 23532141,
       "memory": 23288628
     },
     "tree-sitter-tcl": {
-      "version": "0.26.2",
-      "download": 26114,
-      "wasm": 86319,
+      "version": "0.26.4",
+      "download": 26950,
+      "wasm": 86035,
       "memory": 56912
     },
     "tree-sitter-terraform": {
-      "version": "0.26.2",
-      "download": 25456,
-      "wasm": 96507,
+      "version": "0.26.4",
+      "download": 26455,
+      "wasm": 96556,
       "memory": 82160
     },
-    "tree-sitter-toml": {
+    "tree-sitter-tlaplus": {
       "version": "0.26.1",
-      "download": 10611,
-      "wasm": 26652,
+      "download": 252717,
+      "wasm": 4927432,
+      "memory": 4751268
+    },
+    "tree-sitter-toml": {
+      "version": "0.26.3",
+      "download": 11652,
+      "wasm": 26747,
       "memory": 13992
     },
     "tree-sitter-toon": {
-      "version": "0.26.3",
-      "download": 16734,
-      "wasm": 52848,
+      "version": "0.26.5",
+      "download": 17135,
+      "wasm": 52729,
       "memory": 19496
     },
     "tree-sitter-tsx": {
-      "version": "0.26.2",
-      "download": 150069,
-      "wasm": 1450769,
+      "version": "0.26.4",
+      "download": 151039,
+      "wasm": 1450817,
       "memory": 1408648
     },
     "tree-sitter-typescript": {
-      "version": "0.26.2",
-      "download": 146237,
-      "wasm": 1418221,
+      "version": "0.26.4",
+      "download": 147417,
+      "wasm": 1418386,
       "memory": 1381604
     },
     "tree-sitter-typst": {
-      "version": "0.26.2",
-      "download": 103573,
-      "wasm": 773916,
+      "version": "0.26.4",
+      "download": 104664,
+      "wasm": 774153,
       "memory": 747020
     },
     "tree-sitter-vhdl": {
-      "version": "0.26.2",
-      "download": 182281,
-      "wasm": 1576904,
+      "version": "0.26.4",
+      "download": 183030,
+      "wasm": 1576833,
       "memory": 1390380
     },
     "tree-sitter-vim": {
-      "version": "0.26.2",
-      "download": 164741,
-      "wasm": 1271252,
+      "version": "0.26.4",
+      "download": 168235,
+      "wasm": 1454858,
       "memory": 552480
     },
     "tree-sitter-vue": {
-      "version": "0.26.1",
-      "download": 14282,
-      "wasm": 32416,
+      "version": "0.26.3",
+      "download": 15389,
+      "wasm": 32497,
       "memory": 17100
     },
     "tree-sitter-wat": {
-      "version": "0.26.1",
-      "download": 36500,
-      "wasm": 207439,
+      "version": "0.26.3",
+      "download": 37548,
+      "wasm": 207364,
       "memory": 114616
     },
     "tree-sitter-wgsl": {
-      "version": "0.26.1",
-      "download": 20412,
-      "wasm": 69087,
+      "version": "0.26.3",
+      "download": 21420,
+      "wasm": 69140,
       "memory": 48296
     },
     "tree-sitter-xml": {
-      "version": "0.26.3",
-      "download": 20884,
-      "wasm": 52032,
+      "version": "0.26.5",
+      "download": 22037,
+      "wasm": 52088,
       "memory": 31400
     },
     "tree-sitter-yaml": {
-      "version": "0.26.2",
-      "download": 39951,
-      "wasm": 197478,
+      "version": "0.26.4",
+      "download": 41007,
+      "wasm": 197337,
       "memory": 169920
     },
     "tree-sitter-zig": {
-      "version": "0.26.1",
-      "download": 58116,
-      "wasm": 698328,
+      "version": "0.26.3",
+      "download": 59212,
+      "wasm": 698400,
       "memory": 676356
     },
     "tree-sitter-zsh": {
-      "version": "0.26.1",
-      "download": 606032,
+      "version": "0.26.3",
+      "download": 606931,
       "wasm": 4699607,
       "memory": 4016592
     }

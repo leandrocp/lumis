@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createServer, defineConfig, type Plugin, type ResolvedConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
@@ -33,6 +34,23 @@ function sitemap(): Plugin {
         fileName: "sitemap.xml",
         source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>\n`,
       });
+    },
+  };
+}
+
+function agentSkill(): Plugin {
+  const source = new URL("../skills/lumis/SKILL.md", import.meta.url);
+  const route = "/.well-known/agent-skills/lumis/SKILL.md";
+  return {
+    name: "lumis-agent-skill",
+    configureServer(server) {
+      server.middlewares.use(route, (_request, response) => {
+        response.setHeader("Content-Type", "text/markdown; charset=utf-8");
+        response.end(readFileSync(source));
+      });
+    },
+    generateBundle() {
+      this.emitFile({ type: "asset", fileName: route.slice(1), source: readFileSync(source) });
     },
   };
 }
@@ -85,7 +103,7 @@ function prerender(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [tailwindcss(), sitemap(), prerender()],
+  plugins: [tailwindcss(), sitemap(), agentSkill(), prerender()],
   build: {
     rollupOptions: {
       input: Object.fromEntries(

@@ -1,6 +1,6 @@
 [package]
 name = "lumis"
-version = "0.19.0"
+version = "0.19.3"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -51,6 +51,7 @@ all-languages = [
     "lang-asm",
     "lang-astro",
     "lang-bash",
+    "lang-bend",
     "lang-bicep",
     "lang-c",
     "lang-caddy",
@@ -107,6 +108,7 @@ all-languages = [
     "lang-kdl",
     "lang-kotlin",
     "lang-latex",
+    "lang-lean",
     "lang-liquid",
     "lang-llvm",
     "lang-lua",
@@ -179,6 +181,7 @@ lang-angular = ["lumis-core/lang-angular"]
 lang-asm = ["dep:tree-sitter-asm", "lumis-core/lang-asm"]
 lang-astro = ["lumis-core/lang-astro"]
 lang-bash = ["lumis-core/lang-bash"]
+lang-bend = ["lumis-core/lang-bend"]
 lang-bicep = ["dep:tree-sitter-bicep", "lumis-core/lang-bicep"]
 lang-c = ["dep:tree-sitter-c", "lumis-core/lang-c"]
 lang-caddy = ["dep:tree-sitter-caddy", "lumis-core/lang-caddy"]
@@ -235,6 +238,7 @@ lang-julia = ["dep:tree-sitter-julia", "lumis-core/lang-julia"]
 lang-kdl = ["lumis-core/lang-kdl"]
 lang-kotlin = ["lumis-core/lang-kotlin"]
 lang-latex = ["lumis-core/lang-latex"]
+lang-lean = ["lumis-core/lang-lean"]
 lang-liquid = ["lumis-core/lang-liquid"]
 lang-llvm = ["dep:tree-sitter-llvm", "lumis-core/lang-llvm"]
 lang-lua = ["dep:tree-sitter-lua", "lumis-core/lang-lua"]
@@ -295,23 +299,23 @@ lang-zig = ["dep:tree-sitter-zig", "lumis-core/lang-zig"]
 lang-zsh = ["dep:tree-sitter-zsh", "lumis-core/lang-zsh"]
 
 [dependencies]
-lumis-core = { path = "../lumis-core", version = "6.0.0", default-features = false }
-lumis-wasm-runtime = { path = "../lumis-wasm-runtime", version = "0.6.1", default-features = false }
+lumis-core = { path = "../lumis-core", version = "6.1.1", default-features = false }
+lumis-wasm-runtime = { path = "../lumis-wasm-runtime", version = "0.6.4", default-features = false }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 smol_str = "0.3"
 streaming-iterator = "0.1"
 thiserror = "2"
-tree-sitter = "^0.27.1"
+tree-sitter = "^0.27.2"
 tree-sitter-asm = { version = "0.24.0", optional = true }
 tree-sitter-arduino = { version = "0.24.0", optional = true }
 tree-sitter-bicep = { version = "1.1.0", optional = true }
 tree-sitter-c = { version = "0.24.2", optional = true }
 tree-sitter-caddy = { version = "0.1.0", optional = true }
-tree-sitter-clojure-orchard = { version = "0.2.8", optional = true }
+tree-sitter-clojure-orchard = { version = "0.2.9", optional = true }
 tree-sitter-commonlisp = { version = "0.4.1", optional = true }
 tree-sitter-c-sharp = { version = "0.23.5", optional = true }
-tree-sitter-cmake = { version = "0.7.5", optional = true }
+tree-sitter-cmake = { version = "0.7.6", optional = true }
 tree-sitter-comment = { version = "0.3.0", optional = true }
 tree-sitter-cpp = { version = "0.23.4", optional = true }
 tree-sitter-css = { version = "0.25.0", optional = true }
@@ -332,7 +336,7 @@ tree-sitter-ini = { version = "1.4.0", optional = true }
 tree-sitter-java = { version = "0.23.5", optional = true }
 tree-sitter-javascript = { version = "0.25.0", optional = true }
 tree-sitter-javadoc = { version = "0.3.1", optional = true }
-tree-sitter-jinja = { version = "0.13.0", optional = true }
+tree-sitter-jinja = { version = "0.13.1", optional = true }
 tree-sitter-json = { version = "0.24.8", optional = true }
 tree-sitter-julia = { version = "0.23.1", optional = true }
 tree-sitter-language = "0.1.7"
@@ -347,7 +351,7 @@ tree-sitter-objc = { version = "3.0.2", optional = true }
 tree-sitter-ocaml = { version = "0.26.0", optional = true }
 tree-sitter-pascal = { version = "0.10.2", optional = true }
 tree-sitter-php = { version = "0.25.1", optional = true }
-tree-sitter-powershell = { version = "0.26.4", optional = true }
+tree-sitter-powershell = { version = "0.26.6", optional = true }
 tree-sitter-puppet = { version = "1.3.0", optional = true }
 codebook-tree-sitter-typst = { version = "0.12.1", optional = true }
 
@@ -357,7 +361,7 @@ tree-sitter-racket = { version = "0.25.0", optional = true }
 tree-sitter-regex = { version = "0.25.0", optional = true }
 tree-sitter-rst = { version = "0.2.0", optional = true }
 tree-sitter-rust = { version = "0.24.2", optional = true }
-tree-sitter-scala = { version = "0.26.3", optional = true }
+tree-sitter-scala = { version = "0.26.4", optional = true }
 tree-sitter-scheme = { version = "0.25.0", optional = true }
 tree-sitter-sequel = { version = "0.3.11", optional = true }
 

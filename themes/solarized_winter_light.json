@@ -1,4 +1,5 @@
 {
+  "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "solarized_winter_light",
   "appearance": "light",
   "revision": "a8085e29883ddcfb39bd46197eb32ef00df05368",

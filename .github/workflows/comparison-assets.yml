@@ -76,7 +76,7 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
         with:
           # Pinned: mise 2026.7.18 cannot install core:erlang/core:elixir on the
           # runner, and benchmarks/mise.lock was produced by this version.
@@ -84,7 +84,7 @@ jobs:
           working_directory: benchmarks
           install_args: --locked
           cache: true
-      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32
+      - uses: Swatinem/rust-cache@c8037a86dde8214a8310e9f54a8fc61ab362aa31
         with:
           # mise puts the CLI, addon and NIF builds in this shared target.
           # Cache it once: rust-cache prunes each target to its workspace's

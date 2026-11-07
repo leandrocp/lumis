@@ -25,7 +25,7 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   metadataBase: new URL("https://docs.lumis.sh"),
   title: { default: "Lumis Docs", template: "%s | Lumis Docs" },
-  description: "One highlighter, 7 runtimes. Powered by Tree-sitter and Neovim themes.",
+  description: "One highlighter, 8 runtimes. Powered by Tree-sitter and Neovim themes.",
   applicationName: "Lumis Docs",
   icons: {
     icon: [

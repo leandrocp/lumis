@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lumis.sh/schemas/themes/v1.0.0.json",
+  "title": "Lumis theme",
+  "description": "A Lumis syntax highlighting theme, format version 1.0.0. See https://docs.lumis.sh/themes/theme-files",
+  "type": "object",
+  "required": ["name", "appearance", "revision", "highlights"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "description": "The JSON Schema this file follows.",
+      "type": "string",
+      "format": "uri"
+    },
+    "name": {
+      "description": "Theme name, such as \"dracula\".",
+      "type": "string",
+      "minLength": 1
+    },
+    "appearance": {
+      "description": "Whether the theme is meant for a light or a dark background.",
+      "enum": ["light", "dark"]
+    },
+    "revision": {
+      "description": "Commit or version of the colorscheme the theme was generated from.",
+      "type": "string",
+      "minLength": 1
+    },
+    "license": {
+      "description": "SPDX license expression of the colorscheme, such as \"MIT\". \"NONE\" means it has no license file and \"NOASSERTION\" that its license is unknown, which is also the value when this field is omitted.",
+      "type": "string",
+      "minLength": 1
+    },
+    "highlights": {
+      "description": "Styles keyed by highlight scope name, such as \"keyword\" or \"comment.documentation\". A scope without its own style uses the style of its closest parent scope.",
+      "type": "object",
+      "propertyNames": { "minLength": 1 },
+      "additionalProperties": { "$ref": "#/$defs/style" }
+    }
+  },
+  "$defs": {
+    "color": {
+      "description": "A color as # followed by six hex digits, such as \"#ff79c6\".",
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$"
+    },
+    "style": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fg": { "$ref": "#/$defs/color", "description": "Foreground color." },
+        "bg": { "$ref": "#/$defs/color", "description": "Background color." },
+        "bold": { "type": "boolean" },
+        "italic": { "type": "boolean" },
+        "underline": {
+          "description": "Underline style. true is the same as \"solid\".",
+          "oneOf": [
+            { "type": "boolean" },
+            { "enum": ["solid", "wavy", "undercurl", "double", "dotted", "dashed", "none"] }
+          ]
+        },
+        "strikethrough": { "type": "boolean" },
+        "undercurl": {
+          "description": "Use \"underline\": \"wavy\" instead.",
+          "type": "boolean",
+          "deprecated": true
+        },
+        "underdouble": {
+          "description": "Use \"underline\": \"double\" instead.",
+          "type": "boolean",
+          "deprecated": true
+        },
+        "underdotted": {
+          "description": "Use \"underline\": \"dotted\" instead.",
+          "type": "boolean",
+          "deprecated": true
+        },
+        "underdashed": {
+          "description": "Use \"underline\": \"dashed\" instead.",
+          "type": "boolean",
+          "deprecated": true
+        }
+      }
+    }
+  }
+}

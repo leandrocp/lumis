@@ -1,3 +1,23 @@
+## [0.6.4](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.6.3...cargo-lumis-wasm-runtime/v0.6.4) (2026-11-07)
+
+### Dependencies
+
+- Upgrade Tree-sitter runtimes to 0.27.2 in [\#2022](https://github.com/leandrocp/lumis/pull/2022)
+
+## [0.6.3](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.6.2...cargo-lumis-wasm-runtime/v0.6.3) (2026-11-07)
+
+### Code Refactoring
+
+- **rust:** Share the highlight inspection between dump and tools in [\#2014](https://github.com/leandrocp/lumis/pull/2014)
+
+## [0.6.2](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.6.1...cargo-lumis-wasm-runtime/v0.6.2) (2026-11-05)
+
+### Features
+
+- **bundles:** Cap wasm-bundle-full at 64 MB of Wasm store memory in [\#1968](https://github.com/leandrocp/lumis/pull/1968)
+- **languages:** Add Bend support in [\#1965](https://github.com/leandrocp/lumis/pull/1965)
+- **languages:** Add Lean support in [\#1978](https://github.com/leandrocp/lumis/pull/1978)
+
 ## [0.6.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.6.0...cargo-lumis-wasm-runtime/v0.6.1) (2026-10-31)
 
 ### Bug Fixes

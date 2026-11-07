@@ -2,7 +2,7 @@
 
 Syntax Highlighter powered by Tree-sitter and Neovim themes.
 
-JavaScript / TypeScript package for [Lumis](https://lumis.sh). Works in Node.js, Bun, Deno, and browsers, with TypeScript declarations included.
+JavaScript / TypeScript package for [Lumis](https://lumis.sh). Works in Node.js, Bun, Deno, browsers, and edge and worker hosts such as Supabase Edge Functions, Cloudflare Workers and Vercel ([guide](https://docs.lumis.sh/usage/edge)), with TypeScript declarations included.
 
 ## Features
 

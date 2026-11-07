@@ -1,6 +1,6 @@
 [package]
 name = "lumis-core"
-version = "6.0.0"
+version = "6.1.1"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -33,6 +33,7 @@ all-languages = [
     "lang-asm",
     "lang-astro",
     "lang-bash",
+    "lang-bend",
     "lang-bicep",
     "lang-c",
     "lang-caddy",
@@ -88,6 +89,7 @@ all-languages = [
     "lang-kdl",
     "lang-kotlin",
     "lang-latex",
+    "lang-lean",
     "lang-liquid",
     "lang-llvm",
     "lang-lua",
@@ -160,6 +162,7 @@ lang-angular = []
 lang-asm = []
 lang-astro = []
 lang-bash = []
+lang-bend = []
 lang-bicep = []
 lang-c = []
 lang-caddy = []
@@ -215,6 +218,7 @@ lang-julia = []
 lang-kdl = []
 lang-kotlin = []
 lang-latex = []
+lang-lean = []
 lang-liquid = []
 lang-llvm = []
 lang-lua = []
@@ -291,7 +295,9 @@ serde = { version = "1", features = ["derive"] }
 quote = "1"
 
 [dev-dependencies]
+jsonschema = { version = "0.60.2", default-features = false }
 pretty_assertions = "1"
+sha2 = "0.11"
 
 [lints]
 workspace = true

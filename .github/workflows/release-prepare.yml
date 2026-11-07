@@ -47,7 +47,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
 
       # The bundle packages' plan stages the bundles and compares them in `crates/dev`.
       - uses: dtolnay/rust-toolchain@v1
@@ -55,7 +55,7 @@ jobs:
           toolchain: stable
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2.9.2
+        uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: "crates/dev -> target"
           shared-key: release-prepare-dev
@@ -139,7 +139,7 @@ jobs:
           toolchain: stable
 
       - name: Install cargo-edit
-        uses: taiki-e/install-action@v2.87.30
+        uses: taiki-e/install-action@v2.88.0
         with:
           tool: cargo-edit
 
@@ -147,13 +147,13 @@ jobs:
         with:
           node-version: "lts/*"
 
-      - uses: jdx/mise-action@v5.2.2
+      - uses: jdx/mise-action@v5.2.4
 
       # Only crate and bundle releases build `crates/dev`. Caching the other jobs
       # would store an empty target directory under the same key.
       - name: Cache Rust dependencies
         if: startsWith(matrix.release.package, 'cargo-') || contains(matrix.release.package, '-wasm-bundle-')
-        uses: Swatinem/rust-cache@v2.9.2
+        uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: "crates/dev -> target"
           shared-key: release-prepare-dev

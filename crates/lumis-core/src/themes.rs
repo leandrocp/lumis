@@ -12,7 +12,7 @@ use derive_builder::Builder;
 
 mod choice;
 pub use available_themes as available;
-pub use choice::{closest, TerminalColors};
+pub use choice::{closest, contrast_ratio, TerminalColors};
 
 /// Error type for theme operations.
 #[derive(Debug, Clone)]
@@ -597,13 +597,21 @@ impl Theme {
     /// let style = theme.get_style("keyword");
     /// ```
     pub fn get_style(&self, scope: &str) -> Option<&Style> {
+        self.resolve_style(scope).map(|(_, style)| style)
+    }
+
+    /// [`Self::get_style`], with the scope the walk-up matched, e.g. `keyword`
+    /// for `keyword.function.rust` when only `keyword` is set. For tools that
+    /// explain where a colour came from.
+    #[doc(hidden)]
+    pub fn resolve_style<'s>(&self, scope: &'s str) -> Option<(&'s str, &Style)> {
         let mut current = scope;
         loop {
             if let Some(style) = self.highlights.get(current) {
-                return Some(style);
+                return Some((current, style));
             }
             if let Some(style) = RAINBOW_BRACKET_FALLBACKS.get(current) {
-                return Some(style);
+                return Some((current, style));
             }
             match current.rsplit_once('.') {
                 Some((parent, _)) => current = parent,
@@ -1869,6 +1877,29 @@ html[data-theme="dark"] .l-keyword {
                 ..Default::default()
             })
         );
+    }
+
+    #[test]
+    fn resolve_style_reports_the_scope_the_walk_up_matched() {
+        let theme = Theme {
+            highlights: [
+                ("keyword".to_string(), Style::default()),
+                ("comment.lua".to_string(), Style::default()),
+            ]
+            .into_iter()
+            .collect(),
+            ..Theme::default()
+        };
+
+        assert_eq!(
+            theme.resolve_style("keyword.function.rust").map(|(s, _)| s),
+            Some("keyword")
+        );
+        assert_eq!(
+            theme.resolve_style("comment.lua").map(|(s, _)| s),
+            Some("comment.lua")
+        );
+        assert_eq!(theme.resolve_style("comment.rust"), None);
     }
 
     #[test]

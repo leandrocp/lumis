@@ -2,6 +2,7 @@
   "title": "Themes",
   "pages": [
     "index",
+    "theme-files",
     "closest",
     "css-files",
     "css-builder"

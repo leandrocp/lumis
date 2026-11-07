@@ -18,7 +18,7 @@ import javascript from "../langs/javascript.ts";
 import python from "../langs/python.ts";
 import css from "../langs/css.ts";
 import { bundledLanguages } from "../bundles/web.ts";
-import { configureLocalWasmResolver } from "./wasm.js";
+import { configureLocalWasmResolver, localPackageLanguage } from "./wasm.js";
 
 import tokyonightMoon from "../../themes/dist/json/tokyonight_moon.json";
 import dracula from "../../themes/dist/json/dracula.json";
@@ -124,6 +124,38 @@ describe("createHighlighter", () => {
 
     expect(multi.languages).toContain("json");
     expect(multi.languages).toContain("javascript");
+  });
+
+  it("highlights injections when queries contain non-ASCII prefixes", async () => {
+    const language = localPackageLanguage("json");
+    const prefix = `; ${"é🙂".repeat(64)}\n`;
+    const highlighter = await createHighlighter({
+      languages: [
+        {
+          ...language,
+          languagePackage: {
+            ...language.languagePackage,
+            languages: {
+              json: {
+                aliases: [],
+                injections: `${prefix}((string_content) @injection.content (#set! injection.language "javascript"))\n`,
+                locals: `${prefix}(string_content) @local.definition\n`,
+                highlights: "(number) @number\n",
+              },
+            },
+          },
+        },
+        javascript,
+      ],
+    });
+
+    const output = highlighter.highlight(
+      '{"code":"true","count":42}',
+      htmlLinked({ language: "json" }),
+    );
+
+    expect(output).toContain('class="l-boolean">true</span>');
+    expect(output).toContain('class="l-number">42</span>');
   });
 
   it("resolves an identifier-only initial language by id", async () => {
