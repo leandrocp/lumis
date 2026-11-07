@@ -253,18 +253,14 @@ impl Walk<'_> {
             }
         }
         let mut cursor = node.walk();
-        if !cursor.goto_first_child() {
-            return;
-        }
-        loop {
+        cursor.goto_first_child();
+        for _ in 0..node.child_count() {
             let child = cursor.node();
             if child.is_named() {
                 let field = cursor.field_name().map(str::to_string);
                 self.collect(layer, child, depth + 1, field, Some(index));
             }
-            if !cursor.goto_next_sibling() {
-                break;
-            }
+            cursor.goto_next_sibling();
         }
     }
 }
@@ -473,6 +469,41 @@ mod tests {
                 "array",
                 "number"
             ]
+        );
+    }
+
+    #[test]
+    fn nests_an_injected_layer_under_the_layer_that_encloses_it() {
+        let source = r#"{"a": "[1]", "b": "[1, [2, 3]]"}"#;
+        let range = |text: &str, from: usize| {
+            let start = from + source[from..].find(text).unwrap();
+            let end = start + text.len();
+            tree_sitter::Range {
+                start_byte: start,
+                end_byte: end,
+                start_point: Point::new(0, start),
+                end_point: Point::new(0, end),
+            }
+        };
+        let b = source.find("\"b\"").unwrap();
+        let layers = [
+            layer(source, None, 0),
+            layer(source, Some(range("[1]", 0)), 1),
+            layer(source, Some(range("[1, [2, 3]]", b)), 1),
+            layer(source, Some(range("[2, 3]", b)), 2),
+        ];
+
+        let inspection = Inspection::new(source, &layers, &[]).unwrap();
+
+        let innermost = inspection
+            .nodes
+            .iter()
+            .position(|n| n.layer == 3 && n.kind == "document")
+            .unwrap();
+        let parent = inspection.nodes[innermost].parent.unwrap();
+        assert_eq!(
+            inspection.nodes[parent].layer, 2,
+            "the smaller layer `[1]` precedes it but does not enclose it"
         );
     }
 
