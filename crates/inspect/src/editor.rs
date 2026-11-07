@@ -58,9 +58,11 @@ pub(crate) fn points(count: usize) -> f32 {
     f32::from(u16::try_from(count).unwrap_or(u16::MAX))
 }
 
-/// Line and column of `byte`, both from 1, the column in characters.
+/// Line and column of `byte`, both from 1, the column in characters. An offset
+/// inside a character counts as that character's start: a stale analysis can
+/// point into text typed since.
 pub(crate) fn position(text: &str, byte: usize) -> (usize, usize) {
-    let before = &text[..byte.min(text.len())];
+    let before = &text[..text.floor_char_boundary(byte)];
     let line_start = before.rfind('\n').map_or(0, |i| i + 1);
     (
         before.matches('\n').count() + 1,
@@ -217,4 +219,19 @@ pub(crate) fn build(s: &Inspector, k: &Kit) -> El {
         .fill(bg)
         .child(col().key("code").grow(1.0).scroll_xy().child(code))
         .child(status(s, k, caret))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::position;
+
+    #[test]
+    fn positions_count_characters_and_survive_offsets_inside_one() {
+        let text = "éab\nxé";
+        assert_eq!(position(text, 0), (1, 1));
+        assert_eq!(position(text, 1), (1, 1), "inside `é`");
+        assert_eq!(position(text, 2), (1, 2));
+        assert_eq!(position(text, 7), (2, 2), "inside the second `é`");
+        assert_eq!(position(text, 99), (2, 3));
+    }
 }

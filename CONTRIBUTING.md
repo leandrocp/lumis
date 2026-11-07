@@ -783,6 +783,12 @@ When a fetched upstream query needs to change, use one of these directories:
 
 ### Inspecting a highlight
 
+On Debian and Ubuntu, the window needs `libxkbcommon-dev` to link:
+
+```sh
+sudo apt-get install -y libxkbcommon-dev
+```
+
 ```sh
 mise run inspect
 ```
@@ -804,8 +810,11 @@ shows:
   the source; click it to move the caret there.
 
 The inspector reads parsers from the CLI's data directory and downloads one the
-first time a sample needs it. `lumis dump tree --highlights --injections` prints
-the same tree as text.
+first time a sample needs it. This prints the same tree as text:
+
+```sh
+lumis dump tree --highlights --injections samples/markdown.md
+```
 
 ### Building WASMs
 
