@@ -378,3 +378,154 @@ fn has_nested_character_class(regex: &str) -> bool {
 
     false
 }
+
+fn comment_highlights() -> String {
+    fs::read_to_string(repo_root().join("queries/processed/comment/highlights.scm"))
+        .expect("failed to read the comment highlights query")
+}
+
+/// The filter every `comment` injection in the corpus carries, which must be
+/// the one the comment highlights query derives.
+#[test]
+fn every_comment_injection_carries_the_derived_filter() {
+    let filter = lumis_build::comment_injection_filter(&comment_highlights())
+        .expect("comment highlights derive a filter");
+    let expected = format!(
+        "(#match? @injection.content \"{}\")",
+        filter.replace('\\', "\\\\")
+    );
+
+    let mut injections = 0;
+    let mut failures = Vec::new();
+    for file in processed_queries() {
+        if file.file_name().is_none_or(|name| name != "injections.scm") {
+            continue;
+        }
+        let content = fs::read_to_string(&file).expect("failed to read query");
+        let directives = content
+            .matches("(#set! injection.language \"comment\")")
+            .count();
+        let filters = content.matches(&expected).count();
+        injections += directives;
+        if directives != filters {
+            failures.push(format!(
+                "{}: {directives} comment injections, {filters} filtered",
+                file.display()
+            ));
+        }
+    }
+
+    assert!(
+        injections > 100,
+        "expected the full corpus, found {injections}"
+    );
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+/// A deterministic stream of comment-like texts, built from the pieces the
+/// comment grammar and its query care about, so tags, users, issue numbers
+/// and URIs appear in every position and spelling.
+fn generated_comments() -> Vec<String> {
+    const PIECES: &[&str] = &[
+        "TODO", "WIP", "NOTE", "XXX", "INFO", "DOCS", "PERF", "TEST", "HACK", "WARNING", "WARN",
+        "FIX", "FIXME", "BUG", "ERROR", "todo", "Note", "TOD", "FIXM", "ERR", "XX", "TODOS", "A_B",
+        "X1", ":", ": ", "(", ")", "(me)", " (me)", "()", " ", "\n", "\t", "#", "#1", "#42", "1",
+        "x", "http", "https", "://", "http://", "https://", "a.b", ".", ",", "/", "//", "/*", "*/",
+        "--", "<!--", "-->", ";", "?", "!", "'", "\"", "`", "]", "}", ">", "-", "_", "é", "日本",
+    ];
+    let mut state: u64 = 0x9e37_79b9_7f4a_7c15;
+    let mut next = move |bound: usize| {
+        state ^= state << 13;
+        state ^= state >> 7;
+        state ^= state << 17;
+        usize::try_from(state % bound as u64).expect("fits")
+    };
+
+    let mut comments: Vec<String> = PIECES.iter().map(|piece| (*piece).to_owned()).collect();
+    for first in PIECES {
+        for second in PIECES {
+            comments.push(format!("{first}{second}"));
+            comments.push(format!("// {first}{second} x"));
+        }
+    }
+    for _ in 0..60_000 {
+        let length = 1 + next(8);
+        comments.push((0..length).map(|_| PIECES[next(PIECES.len())]).collect());
+    }
+    comments
+}
+
+/// The filter is a superset of the comment query: any comment the query
+/// would put a capture on must pass it, or that capture is lost.
+#[test]
+fn comment_injection_filter_admits_every_comment_the_query_colors() {
+    use tree_sitter::StreamingIterator;
+
+    let highlights = comment_highlights();
+    let filter = lumis_build::comment_injection_filter(&highlights)
+        .expect("comment highlights derive a filter");
+    let filter = regex::Regex::new(&filter).expect("filter compiles");
+
+    let language: tree_sitter::Language = tree_sitter_comment::LANGUAGE.into();
+    let query = tree_sitter::Query::new(&language, &highlights).expect("comment query compiles");
+    let mut parser = tree_sitter::Parser::new();
+    parser
+        .set_language(&language)
+        .expect("comment grammar loads");
+    let mut cursor = tree_sitter::QueryCursor::new();
+
+    let mut colored = 0;
+    let mut skipped = 0;
+    let mut captured_names = std::collections::BTreeSet::new();
+    let mut failures = Vec::new();
+    for comment in generated_comments() {
+        let tree = parser.parse(&comment, None).expect("comment parses");
+        let mut captures = cursor.captures(&query, tree.root_node(), comment.as_bytes());
+        let mut names = Vec::new();
+        while let Some((found, index)) = captures.next() {
+            names.push(query.capture_names()[found.captures()[*index].index as usize]);
+        }
+        if names.is_empty() {
+            if !filter.is_match(&comment) {
+                skipped += 1;
+            }
+            continue;
+        }
+        colored += 1;
+        captured_names.extend(names.iter().copied());
+        if !filter.is_match(&comment) && failures.len() < 20 {
+            failures.push(format!("{comment:?} colors {names:?}"));
+        }
+    }
+
+    assert!(
+        failures.is_empty(),
+        "filter rejects colored comments:\n{}",
+        failures.join("\n")
+    );
+    // A generator that never reaches a pattern proves nothing about it.
+    for name in [
+        "comment.todo",
+        "comment.note",
+        "comment.warning",
+        "comment.error",
+        "constant",
+        "punctuation.bracket",
+        "punctuation.delimiter",
+        "number",
+        "string.special.url",
+    ] {
+        assert!(
+            captured_names.contains(name),
+            "no generated comment captured @{name}"
+        );
+    }
+    assert!(
+        colored > 10_000,
+        "only {colored} generated comments were colored"
+    );
+    assert!(
+        skipped > 1_000,
+        "only {skipped} generated comments were skipped"
+    );
+}
