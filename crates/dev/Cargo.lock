@@ -909,7 +909,7 @@ dependencies = [
 
 [[package]]
 name = "lumis-wasm-runtime"
-version = "0.6.3"
+version = "0.6.4"
 dependencies = [
  "etcetera",
  "lumis-core",
