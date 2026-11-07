@@ -455,6 +455,16 @@ belongs to. `Theme::resolve_style` reports which scope the theme's walk-up
 matched, and `themes::contrast_ratio` the WCAG contrast of two colours, for
 tools that explain where a colour came from.
 
+`crates/inspect` is the window built on it: a [Rune](https://github.com/anomalyco/rune)
+app, its own workspace like `crates/dev`, that highlights an editable sample
+with layers kept and shows the `Inspection` beside it. Highlighting runs on a
+worker thread with its own `Runtime`, because a parser seen for the first time
+downloads and compiles for seconds. The editor paints each run of source the way
+the terminal formatter does, the innermost capture's `scope.language` style with
+`Style::inherit` filling what it leaves unset, and the pane names which capture
+each property came from. The pane follows the caret rather than the pointer:
+Rune maps a pointer to an element, not to a byte of text.
+
 ### Preparing the persistent store
 
 One verb in every library runtime — **load**, which compiles a language, keeps

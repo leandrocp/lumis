@@ -18,6 +18,7 @@ See `ARCHITECTURE.md` for how the crates, packages, website, and build pipeline 
   - [Adding a new language](#adding-a-new-language)
   - [Updating parsers](#updating-parsers)
   - [Updating queries](#updating-queries)
+  - [Inspecting a highlight](#inspecting-a-highlight)
   - [Building WASMs](#building-wasms)
   - [Running a runtime locally](#running-a-runtime-locally)
   - [Parsers in CI](#parsers-in-ci)
@@ -353,6 +354,12 @@ performance and maintainability; rule counts are not a quality target.
 | Elixir | credo | `mix credo --strict`; cyclomatic complexity at most 9 | `packages/elixir/lumis/.credo.exs` |
 | Lua | selene | every lint selene ships, warnings included | `selene.toml`, `neovim.yml` |
 | GitHub Actions | actionlint | its default, which is already strict | `.github/actionlint.yaml` |
+
+Crates that are their own workspace (`crates/dev`, `crates/inspect` and
+`benchmarks/rust`) cannot inherit the root lint table, so each copies it, and
+the lint workflow's "Rust crates outside the workspace" job runs rustfmt and
+clippy on them. `mise run lint` checks the inspector's formatting but leaves its
+clippy run to CI, because that compiles Rune and its GPU stack.
 
 Every runtime implemented in this repository enforces a complexity ceiling with
 its language-specific analyzer, at the number the other projects in this family
@@ -773,6 +780,41 @@ When a fetched upstream query needs to change, use one of these directories:
 
 - `queries/override/{name}/{query}.scm`: replace the upstream query entirely when it's incompatible with the pinned parser
 - `queries/append/{name}/{query}.scm`: add local patterns after the upstream query, or after the replacement query when both exist
+
+### Inspecting a highlight
+
+On Debian and Ubuntu, the window needs `libxkbcommon-dev` to link:
+
+```sh
+sudo apt-get install -y libxkbcommon-dev
+```
+
+```sh
+mise run inspect
+```
+
+opens a window for working out why a token has the colour it has. The header
+picks a file from `samples/` and a theme. The source is editable, so a case can
+be reduced in place, and it re-highlights as you type.
+
+Put the caret on a byte, by clicking or with the arrow keys, and the right side
+shows:
+
+- the captures over it, innermost first, each with the theme key it resolved to
+  and the `scope.language` key it looked up;
+- the painted style, which capture each property came from, and its contrast
+  against the background;
+- the syntax node and its ancestors, through injected languages;
+- the whole tree, with injected layers nested under the node that holds them
+  and `ERROR` and `MISSING` nodes in red. Hover a row to outline its range in
+  the source; click it to move the caret there.
+
+The inspector reads parsers from the CLI's data directory and downloads one the
+first time a sample needs it. This prints the same tree as text:
+
+```sh
+lumis dump tree --highlights --injections samples/markdown.md
+```
 
 ### Building WASMs
 
