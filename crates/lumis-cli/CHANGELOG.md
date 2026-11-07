@@ -1,3 +1,13 @@
+## [0.8.7](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.6...cargo-lumis-cli/v0.8.7) (2026-11-07)
+
+### Bug Fixes
+
+- **cli:** Sync crate copy of extract_theme.lua in [\#2002](https://github.com/leandrocp/lumis/pull/2002)
+
+### Code Refactoring
+
+- **rust:** Share the highlight inspection between dump and tools in [\#2014](https://github.com/leandrocp/lumis/pull/2014)
+
 ## [0.8.6](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.5...cargo-lumis-cli/v0.8.6) (2026-11-05)
 
 ### Features
