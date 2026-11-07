@@ -96,10 +96,17 @@ impl Inspection {
             };
             walk.collect(index, layer.tree.root_node(), 0, None, None);
         }
+        let mut by_language = HashMap::<&str, Vec<usize>>::new();
+        for (index, layer) in layers.iter().enumerate() {
+            by_language.entry(&layer.language).or_default().push(index);
+        }
         let lines = line_starts(source);
         let mut captures = Vec::new();
         for (scope_index, language, byte_range) in spans(events)? {
-            let node = owner(layers, &nodes, &ids, &language, &byte_range).ok_or_else(|| {
+            let candidates = by_language
+                .get(language.as_str())
+                .map_or(&[][..], Vec::as_slice);
+            let node = owner(layers, candidates, &nodes, &ids, &byte_range).ok_or_else(|| {
                 InspectError::Unowned {
                     language: language.clone(),
                     start: byte_range.start,
@@ -313,25 +320,25 @@ fn spans(
     Ok(done.into_iter().map(|(_, s, l, r)| (s, l, r)).collect())
 }
 
-/// The smallest node of `language` containing `range`, the deepest on a tie. Each
-/// layer's tree finds its own candidate, so this costs a descent per layer rather
-/// than a scan of every node.
+/// The smallest node containing `range` among the `candidates` layers, the
+/// deepest on a tie. A layer whose root does not contain `range` is skipped
+/// without descending, so a capture costs one comparison per layer of its
+/// language and one descent per layer that encloses it.
 fn owner(
     layers: &[ParsedLayer],
+    candidates: &[usize],
     nodes: &[SyntaxNode],
     ids: &HashMap<(usize, usize), usize>,
-    language: &str,
     range: &Range<usize>,
 ) -> Option<usize> {
-    layers
+    candidates
         .iter()
-        .enumerate()
-        .filter(|(_, layer)| layer.language == language)
-        .filter_map(|(index, layer)| {
-            let node = layer
-                .tree
-                .root_node()
-                .named_descendant_for_byte_range(range.start, range.end)?;
+        .filter_map(|&index| {
+            let root = layers[index].tree.root_node();
+            if root.start_byte() > range.start || root.end_byte() < range.end {
+                return None;
+            }
+            let node = root.named_descendant_for_byte_range(range.start, range.end)?;
             let contains = node.start_byte() <= range.start && node.end_byte() >= range.end;
             contains
                 .then(|| ids.get(&(index, node.id())).copied())
