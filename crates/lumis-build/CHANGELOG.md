@@ -1,3 +1,9 @@
+## [1.2.2](https://github.com/leandrocp/lumis/compare/cargo-lumis-build/v1.2.1...cargo-lumis-build/v1.2.2) (2026-11-07)
+
+### Dependencies
+
+- Upgrade Tree-sitter runtimes to 0.27.2 in [\#2022](https://github.com/leandrocp/lumis/pull/2022)
+
 ## [1.2.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-build/v1.2.0...cargo-lumis-build/v1.2.1) (2026-11-07)
 
 ### Performance
