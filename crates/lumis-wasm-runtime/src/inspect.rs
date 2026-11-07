@@ -86,23 +86,26 @@ impl Inspection {
     ) -> Result<Self, InspectError> {
         let injections = injections(layers);
         let mut nodes = Vec::new();
+        let mut ids = HashMap::new();
         for (index, layer) in layers.iter().enumerate().filter(|(_, l)| l.depth == 0) {
             let mut walk = Walk {
                 layers,
                 injections: &injections,
                 nodes: &mut nodes,
+                ids: &mut ids,
             };
             walk.collect(index, layer.tree.root_node(), 0, None, None);
         }
         let lines = line_starts(source);
         let mut captures = Vec::new();
         for (scope_index, language, byte_range) in spans(events)? {
-            let node =
-                owner(&nodes, &language, &byte_range).ok_or_else(|| InspectError::Unowned {
+            let node = owner(layers, &nodes, &ids, &language, &byte_range).ok_or_else(|| {
+                InspectError::Unowned {
                     language: language.clone(),
                     start: byte_range.start,
                     end: byte_range.end,
-                })?;
+                }
+            })?;
             nodes[node].captures.push(captures.len());
             captures.push(Capture {
                 scope_index,
@@ -169,20 +172,26 @@ impl Inspection {
 
 /// For each node that has injected layers, those layers, largest first.
 fn injections(layers: &[ParsedLayer]) -> HashMap<(usize, usize), Vec<usize>> {
+    let roots: Vec<Node<'_>> = layers.iter().map(|l| l.tree.root_node()).collect();
+    let mut by_depth = HashMap::<usize, Vec<usize>>::new();
+    for (index, layer) in layers.iter().enumerate() {
+        by_depth.entry(layer.depth).or_default().push(index);
+    }
     let mut out = HashMap::<(usize, usize), Vec<usize>>::new();
     for (child_index, child) in layers.iter().enumerate() {
-        let child_root = child.tree.root_node();
-        let parent = layers
+        let child_root = roots[child_index];
+        let Some(candidates) = child.depth.checked_sub(1).and_then(|d| by_depth.get(&d)) else {
+            continue;
+        };
+        let parent = candidates
             .iter()
-            .enumerate()
-            .filter(|(_, layer)| {
-                layer.depth + 1 == child.depth
-                    && layer.tree.root_node().start_byte() <= child_root.start_byte()
-                    && layer.tree.root_node().end_byte() >= child_root.end_byte()
+            .filter(|&&p| {
+                roots[p].start_byte() <= child_root.start_byte()
+                    && roots[p].end_byte() >= child_root.end_byte()
             })
-            .min_by_key(|(_, layer)| layer.tree.root_node().byte_range().len());
-        if let Some((parent_index, parent)) = parent {
-            let parent_root = parent.tree.root_node();
+            .min_by_key(|&&p| roots[p].byte_range().len());
+        if let Some(&parent_index) = parent {
+            let parent_root = roots[parent_index];
             let owner = parent_root
                 .named_descendant_for_byte_range(child_root.start_byte(), child_root.end_byte())
                 .unwrap_or(parent_root);
@@ -192,9 +201,7 @@ fn injections(layers: &[ParsedLayer]) -> HashMap<(usize, usize), Vec<usize>> {
         }
     }
     for children in out.values_mut() {
-        children.sort_by_key(|&index| {
-            std::cmp::Reverse(layers[index].tree.root_node().byte_range().len())
-        });
+        children.sort_by_key(|&index| std::cmp::Reverse(roots[index].byte_range().len()));
     }
     out
 }
@@ -203,6 +210,8 @@ struct Walk<'a> {
     layers: &'a [ParsedLayer],
     injections: &'a HashMap<(usize, usize), Vec<usize>>,
     nodes: &'a mut Vec<SyntaxNode>,
+    /// `(layer, tree-sitter node id)` to index in `nodes`.
+    ids: &'a mut HashMap<(usize, usize), usize>,
 }
 
 impl Walk<'_> {
@@ -215,6 +224,7 @@ impl Walk<'_> {
         parent: Option<usize>,
     ) {
         let index = self.nodes.len();
+        self.ids.insert((layer, node.id()), index);
         self.nodes.push(SyntaxNode {
             kind: node.kind().to_string(),
             field,
@@ -303,22 +313,31 @@ fn spans(
     Ok(done.into_iter().map(|(_, s, l, r)| (s, l, r)).collect())
 }
 
-fn owner(nodes: &[SyntaxNode], language: &str, range: &Range<usize>) -> Option<usize> {
-    nodes
+/// The smallest node of `language` containing `range`, the deepest on a tie. Each
+/// layer's tree finds its own candidate, so this costs a descent per layer rather
+/// than a scan of every node.
+fn owner(
+    layers: &[ParsedLayer],
+    nodes: &[SyntaxNode],
+    ids: &HashMap<(usize, usize), usize>,
+    language: &str,
+    range: &Range<usize>,
+) -> Option<usize> {
+    layers
         .iter()
         .enumerate()
-        .filter(|(_, n)| {
-            n.language == language
-                && n.byte_range.start <= range.start
-                && n.byte_range.end >= range.end
+        .filter(|(_, layer)| layer.language == language)
+        .filter_map(|(index, layer)| {
+            let node = layer
+                .tree
+                .root_node()
+                .named_descendant_for_byte_range(range.start, range.end)?;
+            let contains = node.start_byte() <= range.start && node.end_byte() >= range.end;
+            contains
+                .then(|| ids.get(&(index, node.id())).copied())
+                .flatten()
         })
-        .min_by_key(|(_, n)| {
-            (
-                n.byte_range.end - n.byte_range.start,
-                std::cmp::Reverse(n.depth),
-            )
-        })
-        .map(|(i, _)| i)
+        .min_by_key(|&n| (nodes[n].byte_range.len(), std::cmp::Reverse(nodes[n].depth)))
 }
 
 fn line_starts(source: &str) -> Vec<usize> {
