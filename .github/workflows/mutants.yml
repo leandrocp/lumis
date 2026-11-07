@@ -31,7 +31,17 @@ jobs:
       - name: Every mutant in one crate
         env:
           PACKAGE: ${{ inputs.package }}
-        run: mise run test-mutants --package "$PACKAGE" --in-place -vV
+        run: |
+          status=0
+          sudo -E systemd-run --scope --quiet \
+            -p MemoryMax=12G -p MemorySwapMax=0 -p OOMPolicy=continue \
+            --uid="$(id -u)" --gid="$(id -g)" \
+            -- env "PATH=$PATH" "HOME=$HOME" \
+            mise run test-mutants --package "$PACKAGE" --in-place -vV || status=$?
+          if [ "$status" -eq 3 ] && [ ! -s mutants.out/missed.txt ]; then
+            status=0
+          fi
+          exit "$status"
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:

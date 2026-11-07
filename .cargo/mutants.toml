@@ -5,3 +5,6 @@ exclude_globs = [
     "packages/**",
     "crates/lumis-wasm-runtime/src/tree_sitter_highlight.rs",
 ]
+
+# The default of five times the baseline gave a looping mutant over five minutes.
+timeout_multiplier = 2.0

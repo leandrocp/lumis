@@ -174,6 +174,11 @@ workflow runs only from the Actions tab's **Run workflow** button and tests
 every mutant in the selected crate. Use the local command above for a focused
 file check without waiting for a full crate run.
 
+The test timeout is twice the unmutated baseline, with cargo-mutants' 20 second
+floor. In CI the run sits in a cgroup capped at 12 GiB, so a mutant that loops
+while allocating is OOM-killed and reported caught instead of taking the runner
+down. Timeouts alone do not fail the workflow; a missed mutant does.
+
 ### Generated HTML and CSS
 
 After changing HTML formatters or theme layout, refresh the shared outputs:
