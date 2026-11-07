@@ -1,0 +1,48 @@
+[package]
+name = "lumis-inspect"
+version = "0.0.0"
+edition = "2024"
+publish = false
+description = "A window that shows the syntax tree, captures and theme styles behind every byte Lumis highlights"
+
+[workspace]
+
+[[bin]]
+name = "lumis-inspect"
+path = "src/main.rs"
+
+[dependencies]
+lumis-core = { path = "../lumis-core" }
+lumis-wasm-runtime = { path = "../lumis-wasm-runtime" }
+rune = { git = "https://github.com/anomalyco/rune", rev = "781e2b6d87cd5f32d6f4365956fad4baaf24ee50" }
+rune-kit = { git = "https://github.com/anomalyco/rune", rev = "781e2b6d87cd5f32d6f4365956fad4baaf24ee50" }
+rune-theme-opencode = { git = "https://github.com/anomalyco/rune", rev = "781e2b6d87cd5f32d6f4365956fad4baaf24ee50" }
+wgpu = { version = "30", default-features = false, features = ["std", "parking_lot", "metal", "wgsl"] }
+
+[target.'cfg(not(target_os = "macos"))'.dependencies]
+wgpu = { version = "30", default-features = false, features = ["vulkan", "dx12"] }
+
+# The root workspace's patch, so the inspector loads the same parsers the CLI does.
+[patch.crates-io]
+tree-sitter = { git = "https://github.com/tree-sitter/tree-sitter", rev = "868eab666844fa42118af86e2893c104c50971cc" }
+tree-sitter-language = { git = "https://github.com/tree-sitter/tree-sitter", rev = "868eab666844fa42118af86e2893c104c50971cc" }
+
+[lints.rust]
+rust_2018_idioms = { level = "warn", priority = -1 }
+unreachable_pub = "warn"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+cognitive_complexity = "warn"
+# This crate is its own workspace, so it cannot inherit the root's lint table.
+# Keep the two in step; the reasoning behind each waiver lives in the root
+# `Cargo.toml`.
+implicit_hasher = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+must_use_candidate = "allow"
+needless_pass_by_value = "allow"
+similar_names = "allow"
+struct_excessive_bools = "allow"
+too_many_lines = "allow"
+cast_possible_truncation = "allow"
