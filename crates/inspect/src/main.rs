@@ -138,14 +138,18 @@ impl Inspector {
 
     /// Describe `node` and put the caret at its start, without scrolling the tree it was
     /// picked from.
-    pub(crate) fn pick(&mut self, node: usize) {
-        let Some(analysis) = self.current() else {
+    /// `analysis` is the one the row or crumb was drawn from: a press that lands after a newer
+    /// highlight replaced it picks nothing.
+    pub(crate) fn pick(&mut self, analysis: u64, node: usize) {
+        let Some(start) = self
+            .current()
+            .filter(|a| a.id == analysis)
+            .and_then(|a| a.inspection.nodes.get(node))
+            .map(|n| n.byte_range.start)
+        else {
             return;
         };
-        let (id, start) = (
-            analysis.id,
-            analysis.inspection.nodes[node].byte_range.start,
-        );
+        let id = analysis;
         self.place_caret(start);
         self.picked = Some((id, node, self.caret()));
         self.caret_node = Some((id, node));

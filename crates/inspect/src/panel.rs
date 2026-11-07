@@ -111,7 +111,7 @@ fn details(s: &Inspector, k: &'static Kit, analysis: &Analysis) -> El {
     if let Some(node) = s.node() {
         out = out
             .child(heading(k, "Node"))
-            .child(breadcrumb(inspection, k, node))
+            .child(breadcrumb(analysis, k, node))
             .child(node_facts(s, k, &inspection.nodes[node]));
     }
     out
@@ -135,7 +135,8 @@ fn cursor(s: &Inspector, k: &Kit, caret: usize) -> El {
         .child(mono(k, character, k.c.text_muted))
 }
 
-fn breadcrumb(inspection: &Inspection, k: &Kit, node: usize) -> El {
+fn breadcrumb(analysis: &Analysis, k: &Kit, node: usize) -> El {
+    let (inspection, id) = (&analysis.inspection, analysis.id);
     let ancestors = inspection.ancestors(node);
     let mut crumbs = row().flex_wrap().gap(4.0).items_center().pb(8.0);
     for (n, &index) in ancestors.iter().enumerate() {
@@ -174,7 +175,7 @@ fn breadcrumb(inspection: &Inspection, k: &Kit, node: usize) -> El {
                 Color::TRANSPARENT
             })
             .on_hover_change(move |s: &mut Inspector, on, _| hover(s, index, on))
-            .on_press(move |s: &mut Inspector| s.pick(index)),
+            .on_press(move |s: &mut Inspector| s.pick(id, index)),
         );
     }
     crumbs
@@ -188,15 +189,20 @@ fn hover(s: &mut Inspector, node: usize, on: bool) {
     }
 }
 
+/// `line:column` from 1, the column in characters like the cursor's, where Tree-sitter
+/// counts bytes.
+fn point(text: &str, byte: usize) -> String {
+    let (line, column) = position(text, byte);
+    format!("{line}:{column}")
+}
+
+fn span(text: &str, bytes: &std::ops::Range<usize>) -> String {
+    format!("{} – {}", point(text, bytes.start), point(text, bytes.end))
+}
+
 fn node_facts(s: &Inspector, k: &Kit, node: &SyntaxNode) -> El {
     let base = k.c.text_base;
-    let range = format!(
-        "{}:{} – {}:{}",
-        node.start.row + 1,
-        node.start.column + 1,
-        node.end.row + 1,
-        node.end.column + 1
-    );
+    let range = span(&s.edit.text, &node.byte_range);
     let bytes = format!(
         "{}..{}  ({} bytes)",
         node.byte_range.start,
@@ -358,13 +364,7 @@ fn capture_card(s: &Inspector, k: &Kit, inspection: &Inspection, capture: usize)
     let theme = s.theme();
     let c = &inspection.captures[capture];
     let own = style::own(theme, c.scope_index, &c.language);
-    let range = format!(
-        "{}:{} – {}:{}",
-        c.start.row + 1,
-        c.start.column + 1,
-        c.end.row + 1,
-        c.end.column + 1
-    );
+    let range = span(&s.edit.text, &c.byte_range);
     let scope_color = own
         .style
         .as_ref()
@@ -471,6 +471,7 @@ fn tree_row(s: &Inspector, k: &Kit, index: usize) -> El {
     let Some(analysis) = s.current() else {
         return el();
     };
+    let analysis_id = analysis.id;
     let inspection = &analysis.inspection;
     let Some(node) = inspection.nodes.get(index) else {
         return el();
@@ -506,7 +507,7 @@ fn tree_row(s: &Inspector, k: &Kit, index: usize) -> El {
     }
     line = line.child(mono(k, kind, kind_color)).child(mono(
         k,
-        format!("{}:{}", node.start.row + 1, node.start.column + 1),
+        point(&s.edit.text, node.byte_range.start),
         k.c.text_faint,
     ));
     for &capture in node.captures.iter().take(3) {
@@ -531,7 +532,7 @@ fn tree_row(s: &Inspector, k: &Kit, index: usize) -> El {
     }
     let line = line
         .on_hover_change(move |s: &mut Inspector, on, _| hover(s, index, on))
-        .on_press(move |s: &mut Inspector| s.pick(index));
+        .on_press(move |s: &mut Inspector| s.pick(analysis_id, index));
     let line = if at_caret {
         line.fill(k.c.text_accent.alpha(0.16))
     } else {
