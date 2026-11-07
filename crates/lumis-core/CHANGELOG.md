@@ -1,3 +1,9 @@
+## [6.1.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v6.1.0...cargo-lumis-core/v6.1.1) (2026-11-07)
+
+### Code Refactoring
+
+- **rust:** Share the highlight inspection between dump and tools in [\#2014](https://github.com/leandrocp/lumis/pull/2014)
+
 ## [6.1.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v6.0.0...cargo-lumis-core/v6.1.0) (2026-11-04)
 
 ### Features
