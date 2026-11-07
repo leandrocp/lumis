@@ -54,7 +54,7 @@ jobs:
   nif-release:
     needs: nif-lock
     if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
-    uses: leandrocp/github-actions/.github/workflows/nif-release.yml@84f29a1e6b71de81fe806e553eb72b5e8aebe729
+    uses: leandrocp/github-actions/.github/workflows/nif-release.yml@ae8367fb3d95677daeb59730db456932abc65f0f
     with:
       locked: true
       project-name: lumis_nif
