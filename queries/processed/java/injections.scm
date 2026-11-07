@@ -3,7 +3,8 @@
   (block_comment)
   (line_comment)
 ] @injection.content
-  (#set! injection.language "comment"))
+  (#set! injection.language "comment")
+  (#match? @injection.content "TODO|WIP|NOTE|XXX|INFO|DOCS|PERF|TEST|HACK|WARN|FIX|BUG|ERROR|#[0-9]+|https?://"))
 
 ((block_comment) @injection.content
   (#match? @injection.content "/[*][*][\\t-\\r ]")

@@ -883,9 +883,12 @@ dependencies = [
 name = "lumis-build"
 version = "1.2.0"
 dependencies = [
+ "regex-syntax",
  "serde",
  "serde_json",
  "spdx",
+ "tree-sitter",
+ "tree-sitter-tsquery",
  "url",
 ]
 

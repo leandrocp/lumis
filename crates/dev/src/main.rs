@@ -2837,6 +2837,8 @@ fn preprocess_queries(name: &str) -> Result<()> {
         }
     }
 
+    let comment_filter = derive_comment_filter(src, override_dir, append_dir)?;
+
     for lang in query_names()? {
         if !name.is_empty() && lang != name {
             continue;
@@ -2850,13 +2852,7 @@ fn preprocess_queries(name: &str) -> Result<()> {
             let content =
                 resolve_and_preprocess(src, override_dir, append_dir, &lang, query_type, &mut seen);
             if !content.is_empty() {
-                // Reject rather than approximate: a Lua pattern that cannot be
-                // translated faithfully would ship a regex that means something
-                // else in every runtime.
-                let content =
-                    lumis_build::try_convert_lua_matches(&content).with_context(|| {
-                        format!("failed to convert Lua patterns in {lang}/{query_type}.scm")
-                    })?;
+                let content = finish_query(&lang, query_type, &content, &comment_filter)?;
                 let full = format!("; This file is auto-generated. Do not edit.\n{content}");
                 fs::write(format!("{dest}/{lang}/{query_type}.scm"), &full)?;
                 wrote = true;
@@ -2868,6 +2864,41 @@ fn preprocess_queries(name: &str) -> Result<()> {
     }
 
     Ok(())
+}
+
+/// The `#match?` every `comment` injection carries, from the comment
+/// language's own highlights query after overrides and appends.
+fn derive_comment_filter(src: &str, override_dir: &str, append_dir: &str) -> Result<String> {
+    let highlights = resolve_and_preprocess(
+        src,
+        override_dir,
+        append_dir,
+        "comment",
+        "highlights",
+        &mut HashSet::new(),
+    );
+    let highlights = lumis_build::try_convert_lua_matches(&highlights)
+        .context("failed to convert Lua patterns in comment/highlights.scm")?;
+    lumis_build::comment_injection_filter(&highlights)
+        .context("failed to derive the comment injection filter")
+}
+
+fn finish_query(
+    lang: &str,
+    query_type: &str,
+    content: &str,
+    comment_filter: &str,
+) -> Result<String> {
+    // Reject rather than approximate: a Lua pattern that cannot be
+    // translated faithfully would ship a regex that means something
+    // else in every runtime.
+    let content = lumis_build::try_convert_lua_matches(content)
+        .with_context(|| format!("failed to convert Lua patterns in {lang}/{query_type}.scm"))?;
+    if query_type != "injections" {
+        return Ok(content);
+    }
+    lumis_build::filter_comment_injections(&content, comment_filter)
+        .with_context(|| format!("failed to filter comment injections in {lang}/injections.scm"))
 }
 
 fn gen_highlights() -> Result<()> {
