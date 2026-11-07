@@ -768,6 +768,14 @@ When a fetched upstream query needs to change, use one of these directories:
 - `queries/override/{name}/{query}.scm`: replace the upstream query entirely when it's incompatible with the pinned parser
 - `queries/append/{name}/{query}.scm`: add local patterns after the upstream query, or after the replacement query when both exist
 
+#### The comment injection filter
+
+Preprocessing adds one predicate Neovim's queries do not have. Every pattern that injects `comment` gets `(#match? @injection.content "...")`, so a comment is parsed as its own layer only if its text holds something `queries/processed/comment/highlights.scm` can color: one of its `#any-of?` tags, an issue number, or a URI. On three.js's 1.4 MiB `three.core.js`, JavaScript injected `comment` into 4,516 comments for 134 colored captures. Filtering them removed about a third of setup plus the first highlight, and the output is byte for byte the same.
+
+`lumis_build::comment_injection_filter` derives the regex from the comment query, parsed with `tree-sitter-tsquery`, so editing that query through `queries/override/comment/` or `queries/append/comment/` updates every host language's filter on the next `mise run langs-preprocess-queries`. Preprocessing fails if a pattern colors something no literal, regex or `uri` token bounds, and if a `comment` injection is combined or quantified. Either one would make the filter drop captures. `crates/lumis-build/tests/processed_queries.rs` runs the query over generated comments with the comment grammar and fails if the filter rejects one that the query colors.
+
+The filter is baked into each host language's injections when that language is generated. A comment query loaded at run time in place of the published one, through `lumis_wasm_runtime::Runtime::load_language` or a self-served package, is still filtered by the published query's regex.
+
 ### Building WASMs
 
 WASMs are built in CI by the `wasm-release` workflow, but you can build them locally:
