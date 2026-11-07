@@ -174,6 +174,8 @@ jobs:
       - run: cargo fmt --manifest-path crates/dev/Cargo.toml --check
       - run: cargo fmt --manifest-path crates/inspect/Cargo.toml --check
       - run: cargo test --manifest-path crates/dev/Cargo.toml --no-default-features
+      # Linking Rune needs xkbcommon, which the runner image lacks.
+      - run: sudo apt-get update && sudo apt-get install -y libxkbcommon-dev
       - run: cargo test --manifest-path crates/inspect/Cargo.toml
       - run: cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- gen-themes-md --check
       # Each of these is its own workspace, so it carries its own `[lints]`
