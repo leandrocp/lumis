@@ -1,3 +1,9 @@
+## [0.10.6](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.5...npm-lumis/v0.10.6) (2026-11-07)
+
+### Dependencies
+
+- Upgrade Tree-sitter runtimes to 0.27.2 in [\#2022](https://github.com/leandrocp/lumis/pull/2022)
+
 ## [0.10.5](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.4...npm-lumis/v0.10.5) (2026-11-07)
 
 ### Bug Fixes
