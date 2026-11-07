@@ -1,15 +1,10 @@
 name: Mutation testing
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 on:
-  pull_request:
-    paths:
-      - "**/*.rs"
-      - ".cargo/mutants.toml"
-      - ".github/workflows/mutants.yml"
   workflow_dispatch:
     inputs:
       package:
@@ -22,15 +17,10 @@ permissions:
 
 jobs:
   mutants:
-    if: >-
-      ${{ !(github.event.pull_request.head.repo.full_name == github.repository &&
-            startsWith(github.event.pull_request.head.ref, 'release/')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7.0.1
-        with:
-          fetch-depth: 0
       - uses: jdx/mise-action@v5.2.4
       - uses: dtolnay/rust-toolchain@v1
         with:
@@ -38,16 +28,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2.9.3
         with:
           shared-key: mutants
-      - name: Mutants in the lines this pull request changes
-        if: github.event_name == 'pull_request'
-        continue-on-error: true
-        env:
-          BASE_REF: ${{ github.base_ref }}
-        run: |
-          git diff "origin/$BASE_REF...HEAD" > "$RUNNER_TEMP/pr.diff"
-          mise run test-mutants --in-diff "$RUNNER_TEMP/pr.diff" --in-place -vV
       - name: Every mutant in one crate
-        if: github.event_name == 'workflow_dispatch'
         env:
           PACKAGE: ${{ inputs.package }}
         run: mise run test-mutants --package "$PACKAGE" --in-place -vV

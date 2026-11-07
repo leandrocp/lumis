@@ -463,6 +463,16 @@ Common entry points:
 
 For language, theme, query, docs-generation, or bundle changes, run the relevant regeneration commands described in `CONTRIBUTING.md` and commit the resulting tracked files.
 
+Run targeted mutation testing when the changes warrant checking whether tests
+catch incorrect Rust behavior: changes to branching, boundary conditions,
+fallbacks, or error handling, especially when fixing a bug existing tests missed.
+Use `mise run test-mutants --file <changed-rust-file>` and broaden to
+`--package <crate>` only when the affected behavior spans the crate. Inspect
+missed mutants and strengthen tests for meaningful uncovered behavior. Do not
+run a full sweep for every change or require mutation testing for docs-only,
+CI-only, or formatting-only edits. Keep local runs out of `--in-place` mode;
+see `CONTRIBUTING.md` for exclusions and downstream-test selection.
+
 ## Release discipline
 
 Releases are prepared by `release-prepare.yml` on every push to `main`, which opens or updates one pull request per package that needs one, and published when a maintainer merges one: `release-tag.yml` turns the merge commit into the package tag the publish workflows run from. `mise run release-prepare` does the same preparation locally.

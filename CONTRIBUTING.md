@@ -169,9 +169,10 @@ whose tests are Elixir and JavaScript, and the vendored Tree-sitter highlighter.
 Do not pass `--in-place` locally: an interrupted run leaves the mutation in
 your working tree.
 
-On pull requests, the `Mutation testing` workflow tests only the mutants in
-changed lines (`--in-diff`) and reports misses as annotations without failing
-the build. Run it from the Actions tab to test every mutant in one crate.
+Mutation testing is opt-in, not a pull request gate. The `Mutation testing`
+workflow runs only from the Actions tab's **Run workflow** button and tests
+every mutant in the selected crate. Use the local command above for a focused
+file check without waiting for a full crate run.
 
 ### Generated HTML and CSS
 
