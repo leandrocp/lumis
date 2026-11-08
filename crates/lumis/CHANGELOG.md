@@ -1,3 +1,9 @@
+## [0.19.4](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.19.3...cargo-lumis/v0.19.4) (2026-11-07)
+
+### Features
+
+- Update lang swift in [\#1689](https://github.com/leandrocp/lumis/pull/1689)
+
 ## [0.19.3](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.19.2...cargo-lumis/v0.19.3) (2026-11-07)
 
 ### Dependencies
