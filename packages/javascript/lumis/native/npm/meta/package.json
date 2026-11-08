@@ -1,6 +1,6 @@
 {
   "name": "@lumis-sh/lumis-native",
-  "version": "0.10.6",
+  "version": "0.10.7",
   "description": "Native Node.js runtime for Lumis",
   "license": "MIT",
   "repository": {

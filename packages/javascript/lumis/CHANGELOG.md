@@ -1,3 +1,9 @@
+## [0.10.7](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.6...npm-lumis/v0.10.7) (2026-11-08)
+
+### Features
+
+- Update lang swift in [\#1689](https://github.com/leandrocp/lumis/pull/1689)
+
 ## [0.10.6](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.5...npm-lumis/v0.10.6) (2026-11-07)
 
 ### Dependencies
