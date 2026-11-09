@@ -1,5 +1,5 @@
 /* token_meridian_light
- * revision: 4f28e3c711cf14b3c57c27f1ded3fb3c9e078c7e
+ * revision: fa8600de9a1ee5b88fb2ef48a0964e9648d3aefc
  * license: BSD-3-Clause
  */
 .lumis {
@@ -22,11 +22,11 @@
   color: #005f2f;
 }
 .l-comment {
-  color: #524b42;
+  color: #6c645b;
   font-style: italic;
 }
 .l-comment-documentation {
-  color: #524b42;
+  color: #6c645b;
   font-style: italic;
 }
 .l-comment-error {
@@ -34,7 +34,7 @@
   font-style: italic;
 }
 .l-comment-hint {
-  color: #524b42;
+  color: #6c645b;
   font-style: italic;
 }
 .l-comment-note {
@@ -81,23 +81,52 @@
   color: #ae5158;
 }
 .l-function {
-  color: #7a1f7a;
+  color: #832882;
+  font-weight: bold;
+}
+.l-function-angular {
+  color: #832882;
 }
 .l-function-builtin {
   color: #843900;
 }
 .l-function-call {
-  color: #7a1f7a;
+  color: #832882;
+}
+.l-function-cmake {
+  color: #832882;
+}
+.l-function-css {
+  color: #832882;
+}
+.l-function-erlang {
+  color: #832882;
+}
+.l-function-glimmer {
+  color: #832882;
+}
+.l-function-hcl {
+  color: #832882;
+}
+.l-function-latex {
+  color: #832882;
+}
+.l-function-llvm {
+  color: #832882;
 }
 .l-function-macro {
   color: #0048b3;
   font-weight: bold;
 }
 .l-function-method {
-  color: #7a1f7a;
+  color: #832882;
+  font-weight: bold;
 }
 .l-function-method-call {
-  color: #7a1f7a;
+  color: #832882;
+}
+.l-function-scss {
+  color: #832882;
 }
 .l-highlighted {
   background-color: #f0ede6;
@@ -171,7 +200,7 @@
   font-weight: bold;
 }
 .l-line-number:not(.l-line-number-highlighted) {
-  color: #b5b2ab;
+  color: #8f8c85;
   background-color: #f6f5f1;
 }
 .l-line-number-highlighted {
@@ -212,7 +241,7 @@
   font-weight: bold;
 }
 .l-markup-heading-6 {
-  color: #4b1fa3;
+  color: #725264;
   font-weight: bold;
 }
 .l-markup-italic {
@@ -278,16 +307,16 @@
   color: #46535f;
 }
 .l-property {
-  color: #4b1fa3;
+  color: #725264;
 }
 .l-punctuation-bracket {
-  color: #46535f;
+  color: #6c645b;
 }
 .l-punctuation-delimiter {
-  color: #46535f;
+  color: #6c645b;
 }
 .l-punctuation-special {
-  color: #46535f;
+  color: #6c645b;
 }
 .l-string {
   color: #005f2f;
@@ -325,7 +354,7 @@
   color: #843900;
 }
 .l-tag-delimiter {
-  color: #46535f;
+  color: #6c645b;
 }
 .l-type {
   color: #843900;
@@ -334,7 +363,8 @@
   color: #843900;
 }
 .l-type-definition {
-  color: #7a1f7a;
+  color: #832882;
+  font-weight: bold;
 }
 .l-variable {
   color: #28323a;
@@ -343,7 +373,7 @@
   color: #843900;
 }
 .l-variable-member {
-  color: #4b1fa3;
+  color: #725264;
 }
 .l-variable-parameter {
   color: #46535f;

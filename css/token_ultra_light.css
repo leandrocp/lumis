@@ -1,5 +1,5 @@
 /* token_ultra_light
- * revision: 1538e1eadcbc9eb465b33bab71eec48c8bed0b76
+ * revision: fa8600de9a1ee5b88fb2ef48a0964e9648d3aefc
  * license: BSD-3-Clause
  */
 .lumis {
@@ -13,20 +13,20 @@
   color: #565141;
 }
 .l-boolean {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-character {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-character-special {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-comment {
-  color: #514b44;
+  color: #6b645d;
   font-style: italic;
 }
 .l-comment-documentation {
-  color: #514b44;
+  color: #6b645d;
   font-style: italic;
 }
 .l-comment-error {
@@ -34,7 +34,7 @@
   font-style: italic;
 }
 .l-comment-hint {
-  color: #514b44;
+  color: #6b645d;
   font-style: italic;
 }
 .l-comment-note {
@@ -50,10 +50,10 @@
   font-style: italic;
 }
 .l-constant {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-constant-builtin {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-constant-macro {
   color: #6c4800;
@@ -82,11 +82,36 @@
 }
 .l-function {
   color: #893517;
+  font-weight: bold;
+}
+.l-function-angular {
+  color: #893517;
 }
 .l-function-builtin {
   color: #565141;
 }
 .l-function-call {
+  color: #893517;
+}
+.l-function-cmake {
+  color: #893517;
+}
+.l-function-css {
+  color: #893517;
+}
+.l-function-erlang {
+  color: #893517;
+}
+.l-function-glimmer {
+  color: #893517;
+}
+.l-function-hcl {
+  color: #893517;
+}
+.l-function-latex {
+  color: #893517;
+}
+.l-function-llvm {
   color: #893517;
 }
 .l-function-macro {
@@ -95,8 +120,12 @@
 }
 .l-function-method {
   color: #893517;
+  font-weight: bold;
 }
 .l-function-method-call {
+  color: #893517;
+}
+.l-function-scss {
   color: #893517;
 }
 .l-highlighted {
@@ -171,7 +200,7 @@
   font-weight: bold;
 }
 .l-line-number:not(.l-line-number-highlighted) {
-  color: #b5b2ab;
+  color: #8f8c85;
   background-color: #f6f5f1;
 }
 .l-line-number-highlighted {
@@ -248,10 +277,10 @@
   font-style: italic;
 }
 .l-markup-raw {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-markup-raw-block {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-markup-strikethrough {
   text-decoration: line-through;
@@ -269,10 +298,10 @@
   color: #565141;
 }
 .l-number {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-number-float {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-operator {
   color: #565141;
@@ -281,35 +310,35 @@
   color: #31312b;
 }
 .l-punctuation-bracket {
-  color: #565141;
+  color: #6b645d;
 }
 .l-punctuation-delimiter {
-  color: #565141;
+  color: #6b645d;
 }
 .l-punctuation-special {
-  color: #565141;
+  color: #6b645d;
 }
 .l-string {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-string-documentation {
-  color: #004943;
+  color: #1a5a53;
   font-style: italic;
 }
 .l-string-escape {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-string-regexp {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-string-special {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-string-special-path {
   color: #37526a;
 }
 .l-string-special-symbol {
-  color: #004943;
+  color: #1a5a53;
 }
 .l-string-special-url {
   color: #37526a;
@@ -325,7 +354,7 @@
   color: #565141;
 }
 .l-tag-delimiter {
-  color: #514b44;
+  color: #6b645d;
 }
 .l-type {
   color: #565141;
@@ -335,6 +364,7 @@
 }
 .l-type-definition {
   color: #893517;
+  font-weight: bold;
 }
 .l-variable {
   color: #31312b;

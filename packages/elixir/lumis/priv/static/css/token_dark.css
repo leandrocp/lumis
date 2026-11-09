@@ -1,5 +1,5 @@
 /* token_dark
- * revision: 1538e1eadcbc9eb465b33bab71eec48c8bed0b76
+ * revision: fa8600de9a1ee5b88fb2ef48a0964e9648d3aefc
  * license: BSD-3-Clause
  */
 .lumis {
@@ -13,7 +13,7 @@
   color: #b195ca;
 }
 .l-boolean {
-  color: #d6924c;
+  color: #70aead;
 }
 .l-character {
   color: #8fb78c;
@@ -53,7 +53,7 @@
   color: #b195ca;
 }
 .l-constant-builtin {
-  color: #d6924c;
+  color: #70aead;
 }
 .l-constant-macro {
   color: #b195ca;
@@ -82,11 +82,36 @@
 }
 .l-function {
   color: #f4906f;
+  font-weight: bold;
+}
+.l-function-angular {
+  color: #f4906f;
 }
 .l-function-builtin {
   color: #f4906f;
 }
 .l-function-call {
+  color: #f4906f;
+}
+.l-function-cmake {
+  color: #f4906f;
+}
+.l-function-css {
+  color: #f4906f;
+}
+.l-function-erlang {
+  color: #f4906f;
+}
+.l-function-glimmer {
+  color: #f4906f;
+}
+.l-function-hcl {
+  color: #f4906f;
+}
+.l-function-latex {
+  color: #f4906f;
+}
+.l-function-llvm {
   color: #f4906f;
 }
 .l-function-macro {
@@ -95,8 +120,12 @@
 }
 .l-function-method {
   color: #f4906f;
+  font-weight: bold;
 }
 .l-function-method-call {
+  color: #f4906f;
+}
+.l-function-scss {
   color: #f4906f;
 }
 .l-highlighted {
@@ -111,7 +140,7 @@
   font-weight: bold;
 }
 .l-keyword-conditional-ternary {
-  color: #a6a198;
+  color: #b3aea5;
   font-weight: bold;
 }
 .l-keyword-coroutine {
@@ -171,7 +200,7 @@
   font-weight: bold;
 }
 .l-line-number:not(.l-line-number-highlighted) {
-  color: #575755;
+  color: #6b6b69;
   background-color: #212120;
 }
 .l-line-number-highlighted {
@@ -269,22 +298,22 @@
   color: #81a5c4;
 }
 .l-number {
-  color: #d6924c;
+  color: #70aead;
 }
 .l-number-float {
-  color: #d6924c;
+  color: #70aead;
 }
 .l-operator {
-  color: #a6a198;
+  color: #b3aea5;
 }
 .l-property {
   color: #c3c0b8;
 }
 .l-punctuation-bracket {
-  color: #a6a198;
+  color: #a19c94;
 }
 .l-punctuation-delimiter {
-  color: #a6a198;
+  color: #a19c94;
 }
 .l-punctuation-special {
   color: #b195ca;
@@ -335,21 +364,22 @@
 }
 .l-type-definition {
   color: #81a5c4;
+  font-weight: bold;
 }
 .l-variable {
   color: #c3c0b8;
 }
 .l-variable-builtin {
-  color: #f7c699;
+  color: #b195ca;
 }
 .l-variable-member {
   color: #c3c0b8;
 }
 .l-variable-parameter {
-  color: #a6a198;
+  color: #b3aea5;
 }
 .l-variable-parameter-builtin {
-  color: #f7c699;
+  color: #b195ca;
 }
 @layer lumis {
   pre.lumis > code {
