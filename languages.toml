@@ -650,9 +650,9 @@ emacs = ["rust"]
 
 [parsers.scala]
 git = "https://github.com/tree-sitter/tree-sitter-scala.git"
-rev = "8c0b6d44bfd66bf7bc9a1fc15084ef17cef2f97e"
+rev = "854efe86bd888c11f3eef8c8a3c0a805555b7802"
 crate = "tree-sitter-scala"
-version = "0.26.4"
+version = "0.26.9"
 globs = ["*.scala", "*.sbt", "*.sc"]
 emacs = ["scala"]
 
