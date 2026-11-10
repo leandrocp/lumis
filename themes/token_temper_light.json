@@ -2,7 +2,7 @@
   "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "token_temper_light",
   "appearance": "light",
-  "revision": "1538e1eadcbc9eb465b33bab71eec48c8bed0b76",
+  "revision": "fa8600de9a1ee5b88fb2ef48a0964e9648d3aefc",
   "license": "BSD-3-Clause",
   "highlights": {
     "attribute": {
@@ -21,11 +21,11 @@
       "fg": "#005850"
     },
     "comment": {
-      "fg": "#414c57",
+      "fg": "#5a6571",
       "italic": true
     },
     "comment.documentation": {
-      "fg": "#414c57",
+      "fg": "#5a6571",
       "italic": true
     },
     "comment.error": {
@@ -33,7 +33,7 @@
       "italic": true
     },
     "comment.hint": {
-      "fg": "#414c57",
+      "fg": "#5a6571",
       "italic": true
     },
     "comment.note": {
@@ -80,6 +80,10 @@
       "fg": "#bf3f50"
     },
     "function": {
+      "fg": "#005850",
+      "bold": true
+    },
+    "function.angular": {
       "fg": "#005850"
     },
     "function.builtin": {
@@ -88,14 +92,39 @@
     "function.call": {
       "fg": "#005850"
     },
+    "function.cmake": {
+      "fg": "#005850"
+    },
+    "function.css": {
+      "fg": "#005850"
+    },
+    "function.erlang": {
+      "fg": "#005850"
+    },
+    "function.glimmer": {
+      "fg": "#005850"
+    },
+    "function.hcl": {
+      "fg": "#005850"
+    },
+    "function.latex": {
+      "fg": "#005850"
+    },
+    "function.llvm": {
+      "fg": "#005850"
+    },
     "function.macro": {
       "fg": "#683495",
       "bold": true
     },
     "function.method": {
-      "fg": "#005850"
+      "fg": "#005850",
+      "bold": true
     },
     "function.method.call": {
+      "fg": "#005850"
+    },
+    "function.scss": {
       "fg": "#005850"
     },
     "highlighted": {
@@ -170,7 +199,7 @@
       "bold": true
     },
     "line_number": {
-      "fg": "#a7b2bb",
+      "fg": "#818c94",
       "bg": "#eef1f3"
     },
     "line_number.highlighted": {
@@ -284,13 +313,13 @@
       "fg": "#283039"
     },
     "punctuation.bracket": {
-      "fg": "#46515d"
+      "fg": "#5a6571"
     },
     "punctuation.delimiter": {
-      "fg": "#46515d"
+      "fg": "#5a6571"
     },
     "punctuation.special": {
-      "fg": "#46515d"
+      "fg": "#5a6571"
     },
     "string": {
       "fg": "#005850"
@@ -328,7 +357,7 @@
       "fg": "#46515d"
     },
     "tag.delimiter": {
-      "fg": "#414c57"
+      "fg": "#5a6571"
     },
     "type": {
       "fg": "#46515d"
@@ -337,7 +366,8 @@
       "fg": "#46515d"
     },
     "type.definition": {
-      "fg": "#005850"
+      "fg": "#005850",
+      "bold": true
     },
     "variable": {
       "fg": "#283039"
