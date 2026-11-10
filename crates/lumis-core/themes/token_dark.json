@@ -2,7 +2,7 @@
   "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "token_dark",
   "appearance": "dark",
-  "revision": "1538e1eadcbc9eb465b33bab71eec48c8bed0b76",
+  "revision": "fa8600de9a1ee5b88fb2ef48a0964e9648d3aefc",
   "license": "BSD-3-Clause",
   "highlights": {
     "attribute": {
@@ -12,7 +12,7 @@
       "fg": "#b195ca"
     },
     "boolean": {
-      "fg": "#d6924c"
+      "fg": "#70aead"
     },
     "character": {
       "fg": "#8fb78c"
@@ -52,7 +52,7 @@
       "fg": "#b195ca"
     },
     "constant.builtin": {
-      "fg": "#d6924c"
+      "fg": "#70aead"
     },
     "constant.macro": {
       "fg": "#b195ca",
@@ -80,6 +80,10 @@
       "fg": "#d68585"
     },
     "function": {
+      "fg": "#f4906f",
+      "bold": true
+    },
+    "function.angular": {
       "fg": "#f4906f"
     },
     "function.builtin": {
@@ -88,14 +92,39 @@
     "function.call": {
       "fg": "#f4906f"
     },
+    "function.cmake": {
+      "fg": "#f4906f"
+    },
+    "function.css": {
+      "fg": "#f4906f"
+    },
+    "function.erlang": {
+      "fg": "#f4906f"
+    },
+    "function.glimmer": {
+      "fg": "#f4906f"
+    },
+    "function.hcl": {
+      "fg": "#f4906f"
+    },
+    "function.latex": {
+      "fg": "#f4906f"
+    },
+    "function.llvm": {
+      "fg": "#f4906f"
+    },
     "function.macro": {
       "fg": "#b195ca",
       "bold": true
     },
     "function.method": {
-      "fg": "#f4906f"
+      "fg": "#f4906f",
+      "bold": true
     },
     "function.method.call": {
+      "fg": "#f4906f"
+    },
+    "function.scss": {
       "fg": "#f4906f"
     },
     "highlighted": {
@@ -110,7 +139,7 @@
       "bold": true
     },
     "keyword.conditional.ternary": {
-      "fg": "#a6a198",
+      "fg": "#b3aea5",
       "bold": true
     },
     "keyword.coroutine": {
@@ -170,7 +199,7 @@
       "bold": true
     },
     "line_number": {
-      "fg": "#575755",
+      "fg": "#6b6b69",
       "bg": "#212120"
     },
     "line_number.highlighted": {
@@ -272,22 +301,22 @@
       "bg": "#262624"
     },
     "number": {
-      "fg": "#d6924c"
+      "fg": "#70aead"
     },
     "number.float": {
-      "fg": "#d6924c"
+      "fg": "#70aead"
     },
     "operator": {
-      "fg": "#a6a198"
+      "fg": "#b3aea5"
     },
     "property": {
       "fg": "#c3c0b8"
     },
     "punctuation.bracket": {
-      "fg": "#a6a198"
+      "fg": "#a19c94"
     },
     "punctuation.delimiter": {
-      "fg": "#a6a198"
+      "fg": "#a19c94"
     },
     "punctuation.special": {
       "fg": "#b195ca"
@@ -337,22 +366,23 @@
       "fg": "#81a5c4"
     },
     "type.definition": {
-      "fg": "#81a5c4"
+      "fg": "#81a5c4",
+      "bold": true
     },
     "variable": {
       "fg": "#c3c0b8"
     },
     "variable.builtin": {
-      "fg": "#f7c699"
+      "fg": "#b195ca"
     },
     "variable.member": {
       "fg": "#c3c0b8"
     },
     "variable.parameter": {
-      "fg": "#a6a198"
+      "fg": "#b3aea5"
     },
     "variable.parameter.builtin": {
-      "fg": "#f7c699"
+      "fg": "#b195ca"
     }
   }
 }

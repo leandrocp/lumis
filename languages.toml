@@ -573,8 +573,8 @@ globs = ["*.mli"]
 
 [parsers.perl]
 git = "https://github.com/tree-sitter-perl/tree-sitter-perl.git"
-rev = "d0a9590e3150543032a3b1703fd082b3f4656e45"
-version = "2.0.3"
+rev = "af083305aee26ff3e24e7f8f8b8b88fe8462062c"
+version = "2.0.4"
 generate = true
 globs = ["*.pm", "*.pl", "*.t"]
 emacs = ["perl"]
@@ -650,9 +650,9 @@ emacs = ["rust"]
 
 [parsers.scala]
 git = "https://github.com/tree-sitter/tree-sitter-scala.git"
-rev = "8c0b6d44bfd66bf7bc9a1fc15084ef17cef2f97e"
+rev = "854efe86bd888c11f3eef8c8a3c0a805555b7802"
 crate = "tree-sitter-scala"
-version = "0.26.4"
+version = "0.26.9"
 globs = ["*.scala", "*.sbt", "*.sc"]
 emacs = ["scala"]
 
@@ -1034,9 +1034,9 @@ globs = ["*.just", ".just", ".justfile", ".JUSTFILE", ".Justfile", "justfile", "
 
 [parsers.matlab]
 git = "https://github.com/acristoffers/tree-sitter-matlab.git"
-rev = "f03d0347acd8bb05d4edd8c845ac1718729e1fad"
+rev = "ff2f83da49bb06128c4cfd055e7c95c05c77cded"
 crate = "tree-sitter-matlab"
-version = "1.3.1"
+version = "1.3.3"
 display_name = "MATLAB"
 globs = ["*.m"]
 

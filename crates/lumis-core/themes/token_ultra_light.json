@@ -2,7 +2,7 @@
   "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "token_ultra_light",
   "appearance": "light",
-  "revision": "1538e1eadcbc9eb465b33bab71eec48c8bed0b76",
+  "revision": "fa8600de9a1ee5b88fb2ef48a0964e9648d3aefc",
   "license": "BSD-3-Clause",
   "highlights": {
     "attribute": {
@@ -12,20 +12,20 @@
       "fg": "#565141"
     },
     "boolean": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "character": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "character.special": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "comment": {
-      "fg": "#514b44",
+      "fg": "#6b645d",
       "italic": true
     },
     "comment.documentation": {
-      "fg": "#514b44",
+      "fg": "#6b645d",
       "italic": true
     },
     "comment.error": {
@@ -33,7 +33,7 @@
       "italic": true
     },
     "comment.hint": {
-      "fg": "#514b44",
+      "fg": "#6b645d",
       "italic": true
     },
     "comment.note": {
@@ -49,10 +49,10 @@
       "italic": true
     },
     "constant": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "constant.builtin": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "constant.macro": {
       "fg": "#6c4800",
@@ -80,6 +80,10 @@
       "fg": "#ae5158"
     },
     "function": {
+      "fg": "#893517",
+      "bold": true
+    },
+    "function.angular": {
       "fg": "#893517"
     },
     "function.builtin": {
@@ -88,14 +92,39 @@
     "function.call": {
       "fg": "#893517"
     },
+    "function.cmake": {
+      "fg": "#893517"
+    },
+    "function.css": {
+      "fg": "#893517"
+    },
+    "function.erlang": {
+      "fg": "#893517"
+    },
+    "function.glimmer": {
+      "fg": "#893517"
+    },
+    "function.hcl": {
+      "fg": "#893517"
+    },
+    "function.latex": {
+      "fg": "#893517"
+    },
+    "function.llvm": {
+      "fg": "#893517"
+    },
     "function.macro": {
       "fg": "#6c4800",
       "bold": true
     },
     "function.method": {
-      "fg": "#893517"
+      "fg": "#893517",
+      "bold": true
     },
     "function.method.call": {
+      "fg": "#893517"
+    },
+    "function.scss": {
       "fg": "#893517"
     },
     "highlighted": {
@@ -170,7 +199,7 @@
       "bold": true
     },
     "line_number": {
-      "fg": "#b5b2ab",
+      "fg": "#8f8c85",
       "bg": "#f6f5f1"
     },
     "line_number.highlighted": {
@@ -247,10 +276,10 @@
       "italic": true
     },
     "markup.raw": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "markup.raw.block": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "markup.strikethrough": {
       "strikethrough": true
@@ -272,10 +301,10 @@
       "bg": "#fbf9f4"
     },
     "number": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "number.float": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "operator": {
       "fg": "#565141"
@@ -284,35 +313,35 @@
       "fg": "#31312b"
     },
     "punctuation.bracket": {
-      "fg": "#565141"
+      "fg": "#6b645d"
     },
     "punctuation.delimiter": {
-      "fg": "#565141"
+      "fg": "#6b645d"
     },
     "punctuation.special": {
-      "fg": "#565141"
+      "fg": "#6b645d"
     },
     "string": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "string.documentation": {
-      "fg": "#004943",
+      "fg": "#1a5a53",
       "italic": true
     },
     "string.escape": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "string.regexp": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "string.special": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "string.special.path": {
       "fg": "#37526a"
     },
     "string.special.symbol": {
-      "fg": "#004943"
+      "fg": "#1a5a53"
     },
     "string.special.url": {
       "fg": "#37526a",
@@ -328,7 +357,7 @@
       "fg": "#565141"
     },
     "tag.delimiter": {
-      "fg": "#514b44"
+      "fg": "#6b645d"
     },
     "type": {
       "fg": "#565141"
@@ -337,7 +366,8 @@
       "fg": "#565141"
     },
     "type.definition": {
-      "fg": "#893517"
+      "fg": "#893517",
+      "bold": true
     },
     "variable": {
       "fg": "#31312b"

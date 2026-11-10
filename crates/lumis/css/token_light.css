@@ -1,5 +1,5 @@
 /* token_light
- * revision: 1538e1eadcbc9eb465b33bab71eec48c8bed0b76
+ * revision: fa8600de9a1ee5b88fb2ef48a0964e9648d3aefc
  * license: BSD-3-Clause
  */
 .lumis {
@@ -7,26 +7,26 @@
   background-color: #faf9f5;
 }
 .l-attribute {
-  color: #573c72;
+  color: #61457c;
 }
 .l-attribute-builtin {
-  color: #573c72;
+  color: #61457c;
 }
 .l-boolean {
-  color: #613500;
+  color: #1d5f5e;
 }
 .l-character {
   color: #365a33;
 }
 .l-character-special {
-  color: #573c72;
+  color: #61457c;
 }
 .l-comment {
-  color: #504b44;
+  color: #6a655d;
   font-style: italic;
 }
 .l-comment-documentation {
-  color: #504b44;
+  color: #6a655d;
   font-style: italic;
 }
 .l-comment-error {
@@ -34,7 +34,7 @@
   font-style: italic;
 }
 .l-comment-hint {
-  color: #504b44;
+  color: #6a655d;
   font-style: italic;
 }
 .l-comment-note {
@@ -50,13 +50,13 @@
   font-style: italic;
 }
 .l-constant {
-  color: #573c72;
+  color: #61457c;
 }
 .l-constant-builtin {
-  color: #613500;
+  color: #1d5f5e;
 }
 .l-constant-macro {
-  color: #573c72;
+  color: #61457c;
   font-weight: bold;
 }
 .l-constructor {
@@ -82,6 +82,10 @@
 }
 .l-function {
   color: #863716;
+  font-weight: bold;
+}
+.l-function-angular {
+  color: #863716;
 }
 .l-function-builtin {
   color: #863716;
@@ -89,14 +93,39 @@
 .l-function-call {
   color: #863716;
 }
+.l-function-cmake {
+  color: #863716;
+}
+.l-function-css {
+  color: #863716;
+}
+.l-function-erlang {
+  color: #863716;
+}
+.l-function-glimmer {
+  color: #863716;
+}
+.l-function-hcl {
+  color: #863716;
+}
+.l-function-latex {
+  color: #863716;
+}
+.l-function-llvm {
+  color: #863716;
+}
 .l-function-macro {
-  color: #573c72;
+  color: #61457c;
   font-weight: bold;
 }
 .l-function-method {
   color: #863716;
+  font-weight: bold;
 }
 .l-function-method-call {
+  color: #863716;
+}
+.l-function-scss {
   color: #863716;
 }
 .l-highlighted {
@@ -123,11 +152,11 @@
   font-weight: bold;
 }
 .l-keyword-directive {
-  color: #573c72;
+  color: #61457c;
   font-weight: bold;
 }
 .l-keyword-directive-define {
-  color: #573c72;
+  color: #61457c;
   font-weight: bold;
 }
 .l-keyword-exception {
@@ -143,7 +172,7 @@
   font-weight: bold;
 }
 .l-keyword-import {
-  color: #573c72;
+  color: #61457c;
   font-weight: bold;
 }
 .l-keyword-modifier {
@@ -171,7 +200,7 @@
   font-weight: bold;
 }
 .l-line-number:not(.l-line-number-highlighted) {
-  color: #b4b2ab;
+  color: #8e8c86;
   background-color: #f6f5f1;
 }
 .l-line-number-highlighted {
@@ -182,10 +211,10 @@
   color: #323128;
 }
 .l-markup-environment {
-  color: #573c72;
+  color: #61457c;
 }
 .l-markup-environment-name {
-  color: #573c72;
+  color: #61457c;
 }
 .l-markup-heading {
   color: #863716;
@@ -212,7 +241,7 @@
   font-weight: bold;
 }
 .l-markup-heading-6 {
-  color: #573c72;
+  color: #61457c;
   font-weight: bold;
 }
 .l-markup-italic {
@@ -269,10 +298,10 @@
   color: #315270;
 }
 .l-number {
-  color: #613500;
+  color: #1d5f5e;
 }
 .l-number-float {
-  color: #613500;
+  color: #1d5f5e;
 }
 .l-operator {
   color: #565141;
@@ -281,13 +310,13 @@
   color: #323128;
 }
 .l-punctuation-bracket {
-  color: #565141;
+  color: #6a655d;
 }
 .l-punctuation-delimiter {
-  color: #565141;
+  color: #6a655d;
 }
 .l-punctuation-special {
-  color: #573c72;
+  color: #61457c;
 }
 .l-string {
   color: #365a33;
@@ -297,35 +326,35 @@
   font-style: italic;
 }
 .l-string-escape {
-  color: #573c72;
+  color: #61457c;
 }
 .l-string-regexp {
-  color: #573c72;
+  color: #61457c;
 }
 .l-string-special {
-  color: #573c72;
+  color: #61457c;
 }
 .l-string-special-path {
   color: #315270;
 }
 .l-string-special-symbol {
-  color: #573c72;
+  color: #61457c;
 }
 .l-string-special-url {
   color: #315270;
   text-decoration: underline;
 }
 .l-tag {
-  color: #573c72;
+  color: #61457c;
 }
 .l-tag-attribute {
   color: #6d4717;
 }
 .l-tag-builtin {
-  color: #573c72;
+  color: #61457c;
 }
 .l-tag-delimiter {
-  color: #504b44;
+  color: #6a655d;
 }
 .l-type {
   color: #315270;
@@ -335,12 +364,13 @@
 }
 .l-type-definition {
   color: #315270;
+  font-weight: bold;
 }
 .l-variable {
   color: #323128;
 }
 .l-variable-builtin {
-  color: #6d4717;
+  color: #61457c;
 }
 .l-variable-member {
   color: #323128;
@@ -349,7 +379,7 @@
   color: #565141;
 }
 .l-variable-parameter-builtin {
-  color: #6d4717;
+  color: #61457c;
 }
 @layer lumis {
   pre.lumis > code {
