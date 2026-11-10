@@ -1,5 +1,5 @@
 /* token_temper_light
- * revision: 1538e1eadcbc9eb465b33bab71eec48c8bed0b76
+ * revision: fa8600de9a1ee5b88fb2ef48a0964e9648d3aefc
  * license: BSD-3-Clause
  */
 .lumis {
@@ -22,11 +22,11 @@
   color: #005850;
 }
 .l-comment {
-  color: #414c57;
+  color: #5a6571;
   font-style: italic;
 }
 .l-comment-documentation {
-  color: #414c57;
+  color: #5a6571;
   font-style: italic;
 }
 .l-comment-error {
@@ -34,7 +34,7 @@
   font-style: italic;
 }
 .l-comment-hint {
-  color: #414c57;
+  color: #5a6571;
   font-style: italic;
 }
 .l-comment-note {
@@ -82,11 +82,36 @@
 }
 .l-function {
   color: #005850;
+  font-weight: bold;
+}
+.l-function-angular {
+  color: #005850;
 }
 .l-function-builtin {
   color: #46515d;
 }
 .l-function-call {
+  color: #005850;
+}
+.l-function-cmake {
+  color: #005850;
+}
+.l-function-css {
+  color: #005850;
+}
+.l-function-erlang {
+  color: #005850;
+}
+.l-function-glimmer {
+  color: #005850;
+}
+.l-function-hcl {
+  color: #005850;
+}
+.l-function-latex {
+  color: #005850;
+}
+.l-function-llvm {
   color: #005850;
 }
 .l-function-macro {
@@ -95,8 +120,12 @@
 }
 .l-function-method {
   color: #005850;
+  font-weight: bold;
 }
 .l-function-method-call {
+  color: #005850;
+}
+.l-function-scss {
   color: #005850;
 }
 .l-highlighted {
@@ -171,7 +200,7 @@
   font-weight: bold;
 }
 .l-line-number:not(.l-line-number-highlighted) {
-  color: #a7b2bb;
+  color: #818c94;
   background-color: #eef1f3;
 }
 .l-line-number-highlighted {
@@ -281,13 +310,13 @@
   color: #283039;
 }
 .l-punctuation-bracket {
-  color: #46515d;
+  color: #5a6571;
 }
 .l-punctuation-delimiter {
-  color: #46515d;
+  color: #5a6571;
 }
 .l-punctuation-special {
-  color: #46515d;
+  color: #5a6571;
 }
 .l-string {
   color: #005850;
@@ -325,7 +354,7 @@
   color: #46515d;
 }
 .l-tag-delimiter {
-  color: #414c57;
+  color: #5a6571;
 }
 .l-type {
   color: #46515d;
@@ -335,6 +364,7 @@
 }
 .l-type-definition {
   color: #005850;
+  font-weight: bold;
 }
 .l-variable {
   color: #283039;
