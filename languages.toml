@@ -698,7 +698,7 @@ globs = ["*.svelte"]
 
 [parsers.swift]
 git = "https://github.com/leandrocp/tree-sitter-swift.git"
-rev = "9325e4491bbd23fea80c792bb1cdd309db94893b"
+rev = "b241aa0192f5b2f9865c926914989864e782628c"
 crate = "tree-sitter-swift"
 version = "0.7.4"
 globs = ["*.swift"]
