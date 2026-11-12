@@ -67,8 +67,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: jdx/mise-action@v5.2.4
-      - uses: pnpm/action-setup@v6.1.0
+      - uses: jdx/mise-action@v5.2.6
+      - uses: pnpm/action-setup@v6.1.1
         with:
           version: 11.15.1
       - uses: actions/setup-node@v7.1.0
@@ -110,8 +110,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: stable
-      - uses: jdx/mise-action@v5.2.4
-      - uses: pnpm/action-setup@v6.1.0
+      - uses: jdx/mise-action@v5.2.6
+      - uses: pnpm/action-setup@v6.1.1
         with:
           version: 11.15.1
       - uses: actions/setup-node@v7.1.0
@@ -133,7 +133,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: stable
-      - uses: pnpm/action-setup@v6.1.0
+      - uses: pnpm/action-setup@v6.1.1
         with:
           version: 11.15.1
       - uses: actions/setup-node@v7.1.0

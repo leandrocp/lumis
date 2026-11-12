@@ -4,9 +4,9 @@
   "type": "module",
   "packageManager": "pnpm@11.15.1",
   "devDependencies": {
-    "@microsoft/api-extractor": "^7.60.0",
-    "oxfmt": "^0.75.0",
-    "semver": "7.8.5",
+    "@microsoft/api-extractor": "^7.60.1",
+    "oxfmt": "^0.76.0",
+    "semver": "7.8.6",
     "smol-toml": "^1.9.1",
     "tsx": "^4.23.15"
   }
