@@ -49,14 +49,14 @@
   },
   "devDependencies": {
     "@lumis-sh/lumis": "workspace:^",
-    "@microsoft/api-extractor": "^7.60.0",
+    "@microsoft/api-extractor": "^7.60.1",
     "@types/hast": "^3.0.4",
-    "oxfmt": "^0.75.0",
-    "oxlint": "1.90.0",
+    "oxfmt": "^0.76.0",
+    "oxlint": "1.91.0",
     "oxlint-tsgolint": "7.0.2005",
     "tsup": "^9.0.0",
     "typescript": "^6.0.3",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   },
   "peerDependencies": {
     "@lumis-sh/lumis": "workspace:^"
