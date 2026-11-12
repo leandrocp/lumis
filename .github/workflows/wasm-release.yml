@@ -95,7 +95,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.4
+      - uses: jdx/mise-action@v5.2.6
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@v1
@@ -150,7 +150,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.4
+      - uses: jdx/mise-action@v5.2.6
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@v1
@@ -260,7 +260,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.4
+      - uses: jdx/mise-action@v5.2.6
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@v1
@@ -279,7 +279,7 @@ jobs:
           path: ~/.cache/tree-sitter
           key: ${{ runner.os }}-wasi-sdk-${{ hashFiles('crates/dev/src/wasi_sdk.rs') }}
 
-      - uses: pnpm/action-setup@v6.1.0
+      - uses: pnpm/action-setup@v6.1.1
         with:
           version: 11.15.1
 
@@ -419,7 +419,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.4
+      - uses: jdx/mise-action@v5.2.6
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@v1
@@ -456,7 +456,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.4
+      - uses: jdx/mise-action@v5.2.6
         with:
           install: false
 
