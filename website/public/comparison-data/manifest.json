@@ -37,7 +37,7 @@
     {
       "id": "pierre-highlights",
       "label": "Highlights",
-      "version": "@pierre/highlights 0.3.0",
+      "version": "@pierre/highlights 0.4.0",
       "theme": "Highlights' bundled Catppuccin themes, which match catppuccin/zed"
     },
     {
@@ -49,7 +49,7 @@
     {
       "id": "shiki",
       "label": "Shiki",
-      "version": "shiki 4.5.0",
+      "version": "shiki 4.6.0",
       "theme": "Shiki's bundled catppuccin themes"
     },
     {
@@ -79,7 +79,7 @@
     {
       "id": "tanstack-highlight",
       "label": "TanStack Highlight",
-      "version": "@tanstack/highlight 1.2.0",
+      "version": "@tanstack/highlight 1.2.11",
       "theme": "@catppuccin/highlightjs 1.0.1 colours, mapped onto its token classes by this repository"
     }
   ],
