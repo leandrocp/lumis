@@ -45,7 +45,7 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: jdx/mise-action@v5.2.4
+      - uses: jdx/mise-action@v5.2.6
         with:
           # Pinned: mise 2026.7.18 cannot install core:erlang/core:elixir on the
           # runner, and benchmarks/mise.lock was produced by this version.
