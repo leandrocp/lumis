@@ -194,7 +194,7 @@
   "dependencies": {
     "@noble/hashes": "2.4.0",
     "pathe": "2.0.3",
-    "semver": "7.8.5"
+    "semver": "7.8.6"
   },
   "optionalDependencies": {
     "@lumis-sh/lumis-native-darwin-arm64": "workspace:*",
@@ -212,13 +212,13 @@
   "devDependencies": {
     "@lumis-sh/themes": "workspace:*",
     "@lumis-sh/wasm-json": "0.26.5",
-    "@microsoft/api-extractor": "^7.60.0",
+    "@microsoft/api-extractor": "^7.60.1",
     "@playwright/test": "1.64.1",
     "@types/node": "^26.6.6",
     "@types/semver": "7.8.0",
-    "html-validate": "^11.17.0",
-    "oxfmt": "^0.75.0",
-    "oxlint": "1.90.0",
+    "html-validate": "^11.18.0",
+    "oxfmt": "^0.76.0",
+    "oxlint": "1.91.0",
     "oxlint-tsgolint": "7.0.2005",
     "smol-toml": "^1.9.1",
     "tsup": "^9.0.0",
@@ -226,7 +226,7 @@
     "typedoc": "^0.28.20",
     "typescript": "^6.0.3",
     "vite": "^8.3.5",
-    "vitest": "^5.0.5",
+    "vitest": "^5.1.0",
     "web-tree-sitter": "0.27.2"
   }
 }

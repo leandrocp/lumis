@@ -25,7 +25,7 @@ jobs:
         with:
           toolchain: stable
 
-      - uses: pnpm/action-setup@v6.1.0
+      - uses: pnpm/action-setup@v6.1.1
         with:
           version: 11.15.1
 
@@ -35,7 +35,7 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
 
-      - uses: jdx/mise-action@v5.2.4
+      - uses: jdx/mise-action@v5.2.6
         with:
           install: false
 

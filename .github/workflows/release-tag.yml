@@ -28,7 +28,7 @@ jobs:
 
       # `mise run release-version` reads manifests with sed and jq, so none of
       # the pinned tools have to be downloaded here.
-      - uses: jdx/mise-action@v5.2.4
+      - uses: jdx/mise-action@v5.2.6
         with:
           install: false
 

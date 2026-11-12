@@ -73,7 +73,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.4
+      - uses: jdx/mise-action@v5.2.6
         with:
           install_args: tree-sitter
 
@@ -115,7 +115,7 @@ jobs:
           PARSER: ${{ inputs.parser }}
           VERSION: ${{ inputs.version }}
 
-      - uses: pnpm/action-setup@v6.1.0
+      - uses: pnpm/action-setup@v6.1.1
         with:
           version: 11.15.1
 

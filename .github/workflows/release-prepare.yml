@@ -47,7 +47,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: jdx/mise-action@v5.2.4
+      - uses: jdx/mise-action@v5.2.6
 
       # The bundle packages' plan stages the bundles and compares them in `crates/dev`.
       - uses: dtolnay/rust-toolchain@v1
@@ -60,7 +60,7 @@ jobs:
           workspaces: "crates/dev -> target"
           shared-key: release-prepare-dev
 
-      - uses: pnpm/action-setup@v6.1.0
+      - uses: pnpm/action-setup@v6.1.1
         with:
           version: 11.15.1
 
@@ -139,7 +139,7 @@ jobs:
           toolchain: stable
 
       - name: Install cargo-edit
-        uses: taiki-e/install-action@v2.88.0
+        uses: taiki-e/install-action@v2.90.1
         with:
           tool: cargo-edit
 
@@ -147,7 +147,7 @@ jobs:
         with:
           node-version: "lts/*"
 
-      - uses: jdx/mise-action@v5.2.4
+      - uses: jdx/mise-action@v5.2.6
 
       # Only crate and bundle releases build `crates/dev`. Caching the other jobs
       # would store an empty target directory under the same key.

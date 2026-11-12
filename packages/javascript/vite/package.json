@@ -43,21 +43,21 @@
   "dependencies": {
     "@lumis-sh/rehype-lumis": "workspace:^",
     "hast-util-from-html": "^2.0.3",
-    "hast-util-to-html": "^9.0.5",
+    "hast-util-to-html": "^9.0.6",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.2.0"
   },
   "devDependencies": {
     "@lumis-sh/lumis": "workspace:^",
     "@lumis-sh/themes": "workspace:^",
-    "@microsoft/api-extractor": "^7.60.0",
-    "oxfmt": "^0.75.0",
-    "oxlint": "1.90.0",
+    "@microsoft/api-extractor": "^7.60.1",
+    "oxfmt": "^0.76.0",
+    "oxlint": "1.91.0",
     "oxlint-tsgolint": "7.0.2005",
     "tsup": "^9.0.0",
     "typescript": "^6.0.3",
     "vite": "^8.3.5",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   },
   "peerDependencies": {
     "@lumis-sh/lumis": "workspace:^",

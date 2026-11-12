@@ -22,7 +22,7 @@ jobs:
       # Without `package_json_file` the action checks `version` against the root
       # `package.json`, whose `packageManager` is the workspace's pnpm 11, and
       # fails on the mismatch. The site pins its own.
-      - uses: pnpm/action-setup@v6.1.0
+      - uses: pnpm/action-setup@v6.1.1
         with:
           version: 12.4.1
           package_json_file: docs/package.json
