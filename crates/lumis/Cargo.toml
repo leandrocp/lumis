@@ -216,7 +216,7 @@ lang-glsl = ["dep:tree-sitter-glsl", "lumis-core/lang-glsl"]
 lang-go = ["dep:tree-sitter-go", "lumis-core/lang-go"]
 lang-graphql = ["dep:tree-sitter-graphql", "lumis-core/lang-graphql"]
 lang-groovy = ["lumis-core/lang-groovy"]
-lang-haskell = ["lumis-core/lang-haskell"]
+lang-haskell = ["dep:tree-sitter-haskell", "lumis-core/lang-haskell"]
 lang-hcl = ["dep:tree-sitter-hcl", "lumis-core/lang-hcl"]
 lang-heex = ["dep:tree-sitter-heex", "lumis-core/lang-heex"]
 lang-html = ["lumis-core/lang-html"]
@@ -235,7 +235,7 @@ lang-just = ["lumis-core/lang-just"]
 lang-javadoc = ["dep:tree-sitter-javadoc", "lumis-core/lang-javadoc"]
 lang-jq = ["lumis-core/lang-jq"]
 lang-julia = ["dep:tree-sitter-julia", "lumis-core/lang-julia"]
-lang-kdl = ["lumis-core/lang-kdl"]
+lang-kdl = ["dep:tree-sitter-kdl", "lumis-core/lang-kdl"]
 lang-kotlin = ["lumis-core/lang-kotlin"]
 lang-latex = ["lumis-core/lang-latex"]
 lang-lean = ["lumis-core/lang-lean"]
@@ -256,11 +256,11 @@ lang-nushell = ["lumis-core/lang-nushell"]
 lang-objc = ["dep:tree-sitter-objc", "lumis-core/lang-objc"]
 lang-ocaml = ["dep:tree-sitter-ocaml", "lumis-core/lang-ocaml"]
 lang-pascal = ["dep:tree-sitter-pascal", "lumis-core/lang-pascal"]
-lang-perl = ["lumis-core/lang-perl"]
+lang-perl = ["dep:ts-parser-perl", "lumis-core/lang-perl"]
 lang-php = ["dep:tree-sitter-php", "lumis-core/lang-php"]
 lang-powershell = ["dep:tree-sitter-powershell", "lumis-core/lang-powershell"]
 lang-prisma = ["lumis-core/lang-prisma"]
-lang-protobuf = ["lumis-core/lang-protobuf"]
+lang-protobuf = ["dep:tree-sitter-proto", "lumis-core/lang-protobuf"]
 lang-puppet = ["dep:tree-sitter-puppet", "lumis-core/lang-puppet"]
 lang-python = ["lumis-core/lang-python"]
 lang-qmljs = ["dep:tree-sitter-qmljs", "lumis-core/lang-qmljs"]
@@ -330,6 +330,7 @@ tree-sitter-fortran = { version = "0.6.0", optional = true }
 tree-sitter-go = { version = "0.25.0", optional = true }
 tree-sitter-glsl = { version = "0.2.0", optional = true }
 tree-sitter-graphql = { version = "0.3.0", optional = true }
+tree-sitter-haskell = { version = "0.24.1", optional = true }
 tree-sitter-hcl = { version = "1.1.0", optional = true }
 tree-sitter-heex = { version = "0.8.1", optional = true }
 tree-sitter-ini = { version = "1.4.0", optional = true }
@@ -339,6 +340,7 @@ tree-sitter-javadoc = { version = "0.3.1", optional = true }
 tree-sitter-jinja = { version = "0.13.1", optional = true }
 tree-sitter-json = { version = "0.24.8", optional = true }
 tree-sitter-julia = { version = "0.23.1", optional = true }
+tree-sitter-kdl = { version = "2.0.0", optional = true }
 tree-sitter-language = "0.1.7"
 tree-sitter-llvm = { version = "1.1.0", optional = true }
 tree-sitter-lua = { version = "0.5.0", optional = true }
@@ -350,8 +352,10 @@ tree-sitter-nginx = { version = "1.0.1", optional = true }
 tree-sitter-objc = { version = "3.0.2", optional = true }
 tree-sitter-ocaml = { version = "0.26.0", optional = true }
 tree-sitter-pascal = { version = "0.10.2", optional = true }
+ts-parser-perl = { version = "2.0.4", optional = true }
 tree-sitter-php = { version = "0.25.1", optional = true }
 tree-sitter-powershell = { version = "0.26.6", optional = true }
+tree-sitter-proto = { version = "0.6.0", optional = true }
 tree-sitter-puppet = { version = "1.3.0", optional = true }
 codebook-tree-sitter-typst = { version = "0.12.1", optional = true }
 
@@ -363,7 +367,7 @@ tree-sitter-rst = { version = "0.2.0", optional = true }
 tree-sitter-rust = { version = "0.24.2", optional = true }
 tree-sitter-scala = { version = "0.26.9", optional = true }
 tree-sitter-scheme = { version = "0.25.0", optional = true }
-tree-sitter-sequel = { version = "0.3.11", optional = true }
+tree-sitter-sequel = { version = "0.3.13", optional = true }
 
 tree-sitter-solidity = { version = "1.2.13", optional = true }
 tree-sitter-swift = { version = "0.7.4", optional = true }

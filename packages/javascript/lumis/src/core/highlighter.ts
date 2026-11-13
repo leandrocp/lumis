@@ -22,6 +22,7 @@ import { composeAnnotations } from "../annotations.js";
 import { buildSourceIndex } from "../events.js";
 import { decorationScope } from "../decorations.js";
 import { resolveStackStyle } from "./style.js";
+import { EXACT_LANGUAGE_MAP } from "../generated/language-detection.js";
 import { LANGUAGE_LOADERS } from "../generated/language-loaders.js";
 import { guessLanguage } from "../guess-language.js";
 import { builtinFormatterKind } from "./builtin-formatter.js";
@@ -120,7 +121,8 @@ function detectLanguageRef(source: string, ref?: LanguageRef): LanguageRef | str
 }
 
 async function loadBuiltinLanguageById(id: string): Promise<Language | undefined> {
-  const loader = LANGUAGE_LOADERS[normalizeLanguageName(id)];
+  const name = normalizeLanguageName(id);
+  const loader = LANGUAGE_LOADERS[EXACT_LANGUAGE_MAP[name] ?? name];
   if (!loader) {
     return undefined;
   }

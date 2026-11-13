@@ -51,7 +51,7 @@ path = "queries"
 
 [queries.sql]
 git = "https://github.com/derekstride/tree-sitter-sql.git"
-rev = "987a64a7b105e267b39725a81ad2db628dc3178c"
+rev = "4cd7224bfcf1fee23227c4d626760341c9b26772"
 path = "queries"
 
 [queries.wat]
@@ -285,8 +285,7 @@ globs = ["*.fs", "*.fsx", "*.fsi"]
 emacs = ["fsharp"]
 
 [parsers.gleam]
-# https://github.com/leandrocp/tree-sitter-gleam/tree/fix/error-recovery-sentinel
-git = "https://github.com/leandrocp/tree-sitter-gleam.git"
+git = "https://github.com/gleam-lang/tree-sitter-gleam.git"
 rev = "fa6d0d94804f1b342e175865a3dbeb316ee5115e"
 version = "1.0.0"
 globs = ["*.gleam"]
@@ -320,6 +319,7 @@ globs = ["*.graphql", "*.gql", "*.graphqls"]
 [parsers.haskell]
 git = "https://github.com/tree-sitter/tree-sitter-haskell.git"
 rev = "97288e585b0bd44199720280d067fa35bacd81ff"
+crate = "tree-sitter-haskell"
 version = "0.24.1"
 globs = ["*.hs", "*.hs-boot"]
 emacs = ["haskell"]
@@ -574,6 +574,7 @@ globs = ["*.mli"]
 [parsers.perl]
 git = "https://github.com/tree-sitter-perl/tree-sitter-perl.git"
 rev = "af083305aee26ff3e24e7f8f8b8b88fe8462062c"
+crate = "ts-parser-perl"
 version = "2.0.4"
 generate = true
 globs = ["*.pm", "*.pl", "*.t"]
@@ -602,6 +603,7 @@ globs = ["*.ps1", "*.psm1"]
 [parsers.protobuf]
 git = "https://github.com/coder3101/tree-sitter-proto.git"
 rev = "6c878d18628ebbff3474479d2fdd6d8ba1954c3e"
+crate = "tree-sitter-proto"
 version = "0.6.0"
 query_name = "proto"
 variant = "ProtoBuf"
@@ -675,9 +677,9 @@ emacs = ["slim"]
 
 [parsers.sql]
 git = "https://github.com/derekstride/tree-sitter-sql.git"
-rev = "7b51ecda191d36b92f5a90a8d1bc3faef1c7b8b8"
+rev = "4cd7224bfcf1fee23227c4d626760341c9b26772"
 crate = "tree-sitter-sequel"
-version = "0.3.11"
+version = "0.3.13"
 variant = "SQL"
 aliases = ["psql"]
 globs = ["*.sql", "*.pgsql"]
@@ -874,6 +876,7 @@ globs = ["*.jq"]
 [parsers.kdl]
 git = "https://github.com/tree-sitter-grammars/tree-sitter-kdl.git"
 rev = "e8ff98a113e175b84b92ec2096820517c1e10a66"
+crate = "tree-sitter-kdl"
 version = "2.0.0"
 display_name = "KDL"
 globs = ["*.kdl"]
@@ -924,7 +927,7 @@ display_name = "Terraform"
 globs = ["*.tf", "*.tfvars", "*.tfvars.json"]
 
 [parsers.toon]
-git = "https://github.com/ericmj/tree-sitter-toon.git"
+git = "https://github.com/3swordman/tree-sitter-toon.git"
 rev = "dda6988067d2ccd4c3cfa04068f792bc3300d1e8"
 version = "0.1.3"
 display_name = "TOON"
@@ -1205,31 +1208,23 @@ parsers = [
 
 [bundles.full]
 parsers = "all"
-# Half the 128 MB Tree-sitter Wasm store every language in a process shares.
-# With every parser but systemverilog, the bundle reserved 119 MB of it, so
-# loading it left no room for anything else. Each parser below is at least
-# 1.3 MB and niche, and they total 71 MB of the 119; the median parser is
-# 111 KB. `gen-language-catalog` fails when the members' measured memory
-# exceeds the cap, so a new language that does not fit has to be listed here,
-# and in the `bundle-full` section of docs/content/languages.mdx.
-max_memory_mb = 64
+# Bounded so that preloading the bundle leaves room in the 128 MB Tree-sitter
+# Wasm store every language in a process shares. Each parser below is large and
+# niche; popular large parsers such as csharp stay in by choice, so this list is
+# a judgment call rather than a size threshold. `gen-language-catalog` fails
+# when the members' measured memory exceeds the cap, so a new language that does
+# not fit has to be listed here, and in the `bundle-full` section of
+# docs/content/languages.mdx.
+max_memory_mb = 80
 exclude = [
   "arduino",
   "d",
   "fortran",
   "fsharp",
-  "haskell",
   "julia",
-  "latex",
   "lean",
   "nim",
-  "nushell",
-  "objc",
-  "ocaml",
   "ocaml_interface",
-  "perl",
-  "qmljs",
   "systemverilog",
   "tlaplus",
-  "vhdl",
 ]

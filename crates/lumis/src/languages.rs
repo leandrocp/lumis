@@ -116,8 +116,6 @@ unsafe extern "C" {
     fn tree_sitter_glimmer() -> *const ();
     #[cfg(feature = "lang-groovy")]
     fn tree_sitter_groovy() -> *const ();
-    #[cfg(feature = "lang-haskell")]
-    fn tree_sitter_haskell() -> *const ();
     #[cfg(feature = "lang-html")]
     fn tree_sitter_html() -> *const ();
     #[cfg(feature = "lang-htmldjango")]
@@ -136,8 +134,6 @@ unsafe extern "C" {
     fn tree_sitter_json5() -> *const ();
     #[cfg(feature = "lang-just")]
     fn tree_sitter_just() -> *const ();
-    #[cfg(feature = "lang-kdl")]
-    fn tree_sitter_kdl() -> *const ();
     #[cfg(feature = "lang-kotlin")]
     fn tree_sitter_kotlin() -> *const ();
     #[cfg(feature = "lang-latex")]
@@ -156,12 +152,8 @@ unsafe extern "C" {
     fn tree_sitter_nim() -> *const ();
     #[cfg(feature = "lang-prisma")]
     fn tree_sitter_prisma() -> *const ();
-    #[cfg(feature = "lang-protobuf")]
-    fn tree_sitter_proto() -> *const ();
     #[cfg(feature = "lang-python")]
     fn tree_sitter_python() -> *const ();
-    #[cfg(feature = "lang-perl")]
-    fn tree_sitter_perl() -> *const ();
     #[cfg(feature = "lang-ruby")]
     fn tree_sitter_ruby() -> *const ();
     #[cfg(feature = "lang-scss")]
@@ -1042,9 +1034,8 @@ static GROOVY_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 
 #[cfg(feature = "lang-haskell")]
 static HASKELL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
-    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_haskell) };
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(language_fn),
+        tree_sitter::Language::new(tree_sitter_haskell::LANGUAGE),
         "haskell",
         HASKELL_HIGHLIGHTS,
         HASKELL_INJECTIONS,
@@ -1326,9 +1317,7 @@ static JUST_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 #[cfg(feature = "lang-kdl")]
 static KDL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(unsafe {
-            tree_sitter_language::LanguageFn::from_raw(tree_sitter_kdl)
-        }),
+        tree_sitter::Language::new(tree_sitter_kdl::LANGUAGE),
         "kdl",
         KDL_HIGHLIGHTS,
         KDL_INJECTIONS,
@@ -1634,9 +1623,8 @@ static NUSHELL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 
 #[cfg(feature = "lang-perl")]
 static PERL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
-    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_perl) };
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(language_fn),
+        tree_sitter::Language::new(ts_parser_perl::LANGUAGE),
         "perl",
         PERL_HIGHLIGHTS,
         PERL_INJECTIONS,
@@ -1708,9 +1696,7 @@ static PRISMA_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 #[cfg(feature = "lang-protobuf")]
 static PROTO_BUF_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(unsafe {
-            tree_sitter_language::LanguageFn::from_raw(tree_sitter_proto)
-        }),
+        tree_sitter::Language::new(tree_sitter_proto::LANGUAGE),
         "protobuf",
         PROTO_HIGHLIGHTS,
         PROTO_INJECTIONS,

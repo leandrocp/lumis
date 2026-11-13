@@ -141,10 +141,9 @@ were asked for last.
 Preload what you serve. Installing a parser is cheap; loading one is what
 spends the budget.
 
-`bundle-full` leaves out big parsers so it fits under 64 MB: `arduino`, `d`,
-`fortran`, `fsharp`, `haskell`, `julia`, `latex`, `lean`, `nim`, `nushell`, `objc`,
-`ocaml`, `ocaml_interface`, `perl`, `qmljs`, `systemverilog`, `tlaplus`, and
-`vhdl`.
+`bundle-full` leaves out big parsers so it fits under 80 MB: `arduino`, `d`,
+`fortran`, `fsharp`, `julia`, `lean`, `nim`, `ocaml_interface`, `systemverilog`,
+and `tlaplus`.
 
 ### Add languages a bundle leaves out
 
@@ -155,15 +154,15 @@ language you need and pass it next to the bundle:
   <Tab value="JavaScript / TypeScript">
 
 ```bash
-npm install @lumis-sh/wasm-bundle-full @lumis-sh/wasm-haskell
+npm install @lumis-sh/wasm-bundle-full @lumis-sh/wasm-julia
 ```
 
 ```ts
 import { createHighlighter } from "@lumis-sh/lumis";
 import full from "@lumis-sh/wasm-bundle-full";
-import haskell from "@lumis-sh/wasm-haskell";
+import julia from "@lumis-sh/wasm-julia";
 
-const highlighter = await createHighlighter({ languages: [full, haskell] });
+const highlighter = await createHighlighter({ languages: [full, julia] });
 ```
 
   </Tab>
@@ -172,14 +171,14 @@ const highlighter = await createHighlighter({ languages: [full, haskell] });
 ```elixir
 # mix.exs
 {:lumis_wasm_bundle_full, "~> 0.2"},
-{:lumis_wasm_haskell, "~> 0.26.0"}
+{:lumis_wasm_julia, "~> 0.26.0"}
 ```
 
   </Tab>
   <Tab value="CLI">
 
 ```bash
-lumis languages download bundle-full haskell
+lumis languages download bundle-full julia
 ```
 
   </Tab>
