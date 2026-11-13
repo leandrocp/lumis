@@ -489,6 +489,7 @@ Releases are prepared by `release-prepare.yml` on every push to `main`, which op
 - Use Conventional Commits for git commit messages.
 - Prefer a clear type and scope when they help, for example `fix(rust): ...` or `docs(website): ...`.
 - Keep the subject concise and descriptive.
+- The commit subject that lands on `main` is the changelog entry. Get the type, scope and `!` right before merging, and set the squash subject explicitly when the PR title was edited, since GitHub squashes with the commit's subject. A subject that is already merged stays as it is: never add `commit_preprocessors`, or any other per-commit rewrite, to `cliff.toml`.
 
 ## Practical default
 
