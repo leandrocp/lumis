@@ -1,3 +1,9 @@
+## [6.2.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v6.1.1...cargo-lumis-core/v6.2.0) (2026-11-13)
+
+### Features
+
+- **themes:** Update themes in [\#2038](https://github.com/leandrocp/lumis/pull/2038)
+
 ## [6.1.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v6.1.0...cargo-lumis-core/v6.1.1) (2026-11-07)
 
 ### Code Refactoring
