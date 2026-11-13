@@ -285,8 +285,7 @@ globs = ["*.fs", "*.fsx", "*.fsi"]
 emacs = ["fsharp"]
 
 [parsers.gleam]
-# https://github.com/leandrocp/tree-sitter-gleam/tree/fix/error-recovery-sentinel
-git = "https://github.com/leandrocp/tree-sitter-gleam.git"
+git = "https://github.com/gleam-lang/tree-sitter-gleam.git"
 rev = "fa6d0d94804f1b342e175865a3dbeb316ee5115e"
 version = "1.0.0"
 globs = ["*.gleam"]
