@@ -1205,31 +1205,23 @@ parsers = [
 
 [bundles.full]
 parsers = "all"
-# Half the 128 MB Tree-sitter Wasm store every language in a process shares.
-# With every parser but systemverilog, the bundle reserved 119 MB of it, so
-# loading it left no room for anything else. Each parser below is at least
-# 1.3 MB and niche, and they total 71 MB of the 119; the median parser is
-# 111 KB. `gen-language-catalog` fails when the members' measured memory
-# exceeds the cap, so a new language that does not fit has to be listed here,
-# and in the `bundle-full` section of docs/content/languages.mdx.
-max_memory_mb = 64
+# Bounded so that preloading the bundle leaves room in the 128 MB Tree-sitter
+# Wasm store every language in a process shares. Each parser below is large and
+# niche; popular large parsers such as csharp stay in by choice, so this list is
+# a judgment call rather than a size threshold. `gen-language-catalog` fails
+# when the members' measured memory exceeds the cap, so a new language that does
+# not fit has to be listed here, and in the `bundle-full` section of
+# docs/content/languages.mdx.
+max_memory_mb = 80
 exclude = [
   "arduino",
   "d",
   "fortran",
   "fsharp",
-  "haskell",
   "julia",
-  "latex",
   "lean",
   "nim",
-  "nushell",
-  "objc",
-  "ocaml",
   "ocaml_interface",
-  "perl",
-  "qmljs",
   "systemverilog",
   "tlaplus",
-  "vhdl",
 ]
