@@ -1,3 +1,26 @@
+## [0.19.5](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.19.4...cargo-lumis/v0.19.5) (2026-11-13)
+
+### Features
+
+- **themes:** Update themes in [\#2038](https://github.com/leandrocp/lumis/pull/2038)
+- Update lang perl in [\#2040](https://github.com/leandrocp/lumis/pull/2040)
+- Update lang matlab in [\#2039](https://github.com/leandrocp/lumis/pull/2039)
+- Update lang scala in [\#2037](https://github.com/leandrocp/lumis/pull/2037)
+- **sql:** Update the parser to tree-sitter-sequel 0.3.13 in [\#2065](https://github.com/leandrocp/lumis/pull/2065)
+
+### Bug Fixes
+
+- **haskell:** Build from the tree-sitter-haskell 0.24.1 crate in [\#2062](https://github.com/leandrocp/lumis/pull/2062)
+
+### Code Refactoring
+
+- **protobuf:** Build from the tree-sitter-proto 0.6.0 crate in [\#2063](https://github.com/leandrocp/lumis/pull/2063)
+- **perl:** Build from the ts-parser-perl 2.0.4 crate in [\#2064](https://github.com/leandrocp/lumis/pull/2064)
+
+### Dependencies
+
+- **kdl:** Build from the tree-sitter-kdl 2.0.0 crate in [\#2066](https://github.com/leandrocp/lumis/pull/2066)
+
 ## [0.19.4](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.19.3...cargo-lumis/v0.19.4) (2026-11-07)
 
 ### Features
