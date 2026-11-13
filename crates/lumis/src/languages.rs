@@ -156,8 +156,6 @@ unsafe extern "C" {
     fn tree_sitter_nim() -> *const ();
     #[cfg(feature = "lang-prisma")]
     fn tree_sitter_prisma() -> *const ();
-    #[cfg(feature = "lang-protobuf")]
-    fn tree_sitter_proto() -> *const ();
     #[cfg(feature = "lang-python")]
     fn tree_sitter_python() -> *const ();
     #[cfg(feature = "lang-perl")]
@@ -1708,9 +1706,7 @@ static PRISMA_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 #[cfg(feature = "lang-protobuf")]
 static PROTO_BUF_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(unsafe {
-            tree_sitter_language::LanguageFn::from_raw(tree_sitter_proto)
-        }),
+        tree_sitter::Language::new(tree_sitter_proto::LANGUAGE),
         "protobuf",
         PROTO_HIGHLIGHTS,
         PROTO_INJECTIONS,
