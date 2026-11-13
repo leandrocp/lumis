@@ -134,8 +134,6 @@ unsafe extern "C" {
     fn tree_sitter_json5() -> *const ();
     #[cfg(feature = "lang-just")]
     fn tree_sitter_just() -> *const ();
-    #[cfg(feature = "lang-kdl")]
-    fn tree_sitter_kdl() -> *const ();
     #[cfg(feature = "lang-kotlin")]
     fn tree_sitter_kotlin() -> *const ();
     #[cfg(feature = "lang-latex")]
@@ -1319,9 +1317,7 @@ static JUST_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 #[cfg(feature = "lang-kdl")]
 static KDL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(unsafe {
-            tree_sitter_language::LanguageFn::from_raw(tree_sitter_kdl)
-        }),
+        tree_sitter::Language::new(tree_sitter_kdl::LANGUAGE),
         "kdl",
         KDL_HIGHLIGHTS,
         KDL_INJECTIONS,
