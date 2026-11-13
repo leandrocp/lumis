@@ -154,9 +154,9 @@ and `:bundle_full` — so a bundle means the same thing in every runtime.
 Warm the languages you serve rather than `:bundle_full`. Every language in a
 process shares one 128 MB Tree-sitter Wasm store, and
 [loading the full set can exhaust it](/languages#bundle-full-is-not-the-safe-default).
-`:bundle_full` is capped at half that store, so it leaves out the largest
-parsers of the less common languages, such as `haskell` and `perl`. Add
-`{:lumis_wasm_haskell, "~> 0.26.0"}` and name it if you need it; the
+`:bundle_full` is capped at 80 MB of that store, so it leaves out the largest
+parsers of the less common languages, such as `fsharp` and `julia`. Add
+`{:lumis_wasm_julia, "~> 0.26.0"}` and name it if you need it; the
 [full list](/languages#bundle-full-is-not-the-safe-default) is there.
 
 Compiled modules land under `config :lumis, data_dir:`, `LUMIS_DATA_DIR`, or

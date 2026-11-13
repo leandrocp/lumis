@@ -547,7 +547,7 @@ Bundle definitions also live here under `[bundles.*]`.
 For Rust crates, bundle support is implemented as Cargo features such as `lang-bundle-web` and `lang-bundle-system`, which enable the related `lang-*` features transitively. The `lang-bundle-*` feature lists in `crates/lumis/Cargo.toml` and `crates/lumis-core/Cargo.toml` are generated from `languages.toml` by `mise run cargo-update-features`.
 
 - Keep one parser ID per line in bundle arrays for cleaner diffs.
-- `max_memory_mb` caps the Wasm store memory a bundle's members reserve together, measured from `parser-sizes.json`. `full` is capped at 64, so a new language that would push it over goes in its `exclude`. `mise run langs-check-catalog` enforces the cap over every measured member and names the ones not measured yet; `mise run wasm-sizes` measures them once they are published. `lang-bundle-full` in Rust ignores `exclude`, since compiled-in parsers have no store.
+- `max_memory_mb` caps the Wasm store memory a bundle's members reserve together, measured from `parser-sizes.json`. `full` is capped at 80, so a new language that would push it over goes in its `exclude`. `mise run langs-check-catalog` enforces the cap over every measured member and names the ones not measured yet; `mise run wasm-sizes` measures them once they are published. `lang-bundle-full` in Rust ignores `exclude`, since compiled-in parsers have no store.
 - After changing parser or bundle entries, sync the generated Rust and JavaScript outputs:
 
 ```sh
