@@ -19,13 +19,28 @@
 (relation
   alias: (identifier) @variable)
 
+(pivot
+  alias: (identifier) @variable)
+
+(unpivot
+  alias: (identifier) @variable)
+
 (field
   name: (identifier) @variable.member)
+
+(path_expression
+  key: (identifier) @variable.member)
 
 (column_definition
   name: (identifier) @variable.member)
 
 (term
+  alias: (identifier) @variable)
+
+(rename_columns
+  name: (identifier) @variable.member)
+
+(rename_columns
   alias: (identifier) @variable)
 
 (term
@@ -46,6 +61,9 @@
   (#lua-match? @number.float "^[-]?%d*%.%d*$"))
 
 (parameter) @variable.parameter
+
+(named_argument
+  name: (identifier) @variable.parameter)
 
 [
   (keyword_true)
@@ -140,8 +158,12 @@
   (keyword_group)
   (keyword_with)
   (keyword_without)
+  (keyword_within)
   (keyword_as)
   (keyword_having)
+  (keyword_qualify)
+  (keyword_pivot)
+  (keyword_unpivot)
   (keyword_limit)
   (keyword_offset)
   (keyword_table)
@@ -336,6 +358,7 @@
   (keyword_high_priority)
   (keyword_low_priority)
   (keyword_ignore)
+  (keyword_respect)
   (keyword_nothing)
   (keyword_check)
   (keyword_option)
@@ -427,6 +450,7 @@
   "%"
   "^"
   ":="
+  "=>"
   "="
   "<"
   "<="
