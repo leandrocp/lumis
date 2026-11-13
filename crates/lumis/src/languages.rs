@@ -116,8 +116,6 @@ unsafe extern "C" {
     fn tree_sitter_glimmer() -> *const ();
     #[cfg(feature = "lang-groovy")]
     fn tree_sitter_groovy() -> *const ();
-    #[cfg(feature = "lang-haskell")]
-    fn tree_sitter_haskell() -> *const ();
     #[cfg(feature = "lang-html")]
     fn tree_sitter_html() -> *const ();
     #[cfg(feature = "lang-htmldjango")]
@@ -1042,9 +1040,8 @@ static GROOVY_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 
 #[cfg(feature = "lang-haskell")]
 static HASKELL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
-    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_haskell) };
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(language_fn),
+        tree_sitter::Language::new(tree_sitter_haskell::LANGUAGE),
         "haskell",
         HASKELL_HIGHLIGHTS,
         HASKELL_INJECTIONS,
