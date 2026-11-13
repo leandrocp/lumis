@@ -2,7 +2,7 @@ defmodule Lumis.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/leandrocp/lumis"
-  @version "0.10.8"
+  @version "0.10.9"
 
   def project do
     [
