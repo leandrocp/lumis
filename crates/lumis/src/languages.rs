@@ -160,8 +160,6 @@ unsafe extern "C" {
     fn tree_sitter_proto() -> *const ();
     #[cfg(feature = "lang-python")]
     fn tree_sitter_python() -> *const ();
-    #[cfg(feature = "lang-perl")]
-    fn tree_sitter_perl() -> *const ();
     #[cfg(feature = "lang-ruby")]
     fn tree_sitter_ruby() -> *const ();
     #[cfg(feature = "lang-scss")]
@@ -1634,9 +1632,8 @@ static NUSHELL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 
 #[cfg(feature = "lang-perl")]
 static PERL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
-    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_perl) };
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(language_fn),
+        tree_sitter::Language::new(ts_parser_perl::LANGUAGE),
         "perl",
         PERL_HIGHLIGHTS,
         PERL_INJECTIONS,

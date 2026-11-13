@@ -876,6 +876,7 @@ dependencies = [
  "tree-sitter-vhdl",
  "tree-sitter-zig",
  "tree-sitter-zsh",
+ "ts-parser-perl",
  "xz2",
 ]
 
@@ -2087,6 +2088,16 @@ name = "tree-sitter-zsh"
 version = "0.63.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "907f7ea76070507d7a6b054b38f1475caa7db085437911352ca0f361f08f142e"
+dependencies = [
+ "cc",
+ "tree-sitter-language",
+]
+
+[[package]]
+name = "ts-parser-perl"
+version = "2.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3650803676fb001e5cbc8d0ce36ec788909b97ab47a4a2c3adcd33fb7fa96b4"
 dependencies = [
  "cc",
  "tree-sitter-language",
