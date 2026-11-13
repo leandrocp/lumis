@@ -320,6 +320,7 @@ globs = ["*.graphql", "*.gql", "*.graphqls"]
 [parsers.haskell]
 git = "https://github.com/tree-sitter/tree-sitter-haskell.git"
 rev = "97288e585b0bd44199720280d067fa35bacd81ff"
+crate = "tree-sitter-haskell"
 version = "0.24.1"
 globs = ["*.hs", "*.hs-boot"]
 emacs = ["haskell"]

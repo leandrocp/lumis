@@ -216,7 +216,7 @@ lang-glsl = ["dep:tree-sitter-glsl", "lumis-core/lang-glsl"]
 lang-go = ["dep:tree-sitter-go", "lumis-core/lang-go"]
 lang-graphql = ["dep:tree-sitter-graphql", "lumis-core/lang-graphql"]
 lang-groovy = ["lumis-core/lang-groovy"]
-lang-haskell = ["lumis-core/lang-haskell"]
+lang-haskell = ["dep:tree-sitter-haskell", "lumis-core/lang-haskell"]
 lang-hcl = ["dep:tree-sitter-hcl", "lumis-core/lang-hcl"]
 lang-heex = ["dep:tree-sitter-heex", "lumis-core/lang-heex"]
 lang-html = ["lumis-core/lang-html"]
@@ -330,6 +330,7 @@ tree-sitter-fortran = { version = "0.6.0", optional = true }
 tree-sitter-go = { version = "0.25.0", optional = true }
 tree-sitter-glsl = { version = "0.2.0", optional = true }
 tree-sitter-graphql = { version = "0.3.0", optional = true }
+tree-sitter-haskell = { version = "0.24.1", optional = true }
 tree-sitter-hcl = { version = "1.1.0", optional = true }
 tree-sitter-heex = { version = "0.8.1", optional = true }
 tree-sitter-ini = { version = "1.4.0", optional = true }
