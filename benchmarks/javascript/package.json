@@ -34,15 +34,15 @@
     "@lumis-sh/wasm-ruby": "0.26.4",
     "@lumis-sh/wasm-rust": "0.26.5",
     "@lumis-sh/wasm-tsx": "0.26.3",
-    "@pierre/highlights": "0.3.0",
+    "@pierre/highlights": "0.4.0",
     "@speed-highlight/core": "2.1.0",
-    "@tanstack/highlight": "1.2.0",
+    "@tanstack/highlight": "1.2.11",
     "@wooorm/starry-night": "3.11.0",
     "hast-util-to-html": "9.0.6",
     "highlight.js": "11.12.0",
     "mitata": "1.0.34",
     "prismjs": "1.30.0",
-    "shiki": "4.5.0",
+    "shiki": "4.6.0",
     "sugar-high": "2.6.4"
   },
   "devDependencies": {
