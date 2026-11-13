@@ -78,11 +78,7 @@ impl Inspector {
 
     fn open(&mut self, sample: usize) {
         self.sample = sample;
-        let text = self
-            .samples
-            .get(sample)
-            .map(samples::read)
-            .unwrap_or_default();
+        let text = self.samples.get(sample).map_or_default(samples::read);
         self.edit = TextEdit::new(text);
         self.edit.set_caret(0);
         self.edit.focused = true;
