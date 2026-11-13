@@ -1,3 +1,9 @@
+## [0.8.9](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.8...cargo-lumis-cli/v0.8.9) (2026-11-13)
+
+### Features
+
+- **bundles:** Add eight parsers back to wasm-bundle-full in [\#2055](https://github.com/leandrocp/lumis/pull/2055)
+
 ## [0.8.8](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.7...cargo-lumis-cli/v0.8.8) (2026-11-07)
 
 ### Dependencies
