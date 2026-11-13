@@ -1,3 +1,28 @@
+## [0.10.8](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.7...npm-lumis/v0.10.8) (2026-11-13)
+
+### Features
+
+- **themes:** Update themes in [\#2038](https://github.com/leandrocp/lumis/pull/2038)
+- Update lang perl in [\#2040](https://github.com/leandrocp/lumis/pull/2040)
+- Update lang matlab in [\#2039](https://github.com/leandrocp/lumis/pull/2039)
+- Update lang scala in [\#2037](https://github.com/leandrocp/lumis/pull/2037)
+- **bundles:** Add eight parsers back to wasm-bundle-full in [\#2055](https://github.com/leandrocp/lumis/pull/2055)
+- **sql:** Update the parser to tree-sitter-sequel 0.3.13 in [\#2065](https://github.com/leandrocp/lumis/pull/2065)
+
+### Bug Fixes
+
+- **javascript:** Load a catalog language by alias before its id in [\#2053](https://github.com/leandrocp/lumis/pull/2053)
+- **haskell:** Build from the tree-sitter-haskell 0.24.1 crate in [\#2062](https://github.com/leandrocp/lumis/pull/2062)
+
+### Code Refactoring
+
+- **protobuf:** Build from the tree-sitter-proto 0.6.0 crate in [\#2063](https://github.com/leandrocp/lumis/pull/2063)
+- **perl:** Build from the ts-parser-perl 2.0.4 crate in [\#2064](https://github.com/leandrocp/lumis/pull/2064)
+
+### Dependencies
+
+- **kdl:** Build from the tree-sitter-kdl 2.0.0 crate in [\#2066](https://github.com/leandrocp/lumis/pull/2066)
+
 ## [0.10.7](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.6...npm-lumis/v0.10.7) (2026-11-08)
 
 ### Features
