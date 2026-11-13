@@ -235,7 +235,7 @@ lang-just = ["lumis-core/lang-just"]
 lang-javadoc = ["dep:tree-sitter-javadoc", "lumis-core/lang-javadoc"]
 lang-jq = ["lumis-core/lang-jq"]
 lang-julia = ["dep:tree-sitter-julia", "lumis-core/lang-julia"]
-lang-kdl = ["lumis-core/lang-kdl"]
+lang-kdl = ["dep:tree-sitter-kdl", "lumis-core/lang-kdl"]
 lang-kotlin = ["lumis-core/lang-kotlin"]
 lang-latex = ["lumis-core/lang-latex"]
 lang-lean = ["lumis-core/lang-lean"]
@@ -340,6 +340,7 @@ tree-sitter-javadoc = { version = "0.3.1", optional = true }
 tree-sitter-jinja = { version = "0.13.1", optional = true }
 tree-sitter-json = { version = "0.24.8", optional = true }
 tree-sitter-julia = { version = "0.23.1", optional = true }
+tree-sitter-kdl = { version = "2.0.0", optional = true }
 tree-sitter-language = "0.1.7"
 tree-sitter-llvm = { version = "1.1.0", optional = true }
 tree-sitter-lua = { version = "0.5.0", optional = true }
