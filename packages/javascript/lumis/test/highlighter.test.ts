@@ -388,6 +388,17 @@ describe("createHighlighter", () => {
     ).toContain('class="language-javascript"');
   });
 
+  it("loads a catalog language through an alias before its id", async () => {
+    const cold = await createHighlighter({ languages: [] });
+
+    await cold.loadLanguage("Js");
+
+    expect(cold.languages).toContain("javascript");
+    expect(
+      cold.highlight("const value = 1", htmlInline({ language: "js", theme: draculaTheme })),
+    ).toContain('class="language-javascript"');
+  });
+
   it("keeps loaded languages isolated per instance", async () => {
     const first = await createHighlighter({ languages: [json] });
     const second = await createHighlighter();
