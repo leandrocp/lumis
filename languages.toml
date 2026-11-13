@@ -51,7 +51,7 @@ path = "queries"
 
 [queries.sql]
 git = "https://github.com/derekstride/tree-sitter-sql.git"
-rev = "987a64a7b105e267b39725a81ad2db628dc3178c"
+rev = "4cd7224bfcf1fee23227c4d626760341c9b26772"
 path = "queries"
 
 [queries.wat]
@@ -677,9 +677,9 @@ emacs = ["slim"]
 
 [parsers.sql]
 git = "https://github.com/derekstride/tree-sitter-sql.git"
-rev = "7b51ecda191d36b92f5a90a8d1bc3faef1c7b8b8"
+rev = "4cd7224bfcf1fee23227c4d626760341c9b26772"
 crate = "tree-sitter-sequel"
-version = "0.3.11"
+version = "0.3.13"
 variant = "SQL"
 aliases = ["psql"]
 globs = ["*.sql", "*.pgsql"]

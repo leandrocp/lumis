@@ -19,10 +19,25 @@
 (relation
   alias: (identifier) @variable)
 
+(pivot
+  alias: (identifier) @variable)
+
+(unpivot
+  alias: (identifier) @variable)
+
 (field
   name: (identifier) @field)
 
+(path_expression
+  key: (identifier) @field)
+
 (term
+  alias: (identifier) @variable)
+
+(rename_columns
+  name: (identifier) @field)
+
+(rename_columns
   alias: (identifier) @variable)
 
 ((term
@@ -35,12 +50,15 @@
 (marginalia) @comment
 
 ((literal) @number
-   (#match? @number "^[-+]?%d+$"))
+   (#match? @number "^[-+]?[0-9]+$"))
 
 ((literal) @float
-  (#match? @float "^[-+]?%d*\.%d*$"))
+  (#match? @float "^[-+]?[0-9]*\\.[0-9]*$"))
 
 (parameter) @parameter
+
+(named_argument
+  name: (identifier) @parameter)
 
 [
  (keyword_true)
@@ -140,8 +158,12 @@
   (keyword_group)
   (keyword_with)
   (keyword_without)
+  (keyword_within)
   (keyword_as)
   (keyword_having)
+  (keyword_qualify)
+  (keyword_pivot)
+  (keyword_unpivot)
   (keyword_limit)
   (keyword_offset)
   (keyword_table)
@@ -354,6 +376,7 @@
  (keyword_high_priority)
  (keyword_low_priority)
  (keyword_ignore)
+ (keyword_respect)
  (keyword_nothing)
  (keyword_check)
  (keyword_option)
@@ -445,6 +468,7 @@
   "%"
   "^"
   ":="
+  "=>"
   "="
   "<"
   "<="
