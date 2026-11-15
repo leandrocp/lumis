@@ -20,6 +20,13 @@
     />
     <link rel="alternate" type="text/markdown" title="Markdown version" href="/index.md" />
     <script type="module" src="/src/main.ts"></script>
+    <script type="speculationrules">
+      {
+        "prefetch": [
+          { "where": { "href_matches": ["/comparison/", "/showcase/"] }, "eagerness": "moderate" }
+        ]
+      }
+    </script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

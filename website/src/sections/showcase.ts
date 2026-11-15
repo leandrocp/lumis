@@ -25,7 +25,7 @@ import rubyLanguage from "@lumis-sh/wasm-ruby";
 import rustLanguage from "@lumis-sh/wasm-rust";
 import typescriptLanguage from "@lumis-sh/wasm-typescript";
 import { highlighterFor } from "../lib/published-highlighter";
-import { CHECK_SVG, COPY_SVG, escapeHtml } from "../lib/utils";
+import { COPY_SVG, copyText, escapeHtml } from "../lib/utils";
 
 const REPO = "https://github.com/leandrocp/lumis/tree/main";
 const PRE_CLASS = "m-0 overflow-x-auto p-5 font-mono text-[13px] leading-relaxed";
@@ -387,15 +387,7 @@ for (const theme of [dracula, nordic, githubLight, tokyonightMoon]) {
     },
     wire(output) {
       const button = output.querySelector<HTMLButtonElement>(".demo-copy");
-      button?.addEventListener("click", () => {
-        void navigator.clipboard.writeText(HEADER_SOURCE);
-        button.innerHTML = CHECK_SVG;
-        button.classList.add("text-accent");
-        setTimeout(() => {
-          button.innerHTML = COPY_SVG;
-          button.classList.remove("text-accent");
-        }, 1500);
-      });
+      button?.addEventListener("click", () => void copyText(button, HEADER_SOURCE));
     },
   },
   {
@@ -619,7 +611,7 @@ export function renderShowcase() {
                 <a href="${demo.source}" ${demo.source.startsWith("http") ? 'target="_blank" rel="noreferrer"' : ""}
                    class="inline-flex items-center gap-1.5 font-mono text-xs tracking-wider text-muted uppercase transition-colors hover:text-fg hover:text-accent">
                   Full example
-                  <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
                 </a>
               </footer>
             </article>`,
@@ -640,7 +632,7 @@ export function renderShowcase() {
                class="group rounded-lg bg-surface-2 p-6 transition-colors hover:bg-accent-soft dark:bg-surface dark:hover:bg-surface-2">
               <h3 class="flex items-center gap-1.5 font-mono text-sm font-bold tracking-wider text-accent">
                 ${entry.title}
-                <svg class="h-3.5 w-3.5 text-subtle transition-transform group-hover:translate-x-0.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+                <svg class="h-3.5 w-3.5 text-subtle transition-transform group-hover:translate-x-0.5" aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
               </h3>
               <p class="mt-2 font-mono text-xs leading-relaxed text-muted">${entry.detail}</p>
             </a>`,

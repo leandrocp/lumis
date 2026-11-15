@@ -159,15 +159,15 @@ export function renderQuickstart() {
           <a href="https://docs.lumis.sh"
              class="inline-flex items-center gap-2 border border-control rounded-lg px-4 py-2 font-mono text-xs tracking-wider text-muted uppercase transition-colors hover:border-accent hover:text-accent">
             docs
-            <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
           </a>
         </div>
 
         <div class="mt-12">
-          <div class="flex gap-1 overflow-x-auto border-b border-line" role="tablist">
+          <div class="flex gap-1 overflow-x-auto border-b border-line" role="tablist" focusgroup="tablist nomemory" aria-label="Runtime">
             ${QUICKSTART_TABS.map(
               (tab, i) => `
-              <button role="tab" data-tab="${tab.id}" aria-selected="${i === 0}" aria-controls="quickstart-panel-${tab.id}"
+              <button type="button" id="quickstart-tab-${tab.id}" role="tab" data-tab="${tab.id}" aria-selected="${i === 0}"${i === 0 ? " focusgroupstart" : ""} aria-controls="quickstart-panel-${tab.id}"
                 class="quickstart-tab shrink-0 cursor-pointer border-b-2 px-4 py-2 font-mono text-xs tracking-wider uppercase transition-colors
                   ${i === 0 ? "border-accent text-fg" : "border-transparent text-muted hover:text-accent"}"
               >${tab.label}</button>
@@ -177,7 +177,7 @@ export function renderQuickstart() {
 
           ${QUICKSTART_TABS.map(
             (tab, i) => `
-            <div data-tab-panel="${tab.id}" id="quickstart-panel-${tab.id}" role="tabpanel" class="${i === 0 ? "" : "hidden"} mt-6 space-y-4">
+            <div data-tab-panel="${tab.id}" id="quickstart-panel-${tab.id}" role="tabpanel" aria-labelledby="quickstart-tab-${tab.id}" class="${i === 0 ? "" : "hidden"} mt-6 space-y-4">
               ${
                 tab.install
                   ? `
