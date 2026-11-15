@@ -135,16 +135,15 @@ fn words(meta: &str) -> Vec<String> {
 
         match ch {
             '"' | '\'' if unclosed.contains(&ch) => word.push(ch),
-            '"' | '\'' => match quoted(rest, ch) {
-                Some((content, after)) => {
+            '"' | '\'' => {
+                if let Some((content, after)) = quoted(rest, ch) {
                     word.push_str(&content);
                     rest = after;
-                }
-                None => {
+                } else {
                     unclosed.push(ch);
                     word.push(ch);
                 }
-            },
+            }
             ch if ch.is_ascii_whitespace() => {
                 if !word.is_empty() {
                     words.push(std::mem::take(&mut word));
