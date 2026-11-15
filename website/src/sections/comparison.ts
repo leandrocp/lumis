@@ -1,4 +1,4 @@
-import { ACTIVE_TAB_CLASSES, INACTIVE_TAB_CLASSES } from "../lib/utils";
+import { markTab, polyfillFocusgroup } from "../lib/utils";
 
 const DATA = "/comparison-data";
 
@@ -81,10 +81,7 @@ function navigate(frame: HTMLIFrameElement, page: string, at?: number) {
 
 function paint(container: HTMLElement, selected: string) {
   for (const button of Array.from(container.children) as HTMLButtonElement[]) {
-    const isSelected = button.dataset.id === selected;
-    button.setAttribute("aria-selected", String(isSelected));
-    button.classList.remove(...ACTIVE_TAB_CLASSES, ...INACTIVE_TAB_CLASSES);
-    button.classList.add(...(isSelected ? ACTIVE_TAB_CLASSES : INACTIVE_TAB_CLASSES));
+    markTab(button, button.dataset.id === selected);
   }
 }
 
@@ -101,10 +98,10 @@ export function renderComparison() {
             <p id="comparison-documents-label" class="mb-3 font-mono text-[11px] tracking-wider text-muted uppercase dark:text-subtle">
               Source files
             </p>
-            <div class="comparison-documents flex flex-wrap gap-2" role="tablist" aria-labelledby="comparison-documents-label"></div>
+            <div class="comparison-documents flex flex-wrap gap-2" role="tablist" focusgroup="tablist nomemory" aria-labelledby="comparison-documents-label"></div>
           </div>
           <div class="border-b border-line px-5 ">
-            <div class="comparison-implementations flex flex-wrap gap-x-4 sm:gap-x-6" role="tablist" aria-label="Implementation"></div>
+            <div class="comparison-implementations flex flex-wrap gap-x-4 sm:gap-x-6" role="tablist" focusgroup="tablist nomemory" aria-label="Implementation"></div>
           </div>
           <div class="comparison-viewport h-[70vh] min-h-[420px] bg-surface-2">
             <iframe class="comparison-frame block h-full w-full border-0" title="Highlighted output" loading="eager"></iframe>
@@ -179,6 +176,7 @@ export async function setupComparison(root: HTMLElement) {
   });
 
   addEventListener("message", (event: MessageEvent) => {
+    if (event.source !== frame.contentWindow) return;
     const scroll = (event.data as { lumisShowcaseScroll?: number } | null)?.lumisShowcaseScroll;
     if (typeof scroll !== "number") return;
     // At fractional device pixel ratios the offset is fractional, and the frame
@@ -226,6 +224,7 @@ export async function setupComparison(root: HTMLElement) {
 
   for (const entry of manifest.documents) {
     const button = document.createElement("button");
+    button.type = "button";
     button.dataset.id = entry.id;
     button.setAttribute("role", "tab");
     button.className =
@@ -237,6 +236,7 @@ export async function setupComparison(root: HTMLElement) {
 
   for (const entry of manifest.implementations) {
     const button = document.createElement("button");
+    button.type = "button";
     button.dataset.id = entry.id;
     button.setAttribute("role", "tab");
     button.className =
@@ -248,5 +248,6 @@ export async function setupComparison(root: HTMLElement) {
 
   paint(documentTabs, currentDocument.id);
   paint(implementationTabs, currentImplementation.id);
+  void polyfillFocusgroup(root);
   show();
 }

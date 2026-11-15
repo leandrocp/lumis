@@ -9,7 +9,10 @@
     "noEmit": true,
     "strict": true,
     "lib": ["ES2022", "ESNext.Disposable", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "paths": {
+      "@microsoft/focusgroup-polyfill/shadowless": ["./src/focusgroup-polyfill.d.ts"]
+    }
   },
   "include": ["src", "vite.config.ts"]
 }

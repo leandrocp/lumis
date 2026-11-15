@@ -66,8 +66,7 @@ html {
   color-scheme: light dark;
 }
 
-img[src="/brand/badge-light.svg"],
-img[src="/brand/badge-dark.svg"] {
+img[src="/brand/badge-light.svg"] {
   aspect-ratio: 1;
 }
 
@@ -120,6 +119,14 @@ a:not([class]):hover {
   background-color: var(--lumis-accent-soft);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--lumis-accent) 35%, transparent);
   @apply outline-none;
+}
+
+/* Forced colors drops box-shadow, which is the only focus ring above. */
+@media (forced-colors: active) {
+  .inspector-demo .tok:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 1px;
+  }
 }
 
 .inspector-demo .tok.is-active {
