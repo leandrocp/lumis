@@ -1,0 +1,118 @@
+---
+title: Code fence options
+description: The options Lumis reads from the text after a Markdown code fence's language, and how that text is split.
+keywords:
+  - code fence meta
+  - code block decorators
+  - highlight lines
+  - info string
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+A Markdown code fence can carry options after its language:
+
+````markdown
+```elixir highlight_lines="1,3-5" theme=github_dark
+def hello, do: :world
+```
+````
+
+The text after the language is the fence's meta. `parse_code_fence_meta` reads
+it into the options a formatter takes, and returns everything else untouched.
+
+## Options
+
+| Option | Value | Example |
+| --- | --- | --- |
+| `theme` | A theme name | `theme=github_dark` |
+| `pre_class` | Classes to add to `<pre>` | `pre_class="example wide"` |
+| `highlight_lines` | Lines and inclusive ranges, 1-based | `highlight_lines="1,3-5"` |
+| `highlight_lines_style` | CSS for highlighted lines, or `theme` for the theme's own color | `highlight_lines_style="background: #ffeb3b"` |
+| `highlight_lines_class` | A class for highlighted lines | `highlight_lines_class=emphasis` |
+| `include_highlights` | Name each token's highlight in a `data-highlight` attribute | `include_highlights`, `include_highlights=false` |
+
+An option is unset when the meta leaves it out, or gives it an empty or invalid
+value. When an option appears twice, the last one wins.
+
+In `highlight_lines`, a part that is not a line or a range is dropped on its
+own: `highlight_lines="1, oops, 3-5"` highlights lines 1 and 3 to 5. Zero and a
+range that ends before it starts are invalid. Lines past the end of the code
+highlight nothing.
+
+`include_highlights` on its own or `=true` turns it on, `=false` turns it off,
+and any other value leaves it unset.
+
+## Other options
+
+Every word that is not one of the options above comes back in `unrecognized`, in
+order, with its name and value. Other tools write their own options in the same
+place, so nothing is dropped and nothing is an error:
+
+```text
+title="app.ex" {2} theme=dracula
+```
+
+sets `theme` and returns `title` with the value `app.ex`, then `{2}` with no
+value.
+
+## How the text is split
+
+- Words are separated by spaces, tabs and newlines.
+- A word splits into a name and a value at its first `=`, so `pre_class=a=b`
+  sets `pre_class` to `a=b`.
+- `"..."` and `'...'` group text that has spaces in it, and the quotes are
+  removed. Inside double quotes, `\"` is a quote and `\\` is a backslash.
+  Every other backslash is kept, so `title=C:\dir` stays `C:\dir`.
+- A quote that is never closed is ordinary text: `title=Don't theme=x` sets
+  `theme` and returns `title` with the value `Don't`.
+- `#` is ordinary text.
+- Names are case-sensitive.
+
+Values are returned as written. A formatter escapes them when it writes them
+into HTML.
+
+## Reading the options
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
+
+```ts
+import { parseCodeFenceMeta } from '@lumis-sh/lumis'
+
+const meta = parseCodeFenceMeta('highlight_lines="1,3-5" theme=github_dark title="app.ex"')
+meta.theme          // "github_dark"
+meta.highlightLines // [[1, 1], [3, 5]]
+meta.unrecognized   // [{ name: "title", value: "app.ex" }]
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::code_fence::parse_meta;
+
+let meta = parse_meta(r#"highlight_lines="1,3-5" theme=github_dark title="app.ex""#);
+assert_eq!(meta.theme.as_deref(), Some("github_dark"));
+assert_eq!(meta.highlight_lines, Some(vec![1..=1, 3..=5]));
+assert_eq!(meta.unrecognized[0].name, "title");
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+meta = Lumis.parse_code_fence_meta(~s(highlight_lines="1,3-5" theme=github_dark title="app.ex"))
+meta.theme
+#=> "github_dark"
+meta.highlight_lines
+#=> [1..1, 3..5]
+meta.unrecognized
+#=> [%{name: "title", value: "app.ex"}]
+```
+
+  </Tab>
+</Tabs>
+
+[MDEx](https://hexdocs.pm/mdex/code_block_decorators.html) applies these options
+to each fenced block it highlights with Lumis.

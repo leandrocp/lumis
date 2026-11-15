@@ -160,6 +160,10 @@ fn exercised_entry_points() -> BTreeSet<&'static str> {
     exercise_language_entry_points();
     exercise_theme_entry_points();
 
+    let meta = lumis::code_fence::parse_meta("highlight_lines=1,3-4 title=x");
+    assert_eq!(meta.highlight_lines, Some(vec![1..=1, 3..=4]));
+    assert_eq!(meta.unrecognized[0].name, "title");
+
     [
         "themes::Theme::map_styles",
         "themes::closest",
@@ -179,6 +183,7 @@ fn exercised_entry_points() -> BTreeSet<&'static str> {
         "themes::available_themes",
         "languages::Language::from_str",
         "languages::Language::info",
+        "code_fence::parse_meta",
     ]
     .into()
 }

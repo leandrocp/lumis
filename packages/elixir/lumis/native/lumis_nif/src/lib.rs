@@ -9,12 +9,14 @@ use std::thread;
 
 use anyhow::{anyhow, Context, Result};
 use lumis_core::annotations::{compose_annotations, Annotation, AnnotationRange, Position};
+use lumis_core::code_fence::{self, CodeFenceMeta};
 use lumis_core::decorations::DiffWordKind;
 use lumis_core::elixir::{
     attr_values, ex_attr_values, line_specs_contain, ExAttrValue, ExCssOptions, ExFormatterOption,
     ExLineSpec, ExStyle, ExTextDecoration, ExTheme,
 };
 use lumis_core::events::{Decoration, HighlightEvent};
+use lumis_core::formatter::html_inline::HighlightLinesStyle;
 use lumis_core::formatter::BudgetExhausted;
 use lumis_core::formatter::Formatter;
 use lumis_core::languages::Language;
@@ -503,6 +505,9 @@ rustler::atoms! {
     removed,
     added,
     runtime_atom = "runtime",
+
+    // `highlight_lines_style: :theme` in a parsed code fence meta.
+    theme_atom = "theme",
 }
 
 // The BEAM supplies enif_* symbols when loading the NIF, not in a Rust test executable.
@@ -1078,6 +1083,82 @@ fn load_languages_by_name(env: Env<'_>, names: Vec<String>) -> Term<'_> {
 #[cfg_attr(not(test), rustler::nif(schedule = "DirtyCpu"))]
 fn guess_language(name: Option<&str>, source: &str) -> &'static str {
     languages::Language::guess(name, source).id_name()
+}
+
+#[derive(NifMap)]
+#[rustler(encode)]
+struct ExCodeFenceMeta {
+    theme: Option<String>,
+    pre_class: Option<String>,
+    highlight_lines: Option<Vec<ExRange>>,
+    highlight_lines_style: Option<ExHighlightLinesStyle>,
+    highlight_lines_class: Option<String>,
+    include_highlights: Option<bool>,
+    unrecognized: Vec<ExMetaAttribute>,
+}
+
+#[derive(NifStruct)]
+#[module = "Range"]
+#[rustler(encode)]
+struct ExRange {
+    first: usize,
+    last: usize,
+    step: i64,
+}
+
+#[derive(NifMap)]
+#[rustler(encode)]
+struct ExMetaAttribute {
+    name: String,
+    value: Option<String>,
+}
+
+/// `:theme`, or the CSS as a string, the way `highlight_lines: [style: ...]`
+/// takes it.
+struct ExHighlightLinesStyle(HighlightLinesStyle);
+
+impl Encoder for ExHighlightLinesStyle {
+    fn encode<'a>(&self, env: Env<'a>) -> Term<'a> {
+        match &self.0 {
+            HighlightLinesStyle::Theme => theme_atom().encode(env),
+            HighlightLinesStyle::Style(css) => css.encode(env),
+        }
+    }
+}
+
+impl From<CodeFenceMeta> for ExCodeFenceMeta {
+    fn from(meta: CodeFenceMeta) -> Self {
+        Self {
+            theme: meta.theme,
+            pre_class: meta.pre_class,
+            highlight_lines: meta.highlight_lines.map(|ranges| {
+                ranges
+                    .into_iter()
+                    .map(|range| ExRange {
+                        first: *range.start(),
+                        last: *range.end(),
+                        step: 1,
+                    })
+                    .collect()
+            }),
+            highlight_lines_style: meta.highlight_lines_style.map(ExHighlightLinesStyle),
+            highlight_lines_class: meta.highlight_lines_class,
+            include_highlights: meta.include_highlights,
+            unrecognized: meta
+                .unrecognized
+                .into_iter()
+                .map(|attribute| ExMetaAttribute {
+                    name: attribute.name,
+                    value: attribute.value,
+                })
+                .collect(),
+        }
+    }
+}
+
+#[cfg_attr(not(test), rustler::nif)]
+fn parse_code_fence_meta(meta: &str) -> ExCodeFenceMeta {
+    code_fence::parse_meta(meta).into()
 }
 
 #[cfg_attr(not(test), rustler::nif)]

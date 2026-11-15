@@ -157,6 +157,13 @@
         "elixir": "Theme.get"
       },
       "$comment": "Look up a built-in theme by exact name. Absence uses the runtime's existing missing-value convention."
+    },
+    {
+      "name": "parse_code_fence_meta",
+      "spelling": {
+        "rust": "code_fence::parse_meta"
+      },
+      "$comment": "Read the options written after a Markdown code fence's language. fixtures/code-fence-meta.json pins the result in every runtime."
     }
   ],
   "runtime_only": {
