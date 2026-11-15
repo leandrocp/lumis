@@ -802,8 +802,7 @@ checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
 [[package]]
 name = "lumis-core"
 version = "6.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7aa516a2a16cd91ce6f14345e4fc6801ead6aa3979960fc1c67891322b13baaa"
+source = "git+https://github.com/leandrocp/lumis?branch=feat-code-fence-meta#91b03834f8e8446255aac1a8b086710a9da0b53c"
 dependencies = [
  "derive_builder",
  "glob",
