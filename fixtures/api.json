@@ -209,7 +209,7 @@
     ],
     "elixir": {
       "highlight_iter": "Not implemented. Rust has `highlight_iter/4` and JavaScript has `highlightIter`; Elixir has no flat per-token walk, only the nested stream from `highlight_events/3`. It is implementable on top of that, so this waiver is a gap and not a boundary, and dropping it is the point.",
-      "parse_code_fence_meta": "No caller. Elixir reads Markdown through MDEx, whose NIF links `lumis-core` and reads fence meta with `code_fence` itself (leandrocp/mdex_native#149); a public wrapper would be a NIF kept only for symmetry. Add it when an Elixir pipeline outside MDEx needs it."
+      "parse_code_fence_meta": "No caller. Elixir reads Markdown through MDEx, whose NIF links `lumis-core` and can call `code_fence` directly (leandrocp/mdex_native#149 moves it there); a public wrapper would be a NIF kept only for symmetry. Add it when an Elixir pipeline outside MDEx needs it."
     }
   },
   "deprecated": {

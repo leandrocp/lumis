@@ -335,7 +335,7 @@ Chromium, Firefox, and WebKit builds before running the browser tests.
 `waived` is not empty here. Elixir has no flat `highlight_iter`, which is the gap
 [#1544](https://github.com/leandrocp/lumis/issues/1544) was opened about, and no
 `parse_code_fence_meta`, because Elixir reads Markdown through MDEx, whose NIF
-links `lumis-core` and reads fence meta with `code_fence` itself.
+links `lumis-core` and can call `code_fence` directly.
 
 The CLI is not in this manifest. Its top level is a set of commands rather than
 functions, and the formatter option manifest already pins its flags.
