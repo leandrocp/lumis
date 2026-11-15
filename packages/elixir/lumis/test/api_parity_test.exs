@@ -241,12 +241,6 @@ defmodule Lumis.ApiParityTest do
       assert Lumis.Theme.map_styles(theme, fn _, style -> style end) == theme
     end
 
-    test "parse_code_fence_meta" do
-      meta = Lumis.parse_code_fence_meta("highlight_lines=1,3-4 title=x")
-      assert meta.highlight_lines == [1..1, 3..4]
-      assert meta.unrecognized == [%{name: "title", value: "x"}]
-    end
-
     test "the manifest claims exactly these" do
       claimed =
         manifest()
@@ -264,7 +258,6 @@ defmodule Lumis.ApiParityTest do
                "highlight_events",
                "language_info",
                "map_theme_styles",
-               "parse_code_fence_meta",
                "theme"
              ],
              "add a test above for the capabilities this list gained"

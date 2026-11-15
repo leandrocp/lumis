@@ -1069,46 +1069,6 @@ defmodule Lumis do
   @spec loaded_languages() :: [id :: String.t()]
   def loaded_languages, do: Lumis.Languages.loaded()
 
-  @typedoc """
-  The options a code fence's meta sets. See `parse_code_fence_meta/1`.
-  """
-  @type code_fence_meta :: %{
-          theme: String.t() | nil,
-          pre_class: String.t() | nil,
-          highlight_lines: [Range.t()] | nil,
-          highlight_lines_style: :theme | String.t() | nil,
-          highlight_lines_class: String.t() | nil,
-          include_highlights: boolean() | nil,
-          unrecognized: [%{name: String.t(), value: String.t() | nil}]
-        }
-
-  @doc ~S"""
-  Reads the options in a code fence's meta, the info string after its language.
-
-  ````markdown
-  ```elixir highlight_lines="1,3-5" theme=github_dark
-  ````
-
-  Words are separated by ASCII whitespace and split into a name and a value at
-  their first `=`. Double or single quotes group text with spaces in it and are
-  removed; inside double quotes `\"` and `\\` escape, and any other backslash
-  is kept. A quote with no closing match is ordinary text.
-
-  A field is `nil` when the meta does not set it, or sets it to an empty or
-  invalid value. When a name appears more than once, the last one wins. A
-  malformed part of `highlight_lines` is dropped on its own. Every name not
-  listed in `t:code_fence_meta/0` is returned in `:unrecognized`, in order, so
-  options other tools write in the same place stay readable.
-
-      iex> meta = Lumis.parse_code_fence_meta(~s(highlight_lines="1, 3-5" theme=github_dark title="app.ex"))
-      iex> {meta.theme, meta.highlight_lines, meta.unrecognized}
-      {"github_dark", [1..1, 3..5], [%{name: "title", value: "app.ex"}]}
-
-  """
-  @spec parse_code_fence_meta(String.t()) :: code_fence_meta()
-  def parse_code_fence_meta(meta) when is_binary(meta),
-    do: Lumis.Native.parse_code_fence_meta(meta)
-
   @typedoc "A built-in theme's name and appearance, without its highlight data."
   @type theme_info :: %{name: String.t(), appearance: String.t()}
 

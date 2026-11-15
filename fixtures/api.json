@@ -204,11 +204,12 @@
       "shrink.",
       "",
       "Unlike `formatter-options.json` and `formatter-helpers.json`, whose tests",
-      "assert this section is empty, this one starts with an entry. It is the gap",
-      "#1544 was opened about."
+      "assert this section is empty, this one is not. `highlight_iter` is the gap",
+      "#1544 was opened about; `parse_code_fence_meta` has no Elixir caller."
     ],
     "elixir": {
-      "highlight_iter": "Not implemented. Rust has `highlight_iter/4` and JavaScript has `highlightIter`; Elixir has no flat per-token walk, only the nested stream from `highlight_events/3`. It is implementable on top of that, so this waiver is a gap and not a boundary, and dropping it is the point."
+      "highlight_iter": "Not implemented. Rust has `highlight_iter/4` and JavaScript has `highlightIter`; Elixir has no flat per-token walk, only the nested stream from `highlight_events/3`. It is implementable on top of that, so this waiver is a gap and not a boundary, and dropping it is the point.",
+      "parse_code_fence_meta": "No caller. Elixir reads Markdown through MDEx, whose NIF calls `lumis_core::code_fence` directly; a public wrapper would be a NIF kept only for symmetry. Add it when an Elixir pipeline outside MDEx needs it."
     }
   },
   "deprecated": {
