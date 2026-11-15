@@ -47,37 +47,42 @@ export function escapeHtml(str: string) {
     .replaceAll('"', "&quot;");
 }
 
-const copyResets = new WeakMap<HTMLButtonElement, number>();
+const FEEDBACK_MS = 1500;
+const iconResets = new WeakMap<HTMLButtonElement, number>();
 let lastAnnouncement = "";
+let announcementReset = 0;
 
+// Every copy button shares one live region, so it gets one reset timer: an
+// earlier button's timer must not clear a later button's message.
 function announce(message: string) {
   const liveRegion = document.querySelector("#live-region");
   if (!liveRegion) return;
   // VoiceOver skips a message identical to the previous one, even after the
   // region was emptied, and a no-break space is not read aloud.
-  const text = message && message === lastAnnouncement ? `${message}\u00A0` : message;
-  if (text) lastAnnouncement = text;
-  liveRegion.textContent = text;
+  lastAnnouncement = message === lastAnnouncement ? `${message}\u00A0` : message;
+  liveRegion.textContent = lastAnnouncement;
+  clearTimeout(announcementReset);
+  announcementReset = window.setTimeout(() => (liveRegion.textContent = ""), FEEDBACK_MS);
 }
 
 export async function copyText(button: HTMLButtonElement, text: string) {
-  clearTimeout(copyResets.get(button));
   let copied = true;
   try {
     await navigator.clipboard.writeText(text);
   } catch {
     copied = false;
   }
+  // Cleared after the write settles, so overlapping clicks leave one timer.
+  clearTimeout(iconResets.get(button));
   button.querySelector("svg")!.outerHTML = copied ? CHECK_SVG : COPY_SVG;
   button.classList.toggle("text-accent", copied);
   announce(copied ? "Copied to clipboard" : "Copy failed");
-  copyResets.set(
+  iconResets.set(
     button,
     window.setTimeout(() => {
       button.querySelector("svg")!.outerHTML = COPY_SVG;
       button.classList.remove("text-accent");
-      announce("");
-    }, 1500),
+    }, FEEDBACK_MS),
   );
 }
 
