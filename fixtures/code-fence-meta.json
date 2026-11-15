@@ -176,6 +176,11 @@
       "expected": { "preClass": "\"a", "theme": "x" }
     },
     {
+      "name": "escaped quotes after an unmatched one stay literal",
+      "meta": "pre_class=\"a\\\"\\\"b theme=x 'c",
+      "expected": { "preClass": "\"a\\\"\\\"b", "theme": "x", "unrecognized": [{ "name": "'c" }] }
+    },
+    {
       "name": "a later quote closes an earlier one",
       "meta": "title=Don't 'x'",
       "expected": { "unrecognized": [{ "name": "title", "value": "Dont x'" }] }

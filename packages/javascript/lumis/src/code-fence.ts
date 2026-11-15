@@ -103,14 +103,20 @@ function flag(value: string | undefined): boolean | undefined {
 function* words(meta: string): Generator<string> {
   let word = "";
   let index = 0;
+  // A quote nothing closes means no later quote of that kind is closed either:
+  // an earlier search reached each later one as an escaped `\"` and carried on
+  // from there just as a search starting at it would. Remembering that keeps
+  // the walk linear instead of rescanning the tail at every quote.
+  const unclosed = new Set<string>();
 
   while (index < meta.length) {
     const ch = meta.charAt(index);
     index += 1;
 
     if (ch === '"' || ch === "'") {
-      const closed = quoted(meta, index, ch);
+      const closed = unclosed.has(ch) ? undefined : quoted(meta, index, ch);
       if (closed === undefined) {
+        unclosed.add(ch);
         word += ch;
       } else {
         word += closed.content;

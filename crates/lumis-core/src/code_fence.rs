@@ -124,17 +124,26 @@ fn words(meta: &str) -> Vec<String> {
     let mut words = Vec::new();
     let mut word = String::new();
     let mut rest = meta;
+    // A quote nothing closes means no later quote of that kind is closed either:
+    // an earlier search reached each later one as an escaped `\"` and carried on
+    // from there just as a search starting at it would. Remembering that keeps
+    // the walk linear instead of rescanning the tail at every quote.
+    let mut unclosed = Vec::new();
 
     while let Some(ch) = rest.chars().next() {
         rest = &rest[ch.len_utf8()..];
 
         match ch {
+            '"' | '\'' if unclosed.contains(&ch) => word.push(ch),
             '"' | '\'' => match quoted(rest, ch) {
                 Some((content, after)) => {
                     word.push_str(&content);
                     rest = after;
                 }
-                None => word.push(ch),
+                None => {
+                    unclosed.push(ch);
+                    word.push(ch);
+                }
             },
             ch if ch.is_ascii_whitespace() => {
                 if !word.is_empty() {
