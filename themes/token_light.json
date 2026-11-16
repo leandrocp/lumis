@@ -2,7 +2,7 @@
   "$schema": "https://lumis.sh/schemas/themes/v1.0.0.json",
   "name": "token_light",
   "appearance": "light",
-  "revision": "fa8600de9a1ee5b88fb2ef48a0964e9648d3aefc",
+  "revision": "560f05f8acc1a429ffbde2d944093b088995238d",
   "license": "BSD-3-Clause",
   "highlights": {
     "attribute": {
@@ -41,11 +41,11 @@
       "italic": true
     },
     "comment.todo": {
-      "fg": "#857238",
+      "fg": "#7d6a30",
       "italic": true
     },
     "comment.warning": {
-      "fg": "#857238",
+      "fg": "#7d6a30",
       "italic": true
     },
     "constant": {
@@ -60,6 +60,9 @@
     },
     "constructor": {
       "fg": "#315270"
+    },
+    "constructor.lua": {
+      "fg": "#6a655d"
     },
     "diff.delta": {
       "bg": "#eee4c6"
@@ -179,7 +182,7 @@
       "bold": true
     },
     "keyword.operator": {
-      "fg": "#6d4717",
+      "fg": "#565141",
       "bold": true
     },
     "keyword.repeat": {
@@ -266,13 +269,13 @@
       "fg": "#365a33"
     },
     "markup.list.unchecked": {
-      "fg": "#524e46"
+      "fg": "#716c64"
     },
     "markup.math": {
       "fg": "#315270"
     },
     "markup.quote": {
-      "fg": "#504b44",
+      "fg": "#6a655d",
       "italic": true
     },
     "markup.raw": {
@@ -310,7 +313,7 @@
       "fg": "#565141"
     },
     "property": {
-      "fg": "#323128"
+      "fg": "#794f5f"
     },
     "punctuation.bracket": {
       "fg": "#6a655d"
@@ -325,7 +328,7 @@
       "fg": "#365a33"
     },
     "string.documentation": {
-      "fg": "#365a33",
+      "fg": "#6a655d",
       "italic": true
     },
     "string.escape": {
@@ -376,7 +379,7 @@
       "fg": "#61457c"
     },
     "variable.member": {
-      "fg": "#323128"
+      "fg": "#794f5f"
     },
     "variable.parameter": {
       "fg": "#565141"

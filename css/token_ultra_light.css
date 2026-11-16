@@ -1,5 +1,5 @@
 /* token_ultra_light
- * revision: fa8600de9a1ee5b88fb2ef48a0964e9648d3aefc
+ * revision: 560f05f8acc1a429ffbde2d944093b088995238d
  * license: BSD-3-Clause
  */
 .lumis {
@@ -42,11 +42,11 @@
   font-style: italic;
 }
 .l-comment-todo {
-  color: #926e25;
+  color: #89661b;
   font-style: italic;
 }
 .l-comment-warning {
-  color: #926e25;
+  color: #89661b;
   font-style: italic;
 }
 .l-constant {
@@ -61,6 +61,9 @@
 }
 .l-constructor {
   color: #565141;
+}
+.l-constructor-lua {
+  color: #6b645d;
 }
 .l-diff-delta {
   background-color: #eee4c6;
@@ -148,7 +151,7 @@
   font-weight: bold;
 }
 .l-keyword-debug {
-  color: #6c4800;
+  color: #ae5158;
   font-weight: bold;
 }
 .l-keyword-directive {
@@ -160,7 +163,7 @@
   font-weight: bold;
 }
 .l-keyword-exception {
-  color: #6c4800;
+  color: #ae5158;
   font-weight: bold;
 }
 .l-keyword-export {
@@ -180,7 +183,7 @@
   font-weight: bold;
 }
 .l-keyword-operator {
-  color: #6c4800;
+  color: #565141;
   font-weight: bold;
 }
 .l-keyword-repeat {
@@ -267,13 +270,13 @@
   color: #385a35;
 }
 .l-markup-list-unchecked {
-  color: #544e44;
+  color: #736c62;
 }
 .l-markup-math {
   color: #565141;
 }
 .l-markup-quote {
-  color: #514b44;
+  color: #6b645d;
   font-style: italic;
 }
 .l-markup-raw {
@@ -307,7 +310,7 @@
   color: #565141;
 }
 .l-property {
-  color: #31312b;
+  color: #7d4d60;
 }
 .l-punctuation-bracket {
   color: #6b645d;
@@ -322,7 +325,7 @@
   color: #1a5a53;
 }
 .l-string-documentation {
-  color: #1a5a53;
+  color: #6b645d;
   font-style: italic;
 }
 .l-string-escape {
@@ -373,7 +376,7 @@
   color: #565141;
 }
 .l-variable-member {
-  color: #31312b;
+  color: #7d4d60;
 }
 .l-variable-parameter {
   color: #565141;

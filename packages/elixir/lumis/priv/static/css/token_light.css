@@ -1,5 +1,5 @@
 /* token_light
- * revision: fa8600de9a1ee5b88fb2ef48a0964e9648d3aefc
+ * revision: 560f05f8acc1a429ffbde2d944093b088995238d
  * license: BSD-3-Clause
  */
 .lumis {
@@ -42,11 +42,11 @@
   font-style: italic;
 }
 .l-comment-todo {
-  color: #857238;
+  color: #7d6a30;
   font-style: italic;
 }
 .l-comment-warning {
-  color: #857238;
+  color: #7d6a30;
   font-style: italic;
 }
 .l-constant {
@@ -61,6 +61,9 @@
 }
 .l-constructor {
   color: #315270;
+}
+.l-constructor-lua {
+  color: #6a655d;
 }
 .l-diff-delta {
   background-color: #eee4c6;
@@ -180,7 +183,7 @@
   font-weight: bold;
 }
 .l-keyword-operator {
-  color: #6d4717;
+  color: #565141;
   font-weight: bold;
 }
 .l-keyword-repeat {
@@ -267,13 +270,13 @@
   color: #365a33;
 }
 .l-markup-list-unchecked {
-  color: #524e46;
+  color: #716c64;
 }
 .l-markup-math {
   color: #315270;
 }
 .l-markup-quote {
-  color: #504b44;
+  color: #6a655d;
   font-style: italic;
 }
 .l-markup-raw {
@@ -307,7 +310,7 @@
   color: #565141;
 }
 .l-property {
-  color: #323128;
+  color: #794f5f;
 }
 .l-punctuation-bracket {
   color: #6a655d;
@@ -322,7 +325,7 @@
   color: #365a33;
 }
 .l-string-documentation {
-  color: #365a33;
+  color: #6a655d;
   font-style: italic;
 }
 .l-string-escape {
@@ -373,7 +376,7 @@
   color: #61457c;
 }
 .l-variable-member {
-  color: #323128;
+  color: #794f5f;
 }
 .l-variable-parameter {
   color: #565141;

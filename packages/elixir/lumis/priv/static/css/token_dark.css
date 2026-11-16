@@ -1,5 +1,5 @@
 /* token_dark
- * revision: fa8600de9a1ee5b88fb2ef48a0964e9648d3aefc
+ * revision: 560f05f8acc1a429ffbde2d944093b088995238d
  * license: BSD-3-Clause
  */
 .lumis {
@@ -61,6 +61,9 @@
 }
 .l-constructor {
   color: #81a5c4;
+}
+.l-constructor-lua {
+  color: #a19c94;
 }
 .l-diff-delta {
   background-color: #2b2b29;
@@ -180,7 +183,7 @@
   font-weight: bold;
 }
 .l-keyword-operator {
-  color: #f7c699;
+  color: #b3aea5;
   font-weight: bold;
 }
 .l-keyword-repeat {
@@ -307,7 +310,7 @@
   color: #b3aea5;
 }
 .l-property {
-  color: #c3c0b8;
+  color: #c293a4;
 }
 .l-punctuation-bracket {
   color: #a19c94;
@@ -322,7 +325,7 @@
   color: #8fb78c;
 }
 .l-string-documentation {
-  color: #8fb78c;
+  color: #a19c94;
   font-style: italic;
 }
 .l-string-escape {
@@ -373,7 +376,7 @@
   color: #b195ca;
 }
 .l-variable-member {
-  color: #c3c0b8;
+  color: #c293a4;
 }
 .l-variable-parameter {
   color: #b3aea5;

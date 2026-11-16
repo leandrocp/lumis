@@ -1,5 +1,5 @@
 /* token_meridian_dark
- * revision: fa8600de9a1ee5b88fb2ef48a0964e9648d3aefc
+ * revision: 560f05f8acc1a429ffbde2d944093b088995238d
  * license: BSD-3-Clause
  */
 .lumis {
@@ -61,6 +61,9 @@
 }
 .l-constructor {
   color: #cf9c70;
+}
+.l-constructor-lua {
+  color: #a69c91;
 }
 .l-diff-delta {
   background-color: #2b2b29;
@@ -148,7 +151,7 @@
   font-weight: bold;
 }
 .l-keyword-debug {
-  color: #7cc1dc;
+  color: #dd8384;
   font-weight: bold;
 }
 .l-keyword-directive {
@@ -160,7 +163,7 @@
   font-weight: bold;
 }
 .l-keyword-exception {
-  color: #7cc1dc;
+  color: #dd8384;
   font-weight: bold;
 }
 .l-keyword-export {
@@ -180,7 +183,7 @@
   font-weight: bold;
 }
 .l-keyword-operator {
-  color: #7cc1dc;
+  color: #b8aea1;
   font-weight: bold;
 }
 .l-keyword-repeat {
@@ -322,7 +325,7 @@
   color: #8cbb62;
 }
 .l-string-documentation {
-  color: #8cbb62;
+  color: #a69c91;
   font-style: italic;
 }
 .l-string-escape {
