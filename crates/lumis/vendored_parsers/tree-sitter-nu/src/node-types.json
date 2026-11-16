@@ -1,5 +1,10 @@
 [
   {
+    "type": "-",
+    "named": false,
+    "fields": {}
+  },
+  {
     "type": "_head",
     "named": false,
     "fields": {}
@@ -78,6 +83,10 @@
             "named": true
           },
           {
+            "type": "expr_unary",
+            "named": true
+          },
+          {
             "type": "val_binary",
             "named": true
           },
@@ -153,6 +162,10 @@
           },
           {
             "type": "val_list",
+            "named": true
+          },
+          {
+            "type": "val_record",
             "named": true
           },
           {
@@ -263,6 +276,10 @@
           "named": true
         },
         {
+          "type": "decl_type",
+          "named": true
+        },
+        {
           "type": "decl_use",
           "named": true
         },
@@ -366,6 +383,10 @@
             "named": true
           },
           {
+            "type": "expr_unary",
+            "named": true
+          },
+          {
             "type": "val_binary",
             "named": true
           },
@@ -441,6 +462,10 @@
           },
           {
             "type": "val_list",
+            "named": true
+          },
+          {
+            "type": "val_record",
             "named": true
           },
           {
@@ -1351,11 +1376,15 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
         {
           "type": "attribute_list",
+          "named": true
+        },
+        {
+          "type": "long_flag",
           "named": true
         }
       ]
@@ -1391,6 +1420,44 @@
         "types": [
           {
             "type": "cmd_identifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "decl_type",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "flat_type",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "collection_type",
+            "named": true
+          },
+          {
+            "type": "composite_type",
+            "named": true
+          },
+          {
+            "type": "flat_type",
+            "named": true
+          },
+          {
+            "type": "list_type",
             "named": true
           }
         ]
@@ -1758,6 +1825,10 @@
             "named": false
           },
           {
+            "type": "newer-than",
+            "named": false
+          },
+          {
             "type": "not-ends-with",
             "named": false
           },
@@ -1775,6 +1846,10 @@
           },
           {
             "type": "not-starts-with",
+            "named": false
+          },
+          {
+            "type": "older-than",
             "named": false
           },
           {
@@ -1916,6 +1991,10 @@
           "named": true
         },
         {
+          "type": "decl_type",
+          "named": true
+        },
+        {
           "type": "decl_use",
           "named": true
         },
@@ -1983,6 +2062,10 @@
           "named": true
         },
         {
+          "type": "decl_type",
+          "named": true
+        },
+        {
           "type": "decl_use",
           "named": true
         },
@@ -2046,7 +2129,15 @@
           "named": true
         },
         {
+          "type": "decl_type",
+          "named": true
+        },
+        {
           "type": "decl_use",
+          "named": true
+        },
+        {
+          "type": "expr_binary",
           "named": true
         },
         {
@@ -2055,6 +2146,10 @@
         },
         {
           "type": "expr_unary",
+          "named": true
+        },
+        {
+          "type": "path",
           "named": true
         },
         {
@@ -2074,11 +2169,71 @@
           "named": true
         },
         {
+          "type": "val_binary",
+          "named": true
+        },
+        {
           "type": "val_bool",
           "named": true
         },
         {
+          "type": "val_cellpath",
+          "named": true
+        },
+        {
+          "type": "val_closure",
+          "named": true
+        },
+        {
+          "type": "val_date",
+          "named": true
+        },
+        {
+          "type": "val_duration",
+          "named": true
+        },
+        {
+          "type": "val_filesize",
+          "named": true
+        },
+        {
+          "type": "val_interpolated",
+          "named": true
+        },
+        {
+          "type": "val_list",
+          "named": true
+        },
+        {
+          "type": "val_nothing",
+          "named": true
+        },
+        {
+          "type": "val_number",
+          "named": true
+        },
+        {
+          "type": "val_range",
+          "named": true
+        },
+        {
+          "type": "val_record",
+          "named": true
+        },
+        {
+          "type": "val_string",
+          "named": true
+        },
+        {
+          "type": "val_table",
+          "named": true
+        },
+        {
           "type": "val_variable",
+          "named": true
+        },
+        {
+          "type": "where_predicate",
           "named": true
         }
       ]
@@ -2105,86 +2260,10 @@
     "fields": {
       "flat_type": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
-            "type": "any",
-            "named": false
-          },
-          {
-            "type": "binary",
-            "named": false
-          },
-          {
-            "type": "block",
-            "named": false
-          },
-          {
-            "type": "bool",
-            "named": false
-          },
-          {
-            "type": "cell-path",
-            "named": false
-          },
-          {
-            "type": "closure",
-            "named": false
-          },
-          {
-            "type": "cond",
-            "named": false
-          },
-          {
-            "type": "datetime",
-            "named": false
-          },
-          {
-            "type": "decimal",
-            "named": false
-          },
-          {
-            "type": "directory",
-            "named": false
-          },
-          {
-            "type": "duration",
-            "named": false
-          },
-          {
             "type": "error",
-            "named": false
-          },
-          {
-            "type": "expr",
-            "named": false
-          },
-          {
-            "type": "filesize",
-            "named": false
-          },
-          {
-            "type": "float",
-            "named": false
-          },
-          {
-            "type": "full-cell-path",
-            "named": false
-          },
-          {
-            "type": "glob",
-            "named": false
-          },
-          {
-            "type": "import-pattern",
-            "named": false
-          },
-          {
-            "type": "int",
-            "named": false
-          },
-          {
-            "type": "keyword",
             "named": false
           },
           {
@@ -2192,55 +2271,11 @@
             "named": false
           },
           {
-            "type": "math",
-            "named": false
-          },
-          {
-            "type": "nothing",
-            "named": false
-          },
-          {
-            "type": "number",
-            "named": false
-          },
-          {
-            "type": "one-of",
-            "named": false
-          },
-          {
-            "type": "operator",
-            "named": false
-          },
-          {
-            "type": "path",
-            "named": false
-          },
-          {
-            "type": "range",
-            "named": false
-          },
-          {
             "type": "record",
             "named": false
           },
           {
-            "type": "signature",
-            "named": false
-          },
-          {
-            "type": "string",
-            "named": false
-          },
-          {
             "type": "table",
-            "named": false
-          },
-          {
-            "type": "var-with-opt-type",
-            "named": false
-          },
-          {
-            "type": "variable",
             "named": false
           }
         ]
@@ -2280,6 +2315,10 @@
         "types": [
           {
             "type": "expr_parenthesized",
+            "named": true
+          },
+          {
+            "type": "expr_unary",
             "named": true
           },
           {
@@ -2422,6 +2461,10 @@
         "types": [
           {
             "type": "expr_parenthesized",
+            "named": true
+          },
+          {
+            "type": "expr_unary",
             "named": true
           },
           {
@@ -2782,6 +2825,10 @@
           "named": true
         },
         {
+          "type": "decl_type",
+          "named": true
+        },
+        {
           "type": "decl_use",
           "named": true
         },
@@ -2957,6 +3004,10 @@
         "types": [
           {
             "type": "expr_parenthesized",
+            "named": true
+          },
+          {
+            "type": "expr_unary",
             "named": true
           },
           {
@@ -3390,6 +3441,10 @@
             "named": true
           },
           {
+            "type": "expr_unary",
+            "named": true
+          },
+          {
             "type": "val_binary",
             "named": true
           },
@@ -3584,6 +3639,10 @@
         "types": [
           {
             "type": "expr_parenthesized",
+            "named": true
+          },
+          {
+            "type": "expr_unary",
             "named": true
           },
           {
@@ -3942,6 +4001,10 @@
           "named": true
         },
         {
+          "type": "decl_type",
+          "named": true
+        },
+        {
           "type": "decl_use",
           "named": true
         },
@@ -4000,6 +4063,10 @@
         "types": [
           {
             "type": "expr_parenthesized",
+            "named": true
+          },
+          {
+            "type": "expr_unary",
             "named": true
           },
           {
@@ -4223,6 +4290,10 @@
             "named": true
           },
           {
+            "type": "expr_unary",
+            "named": true
+          },
+          {
             "type": "val_number",
             "named": true
           },
@@ -4380,9 +4451,23 @@
     "type": "where_command",
     "named": true,
     "fields": {
+      "flag": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "long_flag",
+            "named": true
+          },
+          {
+            "type": "short_flag",
+            "named": true
+          }
+        ]
+      },
       "predicate": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "val_closure",
@@ -4491,6 +4576,10 @@
             "named": false
           },
           {
+            "type": "newer-than",
+            "named": false
+          },
+          {
             "type": "not-ends-with",
             "named": false
           },
@@ -4508,6 +4597,10 @@
           },
           {
             "type": "not-starts-with",
+            "named": false
+          },
+          {
+            "type": "older-than",
             "named": false
           },
           {
@@ -4620,7 +4713,7 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
         {
@@ -4629,6 +4722,10 @@
         },
         {
           "type": "expr_unary",
+          "named": true
+        },
+        {
+          "type": "path",
           "named": true
         },
         {
@@ -4888,6 +4985,10 @@
     "named": false
   },
   {
+    "type": "all",
+    "named": false
+  },
+  {
     "type": "and",
     "named": false
   },
@@ -4898,10 +4999,6 @@
   {
     "type": "attribute_identifier",
     "named": true
-  },
-  {
-    "type": "binary",
-    "named": false
   },
   {
     "type": "bit-and",
@@ -4924,27 +5021,7 @@
     "named": false
   },
   {
-    "type": "block",
-    "named": false
-  },
-  {
-    "type": "bool",
-    "named": false
-  },
-  {
     "type": "catch",
-    "named": false
-  },
-  {
-    "type": "cell-path",
-    "named": false
-  },
-  {
-    "type": "closure",
-    "named": false
-  },
-  {
-    "type": "cond",
     "named": false
   },
   {
@@ -4952,23 +5029,7 @@
     "named": false
   },
   {
-    "type": "datetime",
-    "named": false
-  },
-  {
-    "type": "decimal",
-    "named": false
-  },
-  {
     "type": "def",
-    "named": false
-  },
-  {
-    "type": "directory",
-    "named": false
-  },
-  {
-    "type": "duration",
     "named": false
   },
   {
@@ -5056,19 +5117,11 @@
     "named": false
   },
   {
-    "type": "expr",
-    "named": false
-  },
-  {
     "type": "extern",
     "named": false
   },
   {
     "type": "false",
-    "named": false
-  },
-  {
-    "type": "filesize",
     "named": false
   },
   {
@@ -5080,19 +5133,7 @@
     "named": false
   },
   {
-    "type": "float",
-    "named": false
-  },
-  {
     "type": "for",
-    "named": false
-  },
-  {
-    "type": "full-cell-path",
-    "named": false
-  },
-  {
-    "type": "glob",
     "named": false
   },
   {
@@ -5108,24 +5149,12 @@
     "named": false
   },
   {
-    "type": "import-pattern",
-    "named": false
-  },
-  {
     "type": "in",
-    "named": false
-  },
-  {
-    "type": "int",
     "named": false
   },
   {
     "type": "inter_escape_sequence",
     "named": true
-  },
-  {
-    "type": "keyword",
-    "named": false
   },
   {
     "type": "let",
@@ -5152,10 +5181,6 @@
     "named": false
   },
   {
-    "type": "math",
-    "named": false
-  },
-  {
     "type": "mod",
     "named": false
   },
@@ -5165,6 +5190,10 @@
   },
   {
     "type": "mut",
+    "named": false
+  },
+  {
+    "type": "newer-than",
     "named": false
   },
   {
@@ -5192,19 +5221,11 @@
     "named": false
   },
   {
-    "type": "nothing",
-    "named": false
-  },
-  {
     "type": "nu",
     "named": false
   },
   {
     "type": "null",
-    "named": false
-  },
-  {
-    "type": "number",
     "named": false
   },
   {
@@ -5232,15 +5253,11 @@
     "named": false
   },
   {
-    "type": "one-of",
+    "type": "older-than",
     "named": false
   },
   {
     "type": "oneof",
-    "named": false
-  },
-  {
-    "type": "operator",
     "named": false
   },
   {
@@ -5276,14 +5293,6 @@
     "named": true
   },
   {
-    "type": "path",
-    "named": false
-  },
-  {
-    "type": "range",
-    "named": false
-  },
-  {
     "type": "raw_string_begin",
     "named": true
   },
@@ -5300,15 +5309,7 @@
     "named": true
   },
   {
-    "type": "signature",
-    "named": false
-  },
-  {
     "type": "starts-with",
-    "named": false
-  },
-  {
-    "type": "string",
     "named": false
   },
   {
@@ -5324,6 +5325,10 @@
     "named": false
   },
   {
+    "type": "type",
+    "named": false
+  },
+  {
     "type": "unescaped_interpolated_content",
     "named": true
   },
@@ -5334,14 +5339,6 @@
   {
     "type": "val_date",
     "named": true
-  },
-  {
-    "type": "var-with-opt-type",
-    "named": false
-  },
-  {
-    "type": "variable",
-    "named": false
   },
   {
     "type": "where",
