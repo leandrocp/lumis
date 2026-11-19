@@ -51,9 +51,9 @@
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.60.1",
-    "oxfmt": "^0.76.0",
-    "oxlint": "1.91.0",
-    "oxlint-tsgolint": "7.0.2005",
+    "oxfmt": "^0.78.0",
+    "oxlint": "1.93.0",
+    "oxlint-tsgolint": "7.0.2006",
     "tsup": "^9.0",
     "tsx": "^4.23",
     "typescript": "^6.0"
