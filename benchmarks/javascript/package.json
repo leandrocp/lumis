@@ -46,8 +46,8 @@
     "sugar-high": "2.6.4"
   },
   "devDependencies": {
-    "oxfmt": "^0.76.0",
-    "oxlint": "1.91.0"
+    "oxfmt": "^0.78.0",
+    "oxlint": "1.93.0"
   },
   "engines": {
     "node": ">=24"

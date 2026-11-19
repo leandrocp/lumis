@@ -12,7 +12,7 @@ export function numberArgument(name, raw, minimum) {
 
 export function integerArgument(name, raw, minimum) {
   const value = numberArgument(name, raw, minimum);
-  if (!Number.isInteger(value)) throw new Error(`${name} must be a whole number, got ${value}`);
+  if (!Number.isInteger(value)) throw new TypeError(`${name} must be a whole number, got ${value}`);
   return value;
 }
 
