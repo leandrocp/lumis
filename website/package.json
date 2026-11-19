@@ -33,12 +33,12 @@
     "@vercel/analytics": "^2.0.1"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.3.4",
+    "@tailwindcss/vite": "^4.3.5",
     "@types/node": "^26.6.6",
-    "oxfmt": "^0.76.0",
-    "tailwindcss": "^4.3.4",
+    "oxfmt": "^0.78.0",
+    "tailwindcss": "^4.3.5",
     "typescript": "^7.0.2",
-    "vite": "^8.3.5"
+    "vite": "^8.3.8"
   },
   "engines": {
     "node": "24.x"

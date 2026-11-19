@@ -37,7 +37,7 @@
     {
       "id": "pierre-highlights",
       "label": "Highlights",
-      "version": "@pierre/highlights 0.4.0",
+      "version": "@pierre/highlights 0.5.1",
       "theme": "Highlights' bundled Catppuccin themes, which match catppuccin/zed"
     },
     {
@@ -79,7 +79,7 @@
     {
       "id": "tanstack-highlight",
       "label": "TanStack Highlight",
-      "version": "@tanstack/highlight 1.2.11",
+      "version": "@tanstack/highlight 1.2.12",
       "theme": "@catppuccin/highlightjs 1.0.1 colours, mapped onto its token classes by this repository"
     }
   ],

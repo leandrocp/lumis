@@ -74,14 +74,14 @@ importers:
         specifier: 0.26.3
         version: 0.26.3(@lumis-sh/lumis@packages+javascript+lumis)
       '@pierre/highlights':
-        specifier: 0.4.0
-        version: 0.4.0
+        specifier: 0.5.1
+        version: 0.5.1
       '@speed-highlight/core':
         specifier: 2.1.0
         version: 2.1.0
       '@tanstack/highlight':
-        specifier: 1.2.11
-        version: 1.2.11
+        specifier: 1.2.12
+        version: 1.2.12
       '@wooorm/starry-night':
         specifier: 3.11.0
         version: 3.11.0
@@ -1227,8 +1227,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@pierre/highlights@0.4.0':
-    resolution: {integrity: sha512-2a38H7ep3KweGi1fGQpJk+Krod2OMpDIXagKPlqBd1Y9P460T7zQmc66Wm2JAH1SpIG93wCyyhZVrkc5dnAJVQ==}
+  '@pierre/highlights@0.5.1':
+    resolution: {integrity: sha512-c2WF6sgwgKdxXU6FpWDLWUYHRca/cJy+3QJkWAqYqEAFxqlPf8eSH0ehHcFFjKBmT+9KBl9H7q6z7HMRU7+m6g==}
 
   '@playwright/test@1.65.0':
     resolution: {integrity: sha512-iGURLGuKDLakSEl7Pgfv8h7f+XLT+V861Wfhz0zlEl5nyFuKUopdkFBPKqTllTUp06aOwPuH8iuUEb3yp3MpbQ==}
@@ -1569,8 +1569,8 @@ packages:
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
-  '@tanstack/highlight@1.2.11':
-    resolution: {integrity: sha512-U8Aac/Y/Y4ym6JRi/waDK/D7uce+1feMdOU163KmhNFBdbcilnE9O4RDIdJ31cWcf+Z4esXv/lJyG1P4BOTY7A==}
+  '@tanstack/highlight@1.2.12':
+    resolution: {integrity: sha512-5QTL7DhqmzcVFVZhQmdrZyywI2L6hy0MX/lU1BJJarDrs7lARJnmt10MkZ9qHiPri8FSiHOtfjRSGnHOd6xnpw==}
     engines: {node: '>=18'}
 
   '@tybys/wasm-util@0.10.4':
@@ -3199,7 +3199,7 @@ snapshots:
   '@oxlint/binding-win32-x64-msvc@1.93.0':
     optional: true
 
-  '@pierre/highlights@0.4.0': {}
+  '@pierre/highlights@0.5.1': {}
 
   '@playwright/test@1.65.0':
     dependencies:
@@ -3442,7 +3442,7 @@ snapshots:
   '@standard-schema/spec@1.1.0':
     optional: true
 
-  '@tanstack/highlight@1.2.11': {}
+  '@tanstack/highlight@1.2.12': {}
 
   '@tybys/wasm-util@0.10.4':
     dependencies:
