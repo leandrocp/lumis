@@ -3,6 +3,7 @@
 
 #[doc(hidden)]
 pub mod annotations;
+pub mod code_fence;
 #[doc(hidden)]
 pub mod decorations;
 #[doc(hidden)]

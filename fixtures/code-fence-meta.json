@@ -1,0 +1,256 @@
+{
+  "$comment": [
+    "How a code fence's meta, the info string after its language, reads.",
+    "",
+    "Rust's `code_fence::parse_meta` is the reference; JavaScript's",
+    "`parseCodeFenceMeta` is pinned to it by these cases. An omitted field is",
+    "absent (`null`, or `[]` for `unrecognized`).",
+    "",
+    "Words split on ASCII whitespace. `\"...\"` and `'...'` group within a word and",
+    "are removed; inside double quotes `\\\"` and `\\\\` escape, every other",
+    "backslash is literal. A quote with no closing match is literal text.",
+    "A word splits into name and value at its first `=`. The last occurrence of",
+    "a recognised name wins, and an empty or invalid value counts as absent.",
+    "Every other word is returned in `unrecognized`, in order and unchanged.",
+    "",
+    "`highlightLines` holds inclusive `[start, end]` pairs. A malformed part is",
+    "dropped on its own; a value with no valid part is absent.",
+    "`highlightLinesStyle` is `\"theme\"` or the CSS written."
+  ],
+  "cases": [
+    { "name": "empty", "meta": "", "expected": {} },
+    { "name": "only whitespace", "meta": " \t ", "expected": {} },
+    { "name": "theme", "meta": "theme=github_dark", "expected": { "theme": "github_dark" } },
+    {
+      "name": "quoted pre_class keeps its spaces",
+      "meta": "pre_class=\"code-example interactive\"",
+      "expected": { "preClass": "code-example interactive" }
+    },
+    {
+      "name": "lines and a range",
+      "meta": "highlight_lines=\"1,4-6\"",
+      "expected": { "highlightLines": [[1, 1], [4, 6]] }
+    },
+    {
+      "name": "custom line style",
+      "meta": "highlight_lines=\"2\" highlight_lines_style=\"background: #ffeb3b; font-weight: bold;\"",
+      "expected": {
+        "highlightLines": [[2, 2]],
+        "highlightLinesStyle": "background: #ffeb3b; font-weight: bold;"
+      }
+    },
+    {
+      "name": "theme line style",
+      "meta": "highlight_lines_style=theme highlight_lines=1",
+      "expected": { "highlightLines": [[1, 1]], "highlightLinesStyle": "theme" }
+    },
+    {
+      "name": "line class",
+      "meta": "highlight_lines=1 highlight_lines_class=emphasis",
+      "expected": { "highlightLines": [[1, 1]], "highlightLinesClass": "emphasis" }
+    },
+    { "name": "bare flag", "meta": "include_highlights", "expected": { "includeHighlights": true } },
+    {
+      "name": "flag set to true",
+      "meta": "include_highlights=true",
+      "expected": { "includeHighlights": true }
+    },
+    {
+      "name": "flag set to false",
+      "meta": "include_highlights=false",
+      "expected": { "includeHighlights": false }
+    },
+    { "name": "flag with another value", "meta": "include_highlights=yes", "expected": {} },
+    {
+      "name": "every recognised name together",
+      "meta": "theme=github_light pre_class=\"example\" highlight_lines=\"2-3\" include_highlights",
+      "expected": {
+        "theme": "github_light",
+        "preClass": "example",
+        "highlightLines": [[2, 3]],
+        "includeHighlights": true
+      }
+    },
+    {
+      "name": "zero and reversed ranges are dropped",
+      "meta": "highlight_lines=\"1, 3-5, 0, 7-6\"",
+      "expected": { "highlightLines": [[1, 1], [3, 5]] }
+    },
+    {
+      "name": "a malformed part costs only itself",
+      "meta": "highlight_lines=\"1, oops, 3-5, 7-x\"",
+      "expected": { "highlightLines": [[1, 1], [3, 5]] }
+    },
+    { "name": "no valid part", "meta": "highlight_lines=oops", "expected": {} },
+    { "name": "empty line spec", "meta": "highlight_lines=", "expected": {} },
+    {
+      "name": "a plus sign and spaces around a dash",
+      "meta": "highlight_lines=\"+2, 3 - 4\"",
+      "expected": { "highlightLines": [[2, 2], [3, 4]] }
+    },
+    {
+      "name": "a range with two dashes",
+      "meta": "highlight_lines=1-2-3,5",
+      "expected": { "highlightLines": [[5, 5]] }
+    },
+    {
+      "name": "a line number past any integer",
+      "meta": "highlight_lines=99999999999999999999999,2",
+      "expected": { "highlightLines": [[2, 2]] }
+    },
+    {
+      "name": "a negative line number",
+      "meta": "highlight_lines=-1,2",
+      "expected": { "highlightLines": [[2, 2]] }
+    },
+    {
+      "name": "lines past the end are the formatter's concern",
+      "meta": "highlight_lines=5-9",
+      "expected": { "highlightLines": [[5, 9]] }
+    },
+    {
+      "name": "empty parts",
+      "meta": "highlight_lines=,,1,,",
+      "expected": { "highlightLines": [[1, 1]] }
+    },
+    { "name": "empty value", "meta": "theme=", "expected": {} },
+    { "name": "empty quoted value", "meta": "theme=\"\"", "expected": {} },
+    { "name": "a recognised name with no value", "meta": "theme pre_class", "expected": {} },
+    {
+      "name": "the last occurrence wins",
+      "meta": "theme=onedark theme=dracula",
+      "expected": { "theme": "dracula" }
+    },
+    {
+      "name": "the last occurrence wins even when invalid",
+      "meta": "highlight_lines=1 highlight_lines=oops",
+      "expected": {}
+    },
+    {
+      "name": "other dialects pass through",
+      "meta": "title=\"app.ex\" {2} showLineNumbers",
+      "expected": {
+        "unrecognized": [
+          { "name": "title", "value": "app.ex" },
+          { "name": "{2}" },
+          { "name": "showLineNumbers" }
+        ]
+      }
+    },
+    {
+      "name": "rehype-pretty-code meta",
+      "meta": "{1,3-4} /carrot/ title=\"a b\" theme=x",
+      "expected": {
+        "theme": "x",
+        "unrecognized": [{ "name": "{1,3-4}" }, { "name": "/carrot/" }, { "name": "title", "value": "a b" }]
+      }
+    },
+    {
+      "name": "repeated unrecognised names are all kept",
+      "meta": "title=a title=b",
+      "expected": {
+        "unrecognized": [
+          { "name": "title", "value": "a" },
+          { "name": "title", "value": "b" }
+        ]
+      }
+    },
+    {
+      "name": "an unrecognised empty value stays empty",
+      "meta": "title=",
+      "expected": { "unrecognized": [{ "name": "title", "value": "" }] }
+    },
+    {
+      "name": "names are case-sensitive",
+      "meta": "Theme=x",
+      "expected": { "unrecognized": [{ "name": "Theme", "value": "x" }] }
+    },
+    {
+      "name": "an unmatched quote is literal",
+      "meta": "title=Don't theme=x",
+      "expected": { "theme": "x", "unrecognized": [{ "name": "title", "value": "Don't" }] }
+    },
+    {
+      "name": "an unmatched double quote is literal",
+      "meta": "pre_class=\"a theme=x",
+      "expected": { "preClass": "\"a", "theme": "x" }
+    },
+    {
+      "name": "escaped quotes after an unmatched one stay literal",
+      "meta": "pre_class=\"a\\\"\\\"b theme=x 'c",
+      "expected": { "preClass": "\"a\\\"\\\"b", "theme": "x", "unrecognized": [{ "name": "'c" }] }
+    },
+    {
+      "name": "a later quote closes an earlier one",
+      "meta": "title=Don't 'x'",
+      "expected": { "unrecognized": [{ "name": "title", "value": "Dont x'" }] }
+    },
+    {
+      "name": "a hash is ordinary text",
+      "meta": "pre_class=a #b theme=x",
+      "expected": { "preClass": "a", "theme": "x", "unrecognized": [{ "name": "#b" }] }
+    },
+    {
+      "name": "a backslash outside quotes is literal",
+      "meta": "title=C:\\dir",
+      "expected": { "unrecognized": [{ "name": "title", "value": "C:\\dir" }] }
+    },
+    {
+      "name": "escaped double quotes",
+      "meta": "title=\"say \\\"hi\\\"\"",
+      "expected": { "unrecognized": [{ "name": "title", "value": "say \"hi\"" }] }
+    },
+    {
+      "name": "an escaped backslash",
+      "meta": "title=\"back\\\\slash\"",
+      "expected": { "unrecognized": [{ "name": "title", "value": "back\\slash" }] }
+    },
+    {
+      "name": "other backslashes in double quotes are literal",
+      "meta": "title=\"a\\nb\"",
+      "expected": { "unrecognized": [{ "name": "title", "value": "a\\nb" }] }
+    },
+    {
+      "name": "single quotes take everything literally",
+      "meta": "title='say \"hi\" \\\\'",
+      "expected": { "unrecognized": [{ "name": "title", "value": "say \"hi\" \\\\" }] }
+    },
+    {
+      "name": "tabs separate words",
+      "meta": "theme=x\tpre_class=y",
+      "expected": { "theme": "x", "preClass": "y" }
+    },
+    {
+      "name": "a non-breaking space does not separate words",
+      "meta": "theme=a\u00a0b",
+      "expected": { "theme": "a\u00a0b" }
+    },
+    {
+      "name": "a non-breaking space does not pad a line number",
+      "meta": "highlight_lines=\"1,\u00a02, 3\"",
+      "expected": { "highlightLines": [[1, 1], [3, 3]] }
+    },
+    { "name": "a quoted whole word", "meta": "\"theme=x\"", "expected": { "theme": "x" } },
+    {
+      "name": "the value keeps later equals signs",
+      "meta": "pre_class=a=b",
+      "expected": { "preClass": "a=b" }
+    },
+    {
+      "name": "an empty name",
+      "meta": "=value",
+      "expected": { "unrecognized": [{ "name": "", "value": "value" }] }
+    },
+    { "name": "an empty quoted word", "meta": "\"\" ''", "expected": {} },
+    {
+      "name": "an empty style",
+      "meta": "highlight_lines=1 highlight_lines_style=\"\"",
+      "expected": { "highlightLines": [[1, 1]] }
+    },
+    {
+      "name": "non-ASCII text",
+      "meta": "title=\"café ☕\" pre_class=ñ",
+      "expected": { "preClass": "ñ", "unrecognized": [{ "name": "title", "value": "café ☕" }] }
+    }
+  ]
+}

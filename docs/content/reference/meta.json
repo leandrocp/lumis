@@ -3,6 +3,7 @@
   "pages": [
     "languages",
     "themes",
+    "code-fence-meta",
     "runtimes"
   ]
 }
