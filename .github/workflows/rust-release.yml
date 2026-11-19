@@ -31,7 +31,7 @@ jobs:
         with:
           toolchain: stable
 
-      - uses: jdx/mise-action@v5.2.6
+      - uses: jdx/mise-action@v5.2.7
 
       - name: Check crate dependency requirements
         run: mise run check-crate-deps
@@ -114,7 +114,7 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v8.1.1
+        uses: peter-evans/create-pull-request@v8.1.3
         with:
           token: ${{ secrets.CI_TOKEN }}
           add-paths: packages/javascript/cli/package.json
@@ -144,7 +144,7 @@ jobs:
         with:
           toolchain: stable
 
-      - uses: jdx/mise-action@v5.2.6
+      - uses: jdx/mise-action@v5.2.7
         with:
           install: false
 
@@ -164,7 +164,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.refresh.outputs.resolved == 'true'
-        uses: peter-evans/create-pull-request@v8.1.1
+        uses: peter-evans/create-pull-request@v8.1.3
         with:
           token: ${{ secrets.CI_TOKEN }}
           add-paths: packages/elixir/lumis/native/lumis_nif/Cargo.lock
