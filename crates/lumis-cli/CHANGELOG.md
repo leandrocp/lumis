@@ -1,3 +1,9 @@
+## [0.8.10](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.9...cargo-lumis-cli/v0.8.10) (2026-11-21)
+
+### Features
+
+- **languages:** Add Carve support by @paradox460 in [\#2087](https://github.com/leandrocp/lumis/pull/2087)
+
 ## [0.8.9](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.8...cargo-lumis-cli/v0.8.9) (2026-11-13)
 
 ### Features
