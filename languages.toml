@@ -1030,6 +1030,7 @@ requires = ["jinja_inline"]
 [parsers.jinja_inline]
 git = "https://github.com/cathaysia/tree-sitter-jinja.git"
 rev = "f46e979278123e3b6949381896f3917f378af068"
+crate = "tree-sitter-jinja-inline"
 location = "tree-sitter-jinja_inline"
 wasm_name = "tree-sitter-jinja_inline"
 variant = "JinjaInline"

@@ -161,8 +161,6 @@ unsafe extern "C" {
     fn tree_sitter_hurl() -> *const ();
     #[cfg(feature = "lang-iex")]
     fn tree_sitter_iex() -> *const ();
-    #[cfg(feature = "lang-jinja-inline")]
-    fn tree_sitter_jinja_inline() -> *const ();
     #[cfg(feature = "lang-jq")]
     fn tree_sitter_jq() -> *const ();
     #[cfg(feature = "lang-json5")]
@@ -1323,10 +1321,8 @@ static JINJA_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 
 #[cfg(feature = "lang-jinja-inline")]
 static JINJA_INLINE_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
-    let language_fn =
-        unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_jinja_inline) };
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(language_fn),
+        tree_sitter_jinja_inline::language(),
         "jinja_inline",
         JINJA_INLINE_HIGHLIGHTS,
         JINJA_INLINE_INJECTIONS,
