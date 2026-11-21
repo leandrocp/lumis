@@ -1,3 +1,9 @@
+## [0.10.10](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.9...hex-lumis/v0.10.10) (2026-11-21)
+
+### Features
+
+- **themes:** Update themes in [\#2075](https://github.com/leandrocp/lumis/pull/2075)
+
 ## [0.10.9](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.8...hex-lumis/v0.10.9) (2026-11-13)
 
 ### Features
