@@ -1,3 +1,10 @@
+## [6.3.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v6.2.0...cargo-lumis-core/v6.3.0) (2026-11-21)
+
+### Features
+
+- **themes:** Update themes in [\#2075](https://github.com/leandrocp/lumis/pull/2075)
+- **languages:** Add Carve support by @paradox460 in [\#2087](https://github.com/leandrocp/lumis/pull/2087)
+
 ## [6.2.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v6.1.1...cargo-lumis-core/v6.2.0) (2026-11-13)
 
 ### Features
