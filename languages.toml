@@ -19,6 +19,11 @@ git = "https://github.com/HigherOrderCO/tree-sitter-bend.git"
 rev = "7e7b88b77103e4d9c11a68d719be8702e4d6ad7f"
 path = "queries"
 
+[queries.carve]
+git = "https://github.com/markup-carve/tree-sitter-carve.git"
+rev = "0f2eb839f7810151e2f1a6b1ed9400ef5c5c643d"
+path = "queries"
+
 [queries.gleam]
 git = "https://github.com/gleam-lang/tree-sitter-gleam.git"
 rev = "fa6d0d94804f1b342e175865a3dbeb316ee5115e"
@@ -115,6 +120,16 @@ rev = "b6e5870e059a09b1258712ad226a47be78f08d56"
 crate = "tree-sitter-caddy"
 version = "0.1.0"
 globs = ["Caddyfile", "caddyfile"]
+
+[parsers.carve]
+git = "https://github.com/markup-carve/tree-sitter-carve.git"
+rev = "0f2eb839f7810151e2f1a6b1ed9400ef5c5c643d"
+version = "0.1.14"
+# The shipped 25 MB parser.c is already ABI 14; regenerating it is slow (see
+# lean), so use the shipped parser.
+generate = false
+display_name = "Carve"
+globs = ["*.crv"]
 
 [parsers.clojure]
 git = "https://github.com/sogaiu/tree-sitter-clojure.git"
@@ -1218,6 +1233,7 @@ parsers = "all"
 max_memory_mb = 80
 exclude = [
   "arduino",
+  "carve",
   "d",
   "fortran",
   "fsharp",

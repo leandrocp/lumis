@@ -28,6 +28,10 @@ define_catalog! {
             aliases: [],
             package_name: "@lumis-sh/wasm-caddy"
         },
+        "carve" => {
+            aliases: [],
+            package_name: "@lumis-sh/wasm-carve"
+        },
         "clojure" => {
             aliases: [],
             package_name: "@lumis-sh/wasm-clojure"

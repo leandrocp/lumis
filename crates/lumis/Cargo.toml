@@ -55,6 +55,7 @@ all-languages = [
     "lang-bicep",
     "lang-c",
     "lang-caddy",
+    "lang-carve",
     "lang-clojure",
     "lang-cmake",
     "lang-comment",
@@ -185,6 +186,7 @@ lang-bend = ["lumis-core/lang-bend"]
 lang-bicep = ["dep:tree-sitter-bicep", "lumis-core/lang-bicep"]
 lang-c = ["dep:tree-sitter-c", "lumis-core/lang-c"]
 lang-caddy = ["dep:tree-sitter-caddy", "lumis-core/lang-caddy"]
+lang-carve = ["lumis-core/lang-carve"]
 lang-clojure = ["dep:tree-sitter-clojure-orchard", "lumis-core/lang-clojure"]
 lang-cmake = ["dep:tree-sitter-cmake", "lumis-core/lang-cmake"]
 lang-comment = ["dep:tree-sitter-comment", "lumis-core/lang-comment"]

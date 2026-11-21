@@ -1,0 +1,65 @@
+---
+title: Corpus
+---
+
+# Title
+
+Para /italic/ *bold* /*both*/ _under_ ~strike~ =mark= {^sup^} {,sub,} `code` !`lit` $`x` [span]{.c} [link](https://a.b) <https://x.y> [ref][r] ![img](i.png) note[^1] ^[inline note] @ada #tag {+ins+} {-del-} {~old~>new~} {#a comment#} -- ... a\
+hard
+
+[r]: https://ref.example
+
+[^1]: Footnote text.
+
+## Sub
+
+- a
+- b
+
+. one
+. two
+
+- [ ] t1
+- [x] t2
+
+:: term
+: def
+
+|= a |= b |
+| 1 | 2 |
+^ cap
+
+> quote
+
+::: note "Title"
+admonition
+:::
+
+{.warn}
+:::
+div
+:::
+
+***
+
+```elixir
+defmodule Greeter do
+  def hello(name), do: "Hello, #{name}!"
+end
+```
+
+```=html
+<b>raw</b>
+```
+
+![Photo](img.jpg)
+^ Figure 1: caption
+
+::: |
+Roses are red,
+  Violets are blue.
+:::
+
+See </#Title>.
+
+%% comment
