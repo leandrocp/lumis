@@ -876,6 +876,7 @@ dependencies = [
  "tree-sitter-swift",
  "tree-sitter-systemverilog",
  "tree-sitter-toml-ng",
+ "tree-sitter-toon",
  "tree-sitter-typescript",
  "tree-sitter-vhdl",
  "tree-sitter-zig",
@@ -2082,6 +2083,16 @@ name = "tree-sitter-toml-ng"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e9adc2c898ae49730e857d75be403da3f92bb81d8e37a2f918a08dd10de5ebb1"
+dependencies = [
+ "cc",
+ "tree-sitter-language",
+]
+
+[[package]]
+name = "tree-sitter-toon"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af4cd413cd0ba961a40ebb6d353098c3e92aa5728280922c2898830c9a7ad8b2"
 dependencies = [
  "cc",
  "tree-sitter-language",

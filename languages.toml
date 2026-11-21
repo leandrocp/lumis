@@ -944,6 +944,7 @@ globs = ["*.tf", "*.tfvars", "*.tfvars.json"]
 [parsers.toon]
 git = "https://github.com/3swordman/tree-sitter-toon.git"
 rev = "9baf2a4d7955b150b80c10f88bcc49c96f265985"
+crate = "tree-sitter-toon"
 version = "0.3.0"
 display_name = "TOON"
 globs = ["*.toon"]
