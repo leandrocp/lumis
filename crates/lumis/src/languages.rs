@@ -138,8 +138,6 @@ unsafe extern "C" {
     fn tree_sitter_just() -> *const ();
     #[cfg(feature = "lang-kotlin")]
     fn tree_sitter_kotlin() -> *const ();
-    #[cfg(feature = "lang-latex")]
-    fn tree_sitter_latex() -> *const ();
     #[cfg(feature = "lang-lean")]
     fn tree_sitter_lean() -> *const ();
     #[cfg(feature = "lang-liquid")]
@@ -1365,10 +1363,8 @@ static KOTLIN_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 
 #[cfg(feature = "lang-latex")]
 static LATEX_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
-    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_latex) };
-
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(language_fn),
+        tree_sitter::Language::new(codebook_tree_sitter_latex::LANGUAGE),
         "latex",
         LATEX_HIGHLIGHTS,
         LATEX_INJECTIONS,

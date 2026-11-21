@@ -187,6 +187,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9"
 
 [[package]]
+name = "codebook-tree-sitter-latex"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3ab764ede0961a43ee3121cd8a71dd01d355f836181ebf2ede04f4c24636ca0"
+dependencies = [
+ "cc",
+ "tree-sitter-language",
+]
+
+[[package]]
 name = "codebook-tree-sitter-typst"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -798,6 +808,7 @@ name = "lumis"
 version = "0.19.5"
 dependencies = [
  "cc",
+ "codebook-tree-sitter-latex",
  "codebook-tree-sitter-typst",
  "lumis-core",
  "lumis-wasm-runtime",
