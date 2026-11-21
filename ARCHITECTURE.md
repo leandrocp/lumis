@@ -228,7 +228,7 @@ declared, and a runtime gets exactly one of these:
 
 | Runtime | Declares its set in | How parsers arrive |
 | --- | --- | --- |
-| Rust `lumis` crate | `Cargo.toml` features | linked statically: 65 crates.io parsers, 47 vendored sources |
+| Rust `lumis` crate | `Cargo.toml` features | linked statically: 73 crates.io parsers, 50 vendored sources |
 | JavaScript on Node | `package.json` | `@lumis-sh/wasm-*` in `node_modules` |
 | JavaScript in a browser | the packages it imports | `@lumis-sh/wasm-*` in the bundle, each exporting its language |
 | Elixir, any future FFI binding | `mix.exs` dependencies | `lumis_wasm_*` in each dependency's `priv/parsers` |

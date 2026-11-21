@@ -1751,6 +1751,7 @@ dependencies = [
  "tree-sitter-javadoc",
  "tree-sitter-javascript",
  "tree-sitter-jinja",
+ "tree-sitter-jinja-inline",
  "tree-sitter-json",
  "tree-sitter-julia",
  "tree-sitter-kdl",
@@ -3819,6 +3820,16 @@ name = "tree-sitter-jinja"
 version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2d637bbb494dab59f7fd02678a87efe2d8fba685eebe4d3ea537f089410d7c0d"
+dependencies = [
+ "cc",
+ "tree-sitter",
+]
+
+[[package]]
+name = "tree-sitter-jinja-inline"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "738284098b524b9b9739d63a5d066b7c203f64c86777ad544837cea6b88e5476"
 dependencies = [
  "cc",
  "tree-sitter",
