@@ -77,6 +77,39 @@
 //! # }
 //! ```
 //!
+//! ## Tree-sitter integration
+//!
+//! [`LanguageConfig::config`] returns the Tree-sitter highlight configuration
+//! for a language, which [`Highlighter`](crate::vendor::tree_sitter_highlight::Highlighter)
+//! turns into raw highlight events. Scope indices point into
+//! [`HIGHLIGHT_NAMES`].
+//!
+//! ```rust
+//! # #[cfg(feature = "lang-rust")] {
+//! use lumis::highlights::HIGHLIGHT_NAMES;
+//! use lumis::languages::{Language, LanguageConfig};
+//! use lumis::vendor::tree_sitter_highlight::{HighlightEvent, Highlighter, Interrupt};
+//!
+//! let mut highlighter = Highlighter::new();
+//! let events = highlighter
+//!     .highlight(
+//!         Language::Rust.config(),
+//!         b"fn main() {}",
+//!         Interrupt::none(),
+//!         |name| Some(Language::guess(Some(name), "").config()),
+//!     )
+//!     .unwrap();
+//!
+//! let scopes: Vec<&str> = events
+//!     .filter_map(|event| match event.unwrap() {
+//!         HighlightEvent::HighlightStart { highlight, .. } => Some(HIGHLIGHT_NAMES[highlight.0]),
+//!         _ => None,
+//!     })
+//!     .collect();
+//! assert!(scopes.contains(&"keyword.function"));
+//! # }
+//! ```
+//!
 pub use lumis_core::languages::{
     available, available_languages, get, guess, language_id_for_filename, Language, LanguageInfo,
     LanguageParseError,
@@ -190,9 +223,25 @@ unsafe extern "C" {
 
 include!(concat!(env!("OUT_DIR"), "/queries_constants.rs"));
 
-/// Internal extension trait mapping each language to its highlight configuration.
-pub(crate) trait LanguageConfig {
+/// Tree-sitter highlight configuration for a [`Language`].
+///
+/// Use it to drive [`Highlighter`](crate::vendor::tree_sitter_highlight::Highlighter)
+/// directly when you need the raw Tree-sitter highlight events instead of a formatter.
+/// Each configuration is built once, on first use, and reports scopes as indices into
+/// [`HIGHLIGHT_NAMES`].
+///
+/// This trait is sealed and implemented only for [`Language`].
+pub trait LanguageConfig: private::Sealed {
+    /// Returns the highlight configuration for this language.
+    ///
+    /// Languages whose feature is disabled return the plain text configuration.
     fn config(&self) -> &'static HighlightConfiguration;
+}
+
+mod private {
+    pub trait Sealed {}
+
+    impl Sealed for super::Language {}
 }
 
 impl LanguageConfig for Language {
