@@ -169,7 +169,9 @@ let events = highlighter
         source.as_bytes(),
         Interrupt::none(),
         |name| {
-            Some(Language::guess(Some(name), "").config())
+            name.parse::<Language>()
+                .ok()
+                .map(|language| language.config())
         },
     )
     .unwrap();
@@ -192,8 +194,9 @@ for event in events {
 
 Each configuration is built the first time it is used and reused after that.
 Scope indices point into `HIGHLIGHT_NAMES`. The callback resolves injected
-languages, such as a fenced code block in Markdown. Return `None` to leave a
-block unhighlighted. A language whose Cargo feature is disabled gets the plain
+languages, such as a fenced code block in Markdown, by name, alias or file
+extension. A name it cannot parse returns `None`, which leaves that block
+unhighlighted. A language whose Cargo feature is disabled gets the plain
 text configuration.
 
 These events don't include themes, rainbow brackets or annotations. Use

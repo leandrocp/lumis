@@ -96,7 +96,7 @@
 //!         Language::Rust.config(),
 //!         b"fn main() {}",
 //!         Interrupt::none(),
-//!         |name| Some(Language::guess(Some(name), "").config()),
+//!         |name| name.parse::<Language>().ok().map(|language| language.config()),
 //!     )
 //!     .unwrap();
 //!

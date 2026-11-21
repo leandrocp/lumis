@@ -16,7 +16,11 @@ fn highlighted(language: Language, source: &str) -> Vec<(String, String, &'stati
             language.config(),
             source.as_bytes(),
             Interrupt::none(),
-            |name| Some(Language::guess(Some(name), "").config()),
+            |name| {
+                name.parse::<Language>()
+                    .ok()
+                    .map(|language| language.config())
+            },
         )
         .expect("highlight starts");
 
