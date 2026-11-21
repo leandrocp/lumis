@@ -1,3 +1,9 @@
+## [0.4.6](https://github.com/leandrocp/lumis/compare/npm-themes/v0.4.5...npm-themes/v0.4.6) (2026-11-21)
+
+### Features
+
+- **themes:** Update themes in [\#2075](https://github.com/leandrocp/lumis/pull/2075)
+
 ## [0.4.5](https://github.com/leandrocp/lumis/compare/npm-themes/v0.4.4...npm-themes/v0.4.5) (2026-11-13)
 
 ### Features
