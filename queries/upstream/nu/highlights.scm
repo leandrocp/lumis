@@ -4,6 +4,7 @@
   "let"
   "mut"
   "const"
+  "type"
 ] @keyword
 
 [
@@ -261,7 +262,7 @@ key: (identifier) @property
 
 (cmd_identifier) @function
 
-; generated with Nu 0.107.0
+; generated with Nu 0.117.0
 ; help commands
 ; | where $it.command_type == built-in and $it.category != core
 ; | each {$'"($in.name | split row " " | $in.0)"'}
@@ -270,19 +271,21 @@ key: (identifier) @property
 (command
   head: (cmd_identifier) @function.builtin
   (#any-of? @function.builtin
-    "all" "ansi" "any" "append" "ast" "bits" "bytes" "cal" "cd" "char" "chunk-by" "chunks" "clear"
-    "collect" "columns" "compact" "complete" "config" "cp" "date" "debug" "decode" "default"
-    "detect" "drop" "du" "each" "encode" "enumerate" "every" "exec" "exit" "explain" "explore"
-    "fill" "filter" "find" "first" "flatten" "format" "from" "generate" "get" "glob" "grid"
-    "group-by" "hash" "headers" "histogram" "history" "http" "input" "insert" "inspect" "interleave"
-    "into" "is-empty" "is-not-empty" "is-terminal" "items" "job" "join" "keybindings" "kill" "last"
-    "length" "let-env" "lines" "load-env" "ls" "math" "merge" "metadata" "mkdir" "mktemp" "move"
-    "mv" "nu-check" "nu-highlight" "open" "panic" "par-each" "parse" "path" "plugin" "port"
-    "prepend" "print" "ps" "query" "random" "reduce" "reject" "rename" "reverse" "rm" "roll"
-    "rotate" "run-external" "save" "schema" "select" "seq" "shuffle" "skip" "sleep" "slice" "sort"
+    "abbr" "all" "ansi" "any" "append" "ast" "bits" "bytes" "cal" "cd" "char" "chunk-by" "chunks"
+    "clear" "columns" "combinations" "compact" "complete" "config" "cp" "date" "debug" "decode"
+    "default" "detect" "difference" "drop" "du" "each" "encode" "enumerate" "every" "exec" "exit"
+    "explain" "explore" "fill" "find" "first" "flatten" "format" "from" "generate" "get" "glob"
+    "grid" "group-by" "hash" "headers" "histogram" "history" "http" "idx" "input" "insert" "inspect"
+    "interleave" "intersect" "into" "is-empty" "is-not-empty" "is-redirected" "is-terminal" "items"
+    "job" "join" "keybindings" "kill" "last" "length" "lines" "load-env" "ls" "math" "matrix"
+    "merge" "metadata" "mkdir" "mktemp" "move" "mv" "nu-check" "nu-highlight" "open" "panic"
+    "par-each" "parse" "path" "peek" "permutations" "plugin" "port" "prepend" "print" "ps" "query"
+    "random" "record" "reduce" "reject" "rename" "reverse" "rm" "roll" "rotate" "run-external"
+    "run-internal" "save" "schema" "select" "semver" "seq" "shuffle" "skip" "sleep" "slice" "sort"
     "sort-by" "split" "start" "stor" "str" "sys" "table" "take" "tee" "term" "timeit" "to" "touch"
-    "transpose" "tutor" "ulimit" "uname" "uniq" "uniq-by" "update" "upsert" "url" "values" "version"
-    "view" "watch" "which" "whoami" "window" "with-env" "wrap" "zip"))
+    "transpose" "tui" "tutor" "ulimit" "umask" "uname" "union" "uniq" "uniq-by" "unlet" "update"
+    "upsert" "url" "values" "version" "view" "watch" "which" "whoami" "window" "with-env" "wrap"
+    "zip"))
 
 (command
   head: (cmd_identifier) @keyword.repeat
@@ -290,7 +293,7 @@ key: (identifier) @property
 
 (command
   head: (cmd_identifier) @keyword
-  (#any-of? @keyword "do" "source" "source-env" "hide" "hide-env"))
+  (#any-of? @keyword "do" "source" "source-env" "hide" "hide-env" "collect" "run"))
 
 (command
   head: (cmd_identifier) @keyword
@@ -311,7 +314,12 @@ key: (identifier) @property
   ] @punctuation.delimiter
   head: (_) @function)
 
-"where" @function.builtin
+(where_command
+  [
+    "where"
+    "any"
+    "all"
+  ] @function.builtin)
 
 (where_predicate
   [
@@ -339,6 +347,10 @@ key: (identifier) @property
     "env" @constant
   ]) @none
 
+(val_variable
+  name: (identifier) @special
+  (#eq? @special "ans"))
+
 (val_cellpath
   "$" @punctuation.special)
 
@@ -348,6 +360,9 @@ key: (identifier) @property
 ; ---
 ; types
 (flat_type) @type
+
+(decl_type
+  name: (_) @type.definition)
 
 (list_type
   "list" @type.enum
