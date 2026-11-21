@@ -37,6 +37,7 @@ all-languages = [
     "lang-bicep",
     "lang-c",
     "lang-caddy",
+    "lang-carve",
     "lang-clojure",
     "lang-cmake",
     "lang-comment",
@@ -166,6 +167,7 @@ lang-bend = []
 lang-bicep = []
 lang-c = []
 lang-caddy = []
+lang-carve = []
 lang-clojure = []
 lang-cmake = []
 lang-comment = []

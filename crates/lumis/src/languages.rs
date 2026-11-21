@@ -98,6 +98,8 @@ unsafe extern "C" {
     fn tree_sitter_bash() -> *const ();
     #[cfg(feature = "lang-bend")]
     fn tree_sitter_bend() -> *const ();
+    #[cfg(feature = "lang-carve")]
+    fn tree_sitter_carve() -> *const ();
     #[cfg(feature = "lang-csv")]
     fn tree_sitter_csv() -> *const ();
     #[cfg(feature = "lang-dart")]
@@ -216,6 +218,8 @@ impl LanguageConfig for Language {
             Language::C => &C_CONFIG,
             #[cfg(feature = "lang-caddy")]
             Language::Caddy => &CADDY_CONFIG,
+            #[cfg(feature = "lang-carve")]
+            Language::Carve => &CARVE_CONFIG,
             #[cfg(feature = "lang-clojure")]
             Language::Clojure => &CLOJURE_CONFIG,
             #[cfg(feature = "lang-comment")]
@@ -573,6 +577,22 @@ static CADDY_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
         CADDY_LOCALS,
     )
     .expect("failed to create caddy highlight configuration");
+    config.configure(&HIGHLIGHT_NAMES);
+    config
+});
+
+#[cfg(feature = "lang-carve")]
+static CARVE_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_carve) };
+
+    let mut config = HighlightConfiguration::new(
+        tree_sitter::Language::new(language_fn),
+        "carve",
+        CARVE_HIGHLIGHTS,
+        CARVE_INJECTIONS,
+        CARVE_LOCALS,
+    )
+    .expect("failed to create carve highlight configuration");
     config.configure(&HIGHLIGHT_NAMES);
     config
 });
@@ -2479,6 +2499,8 @@ mod tests {
         test_c_config_loads => (Language::C, "C", "c.c");
         #[cfg(feature = "lang-caddy")]
         test_caddy_config_loads => (Language::Caddy, "Caddy", "caddy.caddyfile");
+        #[cfg(feature = "lang-carve")]
+        test_carve_config_loads => (Language::Carve, "Carve", "carve.crv");
         #[cfg(feature = "lang-clojure")]
         test_clojure_config_loads => (Language::Clojure, "Clojure", "clojure.clj");
         #[cfg(feature = "lang-cmake")]
