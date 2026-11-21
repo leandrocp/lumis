@@ -121,6 +121,12 @@ pub mod highlight;
 pub mod languages;
 pub mod themes;
 
+/// The Tree-sitter highlighter that runs the configurations returned by
+/// [`LanguageConfig::config`](languages::LanguageConfig::config).
+pub mod vendor {
+    pub use lumis_wasm_runtime::tree_sitter_highlight;
+}
+
 /// Caller-provided semantic ranges for formatter event streams.
 ///
 /// Annotations use UTF-8 offsets or zero-based line and byte-column

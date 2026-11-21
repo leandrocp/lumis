@@ -6,6 +6,8 @@ keywords:
   - write_highlight
   - highlight_iter
   - Highlighter
+  - LanguageConfig
+  - tree_sitter_highlight
   - cargo features
 ---
 
@@ -145,6 +147,60 @@ The flat iterator cycles rainbow brackets through the six compatibility scopes.
 Use the nested `highlight_events_with_options()` API when you need
 `Decoration::RainbowBracket { depth }` with the real, unwrapped zero-based
 depth.
+
+### [Raw Tree-sitter highlighting](https://docs.rs/lumis/latest/lumis/languages/trait.LanguageConfig.html)
+
+To run Tree-sitter's highlighter yourself, for example to add your own
+passes on top of Lumis's queries, use `LanguageConfig::config()` to get a
+language's highlight configuration and pass it to the highlighter in
+`lumis::vendor::tree_sitter_highlight`:
+
+```rust
+use lumis::highlights::HIGHLIGHT_NAMES;
+use lumis::languages::{Language, LanguageConfig};
+use lumis::vendor::tree_sitter_highlight::{
+    HighlightEvent, Highlighter, Interrupt,
+};
+
+let mut highlighter = Highlighter::new();
+let events = highlighter
+    .highlight(
+        Language::Rust.config(),
+        source.as_bytes(),
+        Interrupt::none(),
+        |name| {
+            name.parse::<Language>()
+                .ok()
+                .map(|language| language.config())
+        },
+    )
+    .unwrap();
+
+for event in events {
+    match event.unwrap() {
+        HighlightEvent::HighlightStart {
+            highlight,
+            language,
+        } => {
+            println!("{language}: {}", HIGHLIGHT_NAMES[highlight.0])
+        }
+        HighlightEvent::Source { start, end } => {
+            println!("{:?}", &source[start..end])
+        }
+        HighlightEvent::HighlightEnd => {}
+    }
+}
+```
+
+Each configuration is built the first time it is used and reused after that.
+Scope indices point into `HIGHLIGHT_NAMES`. The callback resolves injected
+languages, such as a fenced code block in Markdown, by name, alias or file
+extension. A name it cannot parse returns `None`, which leaves that block
+unhighlighted. A language whose Cargo feature is disabled gets the plain
+text configuration.
+
+These events don't include themes, rainbow brackets or annotations. Use
+`highlight_events()` or `highlight_iter()` when you want those.
 
 ## [CSS generation from themes](https://docs.rs/lumis/latest/lumis/themes/struct.CssBuilder.html)
 
