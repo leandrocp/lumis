@@ -1,3 +1,10 @@
+## [0.10.9](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.8...npm-lumis/v0.10.9) (2026-11-21)
+
+### Features
+
+- **themes:** Update themes in [\#2075](https://github.com/leandrocp/lumis/pull/2075)
+- **languages:** Add Carve support by @paradox460 in [\#2087](https://github.com/leandrocp/lumis/pull/2087)
+
 ## [0.10.8](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.7...npm-lumis/v0.10.8) (2026-11-13)
 
 ### Features
