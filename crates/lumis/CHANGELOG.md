@@ -1,3 +1,20 @@
+## [0.19.6](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.19.5...cargo-lumis/v0.19.6) (2026-11-21)
+
+### Features
+
+- **themes:** Update themes in [\#2075](https://github.com/leandrocp/lumis/pull/2075)
+- Update lang scala in [\#2077](https://github.com/leandrocp/lumis/pull/2077)
+- Update lang tcl in [\#2078](https://github.com/leandrocp/lumis/pull/2078)
+- Update lang toon in [\#2079](https://github.com/leandrocp/lumis/pull/2079)
+- Update lang nushell in [\#2080](https://github.com/leandrocp/lumis/pull/2080)
+- Update lang zsh
+- **languages:** Add Carve support by @paradox460 in [\#2087](https://github.com/leandrocp/lumis/pull/2087)
+- Update lang perl in [\#2076](https://github.com/leandrocp/lumis/pull/2076)
+
+### Bug Fixes
+
+- **rust:** Make LanguageConfig and the Tree-sitter highlighter public in [\#2088](https://github.com/leandrocp/lumis/pull/2088)
+
 ## [0.19.5](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.19.4...cargo-lumis/v0.19.5) (2026-11-13)
 
 ### Features

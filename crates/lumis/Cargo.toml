@@ -1,6 +1,6 @@
 [package]
 name = "lumis"
-version = "0.19.5"
+version = "0.19.6"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
