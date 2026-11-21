@@ -4172,9 +4172,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-zsh"
-version = "0.63.4"
+version = "0.64.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "907f7ea76070507d7a6b054b38f1475caa7db085437911352ca0f361f08f142e"
+checksum = "a6754e5a3ccff5f019acbf5c5f6ed249ab1381ca73677751f7acdcd4dc101c7c"
 dependencies = [
  "cc",
  "tree-sitter-language",

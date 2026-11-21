@@ -949,9 +949,9 @@ globs = ["*.wgsl"]
 
 [parsers.zsh]
 git = "https://github.com/georgeharker/tree-sitter-zsh.git"
-rev = "9cae17bbc92fe9872f68bdb4550707b5fd5ad85d"
+rev = "77eee01fa3226133e7ae49c2297de558ebb75df0"
 crate = "tree-sitter-zsh"
-version = "0.63.4"
+version = "0.64.3"
 display_name = "Zsh"
 globs = ["*.zsh", ".zshrc", ".zshenv", ".zprofile", ".zlogin", ".zlogout", "zshrc", "zshenv", "zprofile", "zlogin", "zlogout"]
 shebang = ["zsh"]
