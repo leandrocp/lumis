@@ -14,7 +14,7 @@
 
 "defined" @constant
 
-(comment) @comment @spell
+(comment) @comment 
 
 [
   ","
@@ -59,6 +59,7 @@
   (endcall_statement)
   (endset_statement)
   (endautoescape_statement)
+  "required"
 ] @keyword
 
 (do_statement
@@ -76,9 +77,9 @@
 
 [
   "if"
-  "else"
-  (endif_statement)
   "elif"
+  (else_statement)
+  (endif_statement)
 ] @keyword.conditional
 
 [
@@ -127,7 +128,7 @@
 
 (raw_end) @keyword
 
-(raw_body) @markup.raw.block @nospell
+(raw_body) @markup.raw.block 
 
 (builtin_test
   [
@@ -160,7 +161,6 @@
     "sameas"
     "upper"
   ] @keyword.operator)
-
 
 [
   "{{"
