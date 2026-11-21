@@ -450,8 +450,9 @@ globs = ["*.kt", "*.ktm", "*.kts"]
 
 [parsers.latex]
 git = "https://github.com/latex-lsp/tree-sitter-latex.git"
-rev = "7e0ecdc02926c7b9b2e0c76003d4fe7b0944f957"
-version = "0.6.0"
+rev = "948b89c984ce27c9e2ad9a50d5641abd4efd5417"
+crate = "codebook-tree-sitter-latex"
+version = "0.6.1"
 generate = true
 aliases = ["tex"]
 variant = "LaTeX"
