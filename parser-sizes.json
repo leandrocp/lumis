@@ -72,6 +72,12 @@
       "wasm": 49971,
       "memory": 34124
     },
+    "tree-sitter-carve": {
+      "version": "0.26.0",
+      "download": 489207,
+      "wasm": 5708888,
+      "memory": 5409976
+    },
     "tree-sitter-clojure": {
       "version": "0.26.4",
       "download": 27938,
