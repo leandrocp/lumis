@@ -6,7 +6,6 @@ const FIXED_ARRAY_HEADERS: &[&str] = &[
     "tree-sitter-python/src/tree_sitter/array.h",
     "tree-sitter-ruby/src/tree_sitter/array.h",
     "tree-sitter-svelte/src/tree_sitter/array.h",
-    "tree-sitter-toon/src/tree_sitter/array.h",
     "tree-sitter-xml/xml/src/tree_sitter/array.h",
     "tree-sitter-yaml/src/tree_sitter/array.h",
 ];
