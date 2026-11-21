@@ -1,3 +1,9 @@
+## [0.6.6](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.6.5...cargo-lumis-wasm-runtime/v0.6.6) (2026-11-21)
+
+### Features
+
+- **languages:** Add Carve support by @paradox460 in [\#2087](https://github.com/leandrocp/lumis/pull/2087)
+
 ## [0.6.5](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.6.4...cargo-lumis-wasm-runtime/v0.6.5) (2026-11-13)
 
 ### Features
