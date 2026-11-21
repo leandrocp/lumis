@@ -203,8 +203,6 @@ unsafe extern "C" {
     fn tree_sitter_terraform() -> *const ();
     #[cfg(feature = "lang-tlaplus")]
     fn tree_sitter_tlaplus() -> *const ();
-    #[cfg(feature = "lang-toon")]
-    fn tree_sitter_toon() -> *const ();
     #[cfg(feature = "lang-nushell")]
     fn tree_sitter_nu() -> *const ();
     #[cfg(feature = "lang-vim")]
@@ -2109,9 +2107,8 @@ static TLAPLUS_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 
 #[cfg(feature = "lang-toon")]
 static TOON_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
-    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_toon) };
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(language_fn),
+        tree_sitter::Language::new(tree_sitter_toon::LANGUAGE),
         "toon",
         TOON_HIGHLIGHTS,
         TOON_INJECTIONS,
