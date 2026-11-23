@@ -10,6 +10,7 @@ defmodule LumisSmoke.MixProject do
   defp deps do
     [
       {:lumis, path: ".."},
+      {:lumis_wasm_elixir, "~> 0.26.0"},
       # Another NIF in the same VM, as in an MDEx app: glibc shares one static
       # TLS reserve between them (#2114).
       {:mdex_native, ">= 0.3.2"}

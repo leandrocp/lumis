@@ -1,17 +1,22 @@
 html =
   Lumis.highlight!("defmodule Smoke do\n  def ok, do: :ok\nend\n",
-    formatter: {:html_inline, language: "elixir"}
+    formatter: {:html_inline, language: "elixir", include_highlights: true}
   )
 
-if not String.contains?(html, "Smoke") or length(Regex.scan(~r/<span\b/, html)) < 3 do
-  raise "unexpected Lumis output: #{html}"
+if not String.contains?(html, ~s(data-highlight="keyword)) do
+  raise "Lumis did not highlight Elixir: #{html}"
 end
 
 markdown =
-  MDExNative.Comrak.markdown_to_html!("```elixir\n:ok\n```\n",
-    syntax_highlight: [engine: :lumis, opts: [formatter: {:html_inline, theme: "github_light"}]]
+  MDExNative.Comrak.markdown_to_html!("```elixir\ndefmodule Smoke do\nend\n```\n",
+    syntax_highlight: [
+      engine: :lumis,
+      opts: [formatter: {:html_inline, include_highlights: true}]
+    ]
   )
 
-if not String.contains?(markdown, "<span"), do: raise("unexpected MDExNative output: #{markdown}")
+if not String.contains?(markdown, ~s(data-highlight="keyword)) do
+  raise "MDExNative did not highlight Elixir: #{markdown}"
+end
 
 IO.puts("smoke ok")
