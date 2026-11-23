@@ -178,9 +178,9 @@ emacs = ["c++"]
 
 [parsers.csharp]
 git = "https://github.com/tree-sitter/tree-sitter-c-sharp.git"
-rev = "cac6d5fb595f5811a076336682d5d595ac1c9e85"
+rev = "d4bbe18103c3380c6454085e589d2610938da142"
 crate = "tree-sitter-c-sharp"
-version = "0.23.5"
+version = "0.24.0"
 aliases = ["c#"]
 query_name = "c_sharp"
 variant = "CSharp"
