@@ -416,6 +416,11 @@ crates, remove it, and run `mise run elixir-nif-lock-check --fix`.
 (`artifacts.lumis.sh`); a missing `R2_*` secret fails the release. Checksums come from
 GitHub, which `Lumis.Native.ArtifactURL` defaults to.
 
+`elixir-release.yml` decides how the shipped NIFs are built, so `release-packages`
+includes it in the `hex-lumis` paths: a change there prepares a release and appears
+in its changelog. Pull requests that touch it or `packages/elixir/lumis/native` run
+the same build matrix, and its artifact checks, without publishing.
+
 ## CI on the release commit
 
 Branch workflows skip a `chore(release):` head commit and any `release/*` pull request.
