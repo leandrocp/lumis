@@ -123,7 +123,7 @@ globs = ["Caddyfile", "caddyfile"]
 
 [parsers.carve]
 git = "https://github.com/markup-carve/tree-sitter-carve.git"
-rev = "0f2eb839f7810151e2f1a6b1ed9400ef5c5c643d"
+rev = "008db1a4248b10224f3dcfee8e3e8448cb8da37a"
 version = "0.1.14"
 # The shipped 25 MB parser.c is already ABI 14; regenerating it is slow (see
 # lean), so use the shipped parser.
