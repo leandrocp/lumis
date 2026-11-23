@@ -84,7 +84,47 @@
 (table_row
   "|" @punctuation.special)
 
+; A `+` continuation row: its marker, its pipes, and the cells read as inline.
+(table_continuation_row
+  "+" @operator)
+
+(table_continuation_row
+  "|" @punctuation.special)
+
+; A one-cell row reads on into its continuation line: the row's own pipe and
+; the `+` behind it sit inside the cell.
+(table_cell
+  "|" @punctuation.special
+  .
+  "+" @operator)
+
 (table_separator) @punctuation.special
+
+(table_separator
+  (table_cell_alignment) @operator)
+
+; A native header cell is spelled `|=`, with no separator row, so the grammar
+; leaves it a plain `table_cell`. The cell starts right after the pipe.
+((table_cell) @markup.heading
+  (#match? @markup.heading "^="))
+
+((table_cell
+  .
+  "=" @operator) @_cell
+  (#match? @_cell "^="))
+
+; The cell's own attribute block, alignment included (`|{.x}`, `|={>}`).
+(table_cell_attributes) @attribute
+
+; A cell holding only `^` or `<` is a row span or a column span.
+((table_cell
+  .
+  [
+    "^"
+    "<"
+  ] @operator
+  .) @_cell
+  (#match? @_cell "^[ \\t]*[<^][ \\t]*$"))
 
 (table_caption
   (marker) @punctuation.special)
@@ -553,3 +593,52 @@
   (link_label) @nospell)
 
 (invalid_metadata) @error
+
+; Markers inside constructs an earlier pattern paints as a whole. They sit
+; last so they win over those patterns.
+(div_title) @string
+
+(div_title
+  "\"" @punctuation.delimiter)
+
+(code_block_label) @label
+
+(code_block_label
+  [
+    "["
+    "]"
+  ] @punctuation.bracket)
+
+(substitution
+  to: (content) @markup.underline)
+
+(substitution
+  [
+    "{~"
+    "~>"
+    "~}"
+  ] @punctuation.delimiter)
+
+; The opener stays under the note's own capture: it starts where the note
+; starts, and the whole-note capture is what shows a note that closed early.
+(inline_note
+  "]" @punctuation.bracket)
+
+(extension_inline
+  content: (content) @string)
+
+; The parts of a cell marker run, `|={> .x} `.
+(table_cell_attributes
+  "=" @operator)
+
+(table_cell_attributes
+  [
+    "{"
+    "}"
+  ] @punctuation.bracket)
+
+(table_cell_attributes
+  (table_cell_alignment) @operator)
+
+(table_cell_attributes
+  (args) @property)
