@@ -31,7 +31,7 @@ path = "queries"
 
 [queries.lean]
 git = "https://github.com/Julian/tree-sitter-lean.git"
-rev = "0d28e5d6e8c4755f5df7ef9bde3b6ec6f59fae94"
+rev = "fefc2eff9a83eeb72cda44646709e40e33e09175"
 path = "queries"
 
 [queries.make]
@@ -460,7 +460,7 @@ globs = ["*.aux", "*.cls", "*.sty", "*.tex"]
 
 [parsers.lean]
 git = "https://github.com/Julian/tree-sitter-lean.git"
-rev = "0d28e5d6e8c4755f5df7ef9bde3b6ec6f59fae94"
+rev = "fefc2eff9a83eeb72cda44646709e40e33e09175"
 version = "0.2.0"
 # Regenerating the 47 MB parser.c outlasts the query CI job's timeout, and the
 # shipped one is already ABI 15; use the shipped parser.
