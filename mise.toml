@@ -1275,7 +1275,7 @@ npm-rehype-lumis|packages/javascript/rehype-lumis
 npm-vite|packages/javascript/vite
 npm-react|packages/javascript/react
 npm-cli|packages/javascript/cli
-hex-lumis|packages/elixir/lumis
+hex-lumis|packages/elixir/lumis|.github/workflows/elixir-release.yml
 npm-wasm-bundle-backend|wasm-bundles.json|languages.toml|templates/wasm
 npm-wasm-bundle-full|wasm-bundles.json|languages.toml|templates/wasm
 npm-wasm-bundle-system|wasm-bundles.json|languages.toml|templates/wasm
