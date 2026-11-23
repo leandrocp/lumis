@@ -1,3 +1,13 @@
+## [0.10.11](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.10...hex-lumis/v0.10.11) (2026-11-23)
+
+### Features
+
+- **themes:** Update themes in [\#2110](https://github.com/leandrocp/lumis/pull/2110)
+
+### Bug Fixes
+
+- **elixir:** Ship precompiled Linux NIFs without static TLS in [\#2115](https://github.com/leandrocp/lumis/pull/2115)
+
 ## [0.10.10](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.9...hex-lumis/v0.10.10) (2026-11-21)
 
 ### Features
