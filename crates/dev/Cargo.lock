@@ -2081,9 +2081,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-systemverilog"
-version = "0.4.1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d9f02d7fd20691acb5edf44a782f0b9fa278d9987befb1ae597c768707b95e6"
+checksum = "6d24502baf857f6e2b075da31a5ac3a4ecf1297224b29c87ab7ddeadf897542f"
 dependencies = [
  "cc",
  "tree-sitter-language",
