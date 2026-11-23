@@ -418,8 +418,15 @@ GitHub, which `Lumis.Native.ArtifactURL` defaults to.
 
 `elixir-release.yml` decides how the shipped NIFs are built, so `release-packages`
 includes it in the `hex-lumis` paths: a change there prepares a release and appears
-in its changelog. Pull requests that touch it or `packages/elixir/lumis/native` run
-the same build matrix, and its artifact checks, without publishing.
+in its changelog. Pull requests that touch it, `packages/elixir/lumis/native` or
+`packages/elixir/lumis/smoke` run the same build matrix, and its artifact checks,
+without publishing.
+
+Before anything is published, `packages/elixir/lumis/smoke` installs the NIFs just
+built through rustler_precompiled on Rocky Linux 8, Ubuntu 22.04, Debian 13 and
+Alpine, next to mdex_native's Lumis build, and runs `smoke.exs`. A failure stops the
+GitHub Release and Hex. Run it locally against downloaded artifacts with
+`RUSTLER_PRECOMPILED_GLOBAL_CACHE_PATH` and a matching `checksum-Elixir.Lumis.Native.exs`.
 
 ## CI on the release commit
 

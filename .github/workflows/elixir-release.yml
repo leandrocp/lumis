@@ -11,6 +11,7 @@ on:
   pull_request:
     paths:
       - "packages/elixir/lumis/native/**"
+      - "packages/elixir/lumis/smoke/**"
       - ".github/workflows/elixir-release.yml"
   workflow_dispatch:
     inputs:
@@ -30,7 +31,11 @@ permissions:
 jobs:
   nif-lock:
     name: Verify packaged NIF lockfile
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    if: >-
+      (github.event_name == 'pull_request' &&
+        !(github.event.pull_request.head.repo.full_name == github.repository &&
+          startsWith(github.event.pull_request.head.ref, 'release/'))) ||
+      github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
@@ -63,12 +68,14 @@ jobs:
   nif-release:
     needs: nif-lock
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
-    uses: leandrocp/github-actions/.github/workflows/nif-release.yml@3624cbe6c610e41ac180319c863144d4eeae5f2f
+    uses: leandrocp/github-actions/.github/workflows/nif-release.yml@de7373d31377bfeea8f5f0070e7af1f15ce04406
     with:
       locked: true
       project-name: lumis_nif
       project-dir: packages/elixir/lumis/native/lumis_nif
       working-directory: packages/elixir/lumis
+      nif-module: Lumis.Native
+      smoke-project: packages/elixir/lumis/smoke
       r2-path: releases/download/${{ inputs.tag || github.ref_name }}
     secrets:
       R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
