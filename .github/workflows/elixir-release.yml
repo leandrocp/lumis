@@ -11,7 +11,7 @@ on:
   pull_request:
     paths:
       - "packages/elixir/lumis/native/**"
-      - "packages/elixir/lumis/smoke/**"
+      - "packages/elixir/lumis/test/precompiled_smoke.exs"
       - ".github/workflows/elixir-release.yml"
   workflow_dispatch:
     inputs:
@@ -71,14 +71,14 @@ jobs:
   nif-release:
     needs: nif-lock
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
-    uses: leandrocp/github-actions/.github/workflows/nif-release.yml@de7373d31377bfeea8f5f0070e7af1f15ce04406
+    uses: leandrocp/github-actions/.github/workflows/nif-release.yml@0c9fdebe970d704b0a5feff4fac4ac2432d4d504
     with:
       locked: true
       project-name: lumis_nif
       project-dir: packages/elixir/lumis/native/lumis_nif
       working-directory: packages/elixir/lumis
       nif-module: Lumis.Native
-      smoke-project: packages/elixir/lumis/smoke
+      smoke-script: packages/elixir/lumis/test/precompiled_smoke.exs
       r2-path: releases/download/${{ inputs.tag || github.ref_name }}
     secrets:
       R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}

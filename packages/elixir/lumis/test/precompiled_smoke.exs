@@ -1,5 +1,17 @@
+# Installs this package's precompiled NIF next to mdex_native's Lumis build, as
+# an MDEx app does (#2114), and checks both highlight. Release CI runs it with
+# RUSTLER_PRECOMPILED_GLOBAL_CACHE_PATH pointing at the NIFs it just built.
+Mix.install(
+  [
+    {:lumis, path: Path.expand("..", __DIR__)},
+    {:lumis_wasm_elixir, "~> 0.26.0"},
+    {:mdex_native, ">= 0.3.2"}
+  ],
+  config: [mdex_native: [syntax_highlighter: :lumis]]
+)
+
 html =
-  Lumis.highlight!("defmodule Smoke do\n  def ok, do: :ok\nend\n",
+  Lumis.highlight!("defmodule Smoke do\nend\n",
     formatter: {:html_inline, language: "elixir", include_highlights: true}
   )
 
