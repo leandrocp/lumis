@@ -1,3 +1,18 @@
+## [0.19.7](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.19.6...cargo-lumis/v0.19.7) (2026-11-23)
+
+### Features
+
+- **themes:** Update themes in [\#2110](https://github.com/leandrocp/lumis/pull/2110)
+- Update lang erlang in [\#2105](https://github.com/leandrocp/lumis/pull/2105)
+- Update lang lean in [\#2106](https://github.com/leandrocp/lumis/pull/2106)
+- Update lang csharp in [\#2107](https://github.com/leandrocp/lumis/pull/2107)
+- Update lang fsharp in [\#2108](https://github.com/leandrocp/lumis/pull/2108)
+- Update lang php in [\#2109](https://github.com/leandrocp/lumis/pull/2109)
+- Update lang systemverilog in [\#2111](https://github.com/leandrocp/lumis/pull/2111)
+- Update lang protobuf in [\#2112](https://github.com/leandrocp/lumis/pull/2112)
+- Update lang matlab in [\#2113](https://github.com/leandrocp/lumis/pull/2113)
+- Update lang carve in [\#2103](https://github.com/leandrocp/lumis/pull/2103)
+
 ## [0.19.6](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.19.5...cargo-lumis/v0.19.6) (2026-11-21)
 
 ### Features
