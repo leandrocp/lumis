@@ -273,6 +273,12 @@ pub struct HighlightConfiguration {
     offsets: HashMap<(usize, u32), [i64; 4]>,
 }
 
+// tree-sitter omits these for `Language` on wasm; without threads nothing can race.
+#[cfg(all(target_family = "wasm", not(target_feature = "atomics")))]
+unsafe impl Send for HighlightConfiguration {}
+#[cfg(all(target_family = "wasm", not(target_feature = "atomics")))]
+unsafe impl Sync for HighlightConfiguration {}
+
 /// An `@injection.content` capture together with its `#offset!`-adjusted range.
 #[derive(Clone, Copy)]
 struct InjectionContent<'a> {
