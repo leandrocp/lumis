@@ -11,6 +11,8 @@ crates/lumis-core/src/highlights.rs linguist-generated
 crates/lumis-wasm-runtime/src/catalog.rs linguist-generated
 docs/content/reference/languages.md linguist-generated
 docs/content/reference/themes.md linguist-generated
+packages/java/lumis/src/main/java/sh/lumis/Lang.java linguist-generated
+packages/java/lumis/src/main/java/sh/lumis/Theme.java linguist-generated
 packages/java/lumis/src/test/resources/sh/lumis/*.approved.* linguist-generated
 packages/javascript/lumis/bundles/*.ts linguist-generated
 packages/javascript/lumis/src/highlights.ts linguist-generated

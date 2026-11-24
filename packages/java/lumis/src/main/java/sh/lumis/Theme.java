@@ -1,3 +1,4 @@
+// Generated from themes/themes.lua by `mise run docs-gen-themes-md`. Do not edit.
 package sh.lumis;
 
 import java.util.HashMap;

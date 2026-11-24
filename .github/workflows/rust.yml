@@ -24,6 +24,7 @@ on:
       - "benchmarks/rust/Cargo.toml"
       - "packages/elixir/lumis/native/lumis_nif/Cargo.toml"
       - "packages/javascript/lumis/native/Cargo.toml"
+      - "packages/java/lumis/src/main/java/sh/lumis/Lang.java"
       - "packages/java/lumis/wasm/**"
       - ".github/workflows/rust.yml"
   pull_request:
@@ -44,6 +45,7 @@ on:
       - "benchmarks/rust/Cargo.toml"
       - "packages/elixir/lumis/native/lumis_nif/Cargo.toml"
       - "packages/javascript/lumis/native/Cargo.toml"
+      - "packages/java/lumis/src/main/java/sh/lumis/Lang.java"
       - "packages/java/lumis/wasm/**"
       - ".github/workflows/rust.yml"
   workflow_dispatch:

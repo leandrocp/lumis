@@ -1,3 +1,4 @@
+// Generated from languages.toml by `mise run langs-gen-catalog`. Do not edit.
 package sh.lumis;
 
 import java.util.HashMap;
@@ -7,7 +8,7 @@ public enum Lang {
     PLAINTEXT(""),
     ANGULAR("angular"),
     ARDUINO("arduino"),
-    ASSEMBLY("asm"),
+    ASM("asm"),
     ASTRO("astro"),
     BASH("bash"),
     BEND("bend"),
@@ -18,9 +19,9 @@ public enum Lang {
     CLOJURE("clojure"),
     CMAKE("cmake"),
     COMMENT("comment"),
-    COMMON_LISP("commonlisp"),
+    COMMONLISP("commonlisp"),
     CPP("cpp"),
-    C_SHARP("csharp"),
+    CSHARP("csharp"),
     CSS("css"),
     CSV("csv"),
     D("d"),
@@ -37,7 +38,7 @@ public enum Lang {
     ERLANG("erlang"),
     FISH("fish"),
     FORTRAN("fortran"),
-    F_SHARP("fsharp"),
+    FSHARP("fsharp"),
     GITATTRIBUTES("gitattributes"),
     GITIGNORE("gitignore"),
     GLEAM("gleam"),
@@ -50,7 +51,7 @@ public enum Lang {
     HCL("hcl"),
     HEEX("heex"),
     HTML("html"),
-    HTML_DJANGO("htmldjango"),
+    HTMLDJANGO("htmldjango"),
     HTTP("http"),
     HURL("hurl"),
     IEX("iex"),
@@ -83,7 +84,7 @@ public enum Lang {
     NIM("nim"),
     NIX("nix"),
     NUSHELL("nushell"),
-    OBJ_C("objc"),
+    OBJC("objc"),
     OCAML("ocaml"),
     OCAML_INTERFACE("ocaml_interface"),
     PASCAL("pascal"),
@@ -91,7 +92,7 @@ public enum Lang {
     PHP("php"),
     POWERSHELL("powershell"),
     PRISMA("prisma"),
-    PROTO_BUF("protobuf"),
+    PROTOBUF("protobuf"),
     PUPPET("puppet"),
     PYTHON("python"),
     QMLJS("qmljs"),
@@ -110,10 +111,10 @@ public enum Lang {
     SURFACE("surface"),
     SVELTE("svelte"),
     SWIFT("swift"),
-    SYSTEM_VERILOG("systemverilog"),
+    SYSTEMVERILOG("systemverilog"),
     TCL("tcl"),
     TERRAFORM("terraform"),
-    TLA_PLUS("tlaplus"),
+    TLAPLUS("tlaplus"),
     TOML("toml"),
     TOON("toon"),
     TSX("tsx"),
@@ -146,22 +147,54 @@ public enum Lang {
         for (Lang lang : Lang.values()) {
             langs.put(lang.value(), lang);
         }
-        // Add aliases
-        langs.put("text", PLAINTEXT);
         langs.put("plaintext", PLAINTEXT);
-        langs.put("assembly", ASSEMBLY);
+        langs.put("text", PLAINTEXT);
+        langs.put("txt", PLAINTEXT);
+        langs.put("plain", PLAINTEXT);
+        langs.put("assembly", ASM);
+        langs.put("console", BASH);
+        langs.put("sh", BASH);
+        langs.put("sh-session", BASH);
+        langs.put("shell", BASH);
+        langs.put("shell-session", BASH);
+        langs.put("terminal", BASH);
+        langs.put("cl", COMMONLISP);
         langs.put("c++", CPP);
-        langs.put("c#", C_SHARP);
+        langs.put("c#", CSHARP);
+        langs.put("flutter", DART);
         langs.put("docker", DOCKERFILE);
-        langs.put("f#", F_SHARP);
+        langs.put("leex", EEX);
+        langs.put("erl-sh", ERLANG);
+        langs.put("erlang-repl", ERLANG);
+        langs.put("f#", FSHARP);
         langs.put("ember", GLIMMER);
         langs.put("handlebars", GLIMMER);
-        langs.put("jsx", JAVASCRIPT);
+        langs.put("golang", GO);
+        langs.put("gql", GRAPHQL);
+        langs.put("django", HTMLDJANGO);
         langs.put("js", JAVASCRIPT);
+        langs.put("jsx", JAVASCRIPT);
+        langs.put("jinja2", JINJA);
+        langs.put("jsonc", JSON);
+        langs.put("jsonld", JSON);
+        langs.put("tex", LATEX);
+        langs.put("lean4", LEAN);
+        langs.put("nu", NUSHELL);
+        langs.put("objective-c", OBJC);
+        langs.put("pwsh", POWERSHELL);
+        langs.put("python3", PYTHON);
+        langs.put("qml", QMLJS);
+        langs.put("restructuredtext", RST);
+        langs.put("psql", SQL);
+        langs.put("verilog", SYSTEMVERILOG);
+        langs.put("tla", TLAPLUS);
+        langs.put("tla+", TLAPLUS);
+        langs.put("pluscal", TLAPLUS);
         langs.put("ts", TYPESCRIPT);
-        langs.put("objective-c", OBJ_C);
         langs.put("viml", VIM);
         langs.put("vimscript", VIM);
+        langs.put("wasm", WAT);
+        langs.put("webassembly", WAT);
     }
 
     public static Lang fromString(String lang) {

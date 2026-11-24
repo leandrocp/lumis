@@ -901,7 +901,7 @@ cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- gen-lan
 '''
 
 [tasks.'langs-gen-catalog']
-description = "Generate the Rust language package catalog from languages.toml"
+description = "Generate the Rust language package catalog and the Java language enum from languages.toml"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -909,7 +909,7 @@ cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- gen-lan
 '''
 
 [tasks.'langs-check-catalog']
-description = "Verify the Rust language package catalog matches languages.toml"
+description = "Verify the Rust language package catalog and the Java language enum match languages.toml"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -935,7 +935,7 @@ mise run docs-gen-languages-md
 '''
 
 [tasks.'docs-gen-themes-md']
-description = "Generate THEMES.md and themes/NOTICE.md from themes definition and the license recorded in each theme"
+description = "Generate THEMES.md, themes/NOTICE.md and the Java theme enum from themes definition and the license recorded in each theme"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -943,7 +943,7 @@ cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- gen-the
 '''
 
 [tasks.'themes-check-notices']
-description = "Verify every theme license against its license files and that THEMES.md and themes/NOTICE.md are current"
+description = "Verify every theme license against its license files and that THEMES.md, themes/NOTICE.md and the Java theme enum are current"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail

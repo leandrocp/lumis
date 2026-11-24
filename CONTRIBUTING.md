@@ -561,7 +561,7 @@ For Rust crates, bundle support is implemented as Cargo features such as `lang-b
 
 - Keep one parser ID per line in bundle arrays for cleaner diffs.
 - `max_memory_mb` caps the Wasm store memory a bundle's members reserve together, measured from `parser-sizes.json`. `full` is capped at 80, so a new language that would push it over goes in its `exclude`. `mise run langs-check-catalog` enforces the cap over every measured member and names the ones not measured yet; `mise run wasm-sizes` measures them once they are published. `lang-bundle-full` in Rust ignores `exclude`, since compiled-in parsers have no store.
-- After changing parser or bundle entries, sync the generated Rust and JavaScript outputs:
+- After changing parser or bundle entries, sync the generated Rust, JavaScript and Java outputs:
 
 ```sh
 mise run cargo-update-features
@@ -572,6 +572,7 @@ pnpm --filter @lumis-sh/lumis run build:generate
 This updates files such as:
 
 - `crates/lumis-wasm-runtime/src/catalog.rs`
+- `packages/java/lumis/src/main/java/sh/lumis/Lang.java`
 - `packages/javascript/lumis/langs/*.ts`
 - `packages/javascript/lumis/bundles/*.ts`
 - `packages/javascript/lumis/src/generated/*`
@@ -1252,8 +1253,8 @@ Built-in themes must have a license that is neither copyleft nor `NONE` or
 detects every license again and fails when a theme's `license` disagrees with
 its license files, when a built-in theme breaks that rule, when a license
 directory or theme JSON belongs to no theme in `themes/themes.lua`, or when
-`THEMES.md`, the docs reference page, `themes/NOTICE.md` or one of its copies
-is stale. The notice links each license to its file under `licenses/` next to
+`THEMES.md`, the docs reference page, the Java `Theme` enum, `themes/NOTICE.md`
+or one of its copies is stale. The notice links each license to its file under `licenses/` next to
 it, so every package that ships theme data ships both: `mise run
 docs-gen-themes-md` writes `NOTICE.md` and `licenses/` into
 `crates/lumis-core/themes`, `crates/lumis/css` and the Elixir
