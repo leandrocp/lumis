@@ -1,0 +1,7 @@
+package foo.bar;
+
+class MyExample {
+    public static void main(String[] args) {
+        System.out.println("Hello " + args[0]);
+    }
+}

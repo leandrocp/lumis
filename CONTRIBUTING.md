@@ -78,6 +78,19 @@ back to `web-tree-sitter` where none is built. It also stages parsers into
 `target/test-parsers` and points the dependent packages at them, so nothing in
 the suite depends on what is currently published to npm.
 
+The Java package is tested on its own, because it needs its WebAssembly module
+built first:
+
+```sh
+mise run setup-java-wasm
+mise run test-java
+```
+
+`setup-java-wasm` compiles the workspace `lumis` crate, with every language, for
+`wasm32-wasip1` and writes `packages/java/lumis/lumis.wasm`. It needs that Rust
+target installed; mise provides wizer and binaryen, and the WASI SDK is
+downloaded on first use. `test-java` needs a JDK and Maven.
+
 `mise run test-integration-packages` builds and packs the JavaScript integrations,
 then installs them with Lumis in a temporary consumer outside the workspace. It
 checks their published peer requirements and verifies that application-created
@@ -245,9 +258,8 @@ Each implementation in this repository has a test that reads the manifest:
 | Elixir | `packages/elixir/lumis/test/formatter_options_test.exs` | reads the keys off the NimbleOptions schema |
 | JavaScript | `packages/javascript/lumis/test/formatter-options.test.ts` | `Required<Options>` literals, so a missing field fails type-aware lint |
 
-These are the four implementations in this repository. Java is part of the
-same parity target, but its implementation lives in `lumis4j`; D26 in
-`API_DRIFT.md` tracks making that repository consume this contract too.
+These are the four implementations the manifest covers. Java is part of the
+same parity target, but `packages/java/lumis` does not read this contract yet.
 
 Adding a formatter option means adding it to the manifest first and watching
 four runtimes go red. `waived` is the escape hatch for something a runtime
@@ -352,6 +364,7 @@ performance and maintainability; rule counts are not a quality target.
 | Rust | clippy, lizard | clippy's `pedantic` group plus `rust_2018_idioms` and `unreachable_pub`, all denied; cognitive complexity at most 10; classic cyclomatic complexity at most 20 | `[workspace.lints]` in the root `Cargo.toml`, `clippy.toml`, `.lizard-whitelist` |
 | JavaScript, TypeScript | oxlint | explicitly reviewed safety and maintainability rules, as errors; classic cyclomatic complexity at most 9 | `.oxlintrc.json` |
 | Elixir | credo | `mix credo --strict`; cyclomatic complexity at most 9 | `packages/elixir/lumis/.credo.exs` |
+| Java | Spotless, Checkstyle | google-java-format in AOSP style, no wildcard imports; cyclomatic complexity at most 9 | `packages/java/lumis/pom.xml` |
 | Lua | selene | every lint selene ships, warnings included | `selene.toml`, `neovim.yml` |
 | GitHub Actions | actionlint | its default, which is already strict | `.github/actionlint.yaml` |
 
@@ -363,7 +376,7 @@ clippy run to CI, because that compiles Rune and its GPU stack.
 
 Every runtime implemented in this repository enforces a complexity ceiling with
 its language-specific analyzer, at the number the other projects in this family
-hold: **9**, classic McCabe, for Elixir and for JavaScript.
+hold: **9**, classic McCabe, for Elixir, for JavaScript and for Java.
 
 Rust uses clippy's cognitive complexity at **10** rather than a McCabe ceiling of
 9, because `?` makes every fallible call a cyclomatic branch and would score a

@@ -17,6 +17,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 use xz2::write::XzEncoder;
 
+mod java_wasm;
 mod stress;
 mod theme_licenses;
 mod wasi_sdk;
@@ -91,6 +92,8 @@ enum Commands {
         #[arg(default_value = "")]
         name: String,
     },
+    /// Build the WebAssembly module the Java package compiles to bytecode.
+    BuildJavaWasm,
     StageWasm {
         name: String,
         /// The version to stage. Defaults to the next free patch on npm, which
@@ -243,6 +246,7 @@ fn main() -> Result<()> {
         Commands::GenLanguagesMd => gen_languages_md(),
         Commands::GenLanguageCatalog { check } => gen_language_catalog(check),
         Commands::BuildWasm { name } => build_wasm(&name),
+        Commands::BuildJavaWasm => java_wasm::build(),
         Commands::StageWasm { name, version } => stage_wasm(&name, version.as_deref()),
         Commands::StageHexWasm { name } => stage_hex_wasm(&name),
         Commands::FetchHexWasm { name, version } => fetch_hex_wasm(&name, &version),

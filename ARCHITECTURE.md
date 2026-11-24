@@ -232,6 +232,7 @@ declared, and a runtime gets exactly one of these:
 | JavaScript on Node | `package.json` | `@lumis-sh/wasm-*` in `node_modules` |
 | JavaScript in a browser | the packages it imports | `@lumis-sh/wasm-*` in the bundle, each exporting its language |
 | Elixir, any future FFI binding | `mix.exs` dependencies | `lumis_wasm_*` in each dependency's `priv/parsers` |
+| Java | nothing — every language is linked in | linked statically into one WebAssembly module, which the build compiles to JVM bytecode |
 | The CLI | nothing — it declares no set | fetched on demand into its own store |
 
 The Rust crate depends on `lumis-wasm-runtime` with `default-features = false`,
@@ -555,8 +556,8 @@ names as Rust's `languages` and `themes` modules and Elixir's `Lumis.Languages`
 and `Lumis.Theme`. The root keeps highlighting and deprecated compatibility
 aliases. Language modules share the root runtime; importing the root does not
 pull in the full theme catalog. `fixtures/api.json` records the canonical names,
-runtime-specific operations, and aliases. The external Java binding retains its
-separate enum API until that repository adopts these operations.
+runtime-specific operations, and aliases. The Java package retains its
+separate enum API until it adopts these operations.
 
 `Theme::map_styles`, `Lumis.Theme.map_styles/2`, and JavaScript's `mapStyles`
 transform existing theme entries before formatting. Rust defines the contract;

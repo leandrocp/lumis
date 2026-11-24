@@ -8,6 +8,7 @@ members = [
     "crates/lumis-wasm-runtime",
     "packages/elixir/lumis/native/lumis_nif",
     "packages/javascript/lumis/native",
+    "packages/java/lumis/wasm",
 ]
 
 [workspace.package]
@@ -70,3 +71,11 @@ lumis-wasm-runtime = { path = "crates/lumis-wasm-runtime" }
 lto = true
 codegen-units = 1
 strip = true
+
+[profile.java-wasm]
+inherits = "release"
+opt-level = "z"
+lto = false
+codegen-units = 16
+# wasm-opt reads the target features from a custom section.
+strip = false

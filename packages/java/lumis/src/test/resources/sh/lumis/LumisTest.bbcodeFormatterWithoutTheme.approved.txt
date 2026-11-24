@@ -1,0 +1,3 @@
+[keyword-function-rust]fn[/keyword-function-rust] [function-rust]hello[/function-rust][punctuation-bracket-rust]([/punctuation-bracket-rust][variable-parameter-rust]name[/variable-parameter-rust][punctuation-delimiter-rust]:[/punctuation-delimiter-rust] [operator-rust]&[/operator-rust][type-builtin-rust]str[/type-builtin-rust][punctuation-bracket-rust])[/punctuation-bracket-rust] [punctuation-bracket-rust]{[/punctuation-bracket-rust]
+    [keyword-exception-rust]println![/keyword-exception-rust][punctuation-bracket-rust]([/punctuation-bracket-rust][string-rust]"Hello, {name}!"[/string-rust][punctuation-bracket-rust])[/punctuation-bracket-rust][punctuation-delimiter-rust];[/punctuation-delimiter-rust]
+[punctuation-bracket-rust]}[/punctuation-bracket-rust]
