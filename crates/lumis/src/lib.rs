@@ -187,6 +187,42 @@ pub mod decorations {
     pub use lumis_core::events::Decoration;
 }
 
+/// Options written after a Markdown code fence's language.
+///
+/// ````markdown
+/// ```elixir highlight_lines="1,3-5" theme=github_dark
+/// ````
+///
+/// [`parse_meta`](code_fence::parse_meta) reads the text after the language
+/// into the options a formatter takes, and returns every name it does not
+/// recognise so other tools can read their own.
+///
+/// ```rust
+/// use lumis::code_fence::parse_meta;
+/// use lumis::formatters::html_inline::HighlightLines;
+/// use lumis::{languages::Language, themes, HtmlInlineBuilder};
+///
+/// let meta = parse_meta(r#"highlight_lines="2" theme=github_dark"#);
+/// let theme = meta.theme.as_deref().and_then(|name| themes::get(name).ok());
+/// let highlight_lines = meta.highlight_lines.map(|lines| HighlightLines {
+///     lines,
+///     ..HighlightLines::default()
+/// });
+///
+/// let formatter = HtmlInlineBuilder::new()
+///     .language(Language::PlainText)
+///     .theme(theme)
+///     .highlight_lines(highlight_lines)
+///     .build()
+///     .unwrap();
+/// let html = lumis::highlight("one\ntwo\n", formatter);
+///
+/// assert!(html.contains("background-color: #0d1117"));
+/// ```
+pub mod code_fence {
+    pub use lumis_core::code_fence::{parse_meta, CodeFenceMeta, MetaAttribute};
+}
+
 pub use lumis_core::events;
 pub use lumis_core::highlights;
 

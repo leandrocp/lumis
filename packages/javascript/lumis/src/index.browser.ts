@@ -7,6 +7,8 @@ import { availableThemes as listThemes, sanitizeThemeName as sanitizeName } from
 
 export { runtimeKind } from "./runtime/browser.js";
 export { highlightIter, highlightEvents } from "./core/highlighter.js";
+export { parseCodeFenceMeta } from "./code-fence.js";
+export type { CodeFenceMeta, MetaAttribute } from "./code-fence.js";
 
 const highlighter = createHighlighterModule({
   createRuntime,

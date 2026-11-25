@@ -1822,48 +1822,7 @@ impl Display for FileArgument {
 }
 
 fn parse_highlight_lines(input: &str) -> Result<Vec<RangeInclusive<usize>>> {
-    let mut ranges = Vec::new();
-
-    for part in input.split(',') {
-        let part = part.trim();
-        if part.is_empty() {
-            continue;
-        }
-
-        if let Some((start, end)) = part.split_once('-') {
-            let start: usize = start
-                .trim()
-                .parse()
-                .map_err(|_| anyhow::anyhow!("Invalid line number: '{}'", start.trim()))?;
-            let end: usize = end
-                .trim()
-                .parse()
-                .map_err(|_| anyhow::anyhow!("Invalid line number: '{}'", end.trim()))?;
-
-            if start == 0 || end == 0 {
-                return Err(anyhow::anyhow!("Line numbers must be greater than 0"));
-            }
-            if start > end {
-                return Err(anyhow::anyhow!(
-                    "Start line ({start}) must be less than or equal to end line ({end})"
-                ));
-            }
-
-            ranges.push(start..=end);
-        } else {
-            let line: usize = part
-                .parse()
-                .map_err(|_| anyhow::anyhow!("Invalid line number: '{part}'"))?;
-
-            if line == 0 {
-                return Err(anyhow::anyhow!("Line numbers must be greater than 0"));
-            }
-
-            ranges.push(line..=line);
-        }
-    }
-
-    Ok(ranges)
+    Ok(lumis_core::code_fence::parse_line_ranges(input).collect::<std::result::Result<_, _>>()?)
 }
 
 #[allow(dead_code)]
