@@ -1,3 +1,9 @@
+## [0.10.11](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.10...npm-lumis/v0.10.11) (2026-11-25)
+
+### Bug Fixes
+
+- **rust:** Compile lumis for wasm32-wasip1-threads in [\#2123](https://github.com/leandrocp/lumis/pull/2123)
+
 ## [0.10.10](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.10.9...npm-lumis/v0.10.10) (2026-11-23)
 
 ### Features
