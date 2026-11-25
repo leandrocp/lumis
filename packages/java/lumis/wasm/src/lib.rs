@@ -2,6 +2,7 @@ use lumis::formatter::Formatter;
 use lumis::languages::Language;
 use lumis::themes::{self, Theme};
 use lumis::{BBCodeScopedBuilder, HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder};
+use std::ffi::c_void;
 use std::ptr;
 
 // Zero is left unused so an unset formatter is never mistaken for a valid one.
@@ -11,13 +12,13 @@ const HTML_LINKED: i32 = 3;
 const BBCODE: i32 = 4;
 
 extern "C" {
-    fn malloc(size: usize) -> *mut u8;
-    fn free(ptr: *mut u8);
+    fn malloc(size: usize) -> *mut c_void;
+    fn free(ptr: *mut c_void);
 }
 
 #[no_mangle]
 pub extern "C" fn wasm_malloc(size: usize) -> *mut u8 {
-    unsafe { malloc(size) }
+    unsafe { malloc(size).cast() }
 }
 
 /// # Safety
@@ -25,7 +26,7 @@ pub extern "C" fn wasm_malloc(size: usize) -> *mut u8 {
 /// `ptr` must come from [`wasm_malloc`] and must not have been freed already.
 #[no_mangle]
 pub unsafe extern "C" fn wasm_free(ptr: *mut u8) {
-    unsafe { free(ptr) }
+    unsafe { free(ptr.cast()) }
 }
 
 /// Takes ownership of the three argument buffers and returns `pointer << 32 | length`.

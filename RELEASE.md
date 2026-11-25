@@ -432,24 +432,9 @@ their directory and a matching `checksum-Elixir.Lumis.Native.exs` in the package
 ## Java package
 
 `java-release.yml` publishes `sh.lumis:lumis` to Maven Central on a `maven-lumis/v*`
-tag. `stage` builds the WebAssembly module from the tagged tree with
-`mise run setup-java-wasm`, runs the tests and leaves an unsigned bundle. It holds no
-secrets, because cargo build scripts, the grammars' C and every Maven plugin run
-there. `publish` has no source tree: it signs the files in that bundle and uploads
-it through the Central Portal API.
-
-`publish` runs in the `maven-central` environment, which is restricted to
-`maven-lumis/v*` tags and `main`. It needs:
-
-- `MAVEN_CENTRAL_USERNAME` and `MAVEN_CENTRAL_PASSWORD`: a Central Portal user token
-  for the account that owns the `sh.lumis` namespace. Tokens expire.
-- `MAVEN_GPG_PRIVATE_KEY` and `MAVEN_GPG_PASSPHRASE`: the armored signing key, whose
-  public half is on `keyserver.ubuntu.com`. Central verifies against the primary
-  key, so that is the key that must sign.
-- The variable `MAVEN_CENTRAL_PUBLISHING_TYPE`. `AUTOMATIC` publishes once validation
-  passes. `USER_MANAGED`, the default when it is unset, stops at "validated" until
-  someone presses Publish in the Portal. A release on Maven Central cannot be
-  changed or removed.
+tag. It builds the WebAssembly module from the tagged tree and runs
+`mvn -Prelease deploy`, which needs the secrets `MAVEN_CENTRAL_USERNAME`,
+`MAVEN_CENTRAL_PASSWORD`, `MAVEN_GPG_PRIVATE_KEY` and `MAVEN_GPG_PASSPHRASE`.
 
 ## CI on the release commit
 

@@ -1,25 +1,12 @@
 # Lumis for Java
 
-**Syntax highlighter powered by Tree-sitter and Neovim themes.**
-
-**110+ languages. 200+ themes. Pure Java execution via WebAssembly.**
-
 [![Maven Central](https://img.shields.io/maven-central/v/sh.lumis/lumis)](https://central.sonatype.com/artifact/sh.lumis/lumis)
 
----
+The Java package for [Lumis](https://lumis.sh). It runs on Java 11 or later with no
+native library: Lumis and every grammar are built as one WebAssembly module, which
+[Endive](https://endive.run) compiles to JVM bytecode when the jar is built.
 
-## Features
-
-* **110+ Tree-sitter languages** - Fast and accurate syntax parsing
-* **200+ Neovim themes** - Updated and curated themes from the Neovim community
-* **Multiple outputs** - HTML (inline/linked), Terminal (ANSI), BBCode
-* **Pure Java execution** - Tree-sitter runs in Java via WebAssembly using [Endive](https://endive.run)
-* **Zero config** - Works out of the box
-* **No native dependencies** - Everything runs in the JVM
-
-## Quick Start
-
-### Maven
+## Install
 
 ```xml
 <dependency>
@@ -29,129 +16,54 @@
 </dependency>
 ```
 
-### Gradle
-
 ```groovy
 implementation 'sh.lumis:lumis:0.1.0'
 ```
 
-### JBang
+Every language and theme ships in that one jar, so there are no parser packages to add.
+
+## Usage
 
 ```java
-//DEPS sh.lumis:lumis:0.1.0
-```
-
-A command-line script ships with the package:
-
-```bash
-jbang https://github.com/leandrocp/lumis/blob/main/packages/java/lumis/jbang/lumis4j.java --theme dracula *.java
-```
-
-### Basic Usage
-
-```java
-import sh.lumis.Lumis;
+import sh.lumis.Formatter;
 import sh.lumis.Lang;
+import sh.lumis.Lumis;
 import sh.lumis.Theme;
 
-var lumis = Lumis.builder().build();
+try (var lumis = Lumis.builder().build()) {
+    var highlighter = lumis.highlighter()
+            .withLang(Lang.JAVASCRIPT)
+            .withTheme(Theme.DRACULA)
+            .withFormatter(Formatter.HTML_INLINE)
+            .build();
 
-var highlighter = lumis.highlighter()
-    .withLang(Lang.JAVASCRIPT)
-    .withTheme(Theme.DRACULA)
-    .build();
-
-var result = highlighter.highlight("console.log('Hello, World!');");
-System.out.println(result.string());
-
-lumis.close();
+    String html = highlighter.highlight("const x = 1").string();
+}
 ```
 
-### HTML Inline Formatter
+Building a `Lumis` loads the module, which takes a few seconds, so create one and
+reuse it; highlighters are cheap. Calls on one `Lumis` share a single WebAssembly
+memory and are not synchronized, so use it from one thread at a time.
 
-```java
-import sh.lumis.Lumis;
-import sh.lumis.Lang;
-import sh.lumis.Theme;
-import sh.lumis.Formatter;
+- **Language** - `withLang` takes a `Lang`, or a name or alias such as `"c#"`. The Java API does not detect the language: without `withLang` the code is highlighted as plain text.
+- **Theme** - `withTheme` takes a `Theme` or its name, and defaults to `github_dark`.
+- **Formatter** - `TERMINAL` (the default), `HTML_INLINE`, `HTML_LINKED` and `BBCODE`. The last two emit class names and scope tags instead of colors, so they reject a theme. Formatter options, multi-theme output and custom formatters are not available yet.
+- **Result** - `highlight` takes a `String` or UTF-8 bytes and returns a `LumisResult`. Read it with `string()` or `bytes()`; `failure()` is true when the call into the module failed.
 
-var lumis = Lumis.builder().build();
+## Command line
 
-var htmlHighlighter = lumis.highlighter()
-    .withLang(Lang.JAVA)
-    .withTheme(Theme.CATPPUCCIN_FRAPPE)
-    .withFormatter(Formatter.HTML_INLINE)
-    .build();
-
-var htmlResult = htmlHighlighter.highlight("public class Hello { }");
-System.out.println(htmlResult.string());
-
-lumis.close();
-```
-
-### HTML Linked Formatter
-
-```java
-import sh.lumis.Lumis;
-import sh.lumis.Lang;
-import sh.lumis.Formatter;
-
-var lumis = Lumis.builder().build();
-
-var linkedHighlighter = lumis.highlighter()
-    .withLang(Lang.RUST)
-    .withFormatter(Formatter.HTML_LINKED)
-    .build();
-
-var linkedResult = linkedHighlighter.highlight("fn main() {}");
-System.out.println(linkedResult.string());
-
-lumis.close();
-```
-
-## How It Works
-
-1. **Lumis is compiled to WebAssembly** - The Rust `lumis` crate, with every grammar linked in, is built as one WASI module from the same commit as the Java code
-2. **The module is compiled to JVM bytecode** - [Endive](https://endive.run) translates it at build time, so the jar holds plain classes
-3. **No native dependencies** - Everything runs inside the JVM, with no JNI or native libraries
-
-This gives you:
-
-- Cross-platform compatibility: it works anywhere Java 11 or later runs
-- No native library management
-- Memory safety from WebAssembly's sandboxed execution model
-
-## Supported Languages
-
-See the [`Lang`](src/main/java/sh/lumis/Lang.java) enum for the complete list.
-
-## Supported Themes
-
-See the [`Theme`](src/main/java/sh/lumis/Theme.java) enum for the complete list.
-
-## Formatters
-
-| Formatter | Output | Use Case |
-|-----------|--------|----------|
-| `TERMINAL` | ANSI escape codes | CLI tools, terminal output, logs |
-| `HTML_INLINE` | HTML with inline styles | Standalone HTML, email, no external CSS |
-| `HTML_LINKED` | HTML with CSS classes | Multiple code blocks, custom styling |
-| `BBCODE` | BBCode with scope tags | Forums and other BBCode renderers |
-
-## Building from Source
-
-From the repository root:
+A [JBang](https://www.jbang.dev) script highlights files with the package:
 
 ```bash
-# Build the WebAssembly module from the in-repo lumis crate
-mise run setup-java-wasm
-
-# Compile it to bytecode and run the tests
-mise run test-java
+jbang https://github.com/leandrocp/lumis/blob/main/packages/java/lumis/jbang/lumis4j.java --theme dracula --format html-inline App.java
 ```
+
+## Documentation
+
+Languages, themes and what each formatter emits are documented at
+[docs.lumis.sh](https://docs.lumis.sh). To build the package from source, see
+[CONTRIBUTING.md](../../../CONTRIBUTING.md#testing).
 
 ## Acknowledgements
 
-- **[Endive](https://endive.run)** - The pure Java WebAssembly runtime that makes this possible
-- **Tree-sitter** - The parsing library behind the highlighting
-- **Neovim theme authors** - For the color schemes
+* [Endive](https://endive.run) for the WebAssembly runtime that turns Lumis into JVM bytecode

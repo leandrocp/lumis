@@ -14,12 +14,9 @@ on:
 permissions:
   contents: read
 
-env:
-  RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
-
 jobs:
-  # Runs build scripts and Maven plugins, so it holds no secrets.
-  stage:
+  release:
+    name: Release
     if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     timeout-minutes: 120
@@ -38,110 +35,25 @@ jobs:
         with:
           install: false
 
+      - name: Build the WebAssembly module
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: mise run setup-java-wasm
+
       - uses: actions/setup-java@v6.2.0
         with:
           distribution: temurin
-          java-version: "25"
+          java-version: "11"
+          server-id: central
+          server-username: MAVEN_CENTRAL_USERNAME
+          server-password: MAVEN_CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
-      - name: Check the tag against the pom
-        run: |
-          if [ "${RELEASE_TAG%%/v*}" != "maven-lumis" ]; then
-            echo "Unknown component: ${RELEASE_TAG%%/v*}" >&2
-            exit 1
-          fi
-          declared="$(mise run release-version maven-lumis)"
-          if [ "$declared" != "${RELEASE_TAG#maven-lumis/v}" ]; then
-            echo "$RELEASE_TAG claims ${RELEASE_TAG#maven-lumis/v}, but the pom declares $declared" >&2
-            exit 1
-          fi
-
-      - name: Build the WebAssembly module from the tagged tree
-        run: mise run setup-java-wasm
-
-      - name: Build and test the bundle
+      - name: Release to Maven Central
         working-directory: packages/java/lumis
-        run: mvn -B -ntp -Prelease -Dgpg.skip=true -Dcentral.skipUpload=true deploy
-
-      - uses: actions/upload-artifact@v7.0.2
-        with:
-          name: central-bundle
-          path: packages/java/lumis/target/central-publishing/central-bundle.zip
-          if-no-files-found: error
-          retention-days: 1
-
-  publish:
-    needs: stage
-    runs-on: ubuntu-latest
-    environment: maven-central
-    steps:
-      - uses: actions/download-artifact@v8.0.2
-        with:
-          name: central-bundle
-
-      - name: Sign the bundle
-        env:
-          MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-        run: |
-          set -euo pipefail
-          if [ -z "$MAVEN_GPG_PRIVATE_KEY" ] || [ -z "$MAVEN_GPG_PASSPHRASE" ]; then
-            echo "The maven-central environment has no signing key" >&2
-            exit 1
-          fi
-          version="${RELEASE_TAG#maven-lumis/v}"
-          mkdir bundle
-          unzip -q central-bundle.zip -d bundle
-          if [ ! -f "bundle/sh/lumis/lumis/$version/lumis-$version.jar" ]; then
-            echo "The bundle does not hold sh.lumis:lumis:$version" >&2
-            exit 1
-          fi
-          GNUPGHOME="$(mktemp -d)"
-          export GNUPGHOME
-          printf '%s\n' "$MAVEN_GPG_PRIVATE_KEY" | gpg --batch --import
-          find bundle -type f ! -name '*.md5' ! -name '*.sha1' ! -name '*.sha256' ! -name '*.sha512' -print0 |
-            while IFS= read -r -d '' file; do
-              gpg --batch --pinentry-mode loopback --passphrase-fd 3 --armor --detach-sign "$file" 3<<< "$MAVEN_GPG_PASSPHRASE"
-            done
-          (cd bundle && zip -qr ../signed-bundle.zip .)
-
-      - name: Upload to Maven Central
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          # USER_MANAGED stops at "validated" until someone presses Publish in the Portal.
-          PUBLISHING_TYPE: ${{ vars.MAVEN_CENTRAL_PUBLISHING_TYPE || 'USER_MANAGED' }}
-        run: |
-          set -euo pipefail
-          if [ -z "$MAVEN_CENTRAL_USERNAME" ] || [ -z "$MAVEN_CENTRAL_PASSWORD" ]; then
-            echo "The maven-central environment has no Central Portal token" >&2
-            exit 1
-          fi
-          api="https://central.sonatype.com/api/v1/publisher"
-          token="$(printf '%s:%s' "$MAVEN_CENTRAL_USERNAME" "$MAVEN_CENTRAL_PASSWORD" | base64 -w0)"
-          version="${RELEASE_TAG#maven-lumis/v}"
-          deployment="$(curl --fail-with-body -sS --request POST \
-            --header "Authorization: Bearer $token" \
-            --form bundle=@signed-bundle.zip \
-            "$api/upload?name=lumis-$version&publishingType=$PUBLISHING_TYPE")"
-          echo "Deployment $deployment"
-
-          wanted=PUBLISHED
-          if [ "$PUBLISHING_TYPE" = USER_MANAGED ]; then
-            wanted=VALIDATED
-          fi
-          for _ in $(seq 1 120); do
-            status="$(curl --fail-with-body -sS --request POST \
-              --header "Authorization: Bearer $token" "$api/status?id=$deployment")"
-            state="$(jq -r .deploymentState <<< "$status")"
-            echo "$state"
-            if [ "$state" = "$wanted" ]; then
-              exit 0
-            fi
-            if [ "$state" = FAILED ]; then
-              jq .errors <<< "$status" >&2
-              exit 1
-            fi
-            sleep 15
-          done
-          echo "Timed out waiting for $wanted" >&2
-          exit 1
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: mvn -B -ntp -Prelease deploy

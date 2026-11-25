@@ -60,17 +60,13 @@ workflows:
         - 'pnpm/action-setup@v6.1.1'
     '.github/workflows/java-release.yml':
         - 'actions/checkout@v7.0.1'
-        - 'actions/download-artifact@v8.0.2'
         - 'actions/setup-java@v6.2.0'
-        - 'actions/upload-artifact@v7.0.2'
         - 'dtolnay/rust-toolchain@v1'
         - 'jdx/mise-action@v5.2.7'
     '.github/workflows/java.yml':
         - 'actions/cache@v6.1.0'
         - 'actions/checkout@v7.0.1'
-        - 'actions/download-artifact@v8.0.2'
         - 'actions/setup-java@v6.2.0'
-        - 'actions/upload-artifact@v7.0.2'
         - 'dtolnay/rust-toolchain@v1'
         - 'jdx/mise-action@v5.2.7'
     '.github/workflows/javascript-release.yml':

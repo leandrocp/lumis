@@ -1,7 +1,7 @@
 name: Java CI
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event_name == 'schedule' }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 on:
@@ -26,104 +26,44 @@ permissions:
   contents: read
 
 jobs:
-  wasm:
-    name: Build the WebAssembly module
+  test:
+    name: Test (JDK ${{ matrix.java }})
     if: >-
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
           !(github.event.pull_request.head.repo.full_name == github.repository &&
             startsWith(github.event.pull_request.head.ref, 'release/')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ["11", "25"]
     steps:
       - uses: actions/checkout@v7.0.1
         with:
-          fetch-depth: 2
           persist-credentials: false
 
-      # A change that leaves the core alone may reuse the newest module built from the same shim.
-      - name: Decide whether an older module will do
-        id: core
-        env:
-          EVENT: ${{ github.event_name }}
-        run: |
-          unchanged=false
-          if [ "$EVENT" = push ] || [ "$EVENT" = pull_request ]; then
-            if git diff --quiet HEAD^1 HEAD -- crates/lumis crates/lumis-core crates/lumis-wasm-runtime queries languages.toml Cargo.lock Cargo.toml .cargo/config.toml; then
-              unchanged=true
-            fi
-          fi
-          echo "unchanged=$unchanged" >> "$GITHUB_OUTPUT"
-
-      - name: Restore a built module
-        id: cache
-        uses: actions/cache/restore@v6.1.0
+      - name: Reuse a module built from the same sources
+        id: wasm
+        uses: actions/cache@v6.1.0
         with:
           path: packages/java/lumis/lumis.wasm
-          key: java-wasm-${{ hashFiles('packages/java/lumis/wasm/**', 'crates/dev/src/java_wasm.rs', 'crates/dev/src/wasi_sdk.rs') }}-${{ hashFiles('crates/lumis/**', 'crates/lumis-core/**', 'crates/lumis-wasm-runtime/**', 'queries/**', 'languages.toml', 'Cargo.lock', 'Cargo.toml', '.cargo/config.toml') }}
-          restore-keys: |
-            java-wasm-${{ hashFiles('packages/java/lumis/wasm/**', 'crates/dev/src/java_wasm.rs', 'crates/dev/src/wasi_sdk.rs') }}-
-
-      - name: Decide whether to build
-        id: plan
-        env:
-          EXACT: ${{ steps.cache.outputs.cache-hit }}
-          UNCHANGED: ${{ steps.core.outputs.unchanged }}
-        run: |
-          build=true
-          if [ "$EXACT" = true ]; then
-            build=false
-          elif [ "$UNCHANGED" = true ] && [ -f packages/java/lumis/lumis.wasm ]; then
-            build=false
-          fi
-          echo "build=$build" >> "$GITHUB_OUTPUT"
+          key: java-wasm-${{ hashFiles('packages/java/lumis/wasm/**', 'crates/dev/src/java_wasm.rs', 'crates/dev/src/wasi_sdk.rs', 'crates/lumis/**', 'crates/lumis-core/**', 'crates/lumis-wasm-runtime/**', 'queries/**', 'languages.toml', 'Cargo.lock', 'Cargo.toml', '.cargo/config.toml') }}
 
       - uses: dtolnay/rust-toolchain@v1
-        if: steps.plan.outputs.build == 'true'
         with:
           toolchain: stable
           targets: wasm32-wasip1
 
       - uses: jdx/mise-action@v5.2.7
-        if: steps.plan.outputs.build == 'true'
         with:
           install: false
 
-      - name: Build the module
-        if: steps.plan.outputs.build == 'true'
+      - name: Build the WebAssembly module
+        if: steps.wasm.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: mise run setup-java-wasm
-
-      - name: Save the built module
-        if: steps.plan.outputs.build == 'true'
-        uses: actions/cache/save@v6.1.0
-        with:
-          path: packages/java/lumis/lumis.wasm
-          key: ${{ steps.cache.outputs.cache-primary-key }}
-
-      - uses: actions/upload-artifact@v7.0.2
-        with:
-          name: java-wasm
-          path: packages/java/lumis/lumis.wasm
-          if-no-files-found: error
-          retention-days: 1
-
-  test:
-    name: Test (JDK ${{ matrix.java }})
-    needs: wasm
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # Pull requests test the newest JDK only.
-        java: ${{ fromJSON(github.event_name == 'pull_request' && '["25"]' || '["11", "25"]') }}
-    steps:
-      - uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: actions/download-artifact@v8.0.2
-        with:
-          name: java-wasm
-          path: packages/java/lumis
 
       - uses: actions/setup-java@v6.2.0
         with:
@@ -131,32 +71,4 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: maven
 
-      - uses: jdx/mise-action@v5.2.7
-        with:
-          install: false
-
       - run: mise run test-java
-
-  lint:
-    name: Lint
-    if: >-
-      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
-          !(github.event.pull_request.head.repo.full_name == github.repository &&
-            startsWith(github.event.pull_request.head.ref, 'release/')) }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: actions/setup-java@v6.2.0
-        with:
-          distribution: temurin
-          java-version: "25"
-          cache: maven
-
-      - uses: jdx/mise-action@v5.2.7
-        with:
-          install: false
-
-      - run: mise run lint-java

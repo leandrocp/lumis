@@ -44,17 +44,20 @@
     <maven.compiler.failOnWarning>true</maven.compiler.failOnWarning>
     <project.build.outputTimestamp>2026-06-03T11:11:30Z</project.build.outputTimestamp>
 
+    <central-publishing-maven-plugin.version>0.12.0</central-publishing-maven-plugin.version>
     <checkstyle.version>13.4.2</checkstyle.version>
+    <google-java-format.version>1.28.0</google-java-format.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
-    <spotless-maven-plugin.version>3.7.0</spotless-maven-plugin.version>
     <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+    <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+    <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+    <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
+    <spotless-maven-plugin.version>3.7.0</spotless-maven-plugin.version>
 
     <junit.version>5.14.4</junit.version>
     <approvaltests.version>30.1.1</approvaltests.version>
 
     <endive.version>1.0.0</endive.version>
-
-    <central.skipUpload>false</central.skipUpload>
   </properties>
 
   <dependencies>
@@ -147,24 +150,13 @@
                   <include>src/test/java/**/*.java</include>
                 </includes>
                 <googleJavaFormat>
-                  <version>1.28.0</version>
+                  <version>${google-java-format.version}</version>
                   <style>AOSP</style>
                   <reflowLongStrings>true</reflowLongStrings>
                   <formatJavadoc>false</formatJavadoc>
                 </googleJavaFormat>
                 <importOrder/>
-                <jsr223>
-                  <name>Wildcard Imports Not Allowed</name>
-                  <dependency>org.apache.groovy:groovy-jsr223:4.0.27</dependency>
-                  <engine>groovy</engine>
-                  <script>def pattern = ~/import\s+(?:static\s+)?[^\*\s]+\*;(\r\n|\r|\n)/
-                def matcher = pattern.matcher(source)
-                if (matcher.find()) {
-                   def importText = matcher.group().trim()
-                   throw new Exception("Wildcard imports not allowed:\n\n    " + importText + "\n\nPlease fully expand the imports.\n")
-                }
-                source</script>
-                </jsr223>
+                <forbidWildcardImports/>
                 <removeUnusedImports/>
               </java>
               <pom>
@@ -300,7 +292,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.2.8</version>
+            <version>${maven-gpg-plugin.version}</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -314,7 +306,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.12.0</version>
+            <version>${maven-javadoc-plugin.version}</version>
             <configuration>
               <sourcepath>src/main/java</sourcepath>
               <additionalOptions>-Xdoclint:none</additionalOptions>
@@ -333,7 +325,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.4.0</version>
+            <version>${maven-source-plugin.version}</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -346,11 +338,12 @@
           <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>0.12.0</version>
+            <version>${central-publishing-maven-plugin.version}</version>
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>central</publishingServerId>
-              <skipUpload>${central.skipUpload}</skipUpload>
+              <autoPublish>true</autoPublish>
+              <waitUntil>published</waitUntil>
             </configuration>
           </plugin>
         </plugins>
