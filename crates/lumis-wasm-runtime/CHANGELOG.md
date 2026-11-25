@@ -1,3 +1,9 @@
+## [0.6.7](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.6.6...cargo-lumis-wasm-runtime/v0.6.7) (2026-11-25)
+
+### Bug Fixes
+
+- **rust:** Compile lumis for wasm32-wasip1-threads in [\#2123](https://github.com/leandrocp/lumis/pull/2123)
+
 ## [0.6.6](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.6.5...cargo-lumis-wasm-runtime/v0.6.6) (2026-11-21)
 
 ### Features
