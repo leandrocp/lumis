@@ -1,3 +1,9 @@
+## [0.8.11](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.10...cargo-lumis-cli/v0.8.11) (2026-11-25)
+
+### Bug Fixes
+
+- **rust:** Compile lumis for wasm32-wasip1-threads in [\#2123](https://github.com/leandrocp/lumis/pull/2123)
+
 ## [0.8.10](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.8.9...cargo-lumis-cli/v0.8.10) (2026-11-21)
 
 ### Features
