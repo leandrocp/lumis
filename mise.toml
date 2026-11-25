@@ -707,6 +707,10 @@ else
 fi
 '''
 
+[tasks.'check-wasi']
+description = "Check that lumis with all languages compiles for wasm32-wasip1-threads"
+run = "cargo run --quiet --manifest-path crates/dev/Cargo.toml --no-default-features -- check-wasi"
+
 [tasks.'fmt']
 description = "Format all code"
 run = '''

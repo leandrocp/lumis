@@ -73,6 +73,7 @@ enum Commands {
         #[arg(long)]
         fix: bool,
     },
+    CheckWasi,
     SetCrateVersion {
         name: String,
         version: semver::Version,
@@ -237,6 +238,7 @@ fn main() -> Result<()> {
         Commands::CargoUpdateDep { name } => cargo_update_dep(&name),
         Commands::CargoUpdateFeatures => cargo_update_features(),
         Commands::CheckCrateDeps { fix } => check_crate_deps(fix),
+        Commands::CheckWasi => check_wasi(),
         Commands::SetCrateVersion { name, version } => set_crate_version(&name, &version),
         Commands::PreprocessQueries { name } => preprocess_queries(&name),
         Commands::GenHighlights => gen_highlights(),
@@ -3653,6 +3655,32 @@ fn build_wasm(name: &str) -> Result<()> {
         bail!("failed to build: {}", failed.join(", "));
     }
 
+    Ok(())
+}
+
+/// `lumis` with every statically linked grammar, compiled for `wasm32-wasip1-threads`,
+/// where a host that cannot run Wasmtime, such as a BEAM running as Wasm, links it.
+fn check_wasi() -> Result<()> {
+    const TARGET: &str = "wasm32-wasip1-threads";
+    let sdk = wasi_sdk::ensure()?;
+    let sysroot = sdk.join("share/wasi-sysroot");
+    let cflags = format!(
+        "--target={TARGET} --sysroot={} -pthread -D_WASI_EMULATED_SIGNAL -D_WASI_EMULATED_PROCESS_CLOCKS -D_WASI_EMULATED_MMAN",
+        sysroot.display()
+    );
+    let status = Command::new("cargo")
+        .args(["check", "--locked", "-p", "lumis", "--no-default-features"])
+        .args(["--features", "all-languages", "--target", TARGET])
+        .env("CC_wasm32_wasip1_threads", sdk.join("bin/clang"))
+        .env("CXX_wasm32_wasip1_threads", sdk.join("bin/clang++"))
+        .env("AR_wasm32_wasip1_threads", sdk.join("bin/llvm-ar"))
+        .env("CFLAGS_wasm32_wasip1_threads", &cflags)
+        .env(
+            "CXXFLAGS_wasm32_wasip1_threads",
+            format!("{cflags} -fno-exceptions"),
+        )
+        .status()?;
+    ensure!(status.success(), "lumis does not compile for {TARGET}");
     Ok(())
 }
 

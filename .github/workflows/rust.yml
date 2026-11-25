@@ -161,6 +161,31 @@ jobs:
       - run: >-
           cargo run --manifest-path crates/dev/Cargo.toml
           --locked --no-default-features -- gen-language-catalog --check
+  check-wasi:
+    name: lumis for wasm32-wasip1-threads
+    if: >-
+      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
+          !(github.event.pull_request.head.repo.full_name == github.repository &&
+            startsWith(github.event.pull_request.head.ref, 'release/')) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@v5.2.7
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+          targets: wasm32-wasip1-threads
+      - uses: Swatinem/rust-cache@v2.9.3
+        with:
+          workspaces: |
+            . -> target
+            crates/dev -> target
+          shared-key: wasip1-threads
+      - run: mise run check-wasi
   test-packaged-parsers:
     if: >-
       ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
