@@ -9,7 +9,7 @@
     "start": "vite"
   },
   "dependencies": {
-    "@lumis-sh/lumis": "^0.10.10",
+    "@lumis-sh/lumis": "^0.10.11",
     "@lumis-sh/rehype-lumis": "^0.3.3",
     "@lumis-sh/themes": "^0.4.7",
     "@lumis-sh/wasm-javascript": "^0.26.4",
