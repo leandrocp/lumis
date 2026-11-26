@@ -115,7 +115,7 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
 
-      - uses: jdx/mise-action@v5.2.7
+      - uses: jdx/mise-action@v5.2.10
         with:
           install: false
 
