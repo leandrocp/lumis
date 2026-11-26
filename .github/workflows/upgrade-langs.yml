@@ -89,7 +89,7 @@ jobs:
           shared-key: update-langs-dev
           save-if: false
 
-      - uses: jdx/mise-action@v5.2.7
+      - uses: jdx/mise-action@v5.2.10
 
       - name: Update default queries
         run: |
@@ -151,7 +151,7 @@ jobs:
           shared-key: update-langs-dev
           save-if: false
 
-      - uses: jdx/mise-action@v5.2.7
+      - uses: jdx/mise-action@v5.2.10
 
       - uses: pnpm/action-setup@v6.1.1
         with:
