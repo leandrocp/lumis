@@ -50,12 +50,12 @@
     "hast-util-from-html": "^2.1.0",
     "hast-util-to-string": "^3.0.1",
     "markdown-it-attrs": "^5.0.1",
-    "oxfmt": "^0.78.0",
-    "oxlint": "1.93.0",
-    "oxlint-tsgolint": "7.0.2006",
+    "oxfmt": "^0.79.0",
+    "oxlint": "1.94.0",
+    "oxlint-tsgolint": "7.0.2007",
     "tsup": "^9.0.0",
     "typescript": "^6.0.3",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   },
   "peerDependencies": {
     "@lumis-sh/lumis": "workspace:^"
