@@ -1,0 +1,61 @@
+name: Java Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish (for example: maven-lumis/v0.1.0)"
+        required: true
+        type: string
+  push:
+    tags:
+      - "maven-lumis/v*"
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Release
+    if: >-
+      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
+      startsWith(inputs.tag || github.ref_name, 'maven-lumis/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: refs/tags/${{ inputs.tag || github.ref_name }}
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+          targets: wasm32-wasip1
+
+      - uses: jdx/mise-action@v5.2.7
+        with:
+          install: false
+
+      - name: Build the WebAssembly module
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: mise run setup-java-wasm
+
+      - uses: actions/setup-java@v6.2.0
+        with:
+          distribution: temurin
+          java-version: "11"
+          server-id: central
+          server-username: MAVEN_CENTRAL_USERNAME
+          server-password: MAVEN_CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Release to Maven Central
+        working-directory: packages/java/lumis
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: mvn -B -ntp -Prelease deploy

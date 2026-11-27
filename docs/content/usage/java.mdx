@@ -1,6 +1,6 @@
 ---
 title: Java
-description: Lumis Java API via lumis4j including highlighting, language and theme selection, and JVM integration.
+description: Lumis Java API including highlighting, language and theme selection, and JVM integration.
 keywords:
   - lumis java
   - lumis4j
@@ -10,34 +10,40 @@ keywords:
 
 
 
-[`Lumis4J`](https://github.com/roastedroot/lumis4j) is a community-maintained Java runtime from [roastedroot](https://github.com/roastedroot). It has its own API and releases. Check the [Lumis4J documentation](https://github.com/roastedroot/lumis4j#readme) for supported features and version compatibility.
+The Java package runs on Java 11 or later and needs no native library. It was previously published as `io.roastedroot:lumis4j`.
 
 ## Installation
 
 ```xml
 <dependency>
-  <groupId>io.roastedroot</groupId>
-  <artifactId>lumis4j</artifactId>
-  <version>0.0.7</version>
+  <groupId>sh.lumis</groupId>
+  <artifactId>lumis</artifactId>
+  <version>0.1.0</version>
 </dependency>
 ```
+
+Every language and theme ships in that jar.
 
 ## Basic usage
 
 ```java
-import io.roastedroot.lumis4j.core.Lang;
-import io.roastedroot.lumis4j.core.Lumis;
-import io.roastedroot.lumis4j.core.Theme;
+import sh.lumis.Formatter;
+import sh.lumis.Lang;
+import sh.lumis.Lumis;
+import sh.lumis.Theme;
 
 var lumis = Lumis.builder().build();
 
 var highlighter = lumis.highlighter()
     .withLang(Lang.JAVASCRIPT)
     .withTheme(Theme.CATPPUCCIN_FRAPPE)
+    .withFormatter(Formatter.HTML_INLINE)
     .build();
 
 var html = highlighter.highlight("const x = 1").string();
 ```
+
+Building a `Lumis` takes a few seconds, so create one and reuse it. Calls on one `Lumis` are not synchronized, so use it from one thread at a time.
 
 ## Languages and themes
 
@@ -55,18 +61,23 @@ Theme.CATPPUCCIN_MOCHA
 Theme.ONEDARK
 ```
 
+`withLang` also takes a language name or alias such as `"c#"`, and `withTheme` takes a theme name. The language is not detected: without `withLang`, the code is highlighted as plain text. The default theme is `github_dark`.
+
 ## Custom themes
 
+The Java package selects themes from the `Theme` enum and does not load theme JSON.
 [Generate a theme from a Neovim colorscheme](/recipes/generate-theme-from-neovim-colorscheme)
-covers JSON generation and source-license considerations. Lumis4J has its own
-theme API; check its documentation for custom theme support in your version
-rather than assuming it can load the generated JSON. The recipe also shows how
-to render HTML with the CLI as a build step.
+covers JSON generation and source-license considerations, and shows how to
+render HTML with the CLI as a build step.
 
 ## Formatter support
 
-lumis4j supports the following formatters: `TERMINAL`, `HTML_INLINE`, `HTML_LINKED`, and `BBCODE`. `HTML_INLINE`, `TERMINAL`, and `BBCODE` support themes; `HTML_LINKED` is designed for external CSS.
+The Java package supports the following formatters: `TERMINAL` (the default), `HTML_INLINE`, `HTML_LINKED`, and `BBCODE`. `TERMINAL` and `HTML_INLINE` take a theme. `HTML_LINKED` and `BBCODE` emit class names and scope tags for external styling, so `build()` throws when a theme is set for them. Formatter options, multi-theme output, and custom formatters are not available.
+
+## Results
+
+`highlight` takes a `String` or UTF-8 bytes and returns a `LumisResult`. Read the output with `string()` or `bytes()`. `failure()` is true when highlighting failed, and `error()` returns the cause.
 
 ## API reference
 
-See the [lumis4j GitHub repository](https://github.com/roastedroot/lumis4j) for full API documentation.
+See the [package source](https://github.com/leandrocp/lumis/tree/main/packages/java/lumis) for the full API.

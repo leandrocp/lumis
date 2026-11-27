@@ -76,6 +76,17 @@ updates:
         patterns:
           - "*"
 
+  - package-ecosystem: "maven"
+    directory: "/packages/java/lumis"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+
   # The whole pnpm workspace, from its root. Dependabot reads
   # `pnpm-workspace.yaml` there and the `package.json` of every member it lists,
   # and updates a member's manifest together with the one `pnpm-lock.yaml`. A

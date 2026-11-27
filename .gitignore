@@ -32,3 +32,8 @@ packages/javascript/cli/npm/*/lumis.exe
 # `crates/autumnus` is a published library in its own workspace, so its lockfile
 # binds nothing for consumers. Building it produces one.
 crates/autumnus/Cargo.lock
+
+# Java package build output and the WebAssembly module built by `mise run setup-java-wasm`
+packages/java/**/target/
+packages/java/lumis/lumis.wasm
+packages/java/**/*.received.*

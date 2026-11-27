@@ -17,6 +17,8 @@ use std::thread;
 use std::time::{Duration, Instant};
 use xz2::write::XzEncoder;
 
+mod java_catalog;
+mod java_wasm;
 mod stress;
 mod theme_licenses;
 mod wasi_sdk;
@@ -92,6 +94,8 @@ enum Commands {
         #[arg(default_value = "")]
         name: String,
     },
+    /// Build the WebAssembly module the Java package compiles to bytecode.
+    BuildJavaWasm,
     StageWasm {
         name: String,
         /// The version to stage. Defaults to the next free patch on npm, which
@@ -245,6 +249,7 @@ fn main() -> Result<()> {
         Commands::GenLanguagesMd => gen_languages_md(),
         Commands::GenLanguageCatalog { check } => gen_language_catalog(check),
         Commands::BuildWasm { name } => build_wasm(&name),
+        Commands::BuildJavaWasm => java_wasm::build(),
         Commands::StageWasm { name, version } => stage_wasm(&name, version.as_deref()),
         Commands::StageHexWasm { name } => stage_hex_wasm(&name),
         Commands::FetchHexWasm { name, version } => fetch_hex_wasm(&name, &version),
@@ -1275,6 +1280,10 @@ fn gen_themes_md(check: bool) -> Result<()> {
             docs_md.join("\n").into_bytes(),
         ),
         ("themes/NOTICE.md".into(), notice.into_bytes()),
+        (
+            java_catalog::THEME.into(),
+            java_catalog::render_theme(themes.iter().map(|theme| theme.name))?.into_bytes(),
+        ),
     ];
     for copy in theme_licenses::NOTICE_COPIES {
         for (path, content) in &bundle {
@@ -3427,16 +3436,20 @@ fn gen_language_catalog(check: bool) -> Result<()> {
         &package_version_range,
     )?;
 
-    if check {
-        let current = fs::read_to_string(path)
-            .with_context(|| format!("failed to read generated catalog at {path}"))?;
-        if current != output {
-            bail!("language catalog is stale; run `mise run langs-gen-catalog`");
+    let java = java_catalog::render_lang(&toml.parsers)?;
+
+    for (path, output) in [(path, output), (java_catalog::LANG, java)] {
+        if check {
+            let current = fs::read_to_string(path)
+                .with_context(|| format!("failed to read generated catalog at {path}"))?;
+            if current != output {
+                bail!("{path} is stale; run `mise run langs-gen-catalog`");
+            }
+            println!("Verified {path}");
+        } else {
+            fs::write(path, output)?;
+            println!("Generated {path}");
         }
-        println!("Verified {path}");
-    } else {
-        fs::write(path, output)?;
-        println!("Generated {path}");
     }
     Ok(())
 }

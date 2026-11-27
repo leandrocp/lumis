@@ -429,6 +429,13 @@ stops the GitHub Release and Hex. Run it locally against downloaded artifacts wi
 `elixir test/precompiled_smoke.exs`, `RUSTLER_PRECOMPILED_GLOBAL_CACHE_PATH` set to
 their directory and a matching `checksum-Elixir.Lumis.Native.exs` in the package.
 
+## Java package
+
+`java-release.yml` publishes `sh.lumis:lumis` to Maven Central on a `maven-lumis/v*`
+tag. It builds the WebAssembly module from the tagged tree and runs
+`mvn -Prelease deploy`, which needs the secrets `MAVEN_CENTRAL_USERNAME`,
+`MAVEN_CENTRAL_PASSWORD`, `MAVEN_GPG_PRIVATE_KEY` and `MAVEN_GPG_PASSPHRASE`.
+
 ## CI on the release commit
 
 Branch workflows skip a `chore(release):` head commit and any `release/*` pull request.

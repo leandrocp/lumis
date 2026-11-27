@@ -1864,6 +1864,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "lumis-java-wasm"
+version = "0.0.0"
+dependencies = [
+ "lumis",
+]
+
+[[package]]
 name = "lumis-js-native"
 version = "0.10.10"
 dependencies = [

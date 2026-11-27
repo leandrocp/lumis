@@ -1,0 +1,90 @@
+name: Java CI
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "packages/java/**"
+      - "crates/dev/src/java_wasm.rs"
+      - "crates/dev/src/wasi_sdk.rs"
+      - "crates/lumis-core/**"
+      - "crates/lumis/**"
+      - "crates/lumis-wasm-runtime/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".cargo/config.toml"
+      - "queries/**"
+      - "languages.toml"
+      - "mise.toml"
+      - ".github/workflows/java.yml"
+  pull_request:
+    paths:
+      - "packages/java/**"
+      - "crates/dev/src/java_wasm.rs"
+      - "crates/dev/src/wasi_sdk.rs"
+      - "crates/lumis-core/**"
+      - "crates/lumis/**"
+      - "crates/lumis-wasm-runtime/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".cargo/config.toml"
+      - "queries/**"
+      - "languages.toml"
+      - "mise.toml"
+      - ".github/workflows/java.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (JDK ${{ matrix.java }})
+    if: >-
+      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
+          !(github.event.pull_request.head.repo.full_name == github.repository &&
+            startsWith(github.event.pull_request.head.ref, 'release/')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ["11", "25"]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Reuse a module built from the same sources
+        id: wasm
+        uses: actions/cache@v6.1.0
+        with:
+          path: packages/java/lumis/lumis.wasm
+          key: java-wasm-${{ hashFiles('packages/java/lumis/wasm/**', 'crates/dev/src/java_wasm.rs', 'crates/dev/src/wasi_sdk.rs', 'crates/lumis/**', 'crates/lumis-core/**', 'crates/lumis-wasm-runtime/**', 'queries/**', 'languages.toml', 'Cargo.lock', 'Cargo.toml', '.cargo/config.toml', 'mise.toml') }}
+
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+          targets: wasm32-wasip1
+
+      - uses: jdx/mise-action@v5.2.7
+        with:
+          install: false
+
+      - name: Build the WebAssembly module
+        if: steps.wasm.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: mise run setup-java-wasm
+
+      - uses: actions/setup-java@v6.2.0
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+
+      - run: mise run test-java

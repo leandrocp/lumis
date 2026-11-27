@@ -12,6 +12,23 @@ ROOT = Path(__file__).resolve().parents[2]
 TASKS = tomllib.loads((ROOT / "mise.toml").read_text())["tasks"]
 
 
+POM = """<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>example</groupId>
+  <artifactId>example</artifactId>
+  <version>1.2.3</version>
+  <dependencies>
+    <dependency>
+      <groupId>example</groupId>
+      <artifactId>other</artifactId>
+      <version>1.2.3</version>
+    </dependency>
+  </dependencies>
+</project>
+"""
+
+
 class ReleaseOverridesTest(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix="lumis-release-test-")
@@ -39,7 +56,7 @@ class ReleaseOverridesTest(unittest.TestCase):
             )
         }
         tasks["release-packages"] = {
-            "run": "printf 'npm-example|package\ncargo-example|crate\n'"
+            "run": "printf 'npm-example|package\ncargo-example|crate\nmaven-example|java\n'"
         }
         self.template = self.root / "notes.tera"
         self.template.write_text(
@@ -74,6 +91,7 @@ class ReleaseOverridesTest(unittest.TestCase):
         self.commit("chore: initial")
         self.git("tag", "npm-example/v0.4.7")
         self.git("tag", "cargo-example/v2.3.4")
+        self.git("tag", "maven-example/v1.2.3")
 
     def run_command(self, *args, check=True):
         result = subprocess.run(
@@ -96,6 +114,8 @@ class ReleaseOverridesTest(unittest.TestCase):
         (self.root / "crate").mkdir(exist_ok=True)
         (self.root / "package/package.json").write_text(json.dumps({"name": "@example", "version": npm}))
         (self.root / "crate/Cargo.toml").write_text(f'[package]\nversion = "{cargo}"\n')
+        (self.root / "java").mkdir(exist_ok=True)
+        (self.root / "java/pom.xml").write_text(POM)
 
     def breaking_change(self):
         for directory in ("package", "crate"):
@@ -175,3 +195,14 @@ class ReleaseOverridesTest(unittest.TestCase):
         notes = (self.root / "package/CHANGELOG.md").read_text()
         self.assertIn("npm-example/v0.5.0", notes)
         self.assertIn("remove an argument breaking=true group=Features scope=api", notes)
+
+    def test_maven_release_rewrites_only_the_project_version(self):
+        version = self.run_command("mise", "run", "release-version", "maven-example")
+        self.assertEqual(version.stdout.strip(), "1.2.3")
+        (self.root / "java/api.txt").write_text("a fix\n")
+        self.commit("fix: correct the Java package")
+        self.assertEqual(self.plan().stdout.splitlines(), ["maven-example 1.2.4"])
+        self.run_command("mise", "run", "release-prepare", "maven-example", "1.2.4")
+        expected = POM.replace("<version>1.2.3</version>", "<version>1.2.4</version>", 1)
+        self.assertEqual((self.root / "java/pom.xml").read_text(), expected)
+        self.assertIn("maven-example/v1.2.4", (self.root / "java/CHANGELOG.md").read_text())

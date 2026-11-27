@@ -1,0 +1,22 @@
+[package]
+name = "lumis-java-wasm"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "WebAssembly module the sh.lumis:lumis Java package compiles to bytecode"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+test = false
+doctest = false
+
+[dependencies]
+lumis = { path = "../../../../crates/lumis", features = ["all-languages"] }
+
+[lints]
+workspace = true

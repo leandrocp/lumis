@@ -97,6 +97,7 @@ jobs:
             crates/lumis/css
             packages/elixir/lumis/priv/static/css
             packages/javascript/themes/themes
+            packages/java/lumis/src/main/java/sh/lumis/Theme.java
           commit-message: "feat(themes): update generated themes"
           title: "feat(themes): update themes"
           body-path: .github/gen-themes-pr-body.md

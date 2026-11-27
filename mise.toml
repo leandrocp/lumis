@@ -170,6 +170,11 @@ run = "pnpm --recursive --workspace-concurrency=2 --filter @lumis-sh/markdown-it
 description = "Generate JavaScript WASM bundle packages"
 run = "cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-npm-bundle"
 
+[tasks.'setup-java-wasm']
+description = "Build the WebAssembly module the Java package compiles to bytecode"
+tools = { "aqua:WebAssembly/binaryen" = "125", "github:bytecodealliance/wizer" = "10.0.0" }
+run = "cargo run -q --manifest-path crates/dev/Cargo.toml -- build-java-wasm"
+
 [tasks.'elixir-nif-lock-check']
 description = "Verify the packaged NIF crate resolves standalone with its lockfile"
 usage = '''
@@ -317,6 +322,11 @@ depends = ["stage-test-parsers"]
 dir = "{{config_root}}/packages/elixir/lumis"
 env = { LUMIS_BUILD = "1" }
 run = "mix test"
+
+[tasks.'test-java']
+description = "Run the Java test suite against the module from setup-java-wasm"
+dir = "{{config_root}}/packages/java/lumis"
+run = "mvn -B -ntp verify"
 
 [tasks.'test-theme-css']
 description = "Check theme CSS options and output across Rust, CLI, JavaScript, and Elixir"
@@ -567,6 +577,16 @@ mix format --check-formatted
 mix compile --warnings-as-errors
 mix credo --strict
 '''
+
+[tasks.'lint-java']
+description = "Check Java formatting and Checkstyle rules"
+dir = "{{config_root}}/packages/java/lumis"
+run = "mvn -B -ntp spotless:check checkstyle:check"
+
+[tasks.'fmt-java']
+description = "Format Java sources and the pom"
+dir = "{{config_root}}/packages/java/lumis"
+run = "mvn -B -ntp spotless:apply"
 
 [tasks.'lint-complexity-rust']
 description = "Enforce cyclomatic complexity in every Rust source file"
@@ -885,7 +905,7 @@ cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- gen-lan
 '''
 
 [tasks.'langs-gen-catalog']
-description = "Generate the Rust language package catalog from languages.toml"
+description = "Generate the Rust language package catalog and the Java language enum from languages.toml"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -893,7 +913,7 @@ cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- gen-lan
 '''
 
 [tasks.'langs-check-catalog']
-description = "Verify the Rust language package catalog matches languages.toml"
+description = "Verify the Rust language package catalog and the Java language enum match languages.toml"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -919,7 +939,7 @@ mise run docs-gen-languages-md
 '''
 
 [tasks.'docs-gen-themes-md']
-description = "Generate THEMES.md and themes/NOTICE.md from themes definition and the license recorded in each theme"
+description = "Generate THEMES.md, themes/NOTICE.md and the Java theme enum from themes definition and the license recorded in each theme"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -927,7 +947,7 @@ cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- gen-the
 '''
 
 [tasks.'themes-check-notices']
-description = "Verify every theme license against its license files and that THEMES.md and themes/NOTICE.md are current"
+description = "Verify every theme license against its license files and that THEMES.md, themes/NOTICE.md and the Java theme enum are current"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -1497,6 +1517,7 @@ case "$package" in
     cargo-*) sed -n 's/^version = "\([^"]*\)"$/\1/p' "$directory/Cargo.toml" | head -n1 ;;
     npm-*) jq -r .version "$directory/package.json" ;;
     hex-*) sed -n 's/^  @version "\([^"]*\)"$/\1/p' "$directory/mix.exs" | head -n1 ;;
+    maven-*) python3 -c 'import sys, xml.etree.ElementTree as ET; print(ET.parse(sys.argv[1]).getroot().findtext("{*}version").strip())' "$directory/pom.xml" ;;
 esac
 '''
 
@@ -1710,6 +1731,44 @@ if [ "$(mise run release-version "$package")" != "$version" ]; then
         hex)
             mise run elixir-nif-lock-check --fix
             python3 -c 'from pathlib import Path; import re, sys; path = Path(sys.argv[1]); version = sys.argv[2]; content = path.read_text(); content = re.sub(r"@version \"[^\"]+\"", f"@version \"{version}\"", content, count=1); path.write_text(content)' "$directory/mix.exs" "$version"
+            ;;
+        maven)
+            python3 - "$directory/pom.xml" "$version" <<'PY'
+import sys
+from pathlib import Path
+from xml.parsers import expat
+
+path, version = Path(sys.argv[1]), sys.argv[2]
+source = path.read_bytes()
+target = ["project", "version"]
+stack, spans = [], []
+parser = expat.ParserCreate()
+
+
+def start(name, _attributes):
+    stack.append(name)
+    if stack == target:
+        spans.append([None, None])
+
+
+def text(_data):
+    if stack == target and spans[-1][0] is None:
+        spans[-1][0] = parser.CurrentByteIndex
+
+
+def end(_name):
+    if stack == target:
+        spans[-1][1] = parser.CurrentByteIndex
+    stack.pop()
+
+
+parser.StartElementHandler, parser.CharacterDataHandler, parser.EndElementHandler = start, text, end
+parser.Parse(source, True)
+if len(spans) != 1 or None in spans[0]:
+    sys.exit(f"{path}: expected exactly one non-empty <version> under <project>")
+first, last = spans[0]
+path.write_bytes(source[:first] + version.encode() + source[last:])
+PY
             ;;
     esac
 fi
