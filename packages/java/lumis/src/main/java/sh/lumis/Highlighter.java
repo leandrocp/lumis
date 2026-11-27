@@ -1,5 +1,7 @@
 package sh.lumis;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.StandardCharsets;
 
 public final class Highlighter {
@@ -22,10 +24,20 @@ public final class Highlighter {
     }
 
     public LumisResult highlight(String code) {
-        return highlight(code.getBytes(StandardCharsets.UTF_8));
+        return run(code.getBytes(StandardCharsets.UTF_8));
     }
 
     public LumisResult highlight(byte[] code) {
+        // The module traps on invalid UTF-8 without freeing its argument buffers.
+        try {
+            StandardCharsets.UTF_8.newDecoder().decode(ByteBuffer.wrap(code));
+        } catch (CharacterCodingException e) {
+            return new LumisResult(e);
+        }
+        return run(code);
+    }
+
+    private LumisResult run(byte[] code) {
         return lumis.highlight(
                 code,
                 theme.value().getBytes(StandardCharsets.UTF_8),
@@ -68,25 +80,20 @@ public final class Highlighter {
         }
 
         public Highlighter build() {
-            if (formatter == null) {
-                formatter = DEFAULT_FORMATTER;
-            }
+            Formatter selected = formatter != null ? formatter : DEFAULT_FORMATTER;
             if (theme != null) {
-                switch (formatter) {
+                switch (selected) {
                     case HTML_LINKED:
                     case BBCODE:
                         throw new IllegalArgumentException(
                                 "Theme is not supported by the selected formatter");
                 }
             }
-            if (theme == null) {
-                theme = DEFAULT_THEME;
-            }
-            if (lang == null) {
-                lang = DEFAULT_LANG;
-            }
-
-            return new Highlighter(lumis, theme, lang, formatter);
+            return new Highlighter(
+                    lumis,
+                    theme != null ? theme : DEFAULT_THEME,
+                    lang != null ? lang : DEFAULT_LANG,
+                    selected);
         }
     }
 }

@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -129,7 +130,7 @@ public class lumis4j implements Callable<Integer> {
     }
 
     static Lang guessLang(Path path) {
-        String name = path.getFileName().toString().toLowerCase();
+        String name = path.getFileName().toString().toLowerCase(Locale.ROOT);
         if (name.equals("dockerfile") || name.equals("Dockerfile")) return Lang.DOCKERFILE;
         if (name.equals("makefile") || name.equals("Makefile")) return Lang.MAKE;
         int dot = name.lastIndexOf('.');
@@ -139,17 +140,20 @@ public class lumis4j implements Callable<Integer> {
     }
 
     static Lang parseLang(String name) {
-        String n = name.toLowerCase().replace('-', '_');
-        try {
-            return Lang.fromString(n);
-        } catch (IllegalArgumentException e) {
-            return Lang.fromString(n.replace("_", ""));
+        String n = name.toLowerCase(Locale.ROOT);
+        for (String candidate : List.of(n, n.replace('-', '_'), n.replace("-", "").replace("_", ""))) {
+            try {
+                return Lang.fromString(candidate);
+            } catch (IllegalArgumentException e) {
+                // try the next spelling
+            }
         }
+        throw new IllegalArgumentException("Unknown language: " + name);
     }
 
     static Formatter parseFormat(String name) {
         if (name == null || name.isBlank()) return Formatter.TERMINAL;
-        String n = name.trim().toLowerCase().replace("_", "-");
+        String n = name.trim().toLowerCase(Locale.ROOT).replace("_", "-");
         return switch (n) {
             case "terminal" -> Formatter.TERMINAL;
             case "html-inline" -> Formatter.HTML_INLINE;
@@ -162,12 +166,13 @@ public class lumis4j implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         Theme theme = themeName != null && !themeName.isBlank()
-            ? Theme.fromString(themeName.trim().toLowerCase().replace('-', '_'))
-            : Theme.GITHUB_DARK;
+            ? Theme.fromString(themeName.trim().toLowerCase(Locale.ROOT).replace('-', '_'))
+            : null;
         Formatter formatter = parseFormat(formatName);
         Lang overrideLang = langName != null && !langName.isBlank()
             ? parseLang(langName.trim())
             : null;
+        boolean failed = false;
 
         for (Path file : files) {
             final String source;
@@ -180,10 +185,12 @@ public class lumis4j implements Callable<Integer> {
             } else {
                 if (!Files.exists(file)) {
                     err.println("lumis4j: " + file + ": no such file");
+                    failed = true;
                     continue;
                 }
                 if (Files.isDirectory(file)) {
                     err.println("lumis4j: " + file + ": is a directory");
+                    failed = true;
                     continue;
                 }
                 lang = overrideLang != null ? overrideLang : guessLang(file);
@@ -191,16 +198,16 @@ public class lumis4j implements Callable<Integer> {
                 label = file.toString();
             }
             try (var lumis = Lumis.builder().build()) {
-            var result = lumis.highlighter()
-                    .withLang(lang)
-                    .withTheme(theme)
-                    .withFormatter(formatter)
-                    .build().highlight(source);
+                var builder = lumis.highlighter().withLang(lang).withFormatter(formatter);
+                if (theme != null) {
+                    builder.withTheme(theme);
+                }
+                var result = builder.build().highlight(source);
                 out.println("--- " + label + " (" + lang.value() + ") ---");
                 out.println(result.string());
             }
         }
-        return 0;
+        return failed ? 1 : 0;
     }
 
     public static void main(String... args) {

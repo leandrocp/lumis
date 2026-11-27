@@ -45,10 +45,8 @@ Building a `Lumis` loads the module, which takes a few seconds, so create one an
 reuse it; highlighters are cheap. Calls on one `Lumis` share a single WebAssembly
 memory and are not synchronized, so use it from one thread at a time.
 
-- **Language** - `withLang` takes a `Lang`, or a name or alias such as `"c#"`. The Java API does not detect the language: without `withLang` the code is highlighted as plain text.
-- **Theme** - `withTheme` takes a `Theme` or its name, and defaults to `github_dark`.
-- **Formatter** - `TERMINAL` (the default), `HTML_INLINE`, `HTML_LINKED` and `BBCODE`. The last two emit class names and scope tags instead of colors, so they reject a theme. Formatter options, multi-theme output and custom formatters are not available yet.
-- **Result** - `highlight` takes a `String` or UTF-8 bytes and returns a `LumisResult`. Read it with `string()` or `bytes()`; `failure()` is true when the call into the module failed.
+The language, theme and formatter are optional. The
+[Java guide](https://docs.lumis.sh/usage/java) lists their values and defaults.
 
 ## Command line
 

@@ -1,8 +1,10 @@
 package sh.lumis;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.charset.CharacterCodingException;
 import org.approvaltests.Approvals;
 import org.approvaltests.core.Options;
 import org.junit.jupiter.api.Test;
@@ -258,5 +260,25 @@ public class LumisTest {
         // Assert
         assertTrue(result.success());
         Approvals.verify(result.string());
+    }
+
+    @Test
+    public void builderCanBuildTwice() {
+        var builder = Lumis.builder().build().highlighter().withFormatter(Formatter.BBCODE);
+
+        builder.build();
+
+        assertDoesNotThrow(builder::build);
+    }
+
+    @Test
+    public void invalidUtf8IsAFailure() {
+        var highlighter = Lumis.builder().build().highlighter().build();
+
+        var result = highlighter.highlight(new byte[] {(byte) 0xff});
+
+        assertTrue(result.failure());
+        assertTrue(result.error() instanceof CharacterCodingException);
+        assertTrue(highlighter.highlight("ok").success());
     }
 }

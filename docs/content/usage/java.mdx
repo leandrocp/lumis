@@ -55,6 +55,8 @@ Theme.CATPPUCCIN_MOCHA
 Theme.ONEDARK
 ```
 
+`withLang` and `withTheme` also take the name as a string. The language is not detected: without `withLang`, the code is highlighted as plain text. The default theme is `github_dark`.
+
 ## Custom themes
 
 [Generate a theme from a Neovim colorscheme](/recipes/generate-theme-from-neovim-colorscheme)
@@ -65,7 +67,11 @@ to render HTML with the CLI as a build step.
 
 ## Formatter support
 
-lumis4j supports the following formatters: `TERMINAL`, `HTML_INLINE`, `HTML_LINKED`, and `BBCODE`. `HTML_INLINE`, `TERMINAL`, and `BBCODE` support themes; `HTML_LINKED` is designed for external CSS.
+lumis4j supports the following formatters: `TERMINAL` (the default), `HTML_INLINE`, `HTML_LINKED`, and `BBCODE`. `TERMINAL` and `HTML_INLINE` take a theme. `HTML_LINKED` and `BBCODE` emit class names and scope tags for external styling, so `build()` throws when a theme is set for them. Formatter options, multi-theme output, and custom formatters are not available.
+
+## Results
+
+`highlight` takes a `String` or UTF-8 bytes and returns a `LumisResult`. Read the output with `string()` or `bytes()`. `failure()` is true when highlighting failed.
 
 ## API reference
 

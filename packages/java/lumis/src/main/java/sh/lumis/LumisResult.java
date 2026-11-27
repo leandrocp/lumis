@@ -34,4 +34,8 @@ public final class LumisResult {
     public boolean failure() {
         return !success;
     }
+
+    public Throwable error() {
+        return error;
+    }
 }
