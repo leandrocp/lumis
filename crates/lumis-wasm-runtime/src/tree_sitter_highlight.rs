@@ -72,6 +72,11 @@
 //   the line. `emit_event` records which layer produced each start and end, by its tree's root
 //   node, and the adapter closes that layer's innermost span, reopening any span another layer
 //   opened inside it before the next text or start. Within one layer the order is upstream's.
+// - `HighlightConfiguration` is `Send + Sync` on `target_os = "wasi"`. tree-sitter implements
+//   both for `Language` only outside `target_family = "wasm"`, a cfg meant for the browser,
+//   which also catches `wasm32-wasip1-threads`, where the C library is linked as on native
+//   targets. Without it `lumis` cannot hold its statically linked grammars in `LazyLock`
+//   statics there. Upstream has no such statics, so it never meets this.
 // - A module-level `allow` holds the workspace lint levels off this file. Upstream is not
 //   written to them, and restyling it to satisfy `clippy::pedantic` would grow the diff for
 //   nothing. Lumis code in here is still reviewed against those lints by hand.
@@ -273,10 +278,14 @@ pub struct HighlightConfiguration {
     offsets: HashMap<(usize, u32), [i64; 4]>,
 }
 
-// tree-sitter omits these for `Language` on wasm; without threads nothing can race.
-#[cfg(all(target_family = "wasm", not(target_feature = "atomics")))]
+// SAFETY: `Language` is the only field that is not `Send + Sync` on WASI, and
+// only because tree-sitter withholds those impls from every `target_family =
+// "wasm"` target for the single-threaded browser build. On WASI tree-sitter's C
+// library is linked as on native targets, where `Language` is `Send + Sync`:
+// a statically linked grammar is a pointer to immutable tables.
+#[cfg(target_os = "wasi")]
 unsafe impl Send for HighlightConfiguration {}
-#[cfg(all(target_family = "wasm", not(target_feature = "atomics")))]
+#[cfg(target_os = "wasi")]
 unsafe impl Sync for HighlightConfiguration {}
 
 /// An `@injection.content` capture together with its `#offset!`-adjusted range.

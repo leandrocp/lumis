@@ -162,6 +162,12 @@ The optional `skip` field maps a runtime that cannot run the fixture yet to the
 reason. Only `web-tree-sitter`, which covers the JavaScript Wasm and browser
 suites, reads it. `conformance-regen` preserves all three fields.
 
+`mise run check-wasi` checks that `lumis` with every language compiles for
+`wasm32-wasip1-threads`. A host that cannot run Wasmtime, such as a BEAM
+running as Wasm, links the statically linked grammars there. The task downloads
+the WASI SDK that `dev build-wasm` pins and needs
+`rustup target add wasm32-wasip1-threads`. Rust CI runs it.
+
 ### Mutation testing
 
 [cargo-mutants](https://mutants.rs/) changes one operator or return value at a
